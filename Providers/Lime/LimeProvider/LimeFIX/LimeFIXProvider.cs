@@ -1,4 +1,4 @@
-﻿#region Copyright
+#region Copyright
 /*
  * Software: TickZoom Trading Platform
  * Copyright 2012 M. Wayne Walter
@@ -253,7 +253,7 @@ namespace TickZoom.LimeFIX
             recentHeartbeatTime = TimeStamp.UtcNow;
         }
 
-        protected override void HandleUnexpectedLogout(MessageFIXT1_1 message)
+        protected override void HandleRejectedLogin(MessageFIXT1_1 message)
         {
             bool handled = false;
             var message42 = (MessageFIX4_2)message;
@@ -271,17 +271,11 @@ namespace TickZoom.LimeFIX
                         OrderStore.SetSequences(OrderStore.RemoteSequence, newSequenceNumber);
                         Socket.Dispose();
                         handled = true;
-                        // Temp disable ignoreRetryDelay = true;
+                        RetryStart = 2;
+                        ignoreRetryDelay = true;
                     }
                 }
-                else
-                {
-                    base.HandleUnexpectedLogout(message);
-                    throw new LimeException(string.Format("Lime logged out with error '{0}'", message42.Text));
-                }
             }
-            if (!handled)
-                base.HandleUnexpectedLogout(message);
         }
         #endregion
 
@@ -322,6 +316,7 @@ namespace TickZoom.LimeFIX
             }
             if (VerifyLoginAck(message))
             {
+                RetryStart = 30;
                 return true;
             }
             else
@@ -358,45 +353,34 @@ namespace TickZoom.LimeFIX
                     break;
                 case "0":
                     if (trace) log.Trace("Received Hearbeat");
-                    // Received heartbeat
+			        SetOrderServerOnline();
+			        // Received heartbeat
                     break;
                 case "1":
                     if (trace) log.Trace("Received Test Request");
                     SendHeartbeat();
                     break;
-#if NOT_LIME
-                case "h":
-                    if (trace) log.Trace("Received Trading Session Status");
-                    if (ConnectionStatus == Status.PendingLogin)
-                    {
-                        StartRecovery();
-                        RequestSessionUpdate();
-                    }
-                    SessionStatus(packetFIX);
-			        break;
-                case "AP":
-				case "AO":
-                    if (trace) log.Trace("Received Position Update");
-                    //PositionUpdate(packetFIX);
-					break;
-#endif
                 default:
-                    log.Warn("Ignoring Message: '" + packetFIX.MessageType + "'\n" + packetFIX);
+                    log.Error("Ignoring Message: '" + packetFIX.MessageType + "'\n" + packetFIX);
                     break;
             }
+        }
+
+        private void SetOrderServerOnline() {
+            if ( !isOrderServerOnline )
+                log.Notice("Lime Order Server now Online");
+            isOrderServerOnline = true;
+            if (debug) log.Debug("Setting Order Server online");
+            CancelRecovered();
+            TrySendEndBroker();
+            TryEndRecovery();
         }
 
         private void BusinessReject(MessageFIX4_2 packetFIX) {
             var lower = packetFIX.Text.ToLower();
             var text = packetFIX.Text;
             var errorOkay = false;
-            errorOkay = lower.Contains("server") ? true : errorOkay;
-            errorOkay = text.Contains("DEMOORDS") ? true : errorOkay;
-            errorOkay = text.Contains("FXORD1") ? true : errorOkay;
-            errorOkay = text.Contains("FXORD2") ? true : errorOkay;
-            errorOkay = text.Contains("FXORD01") ? true : errorOkay;
-            errorOkay = text.Contains("FXORD02") ? true : errorOkay;
-            log.Error(packetFIX.Text + " -- Sending EndBroker event.");
+             log.Error(packetFIX.Text + " -- Sending EndBroker event.");
             CancelRecovered();
             TrySendEndBroker();
             TryEndRecovery();
@@ -734,34 +718,18 @@ namespace TickZoom.LimeFIX
             string orderStatus = packetFIX.OrderStatus;
             switch (orderStatus)
             {
-                case "8": // Rejected
+                case "2":  //Filled
                     var rejectReason = false;
-                    if (packetFIX.Text.Contains("Order Server Not Available"))
-                    {
-                        rejectReason = true;
-                        CancelRecovered();
-                        TrySendEndBroker();
-                        TryEndRecovery();
-                    }
-                    else if (packetFIX.Text.Contains("Cannot cancel order. Probably already filled or canceled."))
+
+                    if (packetFIX.Text.Contains("Unknown order") || packetFIX.Text.Contains("Order is completed"))
                     {
                         rejectReason = true;
                         log.Warn("RemoveOriginal=FALSE for: " + packetFIX.Text);
                         //removeOriginal = true;
+                    } else {
+                        log.Error("Unknown text meesage in CancelReject: " + packetFIX.Text);
                     }
-                    else if (packetFIX.Text.Contains("No such order"))
-                    {
-                        rejectReason = true;
-                        log.Warn("RemoveOriginal=FALSE for: " + packetFIX.Text);
-                        //removeOriginal = true;
-                    }
-                    else if (packetFIX.Text.Contains("Order pending remote") ||
-                        packetFIX.Text.Contains("Cancel request already pending") ||
-                        packetFIX.Text.Contains("ORDER in pending state") ||
-                        packetFIX.Text.Contains("General Order Replace Error"))
-                    {
-                        rejectReason = true;
-                    }
+                   
 
                     CreateOrChangeOrder order;
                     if (OrderStore.TryGetOrderById(clientOrderId, out order))
@@ -909,7 +877,7 @@ namespace TickZoom.LimeFIX
                 {
                     var symbolInfo = Factory.Symbol.LookupSymbol(symbol);
                     var orderCache = Factory.Engine.LogicalOrderCache(symbolInfo, false);
-                    var algorithm = Factory.Utility.OrderAlgorithm("mbtfix", symbolInfo, this, orderCache, OrderStore);
+                    var algorithm = Factory.Utility.OrderAlgorithm("limefix", symbolInfo, this, orderCache, OrderStore);
                     algorithm.EnableSyncTicks = SyncTicks.Enabled;
                     symbolAlgorithm = new SymbolAlgorithm { OrderAlgorithm = algorithm };
                     orderAlgorithms.Add(symbol, symbolAlgorithm);
@@ -978,21 +946,20 @@ namespace TickZoom.LimeFIX
 			} else {
 				fixMsg.SetClientOrderId(order.BrokerOrder.ToString());
             }
-			fixMsg.SetAccount(AccountNumber);
+
             if (order.Action == OrderAction.Change)
             {
                 fixMsg.AddHeader("G");
 			} else {
                 fixMsg.AddHeader("D");
 				if( order.Symbol.Destination.ToLower() == "default") {
-					fixMsg.SetDestination("MBTX");
+                    fixMsg.SetDestination(Destination);
 				} else {
                     fixMsg.SetDestination(order.Symbol.Destination);
                 }
             }
-			fixMsg.SetHandlingInstructions(1);
             fixMsg.SetSymbol(order.Symbol.Symbol);
-            fixMsg.SetSide(GetOrderSide(order.Side));
+            fixMsg.SetSide(order.Side == OrderSide.Buy ? 1 : 5);
 			switch( order.Type) {
                 case OrderType.BuyLimit:
                     fixMsg.SetOrderType(2);
@@ -1004,10 +971,6 @@ namespace TickZoom.LimeFIX
                             break;
                         case TimeInForce.GTC:
                             throw new LimeException("Lime does not accept GTC Buy Lime Orders");
-#if NOT_LIME
-                            fixMsg.SetTimeInForce(1);
-                            break;
-#endif
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
@@ -1017,24 +980,9 @@ namespace TickZoom.LimeFIX
                     //fixMsg.SetTimeInForce(0);
                     break;
                 case OrderType.BuyStop:
-                    throw new LimeException("Lime does not accept Buy Stop Orders");
-#if NOT_LIME
-                    fixMsg.SetOrderType(3);
-                    fixMsg.SetPrice(order.Price);
-                    fixMsg.SetStopPrice(order.Price);
-                    switch (order.Symbol.TimeInForce)
-                    {
-                        case TimeInForce.Day:
-                            fixMsg.SetTimeInForce(0);
-                            break;
-                        case TimeInForce.GTC:
-                            fixMsg.SetTimeInForce(1);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
+                   // throw new LimeException("Lime does not accept Buy Stop Orders");
+                    log.Error("Lime: Buy Stops not supproted");
                     break;
-#endif
                 case OrderType.SellLimit:
                     fixMsg.SetOrderType(2);
                     fixMsg.SetPrice(order.Price);
@@ -1045,10 +993,6 @@ namespace TickZoom.LimeFIX
                             break;
                         case TimeInForce.GTC:
                             throw new LimeException("Lime does not accept GTC Buy Lime Orders");
-#if NOT_LIME
-                            fixMsg.SetTimeInForce(1);
-                            break;
-#endif
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
@@ -1058,24 +1002,9 @@ namespace TickZoom.LimeFIX
                     //fixMsg.SetTimeInForce(0);
                     break;
                 case OrderType.SellStop:
-                    throw new LimeException("Lime does not accept Sell Stop Orders");
-#if NOT_LIME
-                    fixMsg.SetOrderType(3);
-                    fixMsg.SetPrice(order.Price);
-                    fixMsg.SetStopPrice(order.Price);
-                    switch (order.Symbol.TimeInForce)
-                    {
-                        case TimeInForce.Day:
-                            fixMsg.SetTimeInForce(0);
-                            break;
-                        case TimeInForce.GTC:
-                            fixMsg.SetTimeInForce(1);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                    break;
-#endif
+                    //throw new LimeException("Lime does not accept Sell Stop Orders");
+                    log.Error("Lime: Sell Stops not supproted");
+			        break;
                 default:
                     throw new LimeException("Unknown OrderType");
             }
@@ -1100,6 +1029,7 @@ namespace TickZoom.LimeFIX
             fixMsg.SetOrderCapacity("A");
             fixMsg.SetUserName();
 #endif
+            fixMsg.SetSendTime(order.UtcCreateTime);
             SendMessage(fixMsg);
         }
 
@@ -1173,13 +1103,13 @@ namespace TickZoom.LimeFIX
             var newClientOrderId = order.BrokerOrder;
             fixMsg.SetOriginalClientOrderId(order.OriginalOrder.BrokerOrder.ToString());
             fixMsg.SetClientOrderId(newClientOrderId.ToString());
-            fixMsg.SetAccount(AccountNumber);
 #if NOT_LIME
+            fixMsg.SetAccount(AccountNumber);
             fixMsg.SetSide(GetOrderSide(order.OriginalOrder.Side));
-            fixMsg.AddHeader("F");
             fixMsg.SetSymbol(order.Symbol.Symbol);
             fixMsg.SetTransactTime(TimeStamp.UtcNow);
 #endif
+            fixMsg.AddHeader("F");
             if (resend)
             {
                 fixMsg.SetDuplicate(true);

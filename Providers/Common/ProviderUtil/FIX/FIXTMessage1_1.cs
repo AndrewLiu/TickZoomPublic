@@ -34,6 +34,7 @@ namespace TickZoom.FIX
 {
 	public class FIXTMessage1_1 : FIXTMessage
 	{
+	    private bool sendTimeSet;
 	    private TimeStamp sendTime;
 		public FIXTMessage1_1(string version, string sender, string target) : base(version) {
 			this.target = target;
@@ -46,6 +47,7 @@ namespace TickZoom.FIX
         public void SetSendTime(TimeStamp sendTime)
         {
             this.sendTime = sendTime;
+            this.sendTimeSet = true;
         }
 		
 		/// <summary>
@@ -177,15 +179,15 @@ namespace TickZoom.FIX
 			header.Append(49,sender);
 			header.Append(56,target);
 			header.Append(34,Sequence);
-            if( sendTime == default(TimeStamp))
-            {
-                header.Append(52, TimeStamp.UtcNow);
-            }
-            else
-            {
-                header.Append(52, sendTime);
-            }
-			if( duplicate) {
+		    if (sendTimeSet)
+		    {
+		        header.Append(52, SendTime);
+		    }
+		    else
+		    {
+		        header.Append(52, TimeStamp.UtcNow);
+		    }
+		    if( duplicate) {
 				header.Append(43,"Y");  
 			} else {
 				header.Append(43,"N");  
@@ -209,5 +211,16 @@ namespace TickZoom.FIX
             get { return duplicate;  }
 	    }
 
+	    public TimeStamp SendTime
+	    {
+	        get { return sendTime; }
+	    }
+
+	    /// <summary>
+	    ///	58 Error or other message text.
+	    /// </summary>
+	    public void SetText(string value ) {
+	        Append(58,value);
+	    }
 	}
 }

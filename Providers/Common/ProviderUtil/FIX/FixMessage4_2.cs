@@ -1,4 +1,4 @@
-﻿#region Copyright
+#region Copyright
 /*
  * Software: TickZoom Trading Platform
  * Copyright 2012 M. Wayne Walter
@@ -271,14 +271,6 @@ namespace TickZoom.FIX
         }
 
         /// <summary>
-        ///	58 Error or other message text.
-        /// </summary>
-        public void SetText(string value)
-        {
-            Append(58, value);
-        }
-
-        /// <summary>
         ///	59 Orders are assumed to be Day orders unless specified
         ///	otherwise. Valid values are: 0= Day , 1= GTC (req'd for
         ///	all Forex orders), 2= At the open, 3= Immediate or
@@ -326,6 +318,14 @@ namespace TickZoom.FIX
         }
 
         /// <summary>
+        ///	151 Leaves Quantity
+        /// </summary>
+        public void SetExcTransType(string value)
+        {
+            Append(20, value);
+        }
+
+        /// <summary>
         ///	60 Transaction time.
         /// </summary>
         public void SetTransactTime(TimeStamp value)
@@ -340,6 +340,15 @@ namespace TickZoom.FIX
         public void SetUserName()
         {
             Append(553, Sender);
+        }
+
+        /// <summary>
+        ///	553 end user who entered the trade should have their username specified here	
+        /// This method uses the "sender" field name as the username here.
+        /// </summary>
+        public void SetUserName(string sender)
+        {
+            Append(553, sender);
         }
 
         ///<summary>

@@ -209,6 +209,11 @@ namespace TickZoom.MBTFIX
         {
         }
 
+        protected override void HandleRejectedLogin(MessageFIXT1_1 message)
+        {
+            // MBT doesn't send any rejected login messages.
+        }
+
         public override void OnStartSymbol(SymbolInfo symbol)
         {
             var algorithm = CreateAlgorithm(symbol.BinaryIdentifier);
@@ -1108,8 +1113,8 @@ namespace TickZoom.MBTFIX
                     break;
 			}
 			fixMsg.SetLocateRequired("N");
-			fixMsg.SetTransactTime(order.UtcCreateTime);
-			fixMsg.SetOrderQuantity((int)order.Size);
+			fixMsg.SetSendTime(order.UtcCreateTime);
+			fixMsg.SetOrderQuantity(order.Size);
 			fixMsg.SetOrderCapacity("A");
 			fixMsg.SetUserName();
             if (order.Action == OrderAction.Change)
@@ -1181,7 +1186,7 @@ namespace TickZoom.MBTFIX
             fixMsg.SetSide(GetOrderSide(order.OriginalOrder.Side));
             fixMsg.AddHeader("F");
             fixMsg.SetSymbol(order.Symbol.Symbol);
-            fixMsg.SetTransactTime(TimeStamp.UtcNow);
+            fixMsg.SetSendTime(order.OriginalOrder.UtcCreateTime);
             if (resend)
             {
                 fixMsg.SetDuplicate(true);

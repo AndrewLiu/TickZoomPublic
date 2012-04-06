@@ -586,6 +586,8 @@ namespace TickZoom.FIX
 
                     if (messageFIX != null)
                     {
+                        if (fixTrace)
+                            LogMessage(messageFIX.ToString(), true);
                         if (debug) log.Debug("Received FIX Message: " + messageFIX);
                         if (messageFIX.MessageType == "A")
                         {
@@ -755,6 +757,14 @@ namespace TickZoom.FIX
                     if (debug) log.Debug("Login remote sequence " + messageFIX.Sequence + " mismatch expected sequence " + RemoteSequence + ". Resend needed.");
                 }
                 return false;
+            }
+            else if (ConnectionStatus == Status.PendingLogin && messageFIX.MessageType == "5")
+            {
+                RemoteSequence = messageFIX.Sequence + 1;
+                if (debug) log.Debug("Incrementing remote sequence to " + RemoteSequence);
+                HandleRejectedLogin(messageFIX);
+                orderStore.UpdateRemoteSequence(remoteSequence);
+                return true;
             }
             else if (ConnectionStatus == Status.PendingLogin && messageFIX.MessageType != "5")
             {
@@ -1137,11 +1147,11 @@ namespace TickZoom.FIX
 
         private bool isFinalized;
 
-        protected volatile bool isDisposed = false;
+	 	protected volatile bool isDisposed = false;
         protected readonly object orderAlgorithmsLocker = new object();
         protected Dictionary<long, SymbolAlgorithm> orderAlgorithms = new Dictionary<long, SymbolAlgorithm>();
 
-        public void Dispose() 
+	    public void Dispose() 
 	    {
 	        Dispose(true);
 	        GC.SuppressFinalize(this);      
@@ -1324,7 +1334,14 @@ namespace TickZoom.FIX
 	    public int RemoteSequence
 	    {
 	        get { return remoteSequence; }
-	        set { remoteSequence = value; }
+	        set
+	        {
+                if( value == 0)
+                {
+                    int x = 0;
+                }
+	            remoteSequence = value;
+	        }
 	    }
 
 	    public PhysicalOrderStore OrderStore
@@ -1491,7 +1508,8 @@ namespace TickZoom.FIX
             {
                 foreach(var kvp in symbolsRequested) {
                     var symbolReceiver = kvp.Value;
-                    TrySendEndBroker(symbolReceiver.Symbol);
+                    if (!symbolReceiver.Symbol.DisableRealtimeSimulation)
+                        TrySendEndBroker(symbolReceiver.Symbol);
                 }
             }
         }
@@ -1585,5 +1603,7 @@ namespace TickZoom.FIX
         protected virtual void OnFinishRecovery()
         {
         }
+
+        protected abstract void HandleRejectedLogin(MessageFIXT1_1 message);
     }
 }
