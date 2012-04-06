@@ -392,7 +392,7 @@ namespace TickZoom.MBTFIX
                             log.Error(message);
                         }
 
-                        var retryImmediately = algorithm.OrderAlgorithm.RejectRepeatCounter < 1;
+                        var retryImmediately = algorithm.OrderAlgorithm.RejectRepeatCounter == 0;
                         algorithm.OrderAlgorithm.RejectOrder(clientOrderId, IsRecovered, retryImmediately);
                         if (!retryImmediately)
                         {
@@ -825,7 +825,7 @@ namespace TickZoom.MBTFIX
                                 log.Error(message);
                             }
 
-                            var retryImmediately = algorithm.OrderAlgorithm.RejectRepeatCounter < 1;
+                            var retryImmediately = algorithm.OrderAlgorithm.RejectRepeatCounter == 0;
                             algorithm.OrderAlgorithm.RejectOrder(clientOrderId, IsRecovered, retryImmediately);
                             if (!retryImmediately)
                             {
@@ -945,7 +945,7 @@ namespace TickZoom.MBTFIX
                     }
                 }
 
-                var retryImmediately = algorithm.OrderAlgorithm.RejectRepeatCounter < 1;
+                var retryImmediately = algorithm.OrderAlgorithm.RejectRepeatCounter == 0;
                 algorithm.OrderAlgorithm.RejectOrder(clientOrderId, IsRecovered, retryImmediately);
                 if( !retryImmediately)
                 {

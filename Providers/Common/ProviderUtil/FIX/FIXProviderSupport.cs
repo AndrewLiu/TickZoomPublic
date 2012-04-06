@@ -1458,6 +1458,9 @@ namespace TickZoom.FIX
                 return;
             }
             var algorithm = GetAlgorithm(symbol.BinaryIdentifier);
+
+            if (algorithm.OrderAlgorithm.RejectRepeatCounter > 0) return;
+
             if (algorithm.OrderAlgorithm.ReceivedDesiredPosition)
             {
                 if (algorithm.OrderAlgorithm.IsSynchronized)
@@ -1500,6 +1503,15 @@ namespace TickZoom.FIX
             if (!algorithm.OrderAlgorithm.IsBrokerOnline)
             {
                 if (debug) log.Debug("Tried to send EndBroker for " + symbol + " but broker status is already offline.");
+
+                if( SyncTicks.Enabled)
+                {
+                    var tickSync = SyncTicks.GetTickSync(symbol.BinaryIdentifier);
+                    if( tickSync.SentSwtichBrokerState)
+                    {
+                        tickSync.ClearSwitchBrokerState("already offline");
+                    }
+                }
                 return;
             }
             var item = new EventItem(symbol, EventType.EndBroker);
@@ -1530,10 +1542,7 @@ namespace TickZoom.FIX
             var algorithm = GetAlgorithm(symbol.BinaryIdentifier);
             if( algorithm.OrderAlgorithm.PositionChange(positionChange, IsRecovered))
             {
-                if( algorithm.OrderAlgorithm.RejectRepeatCounter == 0)
-                {
-                    TrySendStartBroker(symbol, "position change sync");
-                }
+                TrySendStartBroker(symbol, "position change sync");
             }
         }
 
