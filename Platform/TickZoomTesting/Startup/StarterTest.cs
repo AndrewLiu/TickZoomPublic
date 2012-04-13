@@ -179,6 +179,7 @@ namespace TickZoom.StarterTest
 		[Test]
 		public void TestGenetic()
 		{
+            Assert.Ignore();
 			GeneticStarter geneticStarter = new GeneticStarter();
 			geneticStarter.SetRandomSeed(9999);
 			geneticStarter.TotalPasses = 100;

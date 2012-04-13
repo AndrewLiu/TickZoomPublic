@@ -1,4 +1,4 @@
-﻿using TickZoom.Api;
+using TickZoom.Api;
 using TickZoom.FIX;
 
 namespace TickZoom.LimeFIX 
