@@ -1,7 +1,7 @@
-﻿#region Copyright
+#region Copyright
 /*
  * Software: TickZoom Trading Platform
- * Copyright 2012 M. Wayne Walter
+ * Copyright 2009 M. Wayne Walter
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
