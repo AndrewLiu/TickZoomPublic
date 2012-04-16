@@ -59,7 +59,8 @@ namespace TickZoom.Common
 	    private int diagnoseMetric = Diagnose.RegisterMetric("Symbol Handler");
         private long tickCount = 0L;
 	    private int tickPoolCallerId;
-        
+        private FillSimulator syntheticOrders;
+        private Agent syntheticReceiver;
         
 		public void Start()
 		{
@@ -76,16 +77,33 @@ namespace TickZoom.Common
             
         }
 
-		public SymbolHandlerDefault(SymbolInfo symbol, Agent agent) {
+        public SymbolHandlerDefault(string providerName, SymbolInfo symbol, Agent agent)
+        {
         	this.symbol = symbol;
 			this.agent = agent;
 			this.quotesLatency = new LatencyMetric( "SymbolHandler-Quotes-" + symbol.Symbol.StripInvalidPathChars());
 			this.salesLatency = new LatencyMetric( "SymbolHandler-Trade-" + symbol.Symbol.StripInvalidPathChars());
             tickPool =  Factory.Parallel.TickPool(symbol);
 		    tickPoolCallerId = tickPool.GetCallerId("SymbolHandler-" + symbol + "-" + agent);
+            syntheticOrders = Factory.Utility.FillSimulator(providerName, symbol, false, false, null);
+		    syntheticOrders.OnPhysicalFill = OnPhysicalFill;
+            syntheticOrders.OnRejectOrder = OnRejectOrder;
+            syntheticOrders.PartialFillSimulation = PartialFillSimulation.None;
+		    syntheticOrders.IsOnline = true;
 		}
-		
-		bool errorWrongLevel1Type = false;
+
+	    private void OnRejectOrder(CreateOrChangeOrder order, string message)
+	    {
+            if( debug) log.Debug("Synthetic order rejected: " + message + " " + order);
+            syntheticReceiver.SendEvent(new EventItem(EventType.SyntheticReject, order));
+        }
+
+	    private void OnPhysicalFill(PhysicalFill fill, CreateOrChangeOrder order)
+	    {
+	        syntheticReceiver.SendEvent(new EventItem(EventType.SyntheticFill, fill));
+	    }
+
+	    bool errorWrongLevel1Type = false;
 		public void SendQuote() {
 			if( isQuoteInitialized || VerifyQuote()) {
 				if( isRunning) {
@@ -109,7 +127,9 @@ namespace TickZoom.Common
                         var tickId = box.TickBinary.Id;
 						box.TickBinary = tickIO.Extract();
 					    box.TickBinary.Id = tickId;
-						quotesLatency.TryUpdate( box.TickBinary.Symbol, box.TickBinary.UtcTime);
+                        syntheticOrders.StartTick(tickIO);
+                        syntheticOrders.ProcessOrders();
+                        quotesLatency.TryUpdate(box.TickBinary.Symbol, box.TickBinary.UtcTime);
 					    var eventItem = new EventItem(symbol,EventType.Tick,box);
 					    agent.SendEvent(eventItem);
 					    Interlocked.Increment(ref tickCount);
@@ -256,6 +276,8 @@ namespace TickZoom.Common
 			    var tickId = box.TickBinary.Id;
 				box.TickBinary = tickIO.Extract();
 			    box.TickBinary.Id = tickId;
+                syntheticOrders.StartTick(tickIO);
+                syntheticOrders.ProcessOrders();
 				if( tickIO.IsTrade && tickIO.Price == 0D) {
 					log.Warn("Found trade tick with zero price: " + tickIO);
 				}		
@@ -356,5 +378,27 @@ namespace TickZoom.Common
 	    {
 	        get { return symbol; }
 	    }
+
+	    public void SyntheticOrder(EventItem eventItem)
+	    {
+	        syntheticReceiver = eventItem.Agent;
+            var order = (CreateOrChangeOrder)eventItem.EventDetail;
+            switch (order.Action)
+            {
+                case OrderAction.Create:
+                    syntheticOrders.OnCreateBrokerOrder(order);
+                    break;
+                case OrderAction.Change:
+                    syntheticOrders.OnChangeBrokerOrder(order);
+                    break;
+                case OrderAction.Cancel:
+                    syntheticOrders.OnCancelBrokerOrder(order);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("Unexpected action: " + order.Action);
+            }
+            eventItem.Agent.SendEvent(new EventItem(EventType.SyntheticConfirmation, order));
+            syntheticOrders.ProcessOrders();
+        }
 	}
 }

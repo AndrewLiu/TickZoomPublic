@@ -58,6 +58,10 @@ namespace TickZoom.Api
  	    SynchronizePortfolio,
         Shutdown,
 	    VerifyHeartbeat,
+        SyntheticOrder,
+	    SyntheticConfirmation,
+	    SyntheticFill,
+	    SyntheticReject,
 		
 		// TCP/IP Events
 		Acknowledgment=100,

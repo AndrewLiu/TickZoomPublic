@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Reflection;
 using TickZoom.Api;
 using TickZoom.LimeFIX;
@@ -11,9 +11,9 @@ namespace TickZoom.LimeFix
         public AgentPerformer CreatePerformer(string className, params object[] args)
         {
             switch( className) {
-                case "MBTFIXProvider":
+                case "ExecutionProvider":
                     return (AgentPerformer)Factory.Parallel.Spawn(typeof(LimeFIXProvider), args);
-                case "MBTQuotesProvider":
+                case "DataProvider":
                     return (AgentPerformer)Factory.Parallel.Spawn(typeof(LimeQuotesProvider), args);
                 case "ProviderSimulator":
                     return (AgentPerformer)Factory.Parallel.Spawn(typeof(LimeProviderSimulator), args);

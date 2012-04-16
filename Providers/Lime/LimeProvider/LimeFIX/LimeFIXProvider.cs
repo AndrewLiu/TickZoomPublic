@@ -1,7 +1,7 @@
 #region Copyright
 /*
  * Software: TickZoom Trading Platform
- * Copyright 2009 M. Wayne Walter
+ * Copyright 2012 M. Wayne Walter
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -33,7 +33,7 @@ using TickZoom.FIX;
 
 namespace TickZoom.LimeFIX
 {
-    public class LimeFIXProvider : FIXProviderSupport, PhysicalOrderHandler, LogAware
+    public class LimeFIXProvider : FIXProviderSupport, PhysicalOrderHandler
     {
         private static readonly Log log = Factory.SysLog.GetLogger(typeof(LimeFIXProvider));
 		private readonly bool info = log.IsDebugEnabled;
@@ -72,27 +72,19 @@ namespace TickZoom.LimeFIX
             }
         }
 
-		public override void OnDisconnect() {
-            HeartbeatDelay = int.MaxValue;
-            if (ConnectionStatus == Status.PendingLogOut)
+        public override void PositionChange(PositionChangeDetail positionChange)
+        {
+            for( var current = positionChange.Orders.First; current != null; current = current.Next)
             {
-                if (debug) log.Debug("Sending RemoteShutdown confirmation back to provider manager.");
-            }
-            else
-            {
-                OrderStore.ForceSnapshot();
-                var message = "LimeFIXProvider disconnected.";
-                if (SyncTicks.Enabled)
+                var order = current.Value;
+                switch( order.Type)
                 {
-                    log.Notice(message);
+                    case OrderType.Stop:
+                        order.IsSynthetic = true;
+                        break;
                 }
-                else
-                {
-                    log.Error(message);
-                }
-                log.Info("Logging out -- Sending EndBroker event.");
-                TrySendEndBroker();
             }
+            base.PositionChange(positionChange);
         }
 
 		public override void OnRetry() {
@@ -129,21 +121,6 @@ namespace TickZoom.LimeFIX
                 log.Debug("Login message: \n" + loginMessage);
             }
             SendMessage(loginMessage);
-            if (SyncTicks.Enabled)
-            {
-                HeartbeatDelay = 10;
-                if (HeartbeatDelay > 40)
-                {
-                    log.Error("Heartbeat delay is " + HeartbeatDelay);
-                }
-                RetryDelay = 1;
-                RetryStart = 1;
-            }
-            else
-            {
-                HeartbeatDelay = 40;
-                RetryDelay = 30;
-            }
         }
 
         public override bool OnLogin()
@@ -224,35 +201,6 @@ namespace TickZoom.LimeFIX
 			SendMessage(fixMsg);
 		}
 
-        private volatile bool isOrderServerOnline = false;
-        private TimeStamp previousHeartbeatTime = default(TimeStamp);
-        private TimeStamp recentHeartbeatTime = default(TimeStamp);
-        private void SendHeartbeat()
-        {
-            if (debug) log.Debug("SendHeartBeat Status " + ConnectionStatus + ", Session Status Online " + isOrderServerOnline + ", Resend Complete " + IsResendComplete);
-            if (!IsRecovered) TryEndRecovery();
-            if (IsRecovered)
-            {
-                lock (orderAlgorithmsLocker)
-                {
-                    foreach (var kvp in orderAlgorithms)
-                    {
-                        var algo = kvp.Value;
-                        algo.OrderAlgorithm.RejectRepeatCounter = 0;
-                        if (!algo.OrderAlgorithm.CheckForPending())
-                        {
-                            algo.OrderAlgorithm.ProcessOrders();
-                        }
-                    }
-                }
-            }
-            var fixMsg = (FIXMessage4_2)FixFactory.Create();
-            fixMsg.AddHeader("0");
-            SendMessage(fixMsg);
-            previousHeartbeatTime = recentHeartbeatTime;
-            recentHeartbeatTime = TimeStamp.UtcNow;
-        }
-
         protected override void HandleRejectedLogin(MessageFIXT1_1 message)
         {
             bool handled = false;
@@ -272,7 +220,7 @@ namespace TickZoom.LimeFIX
                         Socket.Dispose();
                         handled = true;
                         RetryStart = 2;
-                        ignoreRetryDelay = true;
+                        fastRetry = true;
                     }
                 }
             }
@@ -307,6 +255,11 @@ namespace TickZoom.LimeFIX
             }
         }
 
+        protected override bool CheckForServerSync(MessageFIXT1_1 messageFix)
+        {
+            return messageFix.MessageType == "0" || messageFix.MessageType == "1";
+        }
+
         protected override bool HandleLogon(MessageFIXT1_1 message)
         {
             if (ConnectionStatus != Status.PendingLogin)
@@ -316,7 +269,6 @@ namespace TickZoom.LimeFIX
             }
             if (VerifyLoginAck(message))
             {
-                RetryStart = 30;
                 return true;
             }
             else
@@ -354,7 +306,6 @@ namespace TickZoom.LimeFIX
                 case "0":
                     if (trace) log.Trace("Received Hearbeat");
 			        SetOrderServerOnline();
-			        // Received heartbeat
                     break;
                 case "1":
                     if (trace) log.Trace("Received Test Request");
@@ -377,19 +328,7 @@ namespace TickZoom.LimeFIX
         }
 
         private void BusinessReject(MessageFIX4_2 packetFIX) {
-            var lower = packetFIX.Text.ToLower();
-            var text = packetFIX.Text;
-            var errorOkay = false;
-             log.Error(packetFIX.Text + " -- Sending EndBroker event.");
-            CancelRecovered();
-            TrySendEndBroker();
-            TryEndRecovery();
-            log.Info(packetFIX.Text + " Sent EndBroker event due to Message:\n" + packetFIX);
-            if (!errorOkay)
-            {
-                string message = "FIX Server reported an error: " + packetFIX.Text + "\n" + packetFIX;
-                throw new ApplicationException(message);
-            }
+            HandleBusinessReject(false, packetFIX);
         }
 
         protected override void TryEndRecovery()
@@ -419,21 +358,6 @@ namespace TickZoom.LimeFIX
                 default:
                     throw new ApplicationException("Unexpected connection status for TryEndRecovery: " + ConnectionStatus);
             }
-        }
-
-        //TODO: Could be moved to common class
-        private string GetOpenOrders()
-        {
-            var sb = new StringBuilder();
-            var list = OrderStore.GetOrders((x) => true);
-			foreach( var order in list) {
-                sb.Append("    ");
-				sb.Append( order.BrokerOrder);
-                sb.Append(" ");
-                sb.Append(order);
-                sb.AppendLine();
-            }
-            return sb.ToString();
         }
 
         private void StartPositionSync()
@@ -468,50 +392,7 @@ namespace TickZoom.LimeFIX
             }
         }
 
-#if LIME_NOT_SUPPORTED
-       private void PositionUpdate( MessageFIX4_4 packetFIX) {
-			if( packetFIX.MessageType == "AO") {
-				if(debug) log.Debug("PositionUpdate Complete.");
-                TryEndRecovery();
-			}
-            else 
-            {
-                var position = packetFIX.LongQuantity + packetFIX.ShortQuantity;
-                SymbolInfo symbolInfo;
-                try
-                {
-                    symbolInfo = Factory.Symbol.LookupSymbol(packetFIX.Symbol);
-                }
-                catch (ApplicationException ex)
-                {
-                    log.Error("Error looking up " + packetFIX.Symbol + ": " + ex.Message);
-                    return;
-                }
-                SymbolInfo symbol;
-                try
-                {
-                    symbol = Factory.Symbol.LookupSymbol(packetFIX.Symbol);
-                }
-                catch
-                {
-                    log.Info("PositionUpdate. But " + packetFIX.Symbol + " was not found in symbol dictionary.");
-                    return;
-                }
-                SymbolAlgorithm algorithm;
-                if( TryGetAlgorithm(symbol.BinaryIdentifier, out algorithm))
-                {
-                    if (debug) log.Debug("PositionUpdate for " + symbolInfo + ": MBT actual =" + position + ", TZ actual=" + algorithm.OrderAlgorithm.ActualPosition);
-                }
-                else
-                {
-                    log.Info("PositionUpdate for " + symbolInfo + ": MBT actual =" + position + " but symbol was not requested. Ignoring.");
-                }
-            }
-		}
-#endif
-
-
-       private void ExecutionReport( MessageFIX4_2 packetFIX)
+        private void ExecutionReport( MessageFIX4_2 packetFIX)
 		{
 		    var clientOrderId = 0L;
 		    long.TryParse(packetFIX.ClientOrderId, out clientOrderId);
@@ -545,7 +426,7 @@ namespace TickZoom.LimeFIX
                     OrderStore.TryGetOrderById(clientOrderId, out order);
                     if (order != null && symbolInfo.FixSimulationType == FIXSimulationType.BrokerHeldStopOrder) // Stop Order
                     {
-                        if( order.Type == OrderType.Stop )
+                        if( order.Type == OrderType.Stop)
                         {
                             if (debug) log.Debug("New order message for Forex Stop: " + packetFIX);
                             break;
@@ -658,7 +539,7 @@ namespace TickZoom.LimeFIX
 
                     OrderStore.TryGetOrderById(clientOrderId, out order);
                     if (order != null && symbolInfo.FixSimulationType == FIXSimulationType.BrokerHeldStopOrder &&
-                        (order.Type == OrderType.Stop ))
+                        (order.Type == OrderType.Stop))
                     {
                         if( packetFIX.ExecutionType == "D")  // Restated
                         {
@@ -707,67 +588,10 @@ namespace TickZoom.LimeFIX
 
         private void CancelRejected(MessageFIX4_2 packetFIX)
         {
-            var clientOrderId = 0L;
-            long.TryParse(packetFIX.ClientOrderId, out clientOrderId);
-            var originalClientOrderId = 0L;
-            long.TryParse(packetFIX.ClientOrderId, out originalClientOrderId);
-            if (debug && (LogRecovery || !IsRecovery))
-            {
-                log.Debug("CancelRejected: " + packetFIX);
-            }
-            string orderStatus = packetFIX.OrderStatus;
-            switch (orderStatus)
-            {
-                case "2":  //Filled
-                    var rejectReason = false;
-
-                    if (packetFIX.Text.Contains("Unknown order") || packetFIX.Text.Contains("Order is completed"))
-                    {
-                        rejectReason = true;
-                        log.Warn("RemoveOriginal=FALSE for: " + packetFIX.Text);
-                        //removeOriginal = true;
-                    } else {
-                        log.Error("Unknown text meesage in CancelReject: " + packetFIX.Text);
-                    }
-                   
-
-                    CreateOrChangeOrder order;
-                    if (OrderStore.TryGetOrderById(clientOrderId, out order))
-                    {
-                        var symbol = order.Symbol;
-                        SymbolAlgorithm algorithm;
-                        if (!TryGetAlgorithm(symbol.BinaryIdentifier, out algorithm))
-                        {
-                            log.Info("Cancel rejected but OrderAlgorithm not found for " + symbol + ". Ignoring.");
-                            break;
-                        }
-                        var retryImmediately = true;
-                        algorithm.OrderAlgorithm.RejectOrder(clientOrderId, IsRecovered, retryImmediately);
-                    }
-                    else
-                    {
-                        if (debug) log.Debug("Order not found for " + clientOrderId + ". Probably allready filled or canceled.");
-                    }
-
-                    if (!rejectReason && IsRecovered)
-                    {
-                        var message = "Order Rejected: " + packetFIX.Text + "\n" + packetFIX;
-                        var stopping = "The cancel reject error message '" + packetFIX.Text + "' was unrecognized. ";
-                        log.Warn(message);
-                        log.Error(stopping);
-                    }
-                    else
-                    {
-                        if (LogRecovery || !IsRecovery)
-                        {
-                            log.Info("CancelReject(" + packetFIX.Text + ") Removed cancel order: " + packetFIX.ClientOrderId);
-                        }
-                    }
-                    break;
-                default:
-                    throw new ApplicationException("Unknown cancel rejected order status: '" + orderStatus + "'");
-            }
+            if (debug) log.Debug("CancelRejected: " + packetFIX);
+            HandleCancelReject(packetFIX.ClientOrderId, packetFIX.Text, packetFIX);
         }
+
 
         public void SendFill(MessageFIX4_2 packetFIX) {
             var clientOrderId = 0L;
@@ -796,7 +620,7 @@ namespace TickZoom.LimeFIX
                     }
                     var configTime = executionTime;
                     configTime.AddSeconds(timeZone.UtcOffset(executionTime));
-                    var fill = Factory.Utility.PhysicalFill(fillPosition, packetFIX.LastPrice, configTime, executionTime, order.BrokerOrder, false, packetFIX.OrderQuantity, packetFIX.CumulativeQuantity, packetFIX.LeavesQuantity, IsRecovered, true);
+                    var fill = Factory.Utility.PhysicalFill(symbolInfo, fillPosition, packetFIX.LastPrice, configTime, executionTime, order.BrokerOrder, false, packetFIX.OrderQuantity, packetFIX.CumulativeQuantity, packetFIX.LeavesQuantity, IsRecovered, true);
                     if (debug) log.Debug("Sending physical fill: " + fill);
                     algorithm.OrderAlgorithm.ProcessFill(fill);
                     algorithm.OrderAlgorithm.ProcessOrders();
@@ -815,93 +639,12 @@ namespace TickZoom.LimeFIX
             }
         }
 
-        public void ProcessFill(SymbolInfo symbol, LogicalFillBinary fill)
-        {
-            SymbolReceiver symbolReceiver;
-            if (!symbolsRequested.TryGetValue(symbol.BinaryIdentifier, out symbolReceiver))
-            {
-                throw new InvalidOperationException("Can't find symbol request for " + symbol);
-            }
-            var symbolAlgorithm = GetAlgorithm(symbol.BinaryIdentifier);
-            if( !symbolAlgorithm.OrderAlgorithm.IsBrokerOnline)
-            {
-                if (debug) log.Debug("Broker offline but sending fill anyway for " + symbol + " to receiver: " + fill);
-            }
-            if (debug) log.Debug("Sending fill event for " + symbol + " to receiver: " + fill);
-            var item = new EventItem(symbol, EventType.LogicalFill, fill);
-            symbolReceiver.Agent.SendEvent(item);
-        }
-
         public void RejectOrder(MessageFIX4_2 packetFIX)
         {
-            var clientOrderId = 0L;
-            long.TryParse(packetFIX.ClientOrderId, out clientOrderId);
-            var originalClientOrderId = 0L;
-            long.TryParse(packetFIX.ClientOrderId, out originalClientOrderId);
-            if (packetFIX.Text.Contains("Order Server Offline") ||
-                packetFIX.Text.Contains("Trading temporarily unavailable") ||
-                packetFIX.Text.Contains("Order Server Not Available"))
-            {
-                CancelRecovered();
-                TrySendEndBroker();
-                TryEndRecovery();
-            }
-
-            var symbol = Factory.Symbol.LookupSymbol(packetFIX.Symbol);
-            SymbolAlgorithm algorithm;
-            if (TryGetAlgorithm(symbol.BinaryIdentifier, out algorithm))
-            {
-                if (IsRecovered && algorithm.OrderAlgorithm.RejectRepeatCounter > 0)
-                {
-                    var message = "Order Rejected: " + packetFIX.Text + "\n" + packetFIX;
-                    log.Warn(message);
-                }
-
-                var retryImmediately = algorithm.OrderAlgorithm.RejectRepeatCounter < 1;
-                algorithm.OrderAlgorithm.RejectOrder(clientOrderId, IsRecovered, retryImmediately);
-                if (!retryImmediately)
-                {
-                    TrySendEndBroker(symbol);
-                }
-            }
-            else
-            {
-                log.Info("RejectOrder but OrderAlgorithm not found for " + symbol + ". Ignoring.");
-            }
+            HandleOrderReject(packetFIX.ClientOrderId, packetFIX.Symbol, packetFIX.Text, packetFIX);
         }
 
-		private SymbolAlgorithm CreateAlgorithm(long symbol) {
-            SymbolAlgorithm symbolAlgorithm;
-			lock( orderAlgorithmsLocker) {
-                if (!orderAlgorithms.TryGetValue(symbol, out symbolAlgorithm))
-                {
-                    var symbolInfo = Factory.Symbol.LookupSymbol(symbol);
-                    var orderCache = Factory.Engine.LogicalOrderCache(symbolInfo, false);
-                    var algorithm = Factory.Utility.OrderAlgorithm("limefix", symbolInfo, this, orderCache, OrderStore);
-                    algorithm.EnableSyncTicks = SyncTicks.Enabled;
-                    symbolAlgorithm = new SymbolAlgorithm { OrderAlgorithm = algorithm };
-                    orderAlgorithms.Add(symbol, symbolAlgorithm);
-                    algorithm.OnProcessFill = ProcessFill;
-                }
-            }
-            return symbolAlgorithm;
-        }
-
-        public override void PositionChange(PositionChangeDetail positionChange)
-        {
-            var symbol = positionChange.Symbol;
-            if (debug) log.Debug("PositionChange " + positionChange);
-            var algorithm = GetAlgorithm(symbol.BinaryIdentifier);
-            if (algorithm.OrderAlgorithm.PositionChange(positionChange, IsRecovered))
-            {
-                if (algorithm.OrderAlgorithm.RejectRepeatCounter == 0)
-                {
-                    TrySendStartBroker(symbol, "position change sync");
-                }
-            }
-        }
-
-        public bool OnCreateBrokerOrder(CreateOrChangeOrder createOrChangeOrder)
+        public override bool OnCreateBrokerOrder(CreateOrChangeOrder createOrChangeOrder)
         {
             if (!IsRecovered) return false;
             if (debug) log.Debug("OnCreateBrokerOrder " + createOrChangeOrder + ". Connection " + ConnectionStatus + ", IsOrderServerOnline " + isOrderServerOnline);
@@ -926,7 +669,7 @@ namespace TickZoom.LimeFIX
             }
 
             var orderHandler = GetAlgorithm(order.Symbol.BinaryIdentifier);
-            var orderSize = order.Side == OrderSide.Buy ? order.Size : -order.Size;
+            var orderSize = order.Side == OrderSide.Sell ? -order.Size : order.Size;
             if (Math.Abs(orderHandler.OrderAlgorithm.ActualPosition + orderSize) > order.Symbol.MaxPositionSize)
             {
                 throw new ApplicationException("Order was greater than MaxPositionSize of " + order.Symbol.MaxPositionSize + " for:\n" + order);
@@ -964,16 +707,7 @@ namespace TickZoom.LimeFIX
                 case OrderType.Limit:
                     fixMsg.SetOrderType(2);
                     fixMsg.SetPrice(order.Price);
-                    switch (order.Symbol.TimeInForce)
-                    {
-                        case TimeInForce.Day:
-                            fixMsg.SetTimeInForce(0);
-                            break;
-                        case TimeInForce.GTC:
-                            throw new LimeException("Lime does not accept GTC Buy Lime Orders");
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
+                    fixMsg.SetTimeInForce(0); // Lime only supports Day orders.
                     break;
                 case OrderType.Market:
                     fixMsg.SetOrderType(1);
@@ -999,14 +733,6 @@ namespace TickZoom.LimeFIX
             {
                 fixMsg.SetDuplicate(true);
             }
-#if NOT_LIME
-            fixMsg.SetAccount(AccountNumber);
-            fixMsg.SetHandlingInstructions(1);
-            fixMsg.SetLocateRequired("N");
-            fixMsg.SetTransactTime(order.UtcCreateTime);
-            fixMsg.SetOrderCapacity("A");
-            fixMsg.SetUserName();
-#endif
             fixMsg.SetSendTime(order.UtcCreateTime);
             SendMessage(fixMsg);
         }
@@ -1037,7 +763,7 @@ namespace TickZoom.LimeFIX
             }
         }
 
-        public bool OnCancelBrokerOrder(CreateOrChangeOrder order)
+        public override bool OnCancelBrokerOrder(CreateOrChangeOrder order)
         {
             if (!IsRecovered) return false;
             if (debug) log.Debug("OnCancelBrokerOrder " + order + ". Connection " + ConnectionStatus + ", IsOrderServerOnline " + isOrderServerOnline);
@@ -1081,12 +807,6 @@ namespace TickZoom.LimeFIX
             var newClientOrderId = order.BrokerOrder;
             fixMsg.SetOriginalClientOrderId(order.OriginalOrder.BrokerOrder.ToString());
             fixMsg.SetClientOrderId(newClientOrderId.ToString());
-#if NOT_LIME
-            fixMsg.SetAccount(AccountNumber);
-            fixMsg.SetSide(GetOrderSide(order.OriginalOrder.Side));
-            fixMsg.SetSymbol(order.Symbol.Symbol);
-            fixMsg.SetTransactTime(TimeStamp.UtcNow);
-#endif
             fixMsg.AddHeader("F");
             if (resend)
             {
@@ -1095,7 +815,7 @@ namespace TickZoom.LimeFIX
             SendMessage(fixMsg);
         }
 
-        public bool OnChangeBrokerOrder(CreateOrChangeOrder createOrChangeOrder)
+        public override  bool OnChangeBrokerOrder(CreateOrChangeOrder createOrChangeOrder)
         {
             if (!IsRecovered) return false;
             if (debug) log.Debug("OnChangeBrokerOrder( " + createOrChangeOrder + ". Connection " + ConnectionStatus + ", IsOrderServerOnline " + isOrderServerOnline);

@@ -36,17 +36,17 @@ namespace TickZoom.Api
 	    PhysicalOrderStore PhyscalOrderStore(string name);
 		ProviderService CommandLineProcess();
 		ProviderService WindowsService();
-		OrderAlgorithm OrderAlgorithm(string name, SymbolInfo symbol, PhysicalOrderHandler handler, LogicalOrderCache logicalCache, PhysicalOrderCache physicalCache);
+        OrderAlgorithm OrderAlgorithm(string name, SymbolInfo symbol, PhysicalOrderHandler handler, PhysicalOrderHandler synthetics, LogicalOrderCache logicalCache, PhysicalOrderCache physicalCache);
 	    CreateOrChangeOrder PhysicalOrder(OrderState orderState, SymbolInfo symbol, CreateOrChangeOrder origOrder);
         CreateOrChangeOrder PhysicalOrder(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type, OrderFlags flags, double price, int size, int logicalOrderId, long logicalSerialNumber, long brokerOrder, object tag, TimeStamp utcCreateTime);
-        SymbolHandler SymbolHandler(SymbolInfo symbol, Agent agent);
+        SymbolHandler SymbolHandler(string providerName, SymbolInfo symbol, Agent agent);
 		VerifyFeed VerifyFeed(SymbolInfo symbol);
 		FillHandler FillHandler();
 		FillHandler FillHandler(StrategyInterface strategy);
 		FillSimulator FillSimulator(string name, SymbolInfo symbol, bool createSimulatedFills, bool createActualFills, TriggerController triggers);
 		BreakPointInterface BreakPoint();
 		PositionInterface Position(ModelInterface model);
-        PhysicalFill PhysicalFill(int size, double price, TimeStamp time, TimeStamp utcTime, long brokerOrder, bool isSimulated, int totalSize, int cumulativeSize, int remainingSize, bool isRealTime, bool isActual);
+        PhysicalFill PhysicalFill(SymbolInfo symbol, int size, double price, TimeStamp time, TimeStamp utcTime, long brokerOrder, bool isSimulated, int totalSize, int cumulativeSize, int remainingSize, bool isRealTime, bool isActual);
 		StrategyInterface Strategy();
 	    PhysicalOrderCache PhyscalOrderCache();
 	}

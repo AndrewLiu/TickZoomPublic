@@ -40,7 +40,7 @@ namespace TickZoom.Api
 		TimeStamp PostedTime { get; }
 		double Price { get; }
 		int Position { get; }
-		bool IsSimulated { get; }
+		bool IsExitStrategy { get; }
 	    long Recency { get; }
 	    bool IsComplete { get; }
 	}

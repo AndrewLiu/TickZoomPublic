@@ -49,7 +49,7 @@ namespace TickZoom.FIX
             public Agent Agent;
         }
 		protected readonly object symbolsRequestedLocker = new object();
-        protected Dictionary<long, QuotesProviderSupport.SymbolReceiver> symbolsRequested = new Dictionary<long, SymbolReceiver>();
+        protected Dictionary<long, SymbolReceiver> symbolsRequested = new Dictionary<long, SymbolReceiver>();
 		private Socket socket;
         protected Task socketTask;
 		private string failedFile;
@@ -320,6 +320,10 @@ namespace TickZoom.FIX
                         PositionChange(eventItem);
                         filter.Pop();
                         break;
+                    case EventType.SyntheticOrder:
+                        SyntheticOrder(eventItem);
+                        filter.Pop();
+                        break;
                     case EventType.Shutdown:
                     case EventType.Terminate:
                         Dispose();
@@ -374,6 +378,20 @@ namespace TickZoom.FIX
                     throw new ApplicationException(errorMessage);
 			}
 		}
+
+	    private void SyntheticOrder(EventItem eventItem)
+	    {
+	        var order = (CreateOrChangeOrder) eventItem.EventDetail;
+            SymbolHandler symbolHandler;
+            lock (symbolHandlersLocker)
+            {
+                if (!symbolHandlers.TryGetValue(order.Symbol.BinaryIdentifier, out symbolHandler))
+                {
+                    throw new ApplicationException("SymbolHandler for " + order.Symbol + " was not found.");
+                }
+            }
+	        symbolHandler.SyntheticOrder(eventItem);
+	    }
 
 	    private Yield TrySetupRetry()
 	    {
@@ -477,8 +495,6 @@ namespace TickZoom.FIX
 	        }
 	    }
 
-	    protected abstract void SendStartRealTime();
-
 	    private bool isPingSent = false;
 		protected void IncreaseRetryTimeout() {
 			retryTimeout = Factory.Parallel.TickCount + retryDelay * 1000;
@@ -521,7 +537,6 @@ namespace TickZoom.FIX
         public void StartSymbol(EventItem eventItem)
         {
         	log.Info("StartSymbol( " + eventItem.Symbol+ ")");
-        	// This adds a new order handler.
             TryAddSymbol(eventItem.Symbol, eventItem.Agent);
             OnStartSymbol(eventItem.Symbol, eventItem.Agent);
         }
@@ -680,6 +695,10 @@ namespace TickZoom.FIX
         }
 
         protected volatile bool isDisposed = false;
+	    protected object symbolHandlersLocker = new object();
+	    protected Dictionary<long, SymbolHandler> symbolHandlers = new Dictionary<long, SymbolHandler>();
+	    protected Dictionary<long, SymbolHandler> symbolOptionHandlers = new Dictionary<long, SymbolHandler>();
+
 	    public void Dispose() 
 	    {
 	        Dispose(true);
@@ -780,5 +799,35 @@ namespace TickZoom.FIX
 			get { return useLocalTickTime; }
 		}
 
+	    protected void StartSymbolHandler(SymbolInfo symbol, Agent agent) {
+	        lock( symbolHandlersLocker) {
+	            SymbolHandler symbolHandler;
+	            if( symbolHandlers.TryGetValue(symbol.BinaryIdentifier,out symbolHandler)) {
+	                symbolHandler.Start();
+	            } else {
+	                symbolHandler = Factory.Utility.SymbolHandler(providerName, symbol,agent);
+	                symbolHandlers.Add(symbol.BinaryIdentifier,symbolHandler);
+	                symbolHandler.Start();
+	            }
+	        }
+	    }
+
+	    protected void StartSymbolOptionHandler(SymbolInfo symbol, Agent agent)
+	    {
+	        lock (symbolHandlersLocker)
+	        {
+	            SymbolHandler symbolHandler;
+	            if (symbolOptionHandlers.TryGetValue(symbol.BinaryIdentifier, out symbolHandler))
+	            {
+	                symbolHandler.Start();
+	            }
+	            else
+	            {
+	                symbolHandler = Factory.Utility.SymbolHandler(providerName, symbol, agent);
+	                symbolOptionHandlers.Add(symbol.BinaryIdentifier, symbolHandler);
+	                symbolHandler.Start();
+	            }
+	        }
+	    }
 	}
 }

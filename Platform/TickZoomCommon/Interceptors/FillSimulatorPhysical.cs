@@ -88,7 +88,7 @@ namespace TickZoom.Interceptors
         private TickIO currentTick = Factory.TickUtil.TickIO();
         private PhysicalOrderConfirm confirmOrders;
         private bool isBarData = false;
-        private bool createSimulatedFills = false;
+        private bool createExitStrategyFills = false;
         // Randomly rotate the partial fills but using a fixed
         // seed so that test results are reproducable.
         private Random random = new Random(1234);
@@ -100,14 +100,14 @@ namespace TickZoom.Interceptors
         private TriggerController triggers;
         private Dictionary<long, long> serialTriggerMap = new Dictionary<long, long>();
 
-        public FillSimulatorPhysical(string name, SymbolInfo symbol, bool createSimulatedFills, bool createActualFills, TriggerController triggers)
+        public FillSimulatorPhysical(string name, SymbolInfo symbol, bool createExitStrategyFills, bool createActualFills, TriggerController triggers)
         {
             this.symbol = symbol;
             this.name = name;
             this.triggers = triggers;
             this.minimumTick = symbol.MinimumTick.ToLong();
             this.tickSync = SyncTicks.GetTickSync(symbol.BinaryIdentifier);
-            this.createSimulatedFills = createSimulatedFills;
+            this.createExitStrategyFills = createExitStrategyFills;
             this.log = Factory.SysLog.GetLogger(typeof(FillSimulatorPhysical).FullName + "." + symbol.Symbol.StripInvalidPathChars() + "." + name);
             this.log.Register(this);
             this.createActualFills = createActualFills;
@@ -726,7 +726,7 @@ namespace TickZoom.Interceptors
             var remainingSize = order.Size;
             var split = 1;
             var numberFills = split;
-            switch (PartialFillSimulation)
+            switch (partialFillSimulation)
             {
                 case PartialFillSimulation.None:
                     break;
@@ -778,7 +778,7 @@ namespace TickZoom.Interceptors
             //if( onPositionChange != null) {
             //    onPositionChange( actualPosition);
             //}
-            var fill = new PhysicalFillDefault(size, price, time, utcTime, order.BrokerOrder, createSimulatedFills, totalSize, cumulativeSize, remainingSize, false, createActualFills);
+            var fill = new PhysicalFillDefault(symbol, size, price, time, utcTime, order.BrokerOrder, createExitStrategyFills, totalSize, cumulativeSize, remainingSize, false, createActualFills);
             if (debug) log.Debug("Enqueuing fill (online: " + isOnline + "): " + fill);
             var wrapper = new FillWrapper
                               {

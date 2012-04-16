@@ -167,6 +167,7 @@ namespace TickZoom.FIX
             return 0;
         }
 
+        private Dictionary<long, CreateOrChangeOrder> orders = new Dictionary<long, CreateOrChangeOrder>();
         public void CreateOrder(CreateOrChangeOrder order)
         {
             SimulateSymbol symbolSyncTicks;
@@ -177,6 +178,7 @@ namespace TickZoom.FIX
             if (symbolSyncTicks != null)
             {
                 symbolSyncTicks.CreateOrder(order);
+                orders.Add(order.BrokerOrder,order);
             }
         }
 
@@ -203,6 +205,8 @@ namespace TickZoom.FIX
             if (symbolSyncTicks != null)
             {
                 symbolSyncTicks.ChangeOrder(order);
+                orders.Remove(order.OriginalOrder.BrokerOrder);
+                orders.Add(order.BrokerOrder, order);
             }
         }
 
@@ -219,21 +223,14 @@ namespace TickZoom.FIX
             }
         }
 
-        public CreateOrChangeOrder GetOrderById(SymbolInfo symbol, long clientOrderId)
+        public CreateOrChangeOrder GetOrderById(long clientOrderId)
         {
-            SimulateSymbol symbolSyncTicks;
-            using (symbolHandlersLocker.Using())
+            CreateOrChangeOrder order;
+            if( !orders.TryGetValue(clientOrderId, out order))
             {
-                symbolHandlers.TryGetValue(symbol.BinaryIdentifier, out symbolSyncTicks);
+                throw new ApplicationException("Cannot fine client order by id: " + clientOrderId);
             }
-            if (symbolSyncTicks != null)
-            {
-                return symbolSyncTicks.GetOrderById(clientOrderId);
-            }
-            else
-            {
-                throw new ApplicationException("StartSymbol was never called for " + symbol + " so now symbol handler was found.");
-            }
+            return order;
         }
 
         public void Shutdown()

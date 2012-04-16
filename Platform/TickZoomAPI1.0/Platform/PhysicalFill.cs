@@ -30,12 +30,13 @@ namespace TickZoom.Api
 {
     public interface PhysicalFill
     {
+        SymbolInfo Symbol { get; }
         TimeStamp Time { get; }
         TimeStamp UtcTime { get; }
         double Price { get; }
         int Size { get; }
         long BrokerOrder { get; }
-        bool IsSimulated { get; }
+        bool IsExitStategy { get; }
         int TotalSize { get; }
         int CumulativeSize { get; }
         int RemainingSize { get; }

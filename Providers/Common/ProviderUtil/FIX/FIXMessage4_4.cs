@@ -147,15 +147,7 @@ namespace TickZoom.FIX
 			Append(41,value);
 		}
 
-        /// <summary>
-        /// 379 Usually client order id of message rejected.
-        /// </summary>
-        public void SetBusinessRejectReferenceId(string value)
-        {
-            Append(379, value);
-        }
-
-        /// <summary>
+	    /// <summary>
 		/// 21 Instructions on how to handle this order; the only valid value is 1 (automated execution)		
 		/// </summary>
 		public void SetHandlingInstructions(int value) {

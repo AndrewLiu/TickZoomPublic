@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Reflection;
 using TickZoom.Api;
+using TickZoom.MBTQuotes;
 
 namespace TickZoom.MBTFIX
 {
@@ -8,22 +8,18 @@ namespace TickZoom.MBTFIX
     {
         public AgentPerformer CreatePerformer(string className, params object[] args)
         {
-            var typeToSpawn = Type.GetType(className);
-            var assembly = Assembly.GetExecutingAssembly();
-            foreach (var t in assembly.GetTypes())
+            switch (className)
             {
-                if (t.IsClass && !t.IsAbstract && !t.IsInterface)
-                {
-					if (t.GetInterface(typeof(AgentPerformer).FullName) != null)
-					{
-					    if (t.FullName.Contains(className))
-					    {
-                            return (AgentPerformer)Factory.Parallel.Spawn(t, args);
-                        }
-					}
-                }
+                case "ExecutionProvider":
+                    return (AgentPerformer)Factory.Parallel.Spawn(typeof(MBTFIXProvider), args);
+                case "DataProvider":
+                    return (AgentPerformer)Factory.Parallel.Spawn(typeof(MBTQuotesProvider), args);
+                case "ProviderSimulator":
+                    return (AgentPerformer)Factory.Parallel.Spawn(typeof(MBTProviderSimulator), args);
+                default:
+                    throw new ApplicationException("Unexpected type to construct: " + className);
+
             }
-            throw new ApplicationException("Unexpected type to construct: " + className);
         }
     }
 }

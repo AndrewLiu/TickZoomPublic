@@ -58,17 +58,18 @@ namespace TickZoom.Common
 			return new WindowsService();
 		}
 
-		public OrderAlgorithm OrderAlgorithm(string name, SymbolInfo symbol, PhysicalOrderHandler handler, LogicalOrderCache logicalCache, PhysicalOrderCache physicalQueue) {
-			return new OrderAlgorithmDefault(name,symbol,handler, logicalCache, physicalQueue);
+        public OrderAlgorithm OrderAlgorithm(string name, SymbolInfo symbol, PhysicalOrderHandler handler, PhysicalOrderHandler synthetics, LogicalOrderCache logicalCache, PhysicalOrderCache physicalQueue)
+        {
+            return new OrderAlgorithmDefault(name, symbol, handler, synthetics, logicalCache, physicalQueue);
 		}
-		public SymbolHandler SymbolHandler(SymbolInfo symbol, Agent agent) {
-			return new SymbolHandlerDefault(symbol,agent);
+		public SymbolHandler SymbolHandler(string providerName, SymbolInfo symbol, Agent agent) {
+			return new SymbolHandlerDefault(providerName, symbol,agent);
 		}
 		public VerifyFeed VerifyFeed(SymbolInfo symbol) {
 			return (VerifyFeed) Factory.Parallel.SpawnPerformer(typeof(VerifyFeedDefault),symbol);
 		}
-		public FillSimulator FillSimulator(string name, SymbolInfo symbol, bool createSimulateFills, bool createActualFills, TriggerController triggers) {
-            return new FillSimulatorPhysical(name, symbol, createSimulateFills, createActualFills, triggers);
+		public FillSimulator FillSimulator(string name, SymbolInfo symbol, bool createExitStategyFills, bool createActualFills, TriggerController triggers) {
+            return new FillSimulatorPhysical(name, symbol, createExitStategyFills, createActualFills, triggers);
 		}
 		public FillHandler FillHandler() {
 			return new FillHandlerDefault();
@@ -84,10 +85,9 @@ namespace TickZoom.Common
 			return new PositionCommon(model);
 		}
 
-        public PhysicalFill PhysicalFill(int size, double price, TimeStamp time, TimeStamp utcTime, long brokerOrder,
-                                   bool isSimulated, int totalSize, int cumulativeSize, int remainingSize, bool isRealTime, bool isActual)
+        public PhysicalFill PhysicalFill(SymbolInfo symbol, int size, double price, TimeStamp time, TimeStamp utcTime, long brokerOrder, bool isSimulated, int totalSize, int cumulativeSize, int remainingSize, bool isRealTime, bool isActual)
         {
-            return new PhysicalFillDefault(size, price, time, utcTime, brokerOrder, isSimulated, totalSize, cumulativeSize, remainingSize, isRealTime, isActual);
+            return new PhysicalFillDefault(symbol, size, price, time, utcTime, brokerOrder, isSimulated, totalSize, cumulativeSize, remainingSize, isRealTime, isActual);
 		}
 		
 		public StrategyInterface Strategy() {

@@ -123,7 +123,7 @@ namespace TickZoom.Statistics
 		public bool OnProcessFill(LogicalFill fill)
 		{
 			if( debug) log.Debug(model + ": OnProcessFill: " + fill);
-			if( fill.IsSimulated) {
+			if( fill.IsExitStrategy) {
 				if( debug) log.Debug("Ignoring fill since it's a simulated fill meaning that the strategy already exited via a money management exit like stop loss or target profit, etc.");
 				return true;
 			}

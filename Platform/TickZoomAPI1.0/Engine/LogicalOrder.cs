@@ -33,6 +33,7 @@ namespace TickZoom.Api
     {
         None = 0x00,
         OffsetTooLateToCancel = 0x01,
+        IsSynthetic = 0x02,
     }
 
     public enum OrderStatus
@@ -152,5 +153,6 @@ namespace TickZoom.Api
         int LevelIncrement { get; }
 
         OrderFlags OrderFlags { get; set; }
+	    bool IsSynthetic { get; set; }
     }
 }
