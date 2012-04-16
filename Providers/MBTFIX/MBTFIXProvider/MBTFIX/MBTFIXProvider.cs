@@ -90,8 +90,9 @@ namespace TickZoom.MBTFIX
             SendMessage(mbtMsg);
         }
 
-        private void SendLogin(int localSequence)
+        protected override void SendLogin(int localSequence)
         {
+            localSequence += 500;
             FixFactory = new FIXFactory4_4(localSequence+1, UserName, fixDestination);
             var mbtMsg = FixFactory.Create();
             mbtMsg.SetEncryption(0);
@@ -108,43 +109,6 @@ namespace TickZoom.MBTFIX
                 log.Debug("Login message: \n" + mbtMsg);
             }
             SendMessage(mbtMsg);
-        }
-
-        public override bool OnLogin()
-        {
-            if (debug) log.Debug("Login()");
-
-            if (OrderStore.Recover())
-            {
-                // Reset the order algorithms
-                lock( orderAlgorithmsLocker)
-                {
-                    var symbolIds = new List<long>();
-                    foreach( var kvp in orderAlgorithms)
-                    {
-                        symbolIds.Add(kvp.Key);
-                    }
-                    orderAlgorithms.Clear();
-                    foreach( var symbolId in symbolIds)
-                    {
-                        CreateAlgorithm(symbolId);
-                    }
-                }
-                if (debug) log.Debug("Recovered from snapshot Local Sequence " + OrderStore.LocalSequence + ", Remote Sequence " + OrderStore.RemoteSequence);
-                if (debug) log.Debug("Recovered orders from snapshot: \n" + OrderStore.OrdersToString());
-                if (debug) log.Debug("Recovered symbol positions from snapshot:\n" + OrderStore.SymbolPositionsToString());
-                if (debug) log.Debug("Recovered strategy positions from snapshot:\n" + OrderStore.StrategyPositionsToString());
-                RemoteSequence = OrderStore.RemoteSequence;
-                SendLogin(OrderStore.LocalSequence + 500);
-                OrderStore.RequestSnapshot();
-            }
-            else
-            {
-                if( debug) log.Debug("Unable to recover from snapshot. Beginning full recovery.");
-                RemoteSequence = 1;
-                SendLogin(0);
-            }
-            return true;
         }
 
 		protected override void OnStartRecovery()
@@ -339,28 +303,6 @@ namespace TickZoom.MBTFIX
             }
         }
 
-        private void StartPositionSync()
-        {
-            if( debug) log.Debug("StartPositionSync()");
-            var openOrders = GetOpenOrders();
-            if( string.IsNullOrEmpty(openOrders))
-            {
-                if( debug) log.Debug("Found 0 open orders prior to sync.");
-            }
-            else
-            {
-                if (debug) log.Debug("Orders prior to sync:\n" + openOrders);
-            }
-			MessageFIXT1_1.IsQuietRecovery = false;
-            foreach( var kvp in orderAlgorithms)
-            {
-                var algorithm = kvp.Value;
-                var symbol = Factory.Symbol.LookupSymbol(kvp.Key);
-                algorithm.OrderAlgorithm.ProcessOrders();
-                TrySendStartBroker(symbol, "start position sync");
-            }
-        }
-
         private Dictionary<string,bool> sessionStatusMap = new Dictionary<string, bool>();
 
         private void SessionStatus(MessageFIX4_4 packetFIX)
@@ -426,16 +368,6 @@ namespace TickZoom.MBTFIX
                 log.Trace(message);
             }
 	    }
-
-        public override void CancelRecovered()
-        {
-            base.CancelRecovered();
-            foreach( var kvp in orderAlgorithms)
-            {
-                var algorithm = kvp.Value;
-                algorithm.OrderAlgorithm.IsPositionSynced = false;
-            }
-        }
 
         private void PositionUpdate( MessageFIX4_4 packetFIX) {
 			if( packetFIX.MessageType == "AO") {

@@ -62,6 +62,7 @@ namespace TickZoom.Api
 	    SyntheticConfirmation,
 	    SyntheticFill,
 	    SyntheticReject,
+	    SyntheticClear,
 		
 		// TCP/IP Events
 		Acknowledgment=100,

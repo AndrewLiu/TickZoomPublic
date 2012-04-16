@@ -80,7 +80,6 @@ namespace TickZoom.FIX
 		private	string accountNumber;
         private string destination;
         public abstract void OnRetry();
-		public abstract bool OnLogin();
         private string providerName;
         private TrueTimer retryTimer;
         private TrueTimer heartbeatTimer;
@@ -341,6 +340,11 @@ namespace TickZoom.FIX
         public virtual void CancelRecovered()
         {
             ConnectionStatus = Status.PendingRecovery;
+            foreach (var kvp in orderAlgorithms)
+            {
+                var algorithm = kvp.Value;
+                algorithm.OrderAlgorithm.IsPositionSynced = false;
+            }
         }
 
 		public void StartRecovery() {
@@ -1024,9 +1028,7 @@ namespace TickZoom.FIX
                 OnStartSymbol(eventItem.Symbol);
             }
         }
-        
-        public abstract void OnStartSymbol( SymbolInfo symbol);
-        
+
         public void StopSymbol(EventItem eventItem)
         {
         	log.Info("StopSymbol( " + eventItem.Symbol + ")");
@@ -1466,6 +1468,7 @@ namespace TickZoom.FIX
         protected class SymbolAlgorithm
         {
             public OrderAlgorithm OrderAlgorithm;
+            public SyntheticOrderRouter Synthetics;
         }
 
         protected SymbolAlgorithm GetAlgorithm(long symbol)
@@ -1706,10 +1709,10 @@ namespace TickZoom.FIX
                     {
                         throw new InvalidOperationException("Can't find symbol request for " + symbol);
                     }
-                    var syntheticRouter = new SyntheticOrderRouter(Agent, receiver);
+                    var syntheticRouter = new SyntheticOrderRouter(symbolInfo, Agent, receiver);
                     var algorithm = Factory.Utility.OrderAlgorithm(providerName, symbolInfo, this, syntheticRouter, orderCache, OrderStore);
                     algorithm.EnableSyncTicks = SyncTicks.Enabled;
-                    symbolAlgorithm = new SymbolAlgorithm { OrderAlgorithm = algorithm };
+                    symbolAlgorithm = new SymbolAlgorithm { OrderAlgorithm = algorithm, Synthetics = syntheticRouter };
                     orderAlgorithms.Add(symbol, symbolAlgorithm);
                     algorithm.OnProcessFill = ProcessFill;
                 }
@@ -1905,6 +1908,104 @@ namespace TickZoom.FIX
                 sb.AppendLine();
             }
             return sb.ToString();
+        }
+
+        protected abstract void SendLogin(int localSequence);
+
+        public virtual bool OnLogin()
+        {
+            if (debug) log.Debug("LimeFIXProvider.Login()");
+
+            if (OrderStore.Recover())
+            {
+                // Reset the order algorithms
+                lock (orderAlgorithmsLocker)
+                {
+                    var symbolIds = new List<long>();
+                    foreach (var kvp in orderAlgorithms)
+                    {
+                        var algo = kvp.Value.OrderAlgorithm;
+                        symbolIds.Add(kvp.Key);
+                        algo.Clear();
+                    }
+                    orderAlgorithms.Clear();
+                    foreach (var symbolId in symbolIds)
+                    {
+                        CreateAlgorithm(symbolId);
+                    }
+                }
+                var synthetics = OrderStore.GetOrders((o) => o.IsSynthetic);
+                foreach (var order in synthetics)
+                {
+                    var algo = GetAlgorithm(order.Symbol.BinaryIdentifier);
+                    switch( order.Action)
+                    {
+                        case OrderAction.Create:
+                            algo.Synthetics.OnCreateBrokerOrder(order);
+                            break;
+                        case OrderAction.Change:
+                            algo.Synthetics.OnChangeBrokerOrder(order);
+                            break;
+                        case OrderAction.Cancel:
+                            algo.Synthetics.OnCancelBrokerOrder(order);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+                if (debug) log.Debug("Recovered from snapshot Local Sequence " + OrderStore.LocalSequence + ", Remote Sequence " + OrderStore.RemoteSequence);
+                if (debug) log.Debug("Recovered orders from snapshot: \n" + OrderStore.OrdersToString());
+                if (debug) log.Debug("Recovered symbol positions from snapshot:\n" + OrderStore.SymbolPositionsToString());
+                if (debug) log.Debug("Recovered strategy positions from snapshot:\n" + OrderStore.StrategyPositionsToString());
+                RemoteSequence = OrderStore.RemoteSequence;
+                SendLogin(OrderStore.LocalSequence);
+                OrderStore.RequestSnapshot();
+            }
+            else
+            {
+                if (debug) log.Debug("Unable to recover from snapshot. Beginning full recovery.");
+                OrderStore.SetSequences(0, 0);
+                OrderStore.ForceSnapshot();
+                SendLogin(OrderStore.LocalSequence);
+            }
+            return true;
+        }
+
+        public virtual void OnStartSymbol(SymbolInfo symbol)
+        {
+            var algorithm = CreateAlgorithm(symbol.BinaryIdentifier);
+            if (ConnectionStatus == Status.Recovered)
+            {
+                algorithm.OrderAlgorithm.ProcessOrders();
+                TrySendStartBroker(symbol,"Start symbol");
+            }
+        }
+
+        protected void StartPositionSync()
+        {
+            if (debug) log.Debug("StartPositionSync()");
+            var openOrders = GetOpenOrders();
+            if (string.IsNullOrEmpty(openOrders))
+            {
+                if (debug) log.Debug("Found 0 open orders prior to sync.");
+            }
+            else
+            {
+                if (debug) log.Debug("Orders prior to sync:\n" + openOrders);
+            }
+            MessageFIXT1_1.IsQuietRecovery = false;
+            foreach (var kvp in orderAlgorithms)
+            {
+                var algorithm = kvp.Value;
+                var symbol = Factory.Symbol.LookupSymbol(kvp.Key);
+                algorithm.OrderAlgorithm.ProcessOrders();
+                TrySendStartBroker(symbol, "start position sync");
+            }
+        }
+
+        public void Clear()
+        {
+            throw new NotImplementedException();
         }
     }
 }

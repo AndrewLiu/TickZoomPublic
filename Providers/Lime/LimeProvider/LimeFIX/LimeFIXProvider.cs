@@ -107,7 +107,8 @@ namespace TickZoom.LimeFIX
         }
 
         #region Login
-        private void SendLogin(int localSequence)
+
+        protected override void SendLogin(int localSequence)
         {
             FixFactory = new FIXFactory4_2(localSequence + 1, UserName, fixDestination);
             var loginMessage = FixFactory.Create() as FIXMessage4_2;
@@ -121,44 +122,6 @@ namespace TickZoom.LimeFIX
                 log.Debug("Login message: \n" + loginMessage);
             }
             SendMessage(loginMessage);
-        }
-
-        public override bool OnLogin()
-        {
-            if (debug) log.Debug("LimeFIXProvider.Login()");
-
-            if (OrderStore.Recover())
-            {
-                // Reset the order algorithms
-                lock (orderAlgorithmsLocker)
-                {
-                    var symbolIds = new List<long>();
-                    foreach (var kvp in orderAlgorithms)
-                    {
-                        symbolIds.Add(kvp.Key);
-                    }
-                    orderAlgorithms.Clear();
-                    foreach (var symbolId in symbolIds)
-                    {
-                        CreateAlgorithm(symbolId);
-                    }
-                }
-                if (debug) log.Debug("Recovered from snapshot Local Sequence " + OrderStore.LocalSequence + ", Remote Sequence " + OrderStore.RemoteSequence);
-                if (debug) log.Debug("Recovered orders from snapshot: \n" + OrderStore.OrdersToString());
-                if (debug) log.Debug("Recovered symbol positions from snapshot:\n" + OrderStore.SymbolPositionsToString());
-                if (debug) log.Debug("Recovered strategy positions from snapshot:\n" + OrderStore.StrategyPositionsToString());
-                RemoteSequence = OrderStore.RemoteSequence;
-                SendLogin(OrderStore.LocalSequence);
-                OrderStore.RequestSnapshot();
-            }
-            else
-            {
-                if (debug) log.Debug("Unable to recover from snapshot. Beginning full recovery.");
-                OrderStore.SetSequences(0, 0);
-                OrderStore.ForceSnapshot();
-                SendLogin(OrderStore.LocalSequence);
-            }
-            return true;
         }
 
         #region Logout
@@ -176,17 +139,7 @@ namespace TickZoom.LimeFIX
         {
         }
 
-        public override void OnStartSymbol(SymbolInfo symbol)
-        {
-            var algorithm = CreateAlgorithm(symbol.BinaryIdentifier);
-            if (ConnectionStatus == Status.Recovered)
-            {
-                algorithm.OrderAlgorithm.ProcessOrders();
-                TrySendStartBroker(symbol,"Start symbol");
-            }
-        }
-
-		public override void OnStopSymbol(SymbolInfo symbol)
+        public override void OnStopSymbol(SymbolInfo symbol)
 		{
             TrySendEndBroker();
         }
@@ -357,38 +310,6 @@ namespace TickZoom.LimeFIX
                     break;
                 default:
                     throw new ApplicationException("Unexpected connection status for TryEndRecovery: " + ConnectionStatus);
-            }
-        }
-
-        private void StartPositionSync()
-        {
-            if (debug) log.Debug("StartPositionSync()");
-            var openOrders = GetOpenOrders();
-            if (string.IsNullOrEmpty(openOrders))
-            {
-                if (debug) log.Debug("Found 0 open orders prior to sync.");
-            }
-            else
-            {
-                if (debug) log.Debug("Orders prior to sync:\n" + openOrders);
-            }
-            MessageFIXT1_1.IsQuietRecovery = false;
-            foreach (var kvp in orderAlgorithms)
-            {
-                var algorithm = kvp.Value;
-                var symbol = Factory.Symbol.LookupSymbol(kvp.Key);
-                algorithm.OrderAlgorithm.ProcessOrders();
-                TrySendStartBroker(symbol, "start position sync");
-            }
-        }
-
-        public override void CancelRecovered()
-        {
-            base.CancelRecovered();
-            foreach (var kvp in orderAlgorithms)
-            {
-                var algorithm = kvp.Value;
-                algorithm.OrderAlgorithm.IsPositionSynced = false;
             }
         }
 

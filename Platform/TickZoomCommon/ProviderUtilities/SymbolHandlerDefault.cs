@@ -61,6 +61,7 @@ namespace TickZoom.Common
 	    private int tickPoolCallerId;
         private FillSimulator syntheticOrders;
         private Agent syntheticReceiver;
+	    private string providerName;
         
 		public void Start()
 		{
@@ -81,18 +82,15 @@ namespace TickZoom.Common
         {
         	this.symbol = symbol;
 			this.agent = agent;
+            this.providerName = providerName;
 			this.quotesLatency = new LatencyMetric( "SymbolHandler-Quotes-" + symbol.Symbol.StripInvalidPathChars());
 			this.salesLatency = new LatencyMetric( "SymbolHandler-Trade-" + symbol.Symbol.StripInvalidPathChars());
             tickPool =  Factory.Parallel.TickPool(symbol);
 		    tickPoolCallerId = tickPool.GetCallerId("SymbolHandler-" + symbol + "-" + agent);
-            syntheticOrders = Factory.Utility.FillSimulator(providerName, symbol, false, false, null);
-		    syntheticOrders.OnPhysicalFill = OnPhysicalFill;
-            syntheticOrders.OnRejectOrder = OnRejectOrder;
-            syntheticOrders.PartialFillSimulation = PartialFillSimulation.None;
-		    syntheticOrders.IsOnline = true;
-		}
+            SyntheticClear();
+        }
 
-	    private void OnRejectOrder(CreateOrChangeOrder order, string message)
+	    private void OnSyntheticReject(CreateOrChangeOrder order, string message)
 	    {
             if( debug) log.Debug("Synthetic order rejected: " + message + " " + order);
             syntheticReceiver.SendEvent(new EventItem(EventType.SyntheticReject, order));
@@ -399,6 +397,16 @@ namespace TickZoom.Common
             }
             eventItem.Agent.SendEvent(new EventItem(EventType.SyntheticConfirmation, order));
             syntheticOrders.ProcessOrders();
+        }
+
+	    public void SyntheticClear()
+	    {
+            if (debug) log.Debug("Clearing synthetic fill simulator.");
+            syntheticOrders = Factory.Utility.FillSimulator(providerName, symbol, false, false, null);
+            syntheticOrders.OnPhysicalFill = OnPhysicalFill;
+            syntheticOrders.OnRejectOrder = OnSyntheticReject;
+            syntheticOrders.PartialFillSimulation = PartialFillSimulation.None;
+            syntheticOrders.IsOnline = true;
         }
 	}
 }

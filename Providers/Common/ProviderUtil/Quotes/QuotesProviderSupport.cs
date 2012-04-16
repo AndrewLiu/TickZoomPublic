@@ -324,6 +324,10 @@ namespace TickZoom.FIX
                         SyntheticOrder(eventItem);
                         filter.Pop();
                         break;
+                    case EventType.SyntheticClear:
+                        SyntheticClear((SymbolInfo) eventItem.EventDetail);
+                        filter.Pop();
+                        break;
                     case EventType.Shutdown:
                     case EventType.Terminate:
                         Dispose();
@@ -378,6 +382,19 @@ namespace TickZoom.FIX
                     throw new ApplicationException(errorMessage);
 			}
 		}
+
+	    private void SyntheticClear(SymbolInfo symbol)
+	    {
+            SymbolHandler symbolHandler;
+            lock (symbolHandlersLocker)
+            {
+                if (!symbolHandlers.TryGetValue(symbol.BinaryIdentifier, out symbolHandler))
+                {
+                    throw new ApplicationException("SymbolHandler for " + symbol + " was not found.");
+                }
+            }
+            symbolHandler.SyntheticClear();
+        }
 
 	    private void SyntheticOrder(EventItem eventItem)
 	    {

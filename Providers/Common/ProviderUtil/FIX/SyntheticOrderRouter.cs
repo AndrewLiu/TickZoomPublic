@@ -7,29 +7,40 @@ namespace TickZoom.FIX
     {
         private Agent receiver;
         private Agent self;
-        public SyntheticOrderRouter( Agent self, Agent receiver)
+        private SymbolInfo symbol;
+        public SyntheticOrderRouter( SymbolInfo symbol, Agent self, Agent receiver)
         {
             this.receiver = receiver;
             this.self = self;
+            this.symbol = symbol;
         }
+
         public bool OnChangeBrokerOrder(CreateOrChangeOrder order)
         {
-            return receiver.SendEvent(new EventItem(self, EventType.SyntheticOrder, order));
+            receiver.SendEvent(new EventItem(self, EventType.SyntheticOrder, order));
+            return true;
         }
 
         public bool OnCreateBrokerOrder(CreateOrChangeOrder order)
         {
-            return receiver.SendEvent(new EventItem(self, EventType.SyntheticOrder, order));
+            receiver.SendEvent(new EventItem(self, EventType.SyntheticOrder, order));
+            return true;
         }
 
         public bool OnCancelBrokerOrder(CreateOrChangeOrder order)
         {
-            return receiver.SendEvent(new EventItem(self, EventType.SyntheticOrder, order));
+            receiver.SendEvent(new EventItem(self, EventType.SyntheticOrder, order));
+            return true;
         }
 
         public int ProcessOrders()
         {
             return 0;
+        }
+
+        public void Clear()
+        {
+            receiver.SendEvent(new EventItem(self, EventType.SyntheticClear, symbol));
         }
 
         public bool IsChanged
@@ -43,5 +54,6 @@ namespace TickZoom.FIX
                 throw new NotImplementedException();
             }
         }
+
     }
 }
