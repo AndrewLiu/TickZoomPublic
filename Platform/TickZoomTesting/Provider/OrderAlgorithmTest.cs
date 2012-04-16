@@ -1574,7 +1574,17 @@ namespace Orders
 				get { return confirmOrders; }
 				set { confirmOrders = value; }
 			}
-		}
+
+            #region PhysicalOrderHandler Members
+
+
+            public void Clear()
+            {
+                throw new NotImplementedException();
+            }
+
+            #endregion
+        }
 
 		public class TestOrderAlgorithm
 		{

@@ -144,20 +144,23 @@ namespace TickZoom.Interceptors
         {
             var order = other.Clone();
             if (debug) log.Debug("OnChangeBrokerOrder( " + order + ")");
-            var origOrder = CancelBrokerOrder(order.OriginalOrder.BrokerOrder);
-            if (origOrder == null)
+            if( order.OriginalOrder != null)
             {
-                if (debug) log.Debug("PhysicalOrder too late to change. Already filled or canceled, ignoring.");
-                var message = "No such order";
-                if (onRejectOrder != null)
+                var origOrder = CancelBrokerOrder(order.OriginalOrder.BrokerOrder);
+                if (origOrder == null)
                 {
-                    SendReject(order, true, message);
+                    if (debug) log.Debug("PhysicalOrder too late to change. Already filled or canceled, ignoring.");
+                    var message = "No such order";
+                    if (onRejectOrder != null)
+                    {
+                        SendReject(order, true, message);
+                    }
+                    else
+                    {
+                        throw new ApplicationException(message + " while handling order: " + order);
+                    }
+                    return true;
                 }
-                else
-                {
-                    throw new ApplicationException(message + " while handling order: " + order);
-                }
-                return true;
             }
             if( CreateBrokerOrder(order))
             {
@@ -834,6 +837,11 @@ namespace TickZoom.Interceptors
                     }
                 }
             }
+        }
+
+        public void Clear()
+        {
+            throw new NotImplementedException();
         }
 
         public Action<long> OnPositionChange

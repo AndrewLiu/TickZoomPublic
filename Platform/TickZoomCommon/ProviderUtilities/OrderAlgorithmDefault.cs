@@ -1370,6 +1370,11 @@ namespace TickZoom.Common
             TryCreateBrokerOrder(order);
         }
 
+        public void Clear()
+        {
+            syntheticOrderHandler.Clear();
+        }
+
         public void ProcessFill(PhysicalFill physical)
         {
             if (debug) log.Debug("ProcessFill() physical: " + physical);

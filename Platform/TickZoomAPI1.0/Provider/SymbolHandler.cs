@@ -81,5 +81,6 @@ namespace TickZoom.Api
 	    long TickCount { get; }
 	    SymbolInfo Symbol { get; }
 	    void SyntheticOrder(EventItem eventItem);
+	    void SyntheticClear();
 	}
 }
