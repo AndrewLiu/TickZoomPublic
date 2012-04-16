@@ -134,6 +134,6 @@ namespace TickZoom.Api
 		/// of writing only support a single one.
 		/// </summary>
 		/// <param name="provider"></param>
-		void AddProvider( string provider);
+		void AddDataProvider( string provider);
 	}
 }

@@ -153,7 +153,7 @@ namespace TickZoom.MBTQuotes
 			}
 		}
 
-	    protected override void SendPing()
+	    protected override bool SendPing()
         {
             Message message = Socket.MessageFactory.Create();
             string textMessage = "9|\n";
@@ -161,9 +161,10 @@ namespace TickZoom.MBTQuotes
             message.DataOut.Write(textMessage.ToCharArray());
             while (!Socket.TrySendMessage(message))
             {
-                if (IsInterrupted) return;
+                if (IsInterrupted) return false;
                 Factory.Parallel.Yield();
             }
+	        return true;
         }
 
         protected override void ProcessSocketMessage(Message rawMessage)

@@ -319,5 +319,7 @@ namespace TickZoom.Api
         /// 
         /// </summary>
 	    bool DisableRealtimeSimulation { get; }
-    }
+
+	    string Account { get; }
+	}
 }

@@ -80,7 +80,7 @@ namespace TickZoom.FIX
         private Agent agent;
 	    private MessageFactory messageFactory;
         protected abstract void ProcessSocketMessage(Message rawMessage);
-        protected abstract void SendPing();
+        protected abstract bool SendPing();
 
         public Agent Agent
         {
@@ -465,8 +465,7 @@ namespace TickZoom.FIX
 	                if( Factory.Parallel.TickCount >= heartbeatTimeout) {
 	                    if( !isPingSent)
 	                    {
-	                        isPingSent = true;
-	                        SendPing();
+	                        isPingSent = SendPing();
 	                        IncreaseRetryTimeout();
 	                    }
 	                    else

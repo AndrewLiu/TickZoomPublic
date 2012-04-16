@@ -38,46 +38,73 @@ namespace TickZoom.Symbols
 	[Serializable]
 	public class SymbolProperties : PropertiesBase, ISymbolProperties
 	{
-		private Elapsed sessionStart = new Elapsed( 8, 0, 0);
-		private Elapsed sessionEnd = new Elapsed( 16, 30, 0);
-	    private PartialFillSimulation partialFillSimulation = PartialFillSimulation.PartialFillsTillComplete;
-		private bool simulateTicks;
-		private string symbol;
-		private double minimumTick;
-		private double fullPointValue;
-		private int level2LotSize = 1;
-		private double level2Increment;
-		private int level2LotSizeMinimum;
-		private long binaryIdentifier;
-		private SymbolInfo universalSymbol;
-		private int chartGroup;
-		private QuoteType quoteType = QuoteType.Level1;
-		private TimeAndSales timeAndSales = TimeAndSales.ActualTrades;
-		private string displayTimeZone;
-		private string timeZone;
-		private bool useSyntheticMarkets = true;
-		private bool useSyntheticLimits = true;
-		private bool useSyntheticStops = true;
-	    private ProfitLoss profitLoss;
-		private string commission = "default";
-		private string fees = "default";
-		private string slippage = "default";
-		private string destination = "default";
-		private double maxPositionSize = double.MaxValue;
-		private double maxOrderSize = double.MaxValue;
-		private double maxValidPrice = double.MaxValue;
-        private int minimumTickPrecision;
-	    private FIXSimulationType fixSimulationType;
-        private LimitOrderQuoteSimulation _limitOrderQuoteSimulation = LimitOrderQuoteSimulation.OppositeQuoteTouch;
-	    private LimitOrderTradeSimulation _limitOrderTradeSimulation = LimitOrderTradeSimulation.TradeTouch;
-	    private OptionChain optionChain = OptionChain.None;
-	    private TimeInForce timeInForce;
-	    private string symbolFile;
-        private bool _disableRealtimeSimulation = false;
+        [Serializable]
+        private struct SymbolBinary
+        {
+            public Elapsed sessionStart;
+            public Elapsed sessionEnd;
+            public PartialFillSimulation partialFillSimulation;
+            public bool simulateTicks;
+            public string symbol;
+            public double minimumTick;
+            public double fullPointValue;
+            public int level2LotSize;
+            public double level2Increment;
+            public int level2LotSizeMinimum;
+            public long binaryIdentifier;
+            public SymbolInfo universalSymbol;
+            public int chartGroup;
+            public QuoteType quoteType;
+            public TimeAndSales timeAndSales;
+            public string displayTimeZone;
+            public string timeZone;
+            public bool useSyntheticMarkets;
+            public bool useSyntheticLimits;
+            public bool useSyntheticStops;
+            public ProfitLoss profitLoss;
+            public string commission;
+            public string fees;
+            public string slippage;
+            public string destination;
+            public double maxPositionSize;
+            public double maxOrderSize;
+            public double maxValidPrice;
+            public int minimumTickPrecision;
+            public FIXSimulationType fixSimulationType;
+            public LimitOrderQuoteSimulation _limitOrderQuoteSimulation;
+            public LimitOrderTradeSimulation _limitOrderTradeSimulation;
+            public OptionChain optionChain;
+            public TimeInForce timeInForce;
+            public string symbolFile;
+            public bool _disableRealtimeSimulation;
+            public string account;
+        }
+
+	    private SymbolBinary binary;
 
         public SymbolProperties()
         {
-             profitLoss = new ProfitLossDefault(this);
+            binary.sessionStart = new Elapsed(8, 0, 0);
+            binary.sessionEnd = new Elapsed(16, 30, 0);
+            binary.partialFillSimulation = PartialFillSimulation.PartialFillsTillComplete;
+            binary.quoteType = QuoteType.Level1;
+            binary.timeAndSales = TimeAndSales.ActualTrades;
+            binary.useSyntheticMarkets = true;
+            binary.useSyntheticLimits = true;
+            binary.useSyntheticStops = true;
+            binary.commission = "default";
+            binary.fees = "default";
+            binary.slippage = "default";
+            binary.destination = "default";
+            binary.maxPositionSize = double.MaxValue;
+            binary.maxOrderSize = double.MaxValue;
+            binary.maxValidPrice = double.MaxValue;
+            binary._limitOrderQuoteSimulation = LimitOrderQuoteSimulation.OppositeQuoteTouch;
+            binary._limitOrderTradeSimulation = LimitOrderTradeSimulation.TradeTouch;
+            binary.optionChain = OptionChain.None;
+            binary._disableRealtimeSimulation = false;
+            binary.profitLoss = new ProfitLossDefault(this);
+            binary.account = "default";
         }
 
 		public SymbolProperties Copy()
@@ -99,238 +126,240 @@ namespace TickZoom.Symbols
 	    
 		public override string ToString()
 		{
-			return symbol == null ? "empty" : symbol;
+            return binary.symbol == null ? "empty" : Symbol;
 		}
 		
 		[Obsolete("Please create your data with the IsSimulateTicks flag set to true instead of this property.",true)]
 		public bool SimulateTicks {
-			get { return simulateTicks; }
-			set { simulateTicks = value; }
+            get { return binary.simulateTicks; }
+            set { binary.simulateTicks = value; }
 		}
 		
 		public Elapsed SessionEnd {
-			get { return sessionEnd; }
-			set { sessionEnd = value; }
+            get { return binary.sessionEnd; }
+            set { binary.sessionEnd = value; }
 		}
 		
 		public Elapsed SessionStart {
-			get { return sessionStart; }
-			set { sessionStart = value; }
+            get { return binary.sessionStart; }
+            set { binary.sessionStart = value; }
 		}
 		
 		public double MinimumTick {
-			get { return minimumTick; }
+            get { return binary.minimumTick; }
 			set {
-                minimumTick = value; 
+                binary.minimumTick = value; 
                 SetPrecision();
             }
 		}
 
         private void SetPrecision()
         {
-            var minimumTick = this.minimumTick;
-            minimumTickPrecision = 0;
+            var minimumTick = binary.minimumTick;
+            binary.minimumTickPrecision = 0;
             while ((long)minimumTick != minimumTick)
             {
                 minimumTick *= 10;
-                minimumTickPrecision ++;
+                binary.minimumTickPrecision++;
             }
         }
 
 		public double FullPointValue {
-			get { return fullPointValue; }
-			set { fullPointValue = value; }
+            get { return binary.fullPointValue; }
+            set { binary.fullPointValue = value; }
 		}
 	
 		public string Symbol {
-			get { return symbol; }
-			set { symbol = value; }
+            get { return binary.symbol + (binary.account != "default" ? "!" + binary.account : ""); }
+            set { binary.symbol = value; }
 		}
 		
 		public int Level2LotSize {
-			get { return level2LotSize; }
-			set { level2LotSize = value; }
+            get { return binary.level2LotSize; }
+            set { binary.level2LotSize = value; }
 		}
 		
 		public double Level2Increment {
-			get { return level2Increment; }
-			set { level2Increment = value; }
+            get { return binary.level2Increment; }
+            set { binary.level2Increment = value; }
 		}
 		
 		public SymbolInfo UniversalSymbol {
-			get { return universalSymbol; }
-			set { universalSymbol = value; }
+            get { return binary.universalSymbol; }
+            set { binary.universalSymbol = value; }
 		}
 		
 		public long BinaryIdentifier {
-			get { return binaryIdentifier; }
-			set { binaryIdentifier = value; }
+            get { return binary.binaryIdentifier; }
+            set { binary.binaryIdentifier = value; }
 		}
 		
 		public override bool Equals(object obj)
 		{
-			return obj is SymbolInfo && ((SymbolInfo)obj).BinaryIdentifier == binaryIdentifier;
+            return obj is SymbolInfo && ((SymbolInfo)obj).BinaryIdentifier == binary.binaryIdentifier;
 		}
 	
 		public override int GetHashCode()
 		{
-			return binaryIdentifier.GetHashCode();
+            return binary.binaryIdentifier.GetHashCode();
 		}
 		
 		public QuoteType QuoteType {
-			get { return quoteType; }
-			set { quoteType = value; }
+            get { return binary.quoteType; }
+            set { binary.quoteType = value; }
 		}
 		
 		public string DisplayTimeZone {
-			get { return displayTimeZone; }
-			set { displayTimeZone = value; }
+            get { return binary.displayTimeZone; }
+            set { binary.displayTimeZone = value; }
 		}
 
 		public string TimeZone {
-			get { return timeZone; }
-			set { timeZone = value; }
+            get { return binary.timeZone; }
+            set { binary.timeZone = value; }
 		}
 		
 		public bool UseSyntheticMarkets {
-			get { return useSyntheticMarkets; }
-			set { useSyntheticMarkets = value; }
+            get { return binary.useSyntheticMarkets; }
+            set { binary.useSyntheticMarkets = value; }
 		}
 		
 		public bool UseSyntheticLimits {
-			get { return useSyntheticLimits; }
-			set { useSyntheticLimits = value; }
+            get { return binary.useSyntheticLimits; }
+            set { binary.useSyntheticLimits = value; }
 		}
 		
 		public bool UseSyntheticStops {
-			get { return useSyntheticStops; }
-			set { useSyntheticStops = value; }
+            get { return binary.useSyntheticStops; }
+            set { binary.useSyntheticStops = value; }
 		}
 		
 		public ProfitLoss ProfitLoss {
-			get { return profitLoss; }
-			set { profitLoss = value; }
+            get { return binary.profitLoss; }
+            set { binary.profitLoss = value; }
 		}
 		
 		public string Destination {
-			get { return destination; }
-			set { destination = value; }
+            get { return binary.destination; }
+            set { binary.destination = value; }
 		}
 
 		public string Fees {
-			get { return fees; }
-			set { fees = value; }
+            get { return binary.fees; }
+            set { binary.fees = value; }
 		}
 		
 		public string Commission {
-			get { return commission; }
-			set { commission = value; }
+            get { return binary.commission; }
+            set { binary.commission = value; }
 		}
 		
 		public string Slippage {
-			get { return slippage; }
-			set { slippage = value; }
+            get { return binary.slippage; }
+            set { binary.slippage = value; }
 		}
 		
 		public double MaxPositionSize {
-			get { return maxPositionSize; }
-			set { maxPositionSize = value; }
+            get { return binary.maxPositionSize; }
+            set { binary.maxPositionSize = value; }
 		}
 		
 		public double MaxOrderSize {
-			get { return maxOrderSize; }
-			set { maxOrderSize = value; }
+            get { return binary.maxOrderSize; }
+            set { binary.maxOrderSize = value; }
 		}
 		
 		public TimeAndSales TimeAndSales {
-			get { return timeAndSales; }
-			set { timeAndSales = value; }
+            get { return binary.timeAndSales; }
+            set { binary.timeAndSales = value; }
 		}
 
 		public int ChartGroup {
-			get { return chartGroup; }
-			set { chartGroup = value; }
+            get { return binary.chartGroup; }
+            set { binary.chartGroup = value; }
 		}
 		
 		public int Level2LotSizeMinimum {
-			get { return level2LotSizeMinimum; }
-			set { level2LotSizeMinimum = value; }
+            get { return binary.level2LotSizeMinimum; }
+            set { binary.level2LotSizeMinimum = value; }
 		}		
 		
 		public double MaxValidPrice {
-			get { return maxValidPrice; }
-			set { maxValidPrice = value; }
+            get { return binary.maxValidPrice; }
+            set { binary.maxValidPrice = value; }
 		}
 		
 		public bool Equals(SymbolInfo other)
 		{
-			return this.binaryIdentifier == other.BinaryIdentifier;
+            return binary.binaryIdentifier == other.BinaryIdentifier;
 		}
 
         public LimitOrderQuoteSimulation LimitOrderQuoteSimulation
 	    {
-	        get { return _limitOrderQuoteSimulation; }
-	        set { _limitOrderQuoteSimulation = value; }
+            get { return binary._limitOrderQuoteSimulation; }
+            set { binary._limitOrderQuoteSimulation = value; }
 	    }
 
         public LimitOrderTradeSimulation LimitOrderTradeSimulation
 	    {
-	        get { return _limitOrderTradeSimulation; }
-	        set { _limitOrderTradeSimulation = value; }
+            get { return binary._limitOrderTradeSimulation; }
+            set { binary._limitOrderTradeSimulation = value; }
 	    }
 
 	    public int MinimumTickPrecision
 	    {
-	        get { return minimumTickPrecision; }
+            get { return binary.minimumTickPrecision; }
 	    }
 
 	    public FIXSimulationType FixSimulationType
 	    {
-	        get { return fixSimulationType; }
-	        set { fixSimulationType = value; }
+            get { return binary.fixSimulationType; }
+            set { binary.fixSimulationType = value; }
 	    }
 
 	    public OptionChain OptionChain
 	    {
-	        get { return optionChain; }
-	        set { optionChain = value; }
+            get { return binary.optionChain; }
+            set { binary.optionChain = value; }
 	    }
 
 	    public TimeInForce TimeInForce
 	    {
-	        get { return timeInForce; }
-	        set { timeInForce = value; }
+            get { return binary.timeInForce; }
+            set { binary.timeInForce = value; }
 	    }
 
 	    public string SymbolFile
 	    {
 	        get {
-                if( symbolFile == null)
+                if (binary.symbolFile == null)
                 {
-                    return symbol;
+                    return binary.symbol;
                 }
                 else
                 {
                     
                 }
-                return symbolFile;
+                return binary.symbolFile;
             }
-	        set { symbolFile = value; }
+            set { binary.symbolFile = value; }
 	    }
 
 	    public PartialFillSimulation PartialFillSimulation
 	    {
-	        get { return partialFillSimulation; }
-	        set { partialFillSimulation = value; }
+            get { return binary.partialFillSimulation; }
+            set { binary.partialFillSimulation = value; }
 	    }
-
-        #region SymbolInfo Members
 
 	    public bool DisableRealtimeSimulation {
-	        get { return _disableRealtimeSimulation; }
-	        set { _disableRealtimeSimulation = value; }
+            get { return binary._disableRealtimeSimulation; }
+            set { binary._disableRealtimeSimulation = value; }
 	    }
 
-	    #endregion
+        public string Account
+        {
+            get { return binary.account; }
+            set { binary.account = value; }
+        }
     }
 }

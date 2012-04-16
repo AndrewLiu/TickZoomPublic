@@ -68,9 +68,9 @@ namespace TickZoom.LimeQuotes
             log.InfoFormat("Constructed LimeQuotesProvider( {0} )", name);
         }
 
-        protected override void SendPing()
+        protected override bool SendPing()
         {
-            
+            return false;
         }
 
         public override void RefreshLogLevel()

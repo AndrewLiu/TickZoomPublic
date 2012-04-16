@@ -62,8 +62,10 @@ namespace TickZoom.Properties
 			}
 		}
 		
-		public void SetSymbols(string value) {
-			SymbolLibrary library = new SymbolLibrary();
+		public void SetSymbols(string value)
+		{
+		    var factory = (SymbolFactoryImpl) Factory.Symbol;
+		    var library = factory.Library;
 			value = value.StripWhiteSpace();
 			value = value.StripInvalidPathChars();
 			var symbolFileArray = value.Split(new char[] { ',' });
