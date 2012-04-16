@@ -81,7 +81,7 @@ namespace TickZoom.FIX
                 firstSequence = fixMsg.Sequence;
             }
             lastSequence = fixMsg.Sequence;
-		}
+        }
 		public bool TryGetHistory(int sequence, out FIXTMessage1_1 result)
 		{
 		    return messageHistory.TryGetValue(sequence, out result);

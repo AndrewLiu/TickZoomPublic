@@ -3,7 +3,7 @@
     public enum ServerState
     {
         Startup,
-        LoggedIn,
         Recovered,
+        ServerResend
     }
 }

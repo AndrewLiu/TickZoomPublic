@@ -464,7 +464,7 @@ namespace TickZoom.FIX
         protected abstract void RemoveTickSync(MessageFIXT1_1 textMessage);
         protected abstract void RemoveTickSync(FIXTMessage1_1 textMessage);
 
-        public bool SendSessionStatus(string status)
+        public bool TrySendSessionStatus(string status)
         {
             switch( status)
             {
@@ -477,12 +477,19 @@ namespace TickZoom.FIX
                 default:
                     throw new ApplicationException("Unknown session status:" + status);
             }
-            var mbtMsg = FixFactory.Create();
-            mbtMsg.AddHeader("h");
-            mbtMsg.SetTradingSessionId("TSSTATE");
-            mbtMsg.SetTradingSessionStatus(status);
-            if (debug) log.Debug("Sending order server status: " + mbtMsg);
-            SendMessage(mbtMsg);
+            if (requestSessionStatus)
+            {
+                var mbtMsg = FixFactory.Create();
+                mbtMsg.AddHeader("h");
+                mbtMsg.SetTradingSessionId("TSSTATE");
+                mbtMsg.SetTradingSessionStatus(status);
+                if (debug) log.Debug("Sending order server status: " + mbtMsg);
+                SendMessage(mbtMsg);
+            }
+            else
+            {
+                log.Info("RequestSessionStatus is false so not sending order server offline message.");
+            }
             return true;
         }
 
@@ -503,7 +510,8 @@ namespace TickZoom.FIX
         private int recoveryRemoteSequence = 1;
 		private bool FIXReadLoop()
 		{
-			if (isFIXSimulationStarted)
+            var result = false;
+            if (isFIXSimulationStarted)
 			{
 			    Message message;
                 if (fixSocket.TryGetMessage(out message))
@@ -543,6 +551,7 @@ namespace TickZoom.FIX
                             HandleFIXLogin(packetFIX);
                             if (packetFIX.Sequence > RemoteSequence)
                             {
+                                fixState = ServerState.ServerResend;
                                 if (debug) log.Debug("Login packet sequence " + packetFIX.Sequence + " was greater than expected " + RemoteSequence);
                                 recoveryRemoteSequence = packetFIX.Sequence;
                                 return Resend(packetFIX);
@@ -551,18 +560,21 @@ namespace TickZoom.FIX
                             {
                                 if (debug) log.Debug("Login packet sequence " + packetFIX.Sequence + " was less than or equal to expected " + RemoteSequence + " so updating remote sequence...");
                                 RemoteSequence = packetFIX.Sequence + 1;
-                                SendSessionStatusOnline();
-                                fixState = ServerState.Recovered;
-                                // Setup disconnect simulation.
+                                ServerSyncComplete();
                             }
                             break;
-                        case ServerState.LoggedIn:
+                        case ServerState.ServerResend:
                         case ServerState.Recovered:
                             switch (packetFIX.MessageType)
                             {
                                 case "A":
                                     throw new InvalidOperationException("Invalid FIX message type " + packetFIX.MessageType + ". Already logged in.");
                                 case "2":
+                                    if( fixState == ServerState.ServerResend)
+                                    {
+                                        OnBusinessReject("Client must respond to resend request of server before submitting any resend requests.");
+                                        return true;
+                                    }
                                     HandleResend(packetFIX);
                                     break;
                             }
@@ -578,21 +590,6 @@ namespace TickZoom.FIX
                             }
                             else
                             {
-                                if( packetFIX.Sequence >= recoveryRemoteSequence)
-                                {
-                                    isResendComplete = true;
-                                    if (fixState == ServerState.LoggedIn)
-                                    {
-                                        // Sequences are synchronized now. Send TradeSessionStatus.
-                                        fixState = ServerState.Recovered;
-                                        if (requestSessionStatus)
-                                        {
-                                            SendSessionStatusOnline();
-                                        }
-                                        // Setup disconnect simulation.
-                                        simulators[SimulatorType.SendDisconnect].UpdateNext(FixFactory.LastSequence);
-                                    }
-                                }
                                 switch (packetFIX.MessageType)
                                 {
                                     case "2": // resend request
@@ -601,9 +598,20 @@ namespace TickZoom.FIX
                                         RemoteSequence = packetFIX.Sequence + 1;
                                         break;
                                     case "4":
-                                        return HandleGapFill(packetFIX);
+                                        result = HandleGapFill(packetFIX);
+                                        break;
                                     default:
-                                        return ProcessMessage(packetFIX);
+                                        result = ProcessMessage(packetFIX);
+                                        break;
+                                }
+                                if (RemoteSequence >= recoveryRemoteSequence)
+                                {
+                                    isResendComplete = true;
+                                    if (fixState == ServerState.ServerResend)
+                                    {
+                                        // Sequences are synchronized now. Send TradeSessionStatus.
+                                        ServerSyncComplete();
+                                    }
                                 }
                             }
                             break;
@@ -614,9 +622,10 @@ namespace TickZoom.FIX
                     fixSocket.MessageFactory.Release(_fixReadMessage);
                 }
 			}
-			return false;
+			return result;
 		}
-	    protected bool requestSessionStatus;
+
+        protected bool requestSessionStatus;
 
         private bool resetSequenceNumbersNextDisconnect;
         private void SendSystemOffline()
@@ -629,11 +638,26 @@ namespace TickZoom.FIX
             //resetSequenceNumbersNextDisconnect = true;
         }
 
+        private void ServerSyncComplete()
+        {
+            fixState = ServerState.Recovered;
+            SendServerSyncComplete();
+            SendSessionStatusOnline();
+            ProviderSimulator.FlushFillQueues();
+            // Setup disconnect simulation.
+            simulators[SimulatorType.SendDisconnect].UpdateNext(FixFactory.LastSequence);
+        }
+
+        public virtual void SendServerSyncComplete()
+        {
+            if (debug) log.Debug("SendServerSyncComplete()");
+        }
+
         public virtual void SendSessionStatusOnline()
         {
             if (debug) log.Debug("Sending session status online.");
             var wasOrderServerOnline = ProviderSimulator.IsOrderServerOnline;
-            SendSessionStatus("2");
+            TrySendSessionStatus("2");
             if( !wasOrderServerOnline)
             {
                 ProviderSimulator.SwitchBrokerState("online",true);
@@ -648,7 +672,6 @@ namespace TickZoom.FIX
             {
                 throw new InvalidOperationException("Invalid login request. Already logged in: \n" + packet);
             }
-            fixState = ServerState.LoggedIn;
 
             SetupFixFactory(packet);
 
@@ -670,10 +693,12 @@ namespace TickZoom.FIX
                     throw new InvalidOperationException("Found reset sequence number flag is true but sequence was " +
                                                         packet.Sequence + " instead of 1.");
                 }
-                if (debug) log.Debug("Found reset seq number flag. Resetting seq number to " + packet.Sequence);
-                fixFactory = CreateFIXFactory(packet.Sequence, packet.Target, packet.Sender);
+                fixFactory = CreateFIXFactory(1, packet.Target, packet.Sender);
+                if (debug) log.Debug("Found reset seq number flag. Resetting seq number to " + fixFactory.LastSequence);
                 RemoteSequence = packet.Sequence;
-            } else if (FixFactory == null) {
+            }
+            else if (FixFactory == null)
+            {
                 throw new InvalidOperationException(
                     "FIX login message specified tried to continue with sequence number " + packet.Sequence +
                     " but simulator has no sequence history.");
@@ -741,14 +766,7 @@ namespace TickZoom.FIX
                 if (debug) log.Debug("Skipping message: " + packetFIX);
                 ProviderSimulator.SwitchBrokerState("disconnect", false);
                 ProviderSimulator.SetOrderServerOffline();
-                if( requestSessionStatus)
-                {
-                    SendSessionStatus("3"); //offline
-                }
-                else
-                {
-                    log.Info("RequestSessionStatus is false so not sending order server offline message.");
-                }
+                TrySendSessionStatus("3"); //offline
                 return true;
             }
 
@@ -853,7 +871,6 @@ namespace TickZoom.FIX
 
         public void SendMessage(FIXTMessage1_1 fixMessage)
         {
-
             FixFactory.AddHistory(fixMessage);
             if (isConnectionLost)
             {
@@ -906,14 +923,7 @@ namespace TickZoom.FIX
                 if (debug) log.Debug("Skipping message: " + fixMessage);
                 ProviderSimulator.SwitchBrokerState("offline",false);
                 ProviderSimulator.SetOrderServerOffline();
-                if( requestSessionStatus)
-                {
-                    SendSessionStatus("3");
-                }
-                else
-                {
-                    log.Info("RequestSessionStatus is false so not sending order server offline message.");
-                }
+                TrySendSessionStatus("3");
             }
         }
 
@@ -1046,5 +1056,32 @@ namespace TickZoom.FIX
 
         public abstract void OnRejectOrder(CreateOrChangeOrder order, string error);
         public abstract void OnPhysicalFill(PhysicalFill fill, CreateOrChangeOrder order);
+
+        protected void OnBusinessReject(string error)
+        {
+            var mbtMsg = FixFactory.Create();
+            mbtMsg.SetText(error);
+            mbtMsg.AddHeader("j");
+            if (trace) log.Trace("Sending business reject order: " + mbtMsg);
+            SendMessage(mbtMsg);
+        }
+
+        protected void OnBusinessRejectOrder(string clientOrderId, string error)
+        {
+            var mbtMsg = FixFactory.Create();
+            mbtMsg.SetBusinessRejectReferenceId(clientOrderId);
+            mbtMsg.SetText(error);
+            mbtMsg.AddHeader("j");
+            if (trace) log.Trace("Sending business reject order: " + mbtMsg);
+            SendMessage(mbtMsg);
+        }
+
+        protected void SendLogout()
+        {
+            var mbtMsg = FixFactory.Create();
+            mbtMsg.AddHeader("5");
+            SendMessage(mbtMsg);
+            if (trace) log.Trace("Sending logout confirmation: " + mbtMsg);
+        }
 	}
 }

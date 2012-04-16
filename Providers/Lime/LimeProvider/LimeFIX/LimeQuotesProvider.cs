@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 /*
  * Software: TickZoom Trading Platform
  * Copyright 2009 M. Wayne Walter
@@ -26,36 +26,27 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Security.Cryptography;
-using System.Runtime.InteropServices;
-using System.Net;
 using TickZoom.Api;
 using System.Text;
+using TickZoom.FIX;
 
 namespace TickZoom.LimeQuotes
 {
     [SkipDynamicLoad]
-    public class LimeQuotesProvider : LimeQuoteProviderSupport, LogAware
+    public class LimeQuotesProvider : QuotesProviderSupport
     {
         private static Log log = Factory.SysLog.GetLogger(typeof(LimeQuotesProvider));
         private static LimeQuotesProvider provider;
         private volatile bool debug;
         private volatile bool trace;
 
-        private object symbolHandlersLocker = new object();
-        private Dictionary<long, SymbolHandler> symbolHandlers = new Dictionary<long, SymbolHandler>();
-        private Dictionary<long, SymbolHandler> symbolOptionHandlers = new Dictionary<long, SymbolHandler>();
-
         private Dictionary<string, uint> _SymbolID = new Dictionary<string, uint>();
         private Dictionary<uint, string> _IDToSymbol = new Dictionary<uint, string>();
         private Dictionary<uint, bool> _IDToBookRebuild = new Dictionary<uint, bool>();
         private SimpleLock _SymbolIDLock = new SimpleLock();
 
-       //internal static TimeStamp SimulatorTime = new TimeStamp(0L);
-
         public LimeQuotesProvider(string name)
-            : base(name)
+            : base(name, new MessageFactoryLimeQuotes())
         {
             provider = this;
             log.Register(this);
@@ -77,12 +68,10 @@ namespace TickZoom.LimeQuotes
             log.InfoFormat("Constructed LimeQuotesProvider( {0} )", name);
         }
 
-        //TODO: Old code
-#if OLD_CODE
-        public override void PositionChange(Receiver receiver, SymbolInfo symbol, double signal, Iterable<LogicalOrder> orders)
+        protected override void SendPing()
         {
+            
         }
-#endif
 
         public override void RefreshLogLevel()
         {
@@ -246,7 +235,26 @@ namespace TickZoom.LimeQuotes
             EndRecovery();
         }
 
-        protected override void ReceiveMessage(LimeQuoteMessage message)
+        protected override void ProcessSocketMessage(Message rawMessage)
+        {
+            var message = (LimeQuoteMessage)rawMessage;
+            message.BeforeRead();
+            if (trace)
+            {
+                log.Trace("Received tick: " + message.ToString());
+            }
+            try
+            {
+                ReceiveMessage(message);
+            }
+            catch (Exception ex)
+            {
+                var loggingString = message.ToString();
+                log.Error("Unable to process this message:\n" + loggingString, ex);
+            }
+        }
+
+        protected void ReceiveMessage(LimeQuoteMessage message)
         {
             switch (message.MessageType)
             {
@@ -501,42 +509,6 @@ namespace TickZoom.LimeQuotes
                 {
                     var symbol = kvp.Value;
                     RequestStopSymbol(symbol.Symbol, symbol.Agent);
-                }
-            }
-        }
-
-        private void StartSymbolHandler(SymbolInfo symbol, Agent agent)
-        {
-            lock (symbolHandlersLocker)
-            {
-                SymbolHandler symbolHandler;
-                if (symbolHandlers.TryGetValue(symbol.BinaryIdentifier, out symbolHandler))
-                {
-                    symbolHandler.Start();
-                }
-                else
-                {
-                    symbolHandler = Factory.Utility.SymbolHandler(symbol, agent);
-                    symbolHandlers.Add(symbol.BinaryIdentifier, symbolHandler);
-                    symbolHandler.Start();
-                }
-            }
-        }
-
-        private void StartSymbolOptionHandler(SymbolInfo symbol, Agent agent)
-        {
-            lock (symbolHandlersLocker)
-            {
-                SymbolHandler symbolHandler;
-                if (symbolOptionHandlers.TryGetValue(symbol.BinaryIdentifier, out symbolHandler))
-                {
-                    symbolHandler.Start();
-                }
-                else
-                {
-                    symbolHandler = Factory.Utility.SymbolHandler(symbol, agent);
-                    symbolOptionHandlers.Add(symbol.BinaryIdentifier, symbolHandler);
-                    symbolHandler.Start();
                 }
             }
         }

@@ -251,7 +251,7 @@ namespace TickZoom.TickUtil
 							}
 							
 							box = tickBoxPool.Create(tickPoolCallerId);
-						    if( debug) log.Debug("Allocated box id in reader " + box.Id + ", count " + tickBoxPool.AllocatedCount);
+						    if( trace) log.Trace("Allocated box id in reader " + box.Id + ", count " + tickBoxPool.AllocatedCount);
 						    var tickId = box.TickBinary.Id;
 							box.TickBinary = tick;
 						    box.TickBinary.Id = tickId;

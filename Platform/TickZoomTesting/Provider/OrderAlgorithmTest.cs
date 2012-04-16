@@ -1590,7 +1590,7 @@ namespace Orders
 			    this.physicalCache = physicalOrderCache;
                 orders = new MockPhysicalOrderHandler(symbol, physicalCache);
                 var logicalCache = Factory.Engine.LogicalOrderCache(symbol, false);
-                orderAlgorithm = Factory.Utility.OrderAlgorithm("test", symbol, orders, logicalCache, physicalCache);
+                orderAlgorithm = Factory.Utility.OrderAlgorithm("test", symbol, orders, orders, logicalCache, physicalCache);
 			    orderAlgorithm.EnableSyncTicks = SyncTicks.Enabled;
                 orderAlgorithm.OnProcessFill = onProcessFill;
                 orderAlgorithm.TrySyncPosition(new ActiveList<StrategyPosition>());
@@ -1679,7 +1679,7 @@ namespace Orders
             {
                 var price = physical.Price == 0 ? 1234.12 : physical.Price;
                 var size = physical.Side == OrderSide.Buy ? physical.Size : -physical.Size;
-                var fill = Factory.Utility.PhysicalFill(size, physical.Price, TimeStamp.UtcNow, TimeStamp.UtcNow, physical.BrokerOrder, false, size, size, 0, true, true);
+                var fill = Factory.Utility.PhysicalFill(physical.Symbol, size, physical.Price, TimeStamp.UtcNow, TimeStamp.UtcNow, physical.BrokerOrder, false, size, size, 0, true, true);
                 orders.activeOrders.Remove(physical);
                 orderAlgorithm.ProcessFill(fill);
             }

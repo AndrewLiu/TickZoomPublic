@@ -40,18 +40,18 @@ namespace TickZoom.Api
 		void OnOpen(Tick tick);
 		void StartTick(Tick lastTick);
 		CreateOrChangeOrder GetOrderById( long orderId);
-		int ActualPosition { get; set; }
-		Action<PhysicalFill,CreateOrChangeOrder> OnPhysicalFill { get; set; }
-		Action<CreateOrChangeOrder,string> OnRejectOrder { get; set; }
-		Action<long> OnPositionChange { get; set; }
-		PhysicalOrderConfirm ConfirmOrders { get; set; }
-		bool IsBarData { get; set; }
-	    TimeStamp CurrentTick { get; }
-	    bool IsOnline { get; set; }
-	    PartialFillSimulation PartialFillSimulation { get; set; }
-	    bool EnableSyncTicks { get; set; }
-	    void FlushFillQueue();
+        void FlushFillQueue();
 	    int ProcessAdjustments();
 	    void LogActiveOrders();
-	}
+        Action<PhysicalFill, CreateOrChangeOrder> OnPhysicalFill { get; set; }
+        Action<CreateOrChangeOrder, string> OnRejectOrder { get; set; }
+        Action<long> OnPositionChange { get; set; }
+        PhysicalOrderConfirm ConfirmOrders { get; set; }
+        PartialFillSimulation PartialFillSimulation { get; set; }
+        TimeStamp CurrentTick { get; }
+        bool IsBarData { get; set; }
+        bool IsOnline { get; set; }
+        bool EnableSyncTicks { get; set; }
+        int ActualPosition { get; set; }
+    }
 }

@@ -97,6 +97,7 @@
     <Compile Include="FIX\FIXSimulatorSupport.cs" />
     <Compile Include="FIX\MessageFactoryFix42.cs" />
     <Compile Include="FIX\PacketFIX4_2.cs" />
+    <Compile Include="FIX\SyntheticOrderRouter.cs" />
     <Compile Include="Quotes\QuoteSimulatorSupport.cs" />
     <Compile Include="Common\ServerState.cs" />
     <Compile Include="Common\SimulateSymbol.cs" />

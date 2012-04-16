@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -44,17 +45,23 @@ namespace TickZoom.Starters
 		
 		public override void Run(ModelLoaderInterface loader)
 		{
+		    var stopwatch = new Stopwatch();
+		    stopwatch.Start();
             SetupSymbolData();
+		    var elapsed = stopwatch.Elapsed;
+            log.Debug("SetupSymbolData took " + elapsed.TotalSeconds + " seconds and " + elapsed.Milliseconds + " milliseconds");
+            stopwatch.Reset();
+            stopwatch.Start();
 		    Factory.Provider.StartSockets();
             parallelMode = ParallelMode.RealTime;
             Factory.SysLog.RegisterHistorical("FIXSimulator", GetDefaultLogConfig());
             Factory.SysLog.RegisterRealTime("FIXSimulator", GetDefaultLogConfig());
             Config = "WarehouseTest.config";
 		    Address = "inprocess";
-#if !USE_LIME
+#if USE_MBT
             var provider = "MBTFIXProvider/Simulate";
             var fixAssembly = "MBTFIXProvider";
-            var fixSimulator = "MBTProviderSimulator";
+            var fixSimulator = "ProviderSimulator";
 #else
             var provider = "LimeProvider/Simulate";
             var fixAssembly = "LimeProvider";
@@ -65,8 +72,10 @@ namespace TickZoom.Starters
             var providerManager = Factory.Parallel.SpawnProvider("ProviderCommon", "ProviderManager");
             providerManager.SendEvent(new EventItem(EventType.SetConfig, "WarehouseTest"));
             using (Factory.Parallel.SpawnProvider(fixAssembly, fixSimulator, "Simulate", ProjectProperties))
-            { 
-				base.Run(loader);
+            {
+                elapsed = stopwatch.Elapsed;
+                log.Debug("Startup took " + elapsed.TotalSeconds + " seconds and " + elapsed.Milliseconds + " milliseconds");
+                base.Run(loader);
 			}
             Factory.Provider.ShutdownSockets();
         }

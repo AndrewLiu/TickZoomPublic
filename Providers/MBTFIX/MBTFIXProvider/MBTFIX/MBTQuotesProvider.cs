@@ -44,10 +44,8 @@ namespace TickZoom.MBTQuotes
             debug = log.IsDebugEnabled;
             trace = log.IsTraceEnabled;
         }
-        private Dictionary<long, SymbolHandler> symbolHandlers = new Dictionary<long, SymbolHandler>();
-        private Dictionary<long, SymbolHandler> symbolOptionHandlers = new Dictionary<long, SymbolHandler>();	
-		
-		private MBTQuotesProvider(string name) : base( name, new MessageFactoryMbtQuotes())
+
+	    private MBTQuotesProvider(string name) : base( name, new MessageFactoryMbtQuotes())
 		{
 		    log.Register(this);
 			if( name.Contains(".config")) {
@@ -315,7 +313,7 @@ namespace TickZoom.MBTQuotes
             return;
 		}
 		
-		protected override void SendStartRealTime() {
+		protected void SendStartRealTime() {
 			lock( symbolsRequestedLocker) {
 				foreach( var kvp in symbolsRequested) {
 					var symbol = kvp.Value;
@@ -444,42 +442,9 @@ namespace TickZoom.MBTQuotes
             var item = new EventItem(symbol, EventType.EndRealTime);
             symbolAgent.SendEvent(item);
 		}
-		
-		
-		
-        private void StartSymbolHandler(SymbolInfo symbol, Agent agent) {
-			lock( symbolHandlersLocker) {
-	        	SymbolHandler symbolHandler;
-	        	if( symbolHandlers.TryGetValue(symbol.BinaryIdentifier,out symbolHandler)) {
-	        		symbolHandler.Start();
-	        	} else {
-	    	    	symbolHandler = Factory.Utility.SymbolHandler(symbol,agent);
-	    	    	symbolHandlers.Add(symbol.BinaryIdentifier,symbolHandler);
-                    symbolHandler.Start();
-	        	}
-			}
-        }
 
-        private void StartSymbolOptionHandler(SymbolInfo symbol, Agent agent)
-        {
-            lock (symbolHandlersLocker)
-            {
-                SymbolHandler symbolHandler;
-                if (symbolOptionHandlers.TryGetValue(symbol.BinaryIdentifier, out symbolHandler))
-                {
-                    symbolHandler.Start();
-                }
-                else
-                {
-                    symbolHandler = Factory.Utility.SymbolHandler(symbol, agent);
-                    symbolOptionHandlers.Add(symbol.BinaryIdentifier, symbolHandler);
-                    symbolHandler.Start();
-                }
-            }
-        }
-        private object symbolHandlersLocker = new object();
-        
-		public static string Hash(string password) {
+
+	    public static string Hash(string password) {
 			SHA256 hash = new SHA256Managed();
 			char[] chars = password.ToCharArray();
 			byte[] bytes = new byte[chars.Length];

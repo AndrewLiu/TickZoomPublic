@@ -239,13 +239,6 @@ namespace Loaders
                         }
                         topModel = config.TopModel;
 
-                        //if (tempStarter is FIXPlayBackStarter)
-                        //{
-                        //    var starter = tempStarter as FIXPlayBackStarter;
-                        //    realTimeOffset = starter.FixServer.RealTimeOffset;
-                        //    var realTimeOffsetElapsed = new Elapsed(realTimeOffset);
-                        //    log.Info("Real time offset is " + realTimeOffset + " or " + realTimeOffsetElapsed);
-                        //}
                     }
                     catch (ApplicationException ex)
                     {

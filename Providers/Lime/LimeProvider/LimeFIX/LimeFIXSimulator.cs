@@ -52,32 +52,35 @@ namespace TickZoom.LimeFIX
         public LimeFIXSimulator(string mode, ProjectProperties projectProperties, ProviderSimulatorSupport providerSimulator)
             : base(mode, projectProperties, providerSimulator, 6489, new MessageFactoryFix42())
         {
-            log.Register(this);           
+            log.Register(this);
+            simulators[SimulatorType.SendServerOffline].Enabled = false;
+            simulators[SimulatorType.ReceiveServerOffline].Enabled = false;
+            simulators[SimulatorType.ServerOfflineReject].Enabled = false;
         }
 
         protected override void SetupFixFactory(MessageFIXT1_1 packet) {
-            // Lime doesn't reset want sequence numbers reset at startup.
+            // Lime doesn't allow sequence numbers reset at startup.
             if (debug) log.Debug("Setup Fix Factory");
-            fixFactory = CreateFIXFactory(packet.Sequence, packet.Target, packet.Sender);
-            RemoteSequence = packet.Sequence;
+            if (packet.IsResetSeqNum)
+            {
+                throw new InvalidOperationException("Found reset sequence number flag is true Lime doesn't support resetting sequence numbers: " + packet);
+            }
+            if (FixFactory == null)
+            {
+                fixFactory = CreateFIXFactory(1, packet.Target, packet.Sender);
+                if (debug) log.Debug("Set local sequence number to " + fixFactory.LastSequence);
+                RemoteSequence = packet.Sequence;
+            }
         }
 
-        public override void SendSessionStatusOnline()
+        public override void  SendServerSyncComplete()
         {
-            if (debug) log.Debug("Sending session status online.");
-            ProviderSimulator.SetOrderServerOnline();
-            var wasOrderServerOnline = ProviderSimulator.IsOrderServerOnline;
             SendHeartbeat();
-            if (!wasOrderServerOnline)
-            {
-                ProviderSimulator.SwitchBrokerState("online", true);
-            }
-            ProviderSimulator.FlushFillQueues();
         }
 
         private void SendHeartbeat()
         {
-            var mbtMsg = (FIXTMessage1_1)FixFactory.Create();
+            var mbtMsg = FixFactory.Create();
             mbtMsg.AddHeader("0");
             if (trace) log.Trace("Requesting heartbeat: " + mbtMsg);
             SendMessage(mbtMsg);
@@ -167,7 +170,7 @@ namespace TickZoom.LimeFIX
                     log.Error("original client order id " + packet.OriginalClientOrderId + " cannot be converted to long: " + packet);
                     origClientId = 0;
                 }
-                origOrder = ProviderSimulator.GetOrderById(symbol, origClientId);
+                origOrder = ProviderSimulator.GetOrderById(origClientId);
             }
             catch (ApplicationException ex)
             {
@@ -234,7 +237,26 @@ namespace TickZoom.LimeFIX
 
         private void FIXCancelOrder(MessageFIX4_2 packet)
         {
-            var symbol = Factory.Symbol.LookupSymbol(packet.Symbol);
+            CreateOrChangeOrder origOrder = null;
+            try
+            {
+                long origClientId;
+                if (!long.TryParse(packet.OriginalClientOrderId, out origClientId))
+                {
+                    log.Error("original client order id " + packet.OriginalClientOrderId +
+                              " cannot be converted to long: " + packet);
+                    origClientId = 0;
+                }
+                origOrder = ProviderSimulator.GetOrderById(origClientId);
+            }
+            catch (ApplicationException)
+            {
+                if (debug) log.Debug("Cannot cancel order by client id: " + packet.OriginalClientOrderId + ". Probably already filled or canceled.");
+                OnRejectCancel(packet.Symbol, packet.ClientOrderId, packet.OriginalClientOrderId, "No such order");
+                return;
+            }
+            var symbol = origOrder.Symbol;
+            if (debug) log.Debug("FIXCancelOrder() for " + packet.Symbol + ". Original client id: " + packet.OriginalClientOrderId);
             if (!ProviderSimulator.IsOrderServerOnline)
             {
                 throw new LimeException("Order server offline testing for Lime not yet implemeneted");
@@ -259,27 +281,7 @@ namespace TickZoom.LimeFIX
                 ProviderSimulator.SetOrderServerOffline();
                 return;
             }
-            if (debug) log.Debug("FIXCancelOrder() for " + packet.Symbol + ". Original client id: " + packet.OriginalClientOrderId);
-            CreateOrChangeOrder origOrder = null;
-            try
-            {
-                long origClientId;
-                if (!long.TryParse(packet.OriginalClientOrderId, out origClientId))
-                {
-                    log.Error("original client order id " + packet.OriginalClientOrderId +
-                              " cannot be converted to long: " + packet);
-                    origClientId = 0;
-                }
-                origOrder = ProviderSimulator.GetOrderById(symbol, origClientId);
-            }
-            catch (ApplicationException)
-            {
-                if (debug) log.Debug(symbol + ": Cannot cancel order by client id: " + packet.OriginalClientOrderId + ". Probably already filled or canceled.");
-                OnRejectCancel(packet.Symbol, packet.ClientOrderId, packet.OriginalClientOrderId, "No such order");
-                return;
-            }
-            var cancelOrder = ConstructCancelOrder(packet, packet.ClientOrderId);
-            cancelOrder.OriginalOrder = origOrder;
+            var cancelOrder = ConstructCancelOrder(packet, packet.ClientOrderId, origOrder);
             ProviderSimulator.CancelOrder(cancelOrder);
             ProcessCancelOrder(cancelOrder);
             ProviderSimulator.TryProcessAdustments(cancelOrder);
@@ -401,7 +403,7 @@ namespace TickZoom.LimeFIX
             return physicalOrder;
         }
 
-        private CreateOrChangeOrder ConstructCancelOrder(MessageFIX4_2 packet, string clientOrderId)
+        private CreateOrChangeOrder ConstructCancelOrder(MessageFIX4_2 packet, string clientOrderId, CreateOrChangeOrder origOrder)
         {
             if (string.IsNullOrEmpty(clientOrderId))
             {
@@ -409,7 +411,7 @@ namespace TickZoom.LimeFIX
                 log.Error(message);
                 throw new ApplicationException(message);
             }
-            var symbol = Factory.Symbol.LookupSymbol(packet.Symbol);
+            var symbol = origOrder.Symbol;
             var side = OrderSide.Buy;
             var type = OrderType.None;
             var logicalId = 0;
@@ -425,8 +427,10 @@ namespace TickZoom.LimeFIX
                 OrderAction.Cancel, OrderState.Active, symbol, side, type, OrderFlags.None,
                 0D, 0, logicalId, 0, clientId, null, utcCreateTime);
             if (debug) log.Debug("Received physical Order: " + physicalOrder);
+            physicalOrder.OriginalOrder = origOrder;
             return physicalOrder;
         }
+
 
         protected override FIXTFactory1_1 CreateFIXFactory(int sequence, string target, string sender)
         {
@@ -469,17 +473,6 @@ namespace TickZoom.LimeFIX
             SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
             var orderStatus = fill.CumulativeSize == fill.TotalSize ? "2" : "1";
             SendExecutionReport(order, orderStatus, "F", fill.Price, fill.TotalSize, fill.CumulativeSize, fill.Size, fill.RemainingSize, fill.UtcTime);
-        }
-
-        private void OnBusinessRejectOrder(string clientOrderId, string error)
-        {
-            var mbtMsg = (FIXMessage4_2)FixFactory.Create();
-            //mbtMsg.SetBusinessRejectReferenceId(clientOrderId);
-            mbtMsg.SetText(error);
-            mbtMsg.SetTransactTime(TimeStamp.UtcNow);
-            mbtMsg.AddHeader("j");
-            if (trace) log.Trace("Sending business reject order: " + mbtMsg);
-            SendMessage(mbtMsg);
         }
 
         private void OnRejectCancel(string symbol, string clientOrderId, string origClientOrderId, string error)
@@ -527,8 +520,10 @@ namespace TickZoom.LimeFIX
                 case OrderType.Limit:
                     orderType = 2;
                     break;
+                case OrderType.None:
+                    break;
                 default:
-                    throw new LimeException("Unsupported order type");
+                    throw new LimeException("Unsupported order type: " + order.Type);
             }
             int orderSide = 0;
             switch (order.Side)
@@ -542,6 +537,8 @@ namespace TickZoom.LimeFIX
                 case OrderSide.SellShort:
                     orderSide = 5;
                     break;
+                default:
+                    throw new LimeException("Unsupported order side: " + order.Side);
             }
             var mbtMsg = (FIXMessage4_2)FixFactory.Create();
             mbtMsg.SetOrderQuantity(orderQty);
@@ -553,8 +550,14 @@ namespace TickZoom.LimeFIX
             mbtMsg.SetCumulativeQuantity(Math.Abs(cumQty));
             mbtMsg.SetOrderStatus(status);
             mbtMsg.SetPositionEffect("O");
-            mbtMsg.SetOrderType(orderType);
-            mbtMsg.SetSide(orderSide);
+            if( orderType != 0)
+            {
+                mbtMsg.SetOrderType(orderType);
+            }
+            if( orderSide > 0)
+            {
+                mbtMsg.SetSide(orderSide);
+            }
             mbtMsg.SetClientOrderId(order.BrokerOrder.ToString());
             if (order.OriginalOrder != null)
             {
@@ -681,19 +684,6 @@ namespace TickZoom.LimeFIX
 
             }
         }
-
-        private void SendLogout()
-        {
-            var mbtMsg = (FIXMessage4_2)FixFactory.Create();
-            mbtMsg.AddHeader("5");
-            SendMessage(mbtMsg);
-            if (trace) log.Trace("Sending logout confirmation: " + mbtMsg);
-        }
-		
-
-
-
-       
     }
 }
 

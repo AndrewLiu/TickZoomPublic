@@ -142,7 +142,7 @@ namespace TickZoom.MBTFIX
                     log.Error("original client order id " + packet.OriginalClientOrderId + " cannot be converted to long: " + packet);
                     origClientId = 0;
                 }
-                origOrder = ProviderSimulator.GetOrderById(symbol, origClientId);
+                origOrder = ProviderSimulator.GetOrderById(origClientId);
 			} catch( ApplicationException ex) {
 				if( debug) log.Debug( symbol + ": Rejected " + packet.ClientOrderId + ". Cannot change order: " + packet.OriginalClientOrderId + ". Already filled or canceled.  Message: " + ex.Message);
                 OnRejectOrder(order, symbol + ": Cannot change order. Probably already filled or canceled.");
@@ -199,7 +199,7 @@ namespace TickZoom.MBTFIX
             }
             else
             {
-                SendSessionStatus("3");
+                TrySendSessionStatus("3");
             }
             onlineNextTime = true;
         }
@@ -241,7 +241,7 @@ namespace TickZoom.MBTFIX
                               " cannot be converted to long: " + packet);
                     origClientId = 0;
                 }
-                origOrder = ProviderSimulator.GetOrderById(symbol, origClientId);
+                origOrder = ProviderSimulator.GetOrderById(origClientId);
             }
             catch (ApplicationException)
             {
@@ -444,17 +444,6 @@ namespace TickZoom.MBTFIX
             SendExecutionReport(order, orderStatus, "F", fill.Price, fill.TotalSize, fill.CumulativeSize, fill.Size, fill.RemainingSize, fill.UtcTime);
         }
 
-        private void OnBusinessRejectOrder(string clientOrderId, string error)
-        {
-            var mbtMsg = (FIXMessage4_4)FixFactory.Create();
-            mbtMsg.SetBusinessRejectReferenceId(clientOrderId);
-            mbtMsg.SetText(error);
-            mbtMsg.SetTransactTime(TimeStamp.UtcNow);
-            mbtMsg.AddHeader("j");
-            if (trace) log.Trace("Sending business reject order: " + mbtMsg);
-            SendMessage(mbtMsg);
-        }
-
         private void OnRejectCancel(string symbol, string clientOrderId, string origClientOrderId, string error)
         {
             var mbtMsg = (FIXMessage4_4)FixFactory.Create();
@@ -502,7 +491,11 @@ namespace TickZoom.MBTFIX
 				case OrderType.Stop:
 					orderType = 3;
 					break;
-			}
+                case OrderType.None:
+			        break;
+                default:
+                    throw new ApplicationException("Unexpected order type: " + order.Type);
+            }
 			int orderSide = 0;
 			switch( order.Side) {
 				case OrderSide.Buy:
@@ -514,7 +507,9 @@ namespace TickZoom.MBTFIX
 				case OrderSide.SellShort:
 					orderSide = 5;
 					break;
-			}
+                default:
+                    throw new ApplicationException("Unexpected order side: " + order.Side);
+            }
 			var mbtMsg = (FIXMessage4_4) FixFactory.Create();
 			mbtMsg.SetAccount( "33006566");
 			mbtMsg.SetDestination("MBTX");
@@ -652,15 +647,5 @@ namespace TickZoom.MBTFIX
 
             }
         }
-
-        private void SendLogout()
-        {
-            var mbtMsg = (FIXMessage4_4)FixFactory.Create();
-            mbtMsg.AddHeader("5");
-            SendMessage(mbtMsg);
-            if (trace) log.Trace("Sending logout confirmation: " + mbtMsg);
-        }
-		
-
     }
 }

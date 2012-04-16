@@ -42,7 +42,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\..\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -70,7 +70,6 @@
     <Compile Include="LimeFIX\LimeQuoteMessage.cs" />
     <Compile Include="LimeFIX\LimeQuotesInterop.cs" />
     <Compile Include="LimeFIX\LimeProvider.cs" />
-    <Compile Include="LimeFIX\LimeQuoteProviderSupport.cs" />
     <Compile Include="LimeFIX\LimeQuotesProvider.cs" />
     <Compile Include="LimeFIX\LimeQuotesSimulator.cs" />
     <Compile Include="LimeFIX\MessageFactoryLimeQuotes.cs" />

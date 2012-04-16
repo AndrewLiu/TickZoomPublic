@@ -80,5 +80,6 @@ namespace TickZoom.Api
 	    OptionType OptionType { get; set; }
 	    long TickCount { get; }
 	    SymbolInfo Symbol { get; }
+	    void SyntheticOrder(EventItem eventItem);
 	}
 }

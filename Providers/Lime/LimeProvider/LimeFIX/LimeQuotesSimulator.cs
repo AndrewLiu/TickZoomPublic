@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using TickZoom.Api;
@@ -183,6 +183,9 @@ namespace TickZoom.LimeFIX
                 // We steal the order_id field to send the upper 32 bits of the timaestamp
                 trade->common.timestamp = (uint)tick.UtcTime.Internal;
                 trade->common.order_id = (uint)(tick.UtcTime.Internal >> 32);
+
+                QuotePacketQueue.Enqueue(quoteMessage, tick.UtcTime.Internal);
+                if (trace) log.Trace("Enqueued tick packet: " + new TimeStamp(tick.UtcTime.Internal));
             }
             else if (isQuote) {
                 bool priceChanged = true;

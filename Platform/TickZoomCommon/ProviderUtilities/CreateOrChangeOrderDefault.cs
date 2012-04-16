@@ -59,7 +59,6 @@ namespace TickZoom.Common
         public OrderFlags orderFlags;
         public int cancelCount;
         public int pendingCount;
-
     }
 
 	public class CreateOrChangeOrderDefault : CreateOrChangeOrder
@@ -174,20 +173,32 @@ namespace TickZoom.Common
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append(instanceId);
-            sb.Append(" ");
+            if( IsSynthetic)
+            {
+                sb.Append("Synthetic ");
+            }
             sb.Append(binary.action);
             sb.Append(" ");
             sb.Append(binary.orderState);
             sb.Append(" ");
-            sb.Append(binary.side);
-            sb.Append(" ");
-            sb.Append(binary.size);
-            sb.Append(" ");
-            sb.Append(binary.type);
-            sb.Append(" ");
+            switch (binary.action)
+            {
+                case OrderAction.Create:
+                case OrderAction.Change:
+                    sb.Append(binary.side);
+                    sb.Append(" ");
+                    sb.Append(binary.size);
+                    sb.Append(" ");
+                    sb.Append(binary.type);
+                    sb.Append(" ");
+                    break;
+                case OrderAction.Cancel:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("Unexpected action: " + binary.action);
+            }
             sb.Append(binary.symbol);
-            if (binary.type != OrderType.Market)
+            if (binary.action != OrderAction.Cancel && binary.type != OrderType.Market)
             {
                 sb.Append(" at ");
                 sb.Append(binary.price);
@@ -365,7 +376,12 @@ namespace TickZoom.Common
 	    public TimeStamp UtcCreateTime
 	    {
             get { return binary.utcCreateTime; }
-	    }
+            set
+            {
+                AssertAtomic();
+                binary.utcCreateTime = value;
+            }
+        }
 
 	    public OrderAction Action
 	    {
@@ -398,7 +414,21 @@ namespace TickZoom.Common
             set { binary.lastReadTime = value; }
         }
 
-        #region PhysicalOrder Members
+        public bool IsSynthetic
+        {
+            get { return (binary.orderFlags & OrderFlags.IsSynthetic) > 0; }
+            set
+            {
+                if( value)
+                {
+                    binary.orderFlags |= OrderFlags.IsSynthetic;
+                }
+                else
+                {
+                    binary.orderFlags &= ~OrderFlags.IsSynthetic;
+                }
+            }
+        }
 
                  
         public bool OffsetTooLateToCancel
@@ -422,6 +452,5 @@ namespace TickZoom.Common
             get { return binary.pendingCount; }
             set { binary.pendingCount = value; }
         }
-        #endregion
     }
 }

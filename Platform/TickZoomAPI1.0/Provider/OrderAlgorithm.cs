@@ -61,5 +61,6 @@ namespace TickZoom.Api
 	    bool CheckForPending();
 	    void ProcessHeartBeat();
         int RejectRepeatCounter { get; set;  }
-    }
+	    void SyntheticFill(PhysicalFill fill);
+	}
 }

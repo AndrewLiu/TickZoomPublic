@@ -67,8 +67,8 @@ namespace TickZoom.Api
 			get { return LogicalFillBinary.Position; }
 		}
 		
-		public bool IsSimulated {
-			get { return LogicalFillBinary.IsSimulated; }
+		public bool IsExitStrategy {
+			get { return LogicalFillBinary.IsExitStrategy; }
 		}
 
 	    public long Recency

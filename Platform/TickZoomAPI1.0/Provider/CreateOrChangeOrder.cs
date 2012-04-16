@@ -105,6 +105,7 @@ namespace TickZoom.Api
         OrderFlags OrderFlags { get;  }
 
         bool OffsetTooLateToCancel { get; }
+        bool IsSynthetic { get; set; }
     }
 
 	public interface CreateOrChangeOrder : PhysicalOrder
