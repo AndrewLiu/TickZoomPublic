@@ -64,7 +64,6 @@ namespace TickZoom.Presentation
         private ModelLoaderInterface loaderInstance;
         private string dataSubFolder;
         private string serviceConfig;
-        private string providerAssembly;
         private bool autoUpdate;
         private Starter starter;
         private string starterName;
@@ -79,12 +78,6 @@ namespace TickZoom.Presentation
 					TryAutoUpdate();
 				}
 			}
-		}
-        
-		public string ProviderAssembly {
-			get { return providerAssembly; }
-			set { NotifyOfPropertyChange( () => ProviderAssembly );
-				providerAssembly = value; }
 		}
         
 		public string ServiceConfig {
@@ -732,7 +725,6 @@ namespace TickZoom.Presentation
 
         private void Load()
         {
-			providerAssembly = projectConfig.GetValue("ProviderAssembly");
 			autoUpdate = (bool) projectConfig.GetValue("AutoUpdate",typeof(bool));
 			serviceConfig = projectConfig.GetValue("ServiceConfig");
 			servicePort = (ushort) projectConfig.GetValue("ServicePort", typeof (ushort));
@@ -827,7 +819,6 @@ namespace TickZoom.Presentation
             projectConfig.SetValue("AutoUpdate", projectConfig.GetValue("AutoUpdate"));
             projectConfig.SetValue("DataSubFolder", dataSubFolder);
             projectConfig.SetValue("ServiceConfig", serviceConfig);
-            projectConfig.SetValue("ProviderAssembly", providerAssembly);
         }
 
         private void PlayAlarmSound()
@@ -965,7 +956,6 @@ namespace TickZoom.Presentation
             starterInstance.ProjectProperties.Starter.IntervalDefault = intervalDefault;
             starterInstance.Config = serviceConfig;
             starterInstance.Port = servicePort;
-            starterInstance.AddProvider(providerAssembly);
             if (useDefaultInterval)
             {
                 starterInstance.ProjectProperties.Chart.IntervalChartBar = intervalDefault;

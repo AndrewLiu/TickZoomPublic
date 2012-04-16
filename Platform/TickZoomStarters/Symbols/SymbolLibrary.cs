@@ -42,16 +42,17 @@ namespace TickZoom.Symbols
 	{
 		Dictionary<string,SymbolProperties> symbolMap;
 		Dictionary<long,SymbolProperties> universalMap;
-		public SymbolLibrary() {
-			SymbolDictionary dictionary = SymbolDictionary.Create("universal",SymbolDictionary.UniversalDictionary);
-			IEnumerable<SymbolProperties> enumer = dictionary;
+        long universalIdentifier = 1;
+        public SymbolLibrary()
+        {
+			var dictionary = SymbolDictionary.Create("universal",SymbolDictionary.UniversalDictionary);
 			symbolMap = new Dictionary<string, SymbolProperties>();
-			foreach( SymbolProperties symbolProperties in dictionary) {
-				symbolMap[symbolProperties.Symbol] = symbolProperties;
+			foreach( var properties in dictionary) {
+				symbolMap[properties.Symbol] = properties;
 			}
 			dictionary = SymbolDictionary.Create("user",SymbolDictionary.UserDictionary);
-			foreach( SymbolProperties symbolProperties in dictionary) {
-				symbolMap[symbolProperties.Symbol] = symbolProperties;
+			foreach( var properties in dictionary) {
+				symbolMap[properties.Symbol] = properties;
 			}
 			AddAbbreviations();
 			AdjustSessions();
@@ -59,7 +60,6 @@ namespace TickZoom.Symbols
 		}
 		
 		private void CreateUniversalIds() {
-			long universalIdentifier = 1;
 			universalMap = new Dictionary<long, SymbolProperties>();
 			foreach( var kvp in symbolMap) {
 				kvp.Value.BinaryIdentifier = universalIdentifier;
@@ -71,12 +71,13 @@ namespace TickZoom.Symbols
 		private void AddAbbreviations() {
 			var tempSymbolMap = new Dictionary<string,SymbolProperties>();
 			foreach( var kvp in symbolMap) {
-				SymbolProperties symbolProperties = kvp.Value;
-				string symbol = kvp.Key;
-				tempSymbolMap.Add(symbol,symbolProperties);
-				string abbreviation = symbolProperties.Symbol.StripInvalidPathChars();
-				if( !symbolMap.ContainsKey(abbreviation)) {
-					tempSymbolMap[abbreviation] = symbolProperties;
+				var properties = kvp.Value;
+				var symbolAccount = kvp.Key;
+                tempSymbolMap.Add(symbolAccount, properties);
+                var abbreviation = properties.Symbol.StripInvalidPathChars();
+                if (!symbolMap.ContainsKey(abbreviation))
+                {
+					tempSymbolMap[abbreviation] = properties;
 				}
 			}
 			symbolMap = tempSymbolMap;
@@ -84,8 +85,7 @@ namespace TickZoom.Symbols
 		
 		private void AdjustSessions() {
 			foreach( var kvp in symbolMap) {
-				string symbol = kvp.Key;
-				SymbolProperties symbolProperties = kvp.Value;
+				var symbolProperties = kvp.Value;
 				if( symbolProperties.TimeZone == null || symbolProperties.TimeZone.Length == 0) {
 					continue;
 				}
@@ -109,44 +109,71 @@ namespace TickZoom.Symbols
 			}
 		}
 		
-		private char[] splitChar = new char[] { '.' };
-		public bool GetSymbolProperties(string symbol, out SymbolProperties properties) {
-			string[] symbolParts = symbol.Split( splitChar);
-			symbol = symbolParts[0];
-			return symbolMap.TryGetValue(symbol.Trim(),out properties);
+		public bool GetSymbolProperties(string symbolAccount, out SymbolProperties properties) {
+			return symbolMap.TryGetValue(symbolAccount,out properties);
 		}
-		private static readonly char[] splitChars = new char[] { '.' };
 		private string GetDictionarySymbol(string symbol) {
-			var parts = symbol.Split( splitChars);
+			var parts = symbol.Split( '.','@','!');
 			if( parts.Length > 1) {
-				symbol = parts[0];
+				symbol = parts[0].Trim();
 			}
 			return symbol;
 		}
-		public SymbolProperties GetSymbolProperties(string symbol) {
-			symbol = GetDictionarySymbol(symbol);
+
+        private string GetDynamicAccount(string symbol)
+        {
+            var parts = symbol.Split('!');
+            if (parts.Length > 2)
+            {
+                throw new FormatException(symbol + " has more than one '@' symbol.");
+            }
+            else if( parts.Length == 2)
+            {
+                return parts[1].Trim().ToLower();
+            }
+            return "default";
+        }
+
+        public SymbolProperties GetSymbolProperties(string symbolAccount)
+        {
+			var symbol  = GetDictionarySymbol(symbolAccount);
+            var account = GetDynamicAccount(symbolAccount);
 			SymbolProperties properties;
-			if( GetSymbolProperties( symbol, out properties)) {
-				return properties;
-			} else {
-				throw new ApplicationException( "Sorry, symbol " + symbol + " was not found in any symbol dictionary.");
+            symbolAccount = symbol;
+            if (account != "default")
+            {
+                symbolAccount += "!" + account;
+            }
+            if (GetSymbolProperties(symbolAccount, out properties))
+            {
+                return properties;
 			}
-		}
+            if (GetSymbolProperties(symbol, out properties))
+            {
+                properties = properties.Copy();
+                properties.Account = account;
+                properties.BinaryIdentifier = ++universalIdentifier;
+                symbolMap.Add(symbolAccount,properties);
+                universalMap.Add(properties.BinaryIdentifier,properties);
+                var abbreviation = symbolAccount.StripInvalidPathChars();
+                if( !symbolMap.ContainsKey(abbreviation))
+                {
+                    symbolMap.Add(abbreviation, properties);
+                }
+                return properties;
+            }
+            if( account == "default")
+            {
+                throw new ApplicationException("Sorry, symbol " + symbolAccount + " was not found with default account in any symbol dictionary.");
+            }
+            else
+            {
+                throw new ApplicationException("Sorry, symbol " + symbolAccount + " was not found with either default or " + account + " account in any symbol dictionary and .");
+            }
+        }
 		
 		public SymbolInfo LookupSymbol(string symbol) {
 			return GetSymbolProperties(symbol);
-		}
-	
-		public bool LookupSymbol(string symbol, out SymbolInfo symbolInfo) {
-			symbol = GetDictionarySymbol(symbol);
-			SymbolProperties properties;
-			if( GetSymbolProperties(symbol, out properties)) {
-				symbolInfo = properties;
-				return true;
-			} else {
-				symbolInfo = null;
-				return false;
-			}
 		}
 	
 		public SymbolInfo LookupSymbol(long universalIdentifier) {
@@ -155,16 +182,6 @@ namespace TickZoom.Symbols
 				return symbolProperties;
 			} else {
 				throw new ApplicationException( "Sorry, universal id " + universalIdentifier + " was not found in any symbol dictionary.");
-			}
-		}
-		public bool LookupSymbol(long universalIdentifier, out SymbolInfo symbolInfo) {
-			SymbolProperties symbolProperties;
-			if( universalMap.TryGetValue(universalIdentifier,out symbolProperties)) {
-				symbolInfo = symbolProperties;
-				return true;
-			} else {
-				symbolInfo = null;
-				return false;
 			}
 		}
 	}

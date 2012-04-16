@@ -62,15 +62,5 @@ namespace TickZoom.Symbols
 			return Library.LookupSymbol(identifier);
 		}
 		
-		public bool TryLookupSymbol(string symbol, out SymbolInfo symbolInfo)
-		{
-			return Library.LookupSymbol(symbol, out symbolInfo);
-		}
-		
-		public bool TryLookupSymbol(long identifier, out SymbolInfo symbolInfo)
-		{
-			return Library.LookupSymbol(identifier, out symbolInfo);
-		}
-		
 	}
 }

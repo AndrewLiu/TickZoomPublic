@@ -59,15 +59,18 @@ namespace TickZoom.Starters
             Config = "WarehouseTest.config";
 		    Address = "inprocess";
 #if USE_MBT
-            var provider = "MBTFIXProvider/Simulate";
+            var dataProvider = "MBTFIXProvider/Simulate";
+            var executionProvider = "MBTFIXProvider/Simulate";
             var fixAssembly = "MBTFIXProvider";
             var fixSimulator = "ProviderSimulator";
 #else
-            var provider = "LimeProvider/Simulate";
+            var dataProvider = "LimeProvider/Simulate";
+            var executionProvider = "LimeProvider/Simulate";
             var fixAssembly = "LimeProvider";
             var fixSimulator = "ProviderSimulator";
 #endif
-            AddProvider(provider);
+            AddDataProvider(dataProvider);
+            AddExecutionProvider(executionProvider);
             SetupProviderServiceConfig();
             var providerManager = Factory.Parallel.SpawnProvider("ProviderCommon", "ProviderManager");
             providerManager.SendEvent(new EventItem(EventType.SetConfig, "WarehouseTest"));

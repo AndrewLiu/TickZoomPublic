@@ -39,7 +39,6 @@ namespace TickZoom.Starters
 
 		public override void Run(ModelInterface model)
 		{
-            SetupProviderServiceConfig();
 		    Factory.Provider.StartSockets();
             runMode = RunMode.RealTime;
             try
@@ -62,11 +61,14 @@ namespace TickZoom.Starters
                 var configFile = Path.Combine(configPath, "WarehouseTest.config");
                 var warehouseConfig = new ConfigFile(configFile);
                 warehouseConfig.SetValue("ServerCacheFolder", "Test\\ServerCache");
-                var provider = ProviderPlugins[0];
-                warehouseConfig.SetValue("ProviderAssembly", provider);
-                warehouseConfig.SetValue("ProviderAddress", "inprocess");
-                warehouseConfig.SetValue("ProviderPort", "6491");
-			} catch( Exception ex) {
+                var dataProvider = DataProviders[0];
+                warehouseConfig.SetValue("ActiveAccounts", "default");
+                warehouseConfig.SetValue("DataProvider", dataProvider);
+                var executionProvider = ExecutionProviders[0];
+                warehouseConfig.SetValue("default/ExecutionProvider", executionProvider);
+            }
+            catch (Exception ex)
+            {
 				log.Error("Setup error.",ex);
 				throw ex;
 			}

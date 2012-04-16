@@ -35,8 +35,6 @@ namespace TickZoom.Api
 	{
 		SymbolInfo LookupSymbol( string symbol);
 		SymbolInfo LookupSymbol( long symbol);
-		bool TryLookupSymbol( string symbol, out SymbolInfo symbolInfo);
-		bool TryLookupSymbol( long symbol, out SymbolInfo symbolInfo);
 	}
 
 }

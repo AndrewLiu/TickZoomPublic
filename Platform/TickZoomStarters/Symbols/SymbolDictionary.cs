@@ -63,7 +63,7 @@ namespace TickZoom.Symbols
 				SymbolDictionary dictionary;
 				if( File.Exists(dictionaryPath) ) {
 					using( StreamReader streamReader = new StreamReader(new FileStream(dictionaryPath,FileMode.Open,FileAccess.Read,FileShare.Read))) {
-						dictionary = SymbolDictionary.Create( streamReader);
+						dictionary = Create( streamReader);
 					}
 					return dictionary;
 				} else {
@@ -74,7 +74,7 @@ namespace TickZoom.Symbols
 			            sw.Write( contents);
 			        }
 			        Thread.Sleep(1000);
-					dictionary = SymbolDictionary.Create( new StreamReader(dictionaryPath));
+					dictionary = Create( new StreamReader(dictionaryPath));
 				}
 				return dictionary;
 			}
@@ -82,7 +82,7 @@ namespace TickZoom.Symbols
 		
 		public static SymbolDictionary Create(TextReader projectXML) {
 			lock( locker) {
-				SymbolDictionary project = new SymbolDictionary();
+				var project = new SymbolDictionary();
 				project.Load(projectXML);
 				return project;
 			}
@@ -108,11 +108,11 @@ namespace TickZoom.Symbols
 			
 		public void Load(TextReader projectXML) {
 			
-			XmlReaderSettings settings = new XmlReaderSettings();
+			var settings = new XmlReaderSettings();
 			settings.IgnoreComments = true;
 			settings.IgnoreWhitespace = true;
 			
-			using (XmlReader reader = XmlReader.Create(projectXML))
+			using (var reader = XmlReader.Create(projectXML))
 			{
 				try {
 					bool process = true;
@@ -124,7 +124,7 @@ namespace TickZoom.Symbols
 					    switch( reader.NodeType) {
 					    	case XmlNodeType.Element:
 					    		if( "category".Equals(reader.Name) ) {
-				    				SymbolCategory category = new SymbolCategory();
+				    				var category = new SymbolCategory();
 						    		HandleCategory(category,reader);
 						    		categories.Add(category);
 					    		} else {
@@ -166,11 +166,8 @@ namespace TickZoom.Symbols
 			    		} else if( "symbol".Equals(reader.Name)) {
 			    			string name = reader.GetAttribute("name");
 			    			string universal = reader.GetAttribute("universal");
-			    			SymbolProperties symbol = category.Default.Copy();
+			    			var symbol = category.Default.Copy();
 		    				symbol.Symbol = name;
-		    				if( universal != null) {
-//		    					symbol.UniversalSymbol = universal;
-		    				}
 			    			HandleSymbol(symbol,reader);
 			    			category.Symbols.Add(symbol);
 			    		} else {
@@ -331,6 +328,9 @@ namespace TickZoom.Symbols
       </symbol>
       <symbol name=""GE"" />
       <symbol name=""INTC"" />
+      <symbol name=""FITB"" />
+      <symbol name=""COIN"" />
+      <symbol name=""BAC"" />
       <symbol name=""Design"" />
       <symbol name=""FullTick"" />
       <symbol name=""Daily4Ticks"" />
