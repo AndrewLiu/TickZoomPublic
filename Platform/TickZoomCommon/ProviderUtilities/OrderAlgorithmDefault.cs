@@ -337,11 +337,35 @@ namespace TickZoom.Common
             physicalOrderCache.SetOrder(physical);
             if (physical.IsSynthetic)
             {
-                if (!syntheticOrderHandler.OnCreateBrokerOrder(physical))
-                {
-                    physicalOrderCache.RemoveOrder(physical.BrokerOrder);
-                    TryRemovePhysicalOrder(physical);
-                }
+                //if( IsSyntheticLogicalAlreadyFilled(physical))
+                //{
+                //    switch( physical.Type)
+                //    {
+                //        case OrderType.BuyStop:
+                //        case OrderType.BuyLimit:
+                //            physical.Type = OrderType.BuyMarket;
+                //            break;
+                //        case OrderType.SellStop:
+                //        case OrderType.SellLimit:
+                //            physical.Type = OrderType.SellMarket;
+                //            break;
+                //        default:
+                //            throw new ArgumentOutOfRangeException("Order type " + physical.Type + " doesn't support synthetic.");
+                //    }
+                //    if (!physicalOrderHandler.OnCreateBrokerOrder(physical))
+                //    {
+                //        physicalOrderCache.RemoveOrder(physical.BrokerOrder);
+                //        TryRemovePhysicalOrder(physical);
+                //    }
+                //}
+                //else
+                //{
+                    if (!syntheticOrderHandler.OnCreateBrokerOrder(physical))
+                    {
+                        physicalOrderCache.RemoveOrder(physical.BrokerOrder);
+                        TryRemovePhysicalOrder(physical);
+                    }
+                //}
             }
             else
             {
@@ -1350,9 +1374,11 @@ namespace TickZoom.Common
             CreateOrChangeOrder syntheticOrder;
             if (!physicalOrderCache.TryGetOrderById(synthetic.BrokerOrder, out syntheticOrder))
             {
-                throw new ApplicationException("Cannot find physical order for id " + synthetic.BrokerOrder + " in fill: " + synthetic);
+                if( debug) log.Debug("SyntheticFill: Cannot find physical order for id " + synthetic.BrokerOrder);
+                TryRemovePhysicalFill(synthetic);
+                return;
             }
-            physicalOrderCache.RemoveOrder(synthetic.BrokerOrder);
+            CleanupFilledPhysicalOrder(syntheticOrder);
             LogicalOrder logical = null;
             try
             {
@@ -1363,11 +1389,20 @@ namespace TickZoom.Common
                 if( debug) log.Debug("LogicalOrder id " + syntheticOrder.LogicalOrderId + " wasn't found for synthetic fill. Must have been canceled. Ignoring.");
                 return;
             }
-            var order = new CreateOrChangeOrderDefault( OrderAction.Create, symbol, logical, syntheticOrder.Side, syntheticOrder.Size, syntheticOrder.Price);
+            if (DoSyncTicks)
+            {
+                if (!tickSync.SentWaitingMatch)
+                {
+                    tickSync.AddWaitingMatch("SyntheticFill");
+                }
+            }
+            TryAddTouchedLogicalStop(logical);
+            var order = new CreateOrChangeOrderDefault(OrderAction.Create, symbol, logical, syntheticOrder.Side, syntheticOrder.Size, syntheticOrder.Price);
             order.IsSynthetic = false;
             order.UtcCreateTime = synthetic.UtcTime;
             order.Type = OrderType.Market;
             TryCreateBrokerOrder(order);
+            TryRemovePhysicalFill(synthetic);
         }
 
         public void Clear()
@@ -1391,23 +1426,8 @@ namespace TickZoom.Common
             TryFlushBufferedLogicals();
 
 		    if( isCompletePhysicalFill) {
-                if (debug) log.Debug("Physical order completely filled: " + order);
-                order.OrderState = OrderState.Filled;
-                originalPhysicals.Remove(order);
-                physicalOrders.Remove(order);
-                if (order.ReplacedBy != null)
-                {
-                    if (debug) log.Debug("Found this order in the replace property. Removing it also: " + order.ReplacedBy);
-                    originalPhysicals.Remove(order.ReplacedBy);
-                    physicalOrders.Remove(order.ReplacedBy);
-                    physicalOrderCache.RemoveOrder(order.ReplacedBy.BrokerOrder);
-                    if (DoSyncTicks)
-                    {
-                        tickSync.RemovePhysicalOrder(order.ReplacedBy);
-                    }
-                }
-                physicalOrderCache.RemoveOrder(order.BrokerOrder);
-			}
+                CleanupFilledPhysicalOrder(order);
+		    }
             else
             {
                 if (debug) log.Debug("Physical order partially filled: " + order);
@@ -1486,6 +1506,26 @@ namespace TickZoom.Common
             {
                 touchedLogicalStops.RemoveFirst();
             }
+		}
+
+        private void CleanupFilledPhysicalOrder(CreateOrChangeOrder order)
+        {
+            if (debug) log.Debug("Physical order completely filled: " + order);
+            order.OrderState = OrderState.Filled;
+            originalPhysicals.Remove(order);
+            physicalOrders.Remove(order);
+            if (order.ReplacedBy != null)
+            {
+                if (debug) log.Debug("Found this order in the replace property. Removing it also: " + order.ReplacedBy);
+                originalPhysicals.Remove(order.ReplacedBy);
+                physicalOrders.Remove(order.ReplacedBy);
+                physicalOrderCache.RemoveOrder(order.ReplacedBy.BrokerOrder);
+                if (DoSyncTicks)
+                {
+                    tickSync.RemovePhysicalOrder(order.ReplacedBy);
+                }
+            }
+            physicalOrderCache.RemoveOrder(order.BrokerOrder);
         }
 
         private TaskLock performCompareLocker = new TaskLock();

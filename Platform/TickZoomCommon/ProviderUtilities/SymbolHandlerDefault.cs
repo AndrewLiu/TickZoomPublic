@@ -403,6 +403,7 @@ namespace TickZoom.Common
 	    {
             if (debug) log.Debug("Clearing synthetic fill simulator.");
             syntheticOrders = Factory.Utility.FillSimulator(providerName, symbol, false, false, null);
+            syntheticOrders.EnableSyncTicks = SyncTicks.Enabled;
             syntheticOrders.OnPhysicalFill = OnPhysicalFill;
             syntheticOrders.OnRejectOrder = OnSyntheticReject;
             syntheticOrders.PartialFillSimulation = PartialFillSimulation.None;

@@ -15,7 +15,7 @@ namespace TickZoom.Common
         private volatile bool debug;
         public virtual void RefreshLogLevel()
         {
-            if (log != null)
+            if( log != null)
             {
                 info = log.IsInfoEnabled;
                 debug = log.IsDebugEnabled;
