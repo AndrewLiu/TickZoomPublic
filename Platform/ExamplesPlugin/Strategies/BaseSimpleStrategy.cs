@@ -322,13 +322,11 @@ namespace TickZoom.Examples
             {
                 if (lots == SellSize)
                 {
-                    //Orders.Reverse.ActiveNow.SellLimit(ask, SellSize * lotSize);
                     Orders.Exit.ActiveNow.SellLimit(ask);
                 }
                 else
                 {
                     Orders.Change.ActiveNow.SellLimit(ask, SellSize * lotSize);
-                    //Orders.Reverse.ActiveNow.SellLimit(breakEvenPrice + closeProfitInTicks * minimumTick, SellSize * lotSize);
                 }
             }
             else
@@ -348,13 +346,11 @@ namespace TickZoom.Examples
             {
                 if (lots == BuySize)
                 {
-                    //Orders.Reverse.ActiveNow.BuyLimit(bid, BuySize * lotSize);
                     Orders.Exit.ActiveNow.BuyLimit(bid);
                 }
                 else
                 {
                     Orders.Change.ActiveNow.BuyLimit(bid, BuySize * lotSize);
-                    //Orders.Reverse.ActiveNow.BuyLimit(breakEvenPrice - closeProfitInTicks * minimumTick, BuySize * lotSize);
                 }
             }
             else

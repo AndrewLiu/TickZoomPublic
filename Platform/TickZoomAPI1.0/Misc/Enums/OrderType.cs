@@ -44,12 +44,9 @@ namespace TickZoom.Api
 	}
 	public enum OrderType : byte {
 		None,
-		BuyMarket,
-		BuyStop,
-		BuyLimit,
-		SellMarket,
-		SellStop,
-		SellLimit,
+		Market,
+		Stop,
+		Limit,
 		StopLoss,
 	}
 }

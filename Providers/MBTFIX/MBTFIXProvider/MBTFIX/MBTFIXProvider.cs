@@ -636,7 +636,7 @@ namespace TickZoom.MBTFIX
                     OrderStore.TryGetOrderById(clientOrderId, out order);
                     if (order != null && symbolInfo.FixSimulationType == FIXSimulationType.BrokerHeldStopOrder) // Stop Order
                     {
-                        if( order.Type == OrderType.BuyStop || order.Type == OrderType.SellStop)
+                        if( order.Type == OrderType.Stop)
                         {
                             if (debug) log.Debug("New order message for Forex Stop: " + packetFIX);
                             break;
@@ -749,7 +749,7 @@ namespace TickZoom.MBTFIX
 
                     OrderStore.TryGetOrderById(clientOrderId, out order);
                     if (order != null && symbolInfo.FixSimulationType == FIXSimulationType.BrokerHeldStopOrder &&
-                        (order.Type == OrderType.BuyStop || order.Type == OrderType.SellStop))
+                        (order.Type == OrderType.Stop))
                     {
                         if( packetFIX.ExecutionType == "D")  // Restated
                         {
@@ -1005,7 +1005,7 @@ namespace TickZoom.MBTFIX
             }
 
             var orderHandler = GetAlgorithm(order.Symbol.BinaryIdentifier);
-		    var orderSize = order.Type == OrderType.SellLimit || order.Type == OrderType.SellMarket || order.Type == OrderType.SellStop ? -order.Size : order.Size;
+		    var orderSize = order.Side == OrderSide.Buy ? order.Size : -order.Size;
             if (Math.Abs(orderHandler.OrderAlgorithm.ActualPosition + orderSize) > order.Symbol.MaxPositionSize)
             {
                 throw new ApplicationException("Order was greater than MaxPositionSize of " + order.Symbol.MaxPositionSize + " for:\n" + order);
@@ -1041,7 +1041,7 @@ namespace TickZoom.MBTFIX
 			fixMsg.SetSymbol(order.Symbol.Symbol);
 			fixMsg.SetSide( GetOrderSide(order.Side));
 			switch( order.Type) {
-				case OrderType.BuyLimit:
+				case OrderType.Limit:
 					fixMsg.SetOrderType(2);
 					fixMsg.SetPrice(order.Price);
                     switch( order.Symbol.TimeInForce)
@@ -1056,11 +1056,7 @@ namespace TickZoom.MBTFIX
                             throw new ArgumentOutOfRangeException();
                     }
 					break;
-				case OrderType.BuyMarket:
-					fixMsg.SetOrderType(1);
-					fixMsg.SetTimeInForce(0);
-					break;
-				case OrderType.BuyStop:
+                case OrderType.Stop:
 					fixMsg.SetOrderType(3);
 					fixMsg.SetPrice(order.Price);
 					fixMsg.SetStopPrice(order.Price);
@@ -1076,42 +1072,11 @@ namespace TickZoom.MBTFIX
                             throw new ArgumentOutOfRangeException();
                     }
                     break;
-				case OrderType.SellLimit:
-					fixMsg.SetOrderType(2);
-					fixMsg.SetPrice(order.Price);
-                    switch (order.Symbol.TimeInForce)
-                    {
-                        case TimeInForce.Day:
-                            fixMsg.SetTimeInForce(0);
-                            break;
-                        case TimeInForce.GTC:
-                            fixMsg.SetTimeInForce(1);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
+                case OrderType.Market:
+                    fixMsg.SetOrderType(1);
+                    fixMsg.SetTimeInForce(0);
                     break;
-				case OrderType.SellMarket:
-					fixMsg.SetOrderType(1);
-					fixMsg.SetTimeInForce(0);
-					break;
-				case OrderType.SellStop:
-					fixMsg.SetOrderType(3);
-					fixMsg.SetPrice(order.Price);
-					fixMsg.SetStopPrice(order.Price);
-                    switch (order.Symbol.TimeInForce)
-                    {
-                        case TimeInForce.Day:
-                            fixMsg.SetTimeInForce(0);
-                            break;
-                        case TimeInForce.GTC:
-                            fixMsg.SetTimeInForce(1);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                    break;
-			}
+            }
 			fixMsg.SetLocateRequired("N");
 			fixMsg.SetSendTime(order.UtcCreateTime);
 			fixMsg.SetOrderQuantity(order.Size);

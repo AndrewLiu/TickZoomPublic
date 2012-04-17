@@ -22,7 +22,8 @@ namespace TickZoom.Interceptors
                 {
                     buyMarket = Factory.Engine.LogicalOrder(strategy.Data.SymbolInfo, strategy);
                     buyMarket.TradeDirection = direction;
-                    buyMarket.Type = OrderType.BuyMarket;
+                    buyMarket.Side = OrderSide.Buy;
+                    buyMarket.Type = OrderType.Market;
                     strategy.AddOrder(buyMarket);
                 }
                 return buyMarket;
@@ -37,7 +38,8 @@ namespace TickZoom.Interceptors
                 {
                     sellMarket = Factory.Engine.LogicalOrder(strategy.Data.SymbolInfo, strategy);
                     sellMarket.TradeDirection = direction;
-                    sellMarket.Type = OrderType.SellMarket;
+                    sellMarket.Side = OrderSide.Sell;
+                    sellMarket.Type = OrderType.Market;
                     strategy.AddOrder(sellMarket);
                 }
                 return sellMarket;
@@ -52,7 +54,8 @@ namespace TickZoom.Interceptors
                 {
                     buyStop = Factory.Engine.LogicalOrder(strategy.Data.SymbolInfo, strategy);
                     buyStop.TradeDirection = direction;
-                    buyStop.Type = OrderType.BuyStop;
+                    buyStop.Side = OrderSide.Buy;
+                    buyStop.Type = OrderType.Stop;
                     strategy.AddOrder(buyStop);
                 }
                 return buyStop;
@@ -68,7 +71,8 @@ namespace TickZoom.Interceptors
                 {
                     sellStop = Factory.Engine.LogicalOrder(strategy.Data.SymbolInfo, strategy);
                     sellStop.TradeDirection = direction;
-                    sellStop.Type = OrderType.SellStop;
+                    sellStop.Side = OrderSide.Sell;
+                    sellStop.Type = OrderType.Stop;
                     strategy.AddOrder(sellStop);
                 }
                 return sellStop;
@@ -83,7 +87,8 @@ namespace TickZoom.Interceptors
                 {
                     buyLimit = Factory.Engine.LogicalOrder(strategy.Data.SymbolInfo, strategy);
                     buyLimit.TradeDirection = direction;
-                    buyLimit.Type = OrderType.BuyLimit;
+                    buyLimit.Side = OrderSide.Buy;
+                    buyLimit.Type = OrderType.Limit;
                     strategy.AddOrder(buyLimit);
                 }
                 return buyLimit;
@@ -98,7 +103,8 @@ namespace TickZoom.Interceptors
                 {
                     sellLimit = Factory.Engine.LogicalOrder(strategy.Data.SymbolInfo, strategy);
                     sellLimit.TradeDirection = direction;
-                    sellLimit.Type = OrderType.SellLimit;
+                    sellLimit.Side = OrderSide.Sell;
+                    sellLimit.Type = OrderType.Limit;
                     strategy.AddOrder(sellLimit);
                 }
                 return sellLimit;

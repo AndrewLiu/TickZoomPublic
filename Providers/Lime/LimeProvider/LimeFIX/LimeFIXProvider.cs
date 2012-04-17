@@ -545,7 +545,7 @@ namespace TickZoom.LimeFIX
                     OrderStore.TryGetOrderById(clientOrderId, out order);
                     if (order != null && symbolInfo.FixSimulationType == FIXSimulationType.BrokerHeldStopOrder) // Stop Order
                     {
-                        if( order.Type == OrderType.BuyStop || order.Type == OrderType.SellStop)
+                        if( order.Type == OrderType.Stop )
                         {
                             if (debug) log.Debug("New order message for Forex Stop: " + packetFIX);
                             break;
@@ -658,7 +658,7 @@ namespace TickZoom.LimeFIX
 
                     OrderStore.TryGetOrderById(clientOrderId, out order);
                     if (order != null && symbolInfo.FixSimulationType == FIXSimulationType.BrokerHeldStopOrder &&
-                        (order.Type == OrderType.BuyStop || order.Type == OrderType.SellStop))
+                        (order.Type == OrderType.Stop ))
                     {
                         if( packetFIX.ExecutionType == "D")  // Restated
                         {
@@ -926,7 +926,7 @@ namespace TickZoom.LimeFIX
             }
 
             var orderHandler = GetAlgorithm(order.Symbol.BinaryIdentifier);
-            var orderSize = order.Type == OrderType.SellLimit || order.Type == OrderType.SellMarket || order.Type == OrderType.SellStop ? -order.Size : order.Size;
+            var orderSize = order.Side == OrderSide.Buy ? order.Size : -order.Size;
             if (Math.Abs(orderHandler.OrderAlgorithm.ActualPosition + orderSize) > order.Symbol.MaxPositionSize)
             {
                 throw new ApplicationException("Order was greater than MaxPositionSize of " + order.Symbol.MaxPositionSize + " for:\n" + order);
@@ -961,7 +961,7 @@ namespace TickZoom.LimeFIX
             fixMsg.SetSymbol(order.Symbol.Symbol);
             fixMsg.SetSide(order.Side == OrderSide.Buy ? 1 : 5);
 			switch( order.Type) {
-                case OrderType.BuyLimit:
+                case OrderType.Limit:
                     fixMsg.SetOrderType(2);
                     fixMsg.SetPrice(order.Price);
                     switch (order.Symbol.TimeInForce)
@@ -975,36 +975,14 @@ namespace TickZoom.LimeFIX
                             throw new ArgumentOutOfRangeException();
                     }
                     break;
-                case OrderType.BuyMarket:
+                case OrderType.Market:
                     fixMsg.SetOrderType(1);
                     //fixMsg.SetTimeInForce(0);
                     break;
-                case OrderType.BuyStop:
+                case OrderType.Stop:
                    // throw new LimeException("Lime does not accept Buy Stop Orders");
-                    log.Error("Lime: Buy Stops not supproted");
+                    log.Error("Lime: Stops not supproted");
                     break;
-                case OrderType.SellLimit:
-                    fixMsg.SetOrderType(2);
-                    fixMsg.SetPrice(order.Price);
-                    switch (order.Symbol.TimeInForce)
-                    {
-                        case TimeInForce.Day:
-                            fixMsg.SetTimeInForce(0);
-                            break;
-                        case TimeInForce.GTC:
-                            throw new LimeException("Lime does not accept GTC Buy Lime Orders");
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                    break;
-                case OrderType.SellMarket:
-                    fixMsg.SetOrderType(1);
-                    //fixMsg.SetTimeInForce(0);
-                    break;
-                case OrderType.SellStop:
-                    //throw new LimeException("Lime does not accept Sell Stop Orders");
-                    log.Error("Lime: Sell Stops not supproted");
-			        break;
                 default:
                     throw new LimeException("Unknown OrderType");
             }

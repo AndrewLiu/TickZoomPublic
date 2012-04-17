@@ -145,6 +145,7 @@ namespace Other
                 config.StarterName = "FIXSimulatorStarter";
 				config.Start();
 				config.WaitComplete(120, () => { return config.CommandWorker.IsBusy; } );
+                Thread.Sleep(5000);
 				config.Stop();
 				config.WaitComplete(120, () => { return !config.CommandWorker.IsBusy; } );
 				Assert.IsFalse(config.CommandWorker.IsBusy,"ProcessWorker.Busy");

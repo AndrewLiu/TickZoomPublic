@@ -315,7 +315,7 @@ namespace TickZoom.MBTFIX
 			SendExecutionReport( order, "A", 0.0, 0, 0, 0, (int) order.Size, TimeStamp.UtcNow);
             SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
             if( order.Symbol.FixSimulationType == FIXSimulationType.BrokerHeldStopOrder &&
-                (order.Type == OrderType.BuyStop || order.Type == OrderType.StopLoss))
+                (order.Type == OrderType.Stop))
             {
                 SendExecutionReport(order, "A", "D", 0.0, 0, 0, 0, (int)order.Size, TimeStamp.UtcNow);
                 SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
@@ -346,28 +346,16 @@ namespace TickZoom.MBTFIX
 					side = OrderSide.SellShort;
 					break;
 			}
-			var type = OrderType.BuyLimit;
+			var type = OrderType.Limit;
 			switch( packet.OrderType) {
 				case "1":
-					if( side == OrderSide.Buy) {
-						type = OrderType.BuyMarket;
-					} else {
-						type = OrderType.SellMarket;
-					}
+					type = OrderType.Market;
 					break;
 				case "2":
-					if( side == OrderSide.Buy) {
-						type = OrderType.BuyLimit;
-					} else {
-						type = OrderType.SellLimit;
-					}
+					type = OrderType.Limit;
 					break;
 				case "3":
-					if( side == OrderSide.Buy) {
-						type = OrderType.BuyStop;
-					} else {
-						type = OrderType.SellStop;
-					}
+					type = OrderType.Stop;
 					break;
 			}
 		    long clientId;
@@ -440,9 +428,9 @@ namespace TickZoom.MBTFIX
         public override void OnPhysicalFill(PhysicalFill fill, CreateOrChangeOrder order)
         {
             if (order.Symbol.FixSimulationType == FIXSimulationType.BrokerHeldStopOrder &&
-                (order.Type == OrderType.BuyStop || order.Type == OrderType.SellStop))
+                (order.Type == OrderType.Stop))
             {
-                order.Type = order.Type == OrderType.BuyStop ? OrderType.BuyMarket : OrderType.SellMarket;
+                order.Type = OrderType.Market;
                 var marketOrder = Factory.Utility.PhysicalOrder(order.Action, order.OrderState,
                                                                 order.Symbol, order.Side, order.Type, OrderFlags.None, 0,
                                                                 order.Size, order.LogicalOrderId,
@@ -505,16 +493,13 @@ namespace TickZoom.MBTFIX
 	    private void SendExecutionReport(CreateOrChangeOrder order, string status, string executionType, double price, int orderQty, int cumQty, int lastQty, int leavesQty, TimeStamp time) {
 			int orderType = 0;
 			switch( order.Type) {
-				case OrderType.BuyMarket:
-				case OrderType.SellMarket:
+				case OrderType.Market:
 					orderType = 1;
 					break;
-				case OrderType.BuyLimit:
-				case OrderType.SellLimit:
+				case OrderType.Limit:
 					orderType = 2;
 					break;
-				case OrderType.BuyStop:
-				case OrderType.SellStop:
+				case OrderType.Stop:
 					orderType = 3;
 					break;
 			}

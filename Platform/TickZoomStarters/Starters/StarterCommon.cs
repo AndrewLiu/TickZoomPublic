@@ -152,8 +152,6 @@ namespace TickZoom.Starters
                 engine.TestFinishedTimeout = ProjectProperties.Starter.TestFinishedTimeout;
 		        engine.PortfolioSyncInterval = ProjectProperties.Starter.PortfolioSyncInterval;
 
-                if (CancelPending) return;
-
                 engine.TickReplaySpeed = ProjectProperties.Engine.TickReplaySpeed;
                 engine.BarReplaySpeed = ProjectProperties.Engine.BarReplaySpeed;
                 engine.ShowChartCallback = ShowChartCallback;
@@ -161,12 +159,11 @@ namespace TickZoom.Starters
                 log.Info("Setting engine create chart callback = " + engine.CreateChartCallback);
 
                 engine.Run();
-		        var parallel = Factory.Parallel;
-                parallel.Dispose();
-                if (CancelPending) return;
             }
             finally
 		    {
+                var parallel = Factory.Parallel;
+                parallel.Dispose();
                 Factory.Parallel.ReleaseIOTasks();
                 Factory.Parallel.SetMode(ParallelMode.Normal);
             }
