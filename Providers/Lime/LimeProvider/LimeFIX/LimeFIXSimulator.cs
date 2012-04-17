@@ -369,28 +369,14 @@ namespace TickZoom.LimeFIX
                     side = OrderSide.SellShort;
                     break;
             }
-            var type = OrderType.BuyLimit;
+            var type = OrderType.Limit;
             switch (packet.OrderType)
             {
                 case "1":
-                    if (side == OrderSide.Buy)
-                    {
-                        type = OrderType.BuyMarket;
-                    }
-                    else
-                    {
-                        type = OrderType.SellMarket;
-                    }
+                    type = OrderType.Market;
                     break;
                 case "2":
-                    if (side == OrderSide.Buy)
-                    {
-                        type = OrderType.BuyLimit;
-                    }
-                    else
-                    {
-                        type = OrderType.SellLimit;
-                    }
+                    type = OrderType.Limit;
                     break;
                 default:
                     //throw new LimeException("Unsupported Order Type");
@@ -469,9 +455,9 @@ namespace TickZoom.LimeFIX
         public override void OnPhysicalFill(PhysicalFill fill, CreateOrChangeOrder order)
         {
             if (order.Symbol.FixSimulationType == FIXSimulationType.BrokerHeldStopOrder &&
-                (order.Type == OrderType.BuyStop || order.Type == OrderType.SellStop))
+                (order.Type == OrderType.Stop ))
             {
-                order.Type = order.Type == OrderType.BuyStop ? OrderType.BuyMarket : OrderType.SellMarket;
+                order.Type = OrderType.Market;
                 var marketOrder = Factory.Utility.PhysicalOrder(order.Action, order.OrderState,
                                                                 order.Symbol, order.Side, order.Type, OrderFlags.None, 0,
                                                                 order.Size, order.LogicalOrderId,
@@ -535,16 +521,14 @@ namespace TickZoom.LimeFIX
         {
             int orderType = 0;
             switch (order.Type) {
-                case OrderType.BuyMarket:
-                case OrderType.SellMarket:
+                case OrderType.Market:
                     orderType = 1;
                     break;
-                case OrderType.BuyLimit:
-                case OrderType.SellLimit:
+                case OrderType.Limit:
                     orderType = 2;
                     break;
                 default:
-                    throw new LimeException("Unsupproted order type");
+                    throw new LimeException("Unsupported order type");
             }
             int orderSide = 0;
             switch (order.Side)

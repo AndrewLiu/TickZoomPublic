@@ -40,36 +40,48 @@ namespace TickZoom.Interceptors
         {
             switch (order.Type)
             {
-                case OrderType.SellMarket:
-                    ProcessSellMarket(order, tick);
-                    break;
-                case OrderType.SellStop:
-                    ProcessSellStop(order, tick);
-                    break;
-                case OrderType.SellLimit:
-                    if (tick.IsTrade && limitOrderTradeSimulation != LimitOrderTradeSimulation.None)
+                case OrderType.Market:
+                    if( order.Side == OrderSide.Buy)
                     {
-                        ProcessSellLimitTrade(order, tick);
+                        ProcessBuyMarket(order, tick);
                     }
-                    else if (tick.IsQuote && limitOrderQuoteSimulation != LimitOrderQuoteSimulation.None)
+                    else
                     {
-                        ProcessSellLimitQuote(order, tick);
+                        ProcessSellMarket(order, tick);
                     }
                     break;
-                case OrderType.BuyMarket:
-                    ProcessBuyMarket(order, tick);
-                    break;
-                case OrderType.BuyStop:
-                    ProcessBuyStop(order, tick);
-                    break;
-                case OrderType.BuyLimit:
-                    if (tick.IsTrade && limitOrderTradeSimulation != LimitOrderTradeSimulation.None)
+                case OrderType.Stop:
+                    if (order.Side == OrderSide.Buy)
                     {
-                        ProcessBuyLimitTrade(order, tick);
+                        ProcessBuyStop(order, tick);
                     }
-                    else if (tick.IsQuote && limitOrderQuoteSimulation != LimitOrderQuoteSimulation.None)
+                    else
                     {
-                        ProcessBuyLimitQuote(order, tick);
+                        ProcessSellStop(order, tick);
+                    }
+                    break;
+                case OrderType.Limit:
+                    if (order.Side == OrderSide.Buy)
+                    {
+                        if (tick.IsTrade && limitOrderTradeSimulation != LimitOrderTradeSimulation.None)
+                        {
+                            ProcessBuyLimitTrade(order, tick);
+                        }
+                        else if (tick.IsQuote && limitOrderQuoteSimulation != LimitOrderQuoteSimulation.None)
+                        {
+                            ProcessBuyLimitQuote(order, tick);
+                        }
+                    }
+                    else
+                    {
+                        if (tick.IsTrade && limitOrderTradeSimulation != LimitOrderTradeSimulation.None)
+                        {
+                            ProcessSellLimitTrade(order, tick);
+                        }
+                        else if (tick.IsQuote && limitOrderQuoteSimulation != LimitOrderQuoteSimulation.None)
+                        {
+                            ProcessSellLimitQuote(order, tick);
+                        }
                     }
                     break;
             }

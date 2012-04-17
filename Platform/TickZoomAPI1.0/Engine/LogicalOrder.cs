@@ -74,6 +74,12 @@ namespace TickZoom.Api
             set;
         }
 
+        OrderSide Side
+        {
+            get;
+            set;
+        }
+
         TradeDirection TradeDirection
         {
             get;

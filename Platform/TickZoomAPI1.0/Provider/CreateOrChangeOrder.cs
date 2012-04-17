@@ -49,6 +49,7 @@ namespace TickZoom.Api
     {
         OrderType Type { get; }
         double Price { get; }
+        OrderSide Side { get; set; }
     }
 
     public interface PhysicalOrder : Order
@@ -119,6 +120,5 @@ namespace TickZoom.Api
 	    int CancelCount { get; set; }
 	    int PendingCount { get; set; }
 	    OrderType Type { get; set; }
-	    OrderSide Side { get; set; }
 	}
 }

@@ -474,21 +474,15 @@ namespace TickZoom.Charting
 		    var resultingPosition = fill.Position;
 			Color color = Color.Empty;
 			ArrowDirection direction = ArrowDirection.Up;
-			switch( order.Type) {
-				case OrderType.BuyLimit:
-				case OrderType.BuyStop:
-				case OrderType.BuyMarket:
+			switch( order.Side) {
+				case OrderSide.Buy:
 					color = Color.Green;
 					direction = ArrowDirection.Up;
 					break;
-				case OrderType.SellLimit:
-				case OrderType.SellStop:
-				case OrderType.SellMarket:
+                default:
 					color = Color.Red;
 					direction = ArrowDirection.Down;
 					break;
-				default: 
-					throw new ApplicationException("Unknown OrderType " + order.Type + " for drawing a trade.");
 			}
 			if( order.TradeDirection == TradeDirection.Exit ||
 			    order.TradeDirection == TradeDirection.ExitStrategy ) {
@@ -515,6 +509,8 @@ namespace TickZoom.Charting
                     sb.Append(bar);
                     sb.Append(" ");
                     sb.Append(order.TradeDirection);
+                    sb.Append(" ");
+                    sb.AppendLine(order.Side.ToString());
                     sb.Append(" ");
                     sb.AppendLine(order.Type.ToString());
                     sb.AppendLine(orderSerial.ToString());

@@ -187,7 +187,7 @@ namespace TickZoom.Common
             sb.Append(binary.type);
             sb.Append(" ");
             sb.Append(binary.symbol);
-            if (binary.type != OrderType.BuyMarket && binary.type != OrderType.SellMarket)
+            if (binary.type != OrderType.Market)
             {
                 sb.Append(" at ");
                 sb.Append(binary.price);

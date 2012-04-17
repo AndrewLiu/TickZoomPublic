@@ -212,20 +212,24 @@ namespace TickZoom.Interceptors
                 }
             }
             TriggerOperation operation = default(TriggerOperation);
+            var buyStop = order.Side == OrderSide.Buy && order.Type == OrderType.Stop;
+            var sellLimit = order.Side != OrderSide.Buy && order.Type == OrderType.Limit;
+
             switch (order.Type)
             {
-                case OrderType.BuyMarket:
-                case OrderType.SellMarket:
+                case OrderType.Market:
                     break;
-                case OrderType.BuyStop:
-                case OrderType.SellLimit:
-                    operation = TriggerOperation.GreaterOrEqual;
+                case OrderType.Stop:
+                case OrderType.Limit:
+                    if( buyStop || sellLimit)
+                    {
+                        operation = TriggerOperation.GreaterOrEqual;
+                    }
+                    else
+                    {
+                        operation = TriggerOperation.LessOrEqual;
+                    }
                     break;
-                case OrderType.BuyLimit:
-                case OrderType.SellStop:
-                    operation = TriggerOperation.LessOrEqual;
-                    break;
-                case OrderType.StopLoss:
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -285,18 +289,22 @@ namespace TickZoom.Interceptors
         public bool HasBrokerOrder(CreateOrChangeOrder order)
         {
             var list = increaseOrders;
+            var buyStop = order.Side == OrderSide.Buy && order.Type == OrderType.Stop;
+            var sellLimit = order.Side != OrderSide.Buy && order.Type == OrderType.Limit;
             switch (order.Type)
             {
-                case OrderType.BuyLimit:
-                case OrderType.SellStop:
-                    list = decreaseOrders;
+                case OrderType.Limit:
+                case OrderType.Stop:
+                    if( buyStop || sellLimit)
+                    {
+                        list = increaseOrders;
+                    }
+                    else
+                    {
+                        list = decreaseOrders;
+                    }
                     break;
-                case OrderType.SellLimit:
-                case OrderType.BuyStop:
-                    list = increaseOrders;
-                    break;
-                case OrderType.BuyMarket:
-                case OrderType.SellMarket:
+                case OrderType.Market:
                     list = marketOrders;
                     break;
                 default:
@@ -548,18 +556,22 @@ namespace TickZoom.Interceptors
 
         private void SortAdjust(CreateOrChangeOrder order)
         {
+            var buyStop = order.Side == OrderSide.Buy && order.Type == OrderType.Stop;
+            var sellLimit = order.Side != OrderSide.Buy && order.Type == OrderType.Limit;
             switch (order.Type)
             {
-                case OrderType.BuyLimit:
-                case OrderType.SellStop:
-                    SortAdjust(decreaseOrders, order, (x, y) => y.Price - x.Price);
+                case OrderType.Limit:
+                case OrderType.Stop:
+                    if( buyStop || sellLimit)
+                    {
+                        SortAdjust(increaseOrders, order, (x, y) => x.Price - y.Price);
+                    }
+                    else
+                    {
+                        SortAdjust(decreaseOrders, order, (x, y) => y.Price - x.Price);
+                    }
                     break;
-                case OrderType.SellLimit:
-                case OrderType.BuyStop:
-                    SortAdjust(increaseOrders, order, (x, y) => x.Price - y.Price);
-                    break;
-                case OrderType.BuyMarket:
-                case OrderType.SellMarket:
+                case OrderType.Market:
                     Adjust(marketOrders, order);
                     break;
                 default:
@@ -630,43 +642,18 @@ namespace TickZoom.Interceptors
             }
         }
 
-        private bool VerifySide(CreateOrChangeOrder order)
-        {
-            switch (order.Type)
-            {
-                case OrderType.SellMarket:
-                case OrderType.SellStop:
-                case OrderType.SellLimit:
-                    return VerifySellSide(order);
-                    break;
-                case OrderType.BuyMarket:
-                case OrderType.BuyStop:
-                case OrderType.BuyLimit:
-                    return VerifyBuySide(order);
-                    break;
-                default:
-                    throw new ApplicationException("Unknown order type: " + order.Type);
-            }
-        }
-
         private void FillCallback(Order order, double price, Tick tick)
         {
             var physicalOrder = (CreateOrChangeOrder)order;
             int size = 0;
-            switch (order.Type)
+            switch (order.Side)
             {
-                case OrderType.BuyMarket:
-                case OrderType.BuyStop:
-                case OrderType.BuyLimit:
+                case OrderSide.Buy:
                     size = physicalOrder.Size;
                     break;
-                case OrderType.SellMarket:
-                case OrderType.SellStop:
-                case OrderType.SellLimit:
+                default:
                     size = -physicalOrder.Size;
                     break;
-                default:
-                    throw new ApplicationException("Unknown order type: " + order.Type);
             }
             CreatePhysicalFillHelper(size, price, tick.Time, tick.UtcTime, physicalOrder);
         }
@@ -747,7 +734,7 @@ namespace TickZoom.Interceptors
                     numberFills = split = random.Next(maxPartialFillsPerOrder) + 1;
                     break;
                 case PartialFillSimulation.PartialFillsIncomplete:
-                    if (order.Type == OrderType.BuyLimit || order.Type == OrderType.SellLimit)
+                    if (order.Type == OrderType.Limit)
                     {
                         split = 5;
                         numberFills = 3;
