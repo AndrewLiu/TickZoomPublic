@@ -16,7 +16,8 @@ namespace TickZoom.Common
         private volatile bool anySnapShotWritten = false;
         public override void RefreshLogLevel()
         {
-            if (log != null)
+            base.RefreshLogLevel();
+            if( log != null)
             {
                 info = log.IsDebugEnabled;
                 debug = log.IsDebugEnabled;

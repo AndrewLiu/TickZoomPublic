@@ -77,7 +77,7 @@ namespace TickZoom.LimeFIX
             for( var current = positionChange.Orders.First; current != null; current = current.Next)
             {
                 var order = current.Value;
-                switch( order.Type)
+                switch (order.Type)
                 {
                     case OrderType.Stop:
                         order.IsSynthetic = true;
