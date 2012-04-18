@@ -700,8 +700,7 @@ namespace TickZoom.FIX
             else if (FixFactory == null)
             {
                 throw new InvalidOperationException(
-                    "FIX login message specified tried to continue with sequence number " + packet.Sequence +
-                    " but simulator has no sequence history.");
+                    "FIX login message specified tried to continue but simulator has no sequence history.");
             }
         }
 

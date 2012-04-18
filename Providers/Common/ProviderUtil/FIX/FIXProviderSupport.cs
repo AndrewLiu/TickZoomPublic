@@ -1910,7 +1910,7 @@ namespace TickZoom.FIX
             return sb.ToString();
         }
 
-        protected abstract void SendLogin(int localSequence);
+        protected abstract void SendLogin(int localSequence, bool b);
 
         public virtual bool OnLogin()
         {
@@ -1958,7 +1958,7 @@ namespace TickZoom.FIX
                 if (debug) log.Debug("Recovered symbol positions from snapshot:\n" + OrderStore.SymbolPositionsToString());
                 if (debug) log.Debug("Recovered strategy positions from snapshot:\n" + OrderStore.StrategyPositionsToString());
                 RemoteSequence = OrderStore.RemoteSequence;
-                SendLogin(OrderStore.LocalSequence);
+                SendLogin(OrderStore.LocalSequence,false);
                 OrderStore.RequestSnapshot();
             }
             else
@@ -1966,7 +1966,7 @@ namespace TickZoom.FIX
                 if (debug) log.Debug("Unable to recover from snapshot. Beginning full recovery.");
                 OrderStore.SetSequences(0, 0);
                 OrderStore.ForceSnapshot();
-                SendLogin(OrderStore.LocalSequence);
+                SendLogin(OrderStore.LocalSequence,true);
             }
             return true;
         }

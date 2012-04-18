@@ -177,7 +177,6 @@ namespace TickZoom.FIX
             else if (tickSync.OnlyProcessPhysicalOrders)
             {
                 if (trace) log.Trace("Process physical orders - " + tickSync);
-                FillSimulator.StartTick(nextTick);
                 if (FillSimulator.IsChanged)
                 {
                     FillSimulator.ProcessOrders();
@@ -226,7 +225,8 @@ namespace TickZoom.FIX
             FillSimulator.StartTick(currentTick);
             nextTick.Inject(temporaryTick.Extract());
             tickSync.AddTick(nextTick);
-		    if( trace) log.Trace("Dequeue tick " + nextTick.UtcTime + "." + nextTick.UtcTime.Microsecond);
+            FillSimulator.StartTick(nextTick);
+            if (trace) log.Trace("Dequeue tick " + nextTick.UtcTime + "." + nextTick.UtcTime.Microsecond);
 		    ProcessOnTickCallBack();
 		}
 		

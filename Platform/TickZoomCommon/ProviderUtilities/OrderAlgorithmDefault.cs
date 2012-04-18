@@ -338,35 +338,11 @@ namespace TickZoom.Common
             physicalOrderCache.SetOrder(physical);
             if (physical.IsSynthetic)
             {
-                //if( IsSyntheticLogicalAlreadyFilled(physical))
-                //{
-                //    switch( physical.Type)
-                //    {
-                //        case OrderType.BuyStop:
-                //        case OrderType.BuyLimit:
-                //            physical.Type = OrderType.BuyMarket;
-                //            break;
-                //        case OrderType.SellStop:
-                //        case OrderType.SellLimit:
-                //            physical.Type = OrderType.SellMarket;
-                //            break;
-                //        default:
-                //            throw new ArgumentOutOfRangeException("Order type " + physical.Type + " doesn't support synthetic.");
-                //    }
-                //    if (!physicalOrderHandler.OnCreateBrokerOrder(physical))
-                //    {
-                //        physicalOrderCache.RemoveOrder(physical.BrokerOrder);
-                //        TryRemovePhysicalOrder(physical);
-                //    }
-                //}
-                //else
-                //{
-                    if (!syntheticOrderHandler.OnCreateBrokerOrder(physical))
-                    {
-                        physicalOrderCache.RemoveOrder(physical.BrokerOrder);
-                        TryRemovePhysicalOrder(physical);
-                    }
-                //}
+                if (!syntheticOrderHandler.OnCreateBrokerOrder(physical))
+                {
+                    physicalOrderCache.RemoveOrder(physical.BrokerOrder);
+                    TryRemovePhysicalOrder(physical);
+                }
             }
             else
             {
@@ -1388,6 +1364,7 @@ namespace TickZoom.Common
             catch( ApplicationException)
             {
                 if( debug) log.Debug("LogicalOrder id " + syntheticOrder.LogicalOrderId + " wasn't found for synthetic fill. Must have been canceled. Ignoring.");
+                TryRemovePhysicalFill(synthetic);
                 return;
             }
             if (DoSyncTicks)
