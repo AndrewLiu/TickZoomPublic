@@ -298,6 +298,12 @@ namespace TickZoom.Common
                 if (debug) log.Debug("Ignoring broker order while waiting on reject recovery.");
                 return false;
             }
+            if( IsLogicalStopTouched(physical.LogicalSerialNumber))
+            {
+                // After logical stops are "touched" by getting any physical or synthetic fill
+                // then any additional physical orders for that stop must be market orders.
+                physical.Type = OrderType.Market;
+            }
             TryAddPhysicalOrder(physical);
             physicalOrderCache.SetOrder(physical);
             if (!physicalOrderHandler.OnCreateBrokerOrder(physical))
@@ -1242,6 +1248,13 @@ namespace TickZoom.Common
             return null;
         }
 
+        private ActiveList<long> touchedLogicalStops = new ActiveList<long>();
+
+        private bool IsLogicalStopTouched(long logicalSerialNumber)
+        {
+            return touchedLogicalStops.Contains(logicalSerialNumber);
+        }
+
 		public void ProcessFill( PhysicalFill physical) {
             if (debug) log.Debug("ProcessFill() physical: " + physical);
 		    CreateOrChangeOrder order;
@@ -1301,6 +1314,7 @@ namespace TickZoom.Common
             }
             else
             {
+                TryAddTouchedLogicalStop(logical);
                 if (logical.Price.ToLong() != order.Price.ToLong())
                 {
                     if (debug) log.Debug("Already canceled because physical order price " + order.Price + " dffers from logical order price " + logical);
@@ -1308,7 +1322,7 @@ namespace TickZoom.Common
                 }
             }
 
-            if (debug) log.Debug("isFilledAfterCancel " + isFilledAfterCancel + ", OffsetTooLateToCancel " + order.OffsetTooLateToCancel);
+		    if (debug) log.Debug("isFilledAfterCancel " + isFilledAfterCancel + ", OffsetTooLateToCancel " + order.OffsetTooLateToCancel);
             if (isFilledAfterCancel)
             {
                 TryRemovePhysicalFill(physical);
@@ -1340,6 +1354,18 @@ namespace TickZoom.Common
             if (debug) log.Debug("Fill price: " + fill);
             ProcessFill(fill, logical, isCompletePhysicalFill, physical.IsRealTime);
 		}
+
+        private void TryAddTouchedLogicalStop(LogicalOrder logical)
+        {
+            if( logical.Type == OrderType.Stop && !IsLogicalStopTouched(logical.SerialNumber))
+            {
+                touchedLogicalStops.AddLast(logical.SerialNumber);
+            }
+            if( touchedLogicalStops.Count > 10)
+            {
+                touchedLogicalStops.RemoveFirst();
+            }
+        }
 
         private TaskLock performCompareLocker = new TaskLock();
 		private void PerformCompareProtected()
