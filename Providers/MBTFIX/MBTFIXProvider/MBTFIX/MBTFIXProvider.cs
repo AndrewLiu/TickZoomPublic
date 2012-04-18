@@ -90,14 +90,21 @@ namespace TickZoom.MBTFIX
             SendMessage(mbtMsg);
         }
 
-        protected override void SendLogin(int localSequence)
+        protected override void SendLogin(int localSequence, bool restartSequence)
         {
-            localSequence += 500;
-            FixFactory = new FIXFactory4_4(localSequence+1, UserName, fixDestination);
+            if( restartSequence)
+            {
+                localSequence = 1;
+            }
+            else
+            {
+                localSequence += 500;
+            }
+            FixFactory = new FIXFactory4_4(localSequence, UserName, fixDestination);
             var mbtMsg = FixFactory.Create();
             mbtMsg.SetEncryption(0);
             mbtMsg.SetHeartBeatInterval(30);
-            if( localSequence == 0)
+            if( restartSequence)
             {
                 mbtMsg.ResetSequence();
             }

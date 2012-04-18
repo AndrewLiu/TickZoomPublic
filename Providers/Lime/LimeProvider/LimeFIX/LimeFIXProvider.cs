@@ -108,8 +108,9 @@ namespace TickZoom.LimeFIX
 
         #region Login
 
-        protected override void SendLogin(int localSequence)
+        protected override void SendLogin(int localSequence, bool restartSequence)
         {
+            // Ignore restartSequence because Lime doesn't support resetting with 141=Y.
             FixFactory = new FIXFactory4_2(localSequence + 1, UserName, fixDestination);
             var loginMessage = FixFactory.Create() as FIXMessage4_2;
             loginMessage.SetEncryption(0);
