@@ -332,6 +332,7 @@ namespace TickZoom.Common
                 // After logical stops are "touched" by getting any physical or synthetic fill
                 // then any additional physical orders for that stop must be market orders.
                 physical.Type = OrderType.Market;
+                physical.IsSynthetic = false;
             }
             TryAddPhysicalOrder(physical);
             physicalOrderCache.SetOrder(physical);
