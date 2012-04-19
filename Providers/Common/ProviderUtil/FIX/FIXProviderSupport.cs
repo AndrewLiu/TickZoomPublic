@@ -43,7 +43,7 @@ namespace TickZoom.FIX
         private volatile bool trace;
         private volatile bool debug;
         private volatile bool verbose;
-        private volatile bool fixTrace;
+        private volatile bool fixDebug;
         private Agent receiver;
         public virtual void RefreshLogLevel()
         {
@@ -53,7 +53,7 @@ namespace TickZoom.FIX
                 trace = log.IsTraceEnabled;
             }
             if (fixLog != null)
-                fixTrace = fixLog.IsTraceEnabled;
+                fixDebug = fixLog.IsDebugEnabled;
         }
         protected readonly object symbolsRequestedLocker = new object();
         public class SymbolReceiver
@@ -123,12 +123,12 @@ namespace TickZoom.FIX
             this.providerName = GetType().Name;
             log = Factory.SysLog.GetLogger(typeof(FIXProviderSupport) + "." + providerName + "." + name);
             log.Register(this);
-            fixLog = Factory.SysLog.GetLogger("FIX");
+            fixLog = Factory.SysLog.GetLogger("TickZoom.FIX.FIXLog");
             fixLog.Register(this);
             verbose = log.IsVerboseEnabled;
             debug = log.IsDebugEnabled;
             trace = log.IsTraceEnabled;
-            fixTrace = fixLog.IsTraceEnabled;
+            fixDebug = fixLog.IsDebugEnabled;
         }
 
         public void Start(EventItem eventItem)
@@ -440,12 +440,12 @@ namespace TickZoom.FIX
                         Stop(eventItem);
                         socketTask.Filter.Pop();
                         break;
-                    case EventType.StartSymbol:
-                        StartSymbol(eventItem);
+                    case EventType.StartBroker:
+                        StartBroker(eventItem);
                         socketTask.Filter.Pop();
                         break;
-                    case EventType.StopSymbol:
-                        StopSymbol(eventItem);
+                    case EventType.StopBroker:
+                        StopBroker(eventItem);
                         socketTask.Filter.Pop();
                         break;
                     case EventType.PositionChange:
@@ -651,8 +651,7 @@ namespace TickZoom.FIX
 
                     if (messageFIX != null)
                     {
-                        if (fixTrace)
-                            LogMessage(messageFIX.ToString(), true);
+                        if( fixDebug) LogMessage(messageFIX.ToString(), true);
                         if (debug) log.Debug("Received FIX Message: " + messageFIX);
                         if (messageFIX.MessageType == "A")
                         {
@@ -1018,27 +1017,27 @@ namespace TickZoom.FIX
         	
         }
 
-        public void StartSymbol(EventItem eventItem)
+        public void StartBroker(EventItem eventItem)
         {
         	log.Info("StartSymbol( " + eventItem.Symbol + ")");
         	// This adds a new order handler.
-            TryAddSymbol(eventItem.Symbol,eventItem.Agent);
+            TryAddSymbol(eventItem.Symbol.SourceSymbol,eventItem.Agent);
             using( orderStore.BeginTransaction())
             {
-                OnStartSymbol(eventItem.Symbol);
+                OnStartSymbol(eventItem.Symbol.SourceSymbol);
             }
         }
 
-        public void StopSymbol(EventItem eventItem)
+        public void StopBroker(EventItem eventItem)
         {
-        	log.Info("StopSymbol( " + eventItem.Symbol + ")");
+        	log.Info("StopBroker( " + eventItem.Symbol + ")");
             if (TryRemoveSymbol(eventItem.Symbol))
             {
-                OnStopSymbol(eventItem.Symbol);
+                OnStopBroker(eventItem.Symbol);
         	}
         }
         
-        public abstract void OnStopSymbol(SymbolInfo symbol);
+        public abstract void OnStopBroker(SymbolInfo symbol);
 	        
         private void LoadProperties(string configFilePath) {
 	        log.Notice("Using section " + configSection + " in file: " + configFilePath);
@@ -1261,8 +1260,7 @@ namespace TickZoom.FIX
 		
 	    private void SendMessageInternal(FIXTMessage1_1 fixMsg) {
 			var fixString = fixMsg.ToString();
-            if (fixTrace)
-                LogMessage(fixString, false);
+            if (fixDebug) LogMessage(fixString, false);
             else if (debug)
             {
 				string view = fixString.Replace(FIXTBuffer.EndFieldStr,"  ");
@@ -1461,8 +1459,7 @@ namespace TickZoom.FIX
 
         private unsafe void LogMessage(string messageFIX, bool received)
         {
-            if (fixTrace)
-                fixLog.TraceFormat("{0}: {1}", received ? "RCV" : "SND", messageFIX);
+            fixLog.DebugFormat("{0}: {1}", received ? "RCV" : "SND", messageFIX);
         }
 
         protected class SymbolAlgorithm
@@ -1471,14 +1468,15 @@ namespace TickZoom.FIX
             public SyntheticOrderRouter Synthetics;
         }
 
-        protected SymbolAlgorithm GetAlgorithm(long symbol)
+        protected SymbolAlgorithm GetAlgorithm(long symbolId)
         {
+            var symbol = Factory.Symbol.LookupSymbol(symbolId);
             SymbolAlgorithm symbolAlgorithm;
             lock (orderAlgorithmsLocker)
             {
-                if (!orderAlgorithms.TryGetValue(symbol, out symbolAlgorithm))
+                if (!orderAlgorithms.TryGetValue(symbol.BinaryIdentifier, out symbolAlgorithm))
                 {
-                    throw new ApplicationException("OrderAlgorirhm was not found for " + Factory.Symbol.LookupSymbol(symbol));
+                    throw new ApplicationException("OrderAlgorirhm was not found for " + symbol);
                 }
             }
             return symbolAlgorithm;
@@ -1623,7 +1621,7 @@ namespace TickZoom.FIX
 
         public virtual void PositionChange(PositionChangeDetail positionChange)
         {
-            var symbol = positionChange.Symbol;
+            var symbol = positionChange.Symbol.SourceSymbol;
             if( debug) log.Debug( "PositionChange " + positionChange);
             var algorithm = GetAlgorithm(symbol.BinaryIdentifier);
             if( algorithm.OrderAlgorithm.PositionChange(positionChange, IsRecovered))

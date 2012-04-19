@@ -44,15 +44,6 @@ namespace TickZoom.Api
 	    string SymbolFile { get; }
 	
 		/// <summary>
-		/// The universal symbol ties different symbols together from different
-		/// data providers and brokers which actually represent the same instrument.
-		/// In that case, they will all have the same UnivesalSymbol.
-		/// </summary>
-		SymbolInfo UniversalSymbol {
-			get;
-		}
-	
-		/// <summary>
 		/// The binary identifier is a unique number assigned to every symbol
 		/// each time the system starts. Therefore this number can change any time
 		/// a symbol is added or removed from the dictionary upon the next time it
@@ -320,6 +311,22 @@ namespace TickZoom.Api
         /// </summary>
 	    bool DisableRealtimeSimulation { get; }
 
-	    string Account { get; }
+        /// <summary>
+        /// Account nick name which must match the name in the provider server config file
+        /// which identifies the execution provider and config for the account. The default
+        /// value is "default"
+        /// </summary>
+        string Account { get; }
+
+        /// <summary>
+        /// The data provider recognized symbol.
+        /// </summary>
+	    string Symbol { get; }
+
+        /// <summary>
+        /// For internal use. Gives the symbol info object that has a default (or neutral) account.
+        /// This is the symbol used to match feeds of the same symbol across different accounts.
+        /// </summary>
+	    SymbolInfo SourceSymbol { get; set; }
 	}
 }

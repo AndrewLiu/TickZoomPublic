@@ -51,7 +51,6 @@ namespace TickZoom.Symbols
 		private double level2Increment;
 		private int level2LotSizeMinimum;
 		private long binaryIdentifier;
-		private SymbolInfo universalSymbol;
 		private int chartGroup;
 		private QuoteType quoteType = QuoteType.Level1;
 		private TimeAndSales timeAndSales = TimeAndSales.ActualTrades;
@@ -77,8 +76,10 @@ namespace TickZoom.Symbols
 	    private string symbolFile;
         private bool _disableRealtimeSimulation = false;
 	    private string account = "default";
+	    private string expandedSymbol;
+	    private SymbolInfo sourceSymbol;
 
-        public SymbolProperties()
+	    public SymbolProperties()
         {
              profitLoss = new ProfitLossDefault(this);
         }
@@ -148,12 +149,28 @@ namespace TickZoom.Symbols
         public string Symbol
         {
             get { return symbol; }
-            set { symbol = value; }
+            set
+            {
+                if( symbol != value)
+                {
+                    symbol = value;
+                    UpdateExpandedSymbol();
+                }
+            }
         }
 
-        public string ExpandedSymbol
-        {
-            get { return symbol + (account != "default" ? "!" + account : ""); }
+	    private void UpdateExpandedSymbol()
+	    {
+	        expandedSymbol = symbol;
+            if( account.ToLower() != "default")
+            {
+                expandedSymbol += "!" + account.ToLower();
+            }
+	    }
+
+	    public string ExpandedSymbol
+	    {
+            get { return expandedSymbol; }
 		}
 		
 		public int Level2LotSize {
@@ -165,10 +182,10 @@ namespace TickZoom.Symbols
 			get { return level2Increment; }
 			set { level2Increment = value; }
 		}
-		
-		public SymbolInfo UniversalSymbol {
-			get { return universalSymbol; }
-			set { universalSymbol = value; }
+
+		public SymbolInfo SourceSymbol {
+            get { return sourceSymbol; }
+            set { sourceSymbol = value; }
 		}
 		
 		public long BinaryIdentifier {
@@ -329,19 +346,23 @@ namespace TickZoom.Symbols
 	        set { partialFillSimulation = value; }
 	    }
 
-        #region SymbolInfo Members
-
 	    public bool DisableRealtimeSimulation {
 	        get { return _disableRealtimeSimulation; }
 	        set { _disableRealtimeSimulation = value; }
 	    }
 
-	    public string Account
-	    {
-	        get { return account; }
-	        set { account = value; }
-	    }
+        public string Account
+        {
+            get { return account; }
+            set
+            {
+                if (account != value)
+                {
+                    account = value.ToLower();
+                    UpdateExpandedSymbol();
+                }
+            }
+        }
 
-	    #endregion
     }
 }

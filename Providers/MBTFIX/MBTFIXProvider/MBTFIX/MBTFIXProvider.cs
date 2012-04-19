@@ -146,7 +146,7 @@ namespace TickZoom.MBTFIX
             }
         }
 
-		public override void OnStopSymbol(SymbolInfo symbol)
+		public override void OnStopBroker(SymbolInfo symbol)
 		{
             TrySendEndBroker();
         }

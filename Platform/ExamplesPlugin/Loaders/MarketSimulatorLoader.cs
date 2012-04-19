@@ -44,20 +44,31 @@ namespace TickZoom.Examples
 
         public override void OnInitialize(ProjectProperties properties)
         {
+            foreach (ISymbolProperties symbol in properties.Starter.SymbolProperties)
+            {
+                if (symbol.Account != "market")
+                {
+                    properties.Starter.SetSymbols(symbol.Symbol + "!market");
+                }
+            }
         }
 
         public override void OnLoad(ProjectProperties properties)
         {
+            var portfolio = new Portfolio();
             foreach (ISymbolProperties symbol in properties.Starter.SymbolProperties)
             {
-                string name = symbol.ExpandedSymbol;
-                Strategy strategy = new MarketSimulatorStrategy();
-                strategy.SymbolDefault = name;
-                strategy.Performance.Equity.GraphEquity = false;
-                AddDependency("Portfolio", strategy);
+                if( symbol.Account == "market")
+                {
+                    symbol.DisableRealtimeSimulation = true;
+                    var strategy = new MarketSimulatorStrategy();
+                    strategy.SymbolDefault = symbol.ExpandedSymbol;
+                    strategy.Performance.Equity.GraphEquity = false;
+                    portfolio.AddDependency(strategy);
+                }
             }
 
-            TopModel = GetPortfolio("Portfolio");
+            TopModel = portfolio;
         }
     }
 }

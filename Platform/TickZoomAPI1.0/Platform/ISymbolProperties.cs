@@ -83,5 +83,6 @@ namespace TickZoom.Api
         new FIXSimulationType FixSimulationType { get; set;  }
 
 	    PartialFillSimulation PartialFillSimulation { get; set; }
+	    bool DisableRealtimeSimulation { get; set; }
 	}
 }

@@ -140,7 +140,7 @@ namespace TickZoom.LimeFIX
         {
         }
 
-        public override void OnStopSymbol(SymbolInfo symbol)
+        public override void OnStopBroker(SymbolInfo symbol)
 		{
             TrySendEndBroker();
         }
@@ -626,8 +626,8 @@ namespace TickZoom.LimeFIX
                     fixMsg.SetDestination(order.Symbol.Destination);
                 }
             }
-            fixMsg.SetSymbol(order.Symbol.ExpandedSymbol);
-            fixMsg.SetSide(order.Side == OrderSide.Buy ? 1 : 5);
+            fixMsg.SetSymbol(order.Symbol.Symbol);
+            fixMsg.SetSide(order.Side == OrderSide.Buy ? 1 : 2);
 			switch( order.Type) {
                 case OrderType.Limit:
                     fixMsg.SetOrderType(2);

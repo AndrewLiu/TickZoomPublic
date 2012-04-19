@@ -48,6 +48,7 @@ namespace TickZoom.Properties
 	    private int testFinishedTimeout;
 		
 		List<SymbolProperties> symbolInfo = new List<SymbolProperties>();
+        List<string> symbolList = new List<string>();
 		
 		public StarterProperties(ChartProperties chartProperties, EngineProperties engineProperties)
 		{
@@ -69,17 +70,18 @@ namespace TickZoom.Properties
             if (debug) log.Debug("SetSymbols uses the global library of symbols.");
 			value = value.StripWhiteSpace();
 			value = value.StripInvalidPathChars();
-			var symbolFileArray = value.Split(new char[] { ',' });
-			var symbolList = new List<string>();
+			var symbolFileArray = value.Split(',');
 			for( int i=0; i<symbolFileArray.Length; i++) {
 				var tempSymbolFile = symbolFileArray[i].Trim();
-				if( !string.IsNullOrEmpty(tempSymbolFile)) {
+                if (symbolList.Contains(tempSymbolFile)) continue;
+                if (!string.IsNullOrEmpty(tempSymbolFile))
+                {
 					var symbol = library.GetSymbolProperties(tempSymbolFile).Copy();
-                    symbol.SymbolFile = tempSymbolFile;
-                    symbol.ChartGroup = i+1;
+				    symbol.SymbolFile = tempSymbolFile;
+					symbol.ChartGroup = i+1;
 					log.Info(symbol + " set to chart group " + symbol.ChartGroup);
 					symbolInfo.Add(symbol);
-					symbolList.Add(tempSymbolFile);
+					symbolList.Add(symbol.ExpandedSymbol);
 				}
 			}
 		}
