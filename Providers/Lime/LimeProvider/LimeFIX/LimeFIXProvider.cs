@@ -259,10 +259,11 @@ namespace TickZoom.LimeFIX
                     break;
                 case "0":
                     if (trace) log.Trace("Received Hearbeat");
-			        SetOrderServerOnline();
+			        TrySetOrderServerOnline();
                     break;
                 case "1":
                     if (trace) log.Trace("Received Test Request");
+                    TrySetOrderServerOnline();
                     SendHeartbeat();
                     break;
                 default:
@@ -271,14 +272,16 @@ namespace TickZoom.LimeFIX
             }
         }
 
-        private void SetOrderServerOnline() {
+        private void TrySetOrderServerOnline() {
             if ( !isOrderServerOnline )
+            {
                 log.Notice("Lime Order Server now Online");
-            isOrderServerOnline = true;
-            if (debug) log.Debug("Setting Order Server online");
-            CancelRecovered();
-            TrySendEndBroker();
-            TryEndRecovery();
+                isOrderServerOnline = true;
+                if (debug) log.Debug("Setting Order Server online");
+                CancelRecovered();
+                TrySendEndBroker();
+                TryEndRecovery();
+            }
         }
 
         private void BusinessReject(MessageFIX4_2 packetFIX) {

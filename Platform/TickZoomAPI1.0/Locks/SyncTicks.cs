@@ -150,7 +150,7 @@ namespace TickZoom.Api
             {
                 if ((*Directory.SyncTicksState).success!= value)
                 {
-                    log.Debug("Success flag changed from " + (*Directory.SyncTicksState).success + " to " + value);
+                    log.Notice("Success flag changed from " + (*Directory.SyncTicksState).success + " to " + value);
                     (*Directory.SyncTicksState).success = value;
                 }
             }
