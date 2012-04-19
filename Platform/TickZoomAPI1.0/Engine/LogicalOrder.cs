@@ -38,11 +38,12 @@ namespace TickZoom.Api
 
     public enum OrderStatus
     {
-		Inactive,
-		NextBar,
+		Inactive,   
+		NextBar,    
         AutoCancel,
 		Active,
-        PartialFill,
+        Touched,
+        PartialFill,  
     }
 	
 	/// <summary>
@@ -154,5 +155,6 @@ namespace TickZoom.Api
 
         OrderFlags OrderFlags { get; set; }
 	    bool IsSynthetic { get; set; }
+	    bool IsTouched { get; }
     }
 }

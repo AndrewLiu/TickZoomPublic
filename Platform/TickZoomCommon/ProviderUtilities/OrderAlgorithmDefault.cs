@@ -64,7 +64,8 @@ namespace TickZoom.Common
         private List<LogicalOrder> extraLogicals;
 		private int desiredPosition;
 		private Action<SymbolInfo,LogicalFillBinary> onProcessFill;
-		private bool handleSimulatedExits = false;
+        private Action<SymbolInfo,long> onProcessTouch;
+        private bool handleSimulatedExits = false;
 		private TickSync tickSync;
 	    private LogicalOrderCache logicalOrderCache;
         private bool isPositionSynced = false;
@@ -310,7 +311,7 @@ namespace TickZoom.Common
             if (DoSyncTicks) tickSync.RemovePhysicalOrder(createOrChange);
         }
 
-        private bool TryCreateBrokerOrder(CreateOrChangeOrder physical)
+        private bool TryCreateBrokerOrder(CreateOrChangeOrder physical, LogicalOrder logical)
         {
 			if( debug) log.Debug("Create Broker Order " + physical);
             if (physical.Size <= 0)
@@ -327,7 +328,7 @@ namespace TickZoom.Common
                 if (debug) log.Debug("Ignoring broker order while waiting on reject recovery.");
                 return false;
             }
-            if( IsLogicalStopTouched(physical.LogicalSerialNumber))
+            if( logical != null && logical.Type == OrderType.Stop && logical.IsTouched)
             {
                 // After logical stops are "touched" by getting any physical or synthetic fill
                 // then any additional physical orders for that stop must be market orders.
@@ -920,13 +921,13 @@ namespace TickZoom.Common
                     {
                         result = false;
                         var physical = new CreateOrChangeOrderDefault(OrderState.Pending, symbol, logical, side, size, price);
-                        TryCreateBrokerOrder(physical);
+                        TryCreateBrokerOrder(physical, logical);
                     }
                     if (logicalPosition > 0 && strategyPosition >= 0 && strategyPosition < logicalPosition)
                     {
                         result = false;
                         var physical = new CreateOrChangeOrderDefault(OrderState.Pending, symbol, logical, side, size, price);
-                        TryCreateBrokerOrder(physical);
+                        TryCreateBrokerOrder(physical, logical);
                     }
 					break;
 				case TradeDirection.Exit:
@@ -945,7 +946,7 @@ namespace TickZoom.Common
 					    result = false;
 						side = GetOrderSide(logical.Side);
                         var physical = new CreateOrChangeOrderDefault(OrderState.Pending, symbol, logical, side, size, price);
-						TryCreateBrokerOrder(physical);
+						TryCreateBrokerOrder(physical, logical);
 					}
 					break;
 				default:
@@ -965,12 +966,12 @@ namespace TickZoom.Common
                 if( strategyPosition > 0)
                 {
                     var physical = new CreateOrChangeOrderDefault(OrderState.Pending, symbol, logical, side, strategyPosition, price);
-                    TryCreateBrokerOrder(physical);
+                    TryCreateBrokerOrder(physical, logical);
                 }
                 else if( strategyPosition > logicalPosition)
                 {
                     var physical = new CreateOrChangeOrderDefault(OrderState.Pending, symbol, logical, side, size, price);
-                    TryCreateBrokerOrder(physical);
+                    TryCreateBrokerOrder(physical, logical);
                 }
             }
             if (logicalPosition > 0)
@@ -978,12 +979,12 @@ namespace TickZoom.Common
                 if (strategyPosition < 0)
                 {
                     var physical = new CreateOrChangeOrderDefault(OrderState.Pending, symbol, logical, side, -strategyPosition, price);
-                    TryCreateBrokerOrder(physical);
+                    TryCreateBrokerOrder(physical, logical);
                 }
                 else if( strategyPosition < logicalPosition)
                 {
                     var physical = new CreateOrChangeOrderDefault(OrderState.Pending, symbol, logical, side, size, price);
-                    TryCreateBrokerOrder(physical);
+                    TryCreateBrokerOrder(physical, logical);
                 }
             }
             return false;
@@ -1001,7 +1002,7 @@ namespace TickZoom.Common
                     result = false;
                     var side = GetOrderSide(logical.Side);
                     var physical = new CreateOrChangeOrderDefault(OrderState.Pending, symbol, logical, side, size, price);
-                    TryCreateBrokerOrder(physical);
+                    TryCreateBrokerOrder(physical, logical);
                 }
 			}
 			if( strategyPosition < 0) {
@@ -1011,7 +1012,7 @@ namespace TickZoom.Common
                     if (debug) log.Debug("ProcessMissingExit( strategy position " + strategyPosition + ", " + logical + ")");
                     var side = GetOrderSide(logical.Side);
                     var physical = new CreateOrChangeOrderDefault(OrderState.Pending, symbol, logical, side, size, price);
-                    TryCreateBrokerOrder(physical);
+                    TryCreateBrokerOrder(physical, logical);
                 }
 			}
             return result;
@@ -1160,7 +1161,7 @@ namespace TickZoom.Common
 			{
                 createOrChange = new CreateOrChangeOrderDefault(OrderAction.Create, OrderState.Pending, symbol, OrderSide.Buy, OrderType.Market, OrderFlags.None, 0, (int) delta, 0, 0, 0, null, default(TimeStamp));
                 log.Info("Sending adjustment order to position: " + createOrChange);
-			    TryCreateBrokerOrder(createOrChange);
+			    TryCreateBrokerOrder(createOrChange, null);
             }
             else if (delta < 0)
             {
@@ -1182,7 +1183,7 @@ namespace TickZoom.Common
                     side = physicalOrderCache.GetActualPosition(symbol) >= Math.Abs(delta) ? OrderSide.Sell : OrderSide.SellShort;
                     createOrChange = new CreateOrChangeOrderDefault(OrderAction.Create, OrderState.Pending, symbol, side, OrderType.Market, OrderFlags.None, 0, (int) Math.Abs(delta), 0, 0, 0, null, default(TimeStamp));
                     log.Info("Sending adjustment order to correct position: " + createOrChange);
-                    TryCreateBrokerOrder(createOrChange);
+                    TryCreateBrokerOrder(createOrChange, null);
                 }
             }
         }
@@ -1338,13 +1339,6 @@ namespace TickZoom.Common
             return null;
         }
 
-        private ActiveList<long> touchedLogicalStops = new ActiveList<long>();
-
-        private bool IsLogicalStopTouched(long logicalSerialNumber)
-        {
-            return touchedLogicalStops.Contains(logicalSerialNumber);
-        }
-
         public void SyntheticFill(PhysicalFill synthetic)
         {
             if (debug) log.Debug("SyntheticFill() physical: " + synthetic);
@@ -1374,12 +1368,12 @@ namespace TickZoom.Common
                     tickSync.AddWaitingMatch("SyntheticFill");
                 }
             }
-            TryAddTouchedLogicalStop(logical);
+            TryAddTouchedLogicalStop(symbol,logical);
             var order = new CreateOrChangeOrderDefault(OrderAction.Create, symbol, logical, syntheticOrder.Side, syntheticOrder.Size, syntheticOrder.Price);
             order.IsSynthetic = false;
             order.UtcCreateTime = synthetic.UtcTime;
             order.Type = OrderType.Market;
-            TryCreateBrokerOrder(order);
+            TryCreateBrokerOrder(order, logical);
             TryRemovePhysicalFill(synthetic);
         }
 
@@ -1433,7 +1427,7 @@ namespace TickZoom.Common
             }
             else
             {
-                TryAddTouchedLogicalStop(logical);
+                TryAddTouchedLogicalStop(symbol,logical);
                 if (logical.Price.ToLong() != order.Price.ToLong())
                 {
                     if (debug) log.Debug("Already canceled because physical order price " + order.Price + " dffers from logical order price " + logical);
@@ -1474,15 +1468,15 @@ namespace TickZoom.Common
             ProcessFill(fill, logical, isCompletePhysicalFill, physical.IsRealTime);
 		}
 
-        private void TryAddTouchedLogicalStop(LogicalOrder logical)
+        private void TryAddTouchedLogicalStop(SymbolInfo symbol, LogicalOrder logical)
         {
-            if( logical.Type == OrderType.Stop && !IsLogicalStopTouched(logical.SerialNumber))
+            if( logical.Type == OrderType.Stop && !logical.IsTouched)
             {
-                touchedLogicalStops.AddLast(logical.SerialNumber);
-            }
-            if( touchedLogicalStops.Count > 10)
-            {
-                touchedLogicalStops.RemoveFirst();
+                logical.Status = OrderStatus.Touched;
+                if( onProcessTouch != null)
+                {
+                    onProcessTouch(symbol, logical.SerialNumber);
+                }
             }
 		}
 
@@ -1605,7 +1599,8 @@ namespace TickZoom.Common
             {
                 fill.IsComplete = CheckFilledOrder(filledOrder, fill.Position);
             }
-			if( fill.IsComplete)
+            filledOrder.Status = OrderStatus.PartialFill;
+            if (fill.IsComplete)
 			{
                 if (debug) log.Debug("LogicalOrder is completely filled.");
 			    MarkAsFilled(filledOrder);
