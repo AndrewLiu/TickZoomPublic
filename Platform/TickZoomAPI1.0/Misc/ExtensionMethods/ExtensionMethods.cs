@@ -133,7 +133,7 @@ namespace TickZoom.Api
 		private static readonly ASCIIEncoding decoder = new ASCIIEncoding();
 		public static string ToSymbol(this long symbol) {
 			lock( decodeLocker) {
-				string result = Factory.Symbol.LookupSymbol(symbol).Symbol;
+				string result = Factory.Symbol.LookupSymbol(symbol).ExpandedSymbol;
 				return result;
 			}
 		}

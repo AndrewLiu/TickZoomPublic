@@ -21,8 +21,8 @@ namespace TickZoom.Examples
             var portfolio = new Portfolio();
             foreach( ISymbolProperties symbol in properties.Starter.SymbolProperties) {
                 var strategy = new ExampleOrderStrategy();
-                strategy.Name = strategy.Name + "-" + symbol.Symbol;
-                switch( symbol.Symbol)
+                strategy.Name = strategy.Name + "-" + symbol.ExpandedSymbol;
+                switch( symbol.ExpandedSymbol)
                 {
                     case "MSFT":
                     case "CSCO":
@@ -34,7 +34,7 @@ namespace TickZoom.Examples
                         strategy.IsShortOnly = true;
                         break;
                 }
-                strategy.SymbolDefault = symbol.Symbol;
+                strategy.SymbolDefault = symbol.ExpandedSymbol;
                 strategy.Performance.Equity.GraphEquity = false;
                 portfolio.AddDependency(strategy);
             }

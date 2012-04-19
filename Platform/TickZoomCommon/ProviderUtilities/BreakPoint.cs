@@ -54,7 +54,7 @@ namespace TickZoom.Common
 				return false;
 			}
 			if( constraintType == ConstraintType.Symbol) {
-				return data.SymbolInfo.Symbol == constraint;
+				return data.SymbolInfo.ExpandedSymbol == constraint;
 			}
 			return true;
 		}

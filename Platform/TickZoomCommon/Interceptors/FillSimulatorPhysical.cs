@@ -108,7 +108,7 @@ namespace TickZoom.Interceptors
             this.minimumTick = symbol.MinimumTick.ToLong();
             this.tickSync = SyncTicks.GetTickSync(symbol.BinaryIdentifier);
             this.createExitStrategyFills = createExitStrategyFills;
-            this.log = Factory.SysLog.GetLogger(typeof(FillSimulatorPhysical).FullName + "." + symbol.Symbol.StripInvalidPathChars() + "." + name);
+            this.log = Factory.SysLog.GetLogger(typeof(FillSimulatorPhysical).FullName + "." + symbol.ExpandedSymbol.StripInvalidPathChars() + "." + name);
             this.log.Register(this);
             this.createActualFills = createActualFills;
             fillLogic = new FillSimulatorLogic(name, symbol, FillCallback);

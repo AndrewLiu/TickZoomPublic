@@ -449,7 +449,7 @@ namespace TickZoom.LimeFIX
             mbtMsg.SetClientOrderId(order.BrokerOrder.ToString());
             mbtMsg.SetOrderStatus("8");
             mbtMsg.SetText(error);
-            mbtMsg.SetSymbol(order.Symbol.Symbol);
+            mbtMsg.SetSymbol(order.Symbol.ExpandedSymbol);
             mbtMsg.SetTransactTime(TimeStamp.UtcNow);
             mbtMsg.AddHeader("8");
             if (trace) log.Trace("Sending reject order: " + mbtMsg);
@@ -564,7 +564,7 @@ namespace TickZoom.LimeFIX
                 mbtMsg.SetOriginalClientOrderId(order.OriginalOrder.BrokerOrder.ToString());
             }
             mbtMsg.SetPrice(order.Price);
-            mbtMsg.SetSymbol(order.Symbol.Symbol);
+            mbtMsg.SetSymbol(order.Symbol.ExpandedSymbol);
             mbtMsg.SetTimeInForce(0);
             mbtMsg.SetExecutionType(executionType);
             mbtMsg.SetExcTransType("0");

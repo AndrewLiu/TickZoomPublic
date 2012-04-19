@@ -43,7 +43,7 @@ namespace TickZoom.Api
 			} else if( symbol.DisplayTimeZone == "Exchange") {
 				SetExchangeTimeZone();
 			} else {
-				throw new ApplicationException("Please, set the DisplayTimeZone property for the symbol " + symbol.Symbol + " in the symbol dictionary to either Exchange, Local, or UTC.");
+				throw new ApplicationException("Please, set the DisplayTimeZone property for the symbol " + symbol.ExpandedSymbol + " in the symbol dictionary to either Exchange, Local, or UTC.");
 			}
 		}
 		
@@ -76,7 +76,7 @@ namespace TickZoom.Api
 		
 		public void SetExchangeTimeZone() {
 			if( symbol.TimeZone == null || symbol.TimeZone.Length == 0) {
-				throw new ApplicationException("Please, set the TimeZone property for the symbol " + symbol.Symbol + " in the symbol dictionary.");
+				throw new ApplicationException("Please, set the TimeZone property for the symbol " + symbol.ExpandedSymbol + " in the symbol dictionary.");
 			}
 			string tz = symbol.TimeZone;
 			if( tz.StartsWith("UTC-") ) {

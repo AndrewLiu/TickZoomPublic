@@ -25,7 +25,7 @@ namespace TickZoom.Examples
             foreach (var symbol in properties.Starter.SymbolProperties)
             {
                 var strategy = new OtherStrategy();
-                strategy.SymbolDefault = symbol.Symbol;
+                strategy.SymbolDefault = symbol.ExpandedSymbol;
                 strategy.IsActive = true;
                 strategy.IsVisible = true;
                 strategies.Add(strategy);

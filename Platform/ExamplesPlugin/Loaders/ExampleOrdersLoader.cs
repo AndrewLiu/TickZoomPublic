@@ -53,8 +53,8 @@ namespace TickZoom.Examples
 				var portfolio = new Portfolio();
 				foreach( var symbol in properties.Starter.SymbolProperties) {
 					var strategy = new ExampleOrderStrategy();
-					strategy.Name = strategy.Name + "-" + symbol.Symbol;
-					strategy.SymbolDefault = symbol.Symbol;
+					strategy.Name = strategy.Name + "-" + symbol.ExpandedSymbol;
+					strategy.SymbolDefault = symbol.ExpandedSymbol;
 					AddDependency(portfolio,strategy);
 				}			
 				TopModel = portfolio;

@@ -92,7 +92,7 @@ namespace TickZoom.LimeFIX
             var symbolInfo = Factory.Symbol.LookupSymbol(symbol);
             log.Info("Lime: Received symbol request for " + symbolInfo);
 
-            ProviderSimulator.AddSymbol(symbolInfo.Symbol);
+            ProviderSimulator.AddSymbol(symbolInfo.ExpandedSymbol);
  
             var writePacket = (LimeQuoteMessage)QuoteSocket.MessageFactory.Create();
             LimeQuotesInterop.subscription_reply_msg* reply = (LimeQuotesInterop.subscription_reply_msg*)writePacket.Ptr;

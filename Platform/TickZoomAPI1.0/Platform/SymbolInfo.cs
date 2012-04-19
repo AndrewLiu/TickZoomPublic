@@ -34,7 +34,7 @@ namespace TickZoom.Api
 		/// <summary>
 		/// The actual text value of the symbol.
 		/// </summary>
-		string Symbol {
+		string ExpandedSymbol {
 			get;
 		}
 

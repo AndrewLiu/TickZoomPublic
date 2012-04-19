@@ -112,7 +112,7 @@ namespace TickZoom.TickUtil
                     var symbol = tickFile.Symbol;
                     if (debug) log.Debug("Start called.");
                     start = Factory.TickCount;
-                    diagnoseMetric = Diagnose.RegisterMetric("Reader." + symbol.Symbol.StripInvalidPathChars());
+                    diagnoseMetric = Diagnose.RegisterMetric("Reader." + symbol.ExpandedSymbol.StripInvalidPathChars());
                     var tempQueue = Factory.Parallel.FastQueue<int>(symbol + " Reader Nominal Queue");
                     var tempConnectionId = 0;
                     fileReaderTask.ConnectInbound(tempQueue, out tempConnectionId);
@@ -154,7 +154,7 @@ namespace TickZoom.TickUtil
 		private void PrepareTask()
 		{
 		    var symbol = tickFile.Symbol;
-	        log = Factory.SysLog.GetLogger("TickZoom.TickUtil.Reader."+symbol.Symbol.StripInvalidPathChars());
+	        log = Factory.SysLog.GetLogger("TickZoom.TickUtil.Reader."+symbol.ExpandedSymbol.StripInvalidPathChars());
 	        debug = log.IsDebugEnabled;
 	        trace = log.IsTraceEnabled;
 		    tickBoxPool = Factory.Parallel.TickPool(symbol);

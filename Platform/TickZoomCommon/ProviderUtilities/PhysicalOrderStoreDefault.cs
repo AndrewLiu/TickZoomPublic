@@ -482,7 +482,7 @@ namespace TickZoom.Common
                 }
                 writer.Write((int) order.Side);
                 writer.Write((int) order.Size);
-                writer.Write(order.Symbol.Symbol);
+                writer.Write(order.Symbol.ExpandedSymbol);
                 if (order.Tag == null)
                 {
                     writer.Write("");
@@ -529,7 +529,7 @@ namespace TickZoom.Common
                     {
                         positionCount++;
                         var symbol = Factory.Symbol.LookupSymbol(kvp.Key);
-                        writer.Write(symbol.Symbol);
+                        writer.Write(symbol.ExpandedSymbol);
                         writer.Write(kvp.Value.Position);
                     }
                 }

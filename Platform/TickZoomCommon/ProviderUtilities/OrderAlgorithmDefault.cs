@@ -98,7 +98,7 @@ namespace TickZoom.Common
 
         public OrderAlgorithmDefault(string name, SymbolInfo symbol, PhysicalOrderHandler brokerOrders, PhysicalOrderHandler syntheticOrders, LogicalOrderCache logicalOrderCache, PhysicalOrderCache physicalOrderCache)
         {
-            log = Factory.SysLog.GetLogger(typeof(OrderAlgorithmDefault).FullName + "." + name + "." + symbol.Symbol.StripInvalidPathChars());
+            log = Factory.SysLog.GetLogger(typeof(OrderAlgorithmDefault).FullName + "." + name + "." + symbol.ExpandedSymbol.StripInvalidPathChars());
             log.Register(this);
 			this.symbol = symbol;
 		    this.logicalOrderCache = logicalOrderCache;

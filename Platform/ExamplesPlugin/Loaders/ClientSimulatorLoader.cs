@@ -25,7 +25,7 @@ namespace TickZoom.Examples.Loaders
         {
             foreach (ISymbolProperties symbol in properties.Starter.SymbolProperties)
             {
-                string name = symbol.Symbol;
+                string name = symbol.ExpandedSymbol;
                 Strategy strategy = new ClientSimulatorStrategy();
                 strategy.SymbolDefault = name;
                 strategy.Performance.Equity.GraphEquity = false;

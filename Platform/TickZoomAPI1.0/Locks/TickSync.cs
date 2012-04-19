@@ -64,7 +64,7 @@ namespace TickZoom.Api
             this.state = tickSyncPtr;
             (*state).symbolBinaryId = symbolId;
             this.symbolInfo = Factory.Symbol.LookupSymbol(symbolId);
-            this.symbol = symbolInfo.Symbol.StripInvalidPathChars();
+            this.symbol = symbolInfo.ExpandedSymbol.StripInvalidPathChars();
             this.log = Factory.SysLog.GetLogger(typeof(TickSync).FullName + "." + symbol);
             if (trace) log.Trace("created with binary symbol id = " + symbolId);
         }

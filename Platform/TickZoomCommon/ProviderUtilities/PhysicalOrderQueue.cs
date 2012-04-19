@@ -13,7 +13,7 @@ namespace TickZoom.Common
 
         public PhysicalOrderQueue(string name, SymbolInfo symbol)
         {
-            this.log = Factory.SysLog.GetLogger(typeof(PhysicalOrderQueue).FullName + "." + symbol.Symbol.StripInvalidPathChars() + "." + name);
+            this.log = Factory.SysLog.GetLogger(typeof(PhysicalOrderQueue).FullName + "." + symbol.ExpandedSymbol.StripInvalidPathChars() + "." + name);
         }
 
         public Iterable<CreateOrChangeOrder> CreateOrderQueue

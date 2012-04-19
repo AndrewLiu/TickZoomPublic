@@ -42,7 +42,7 @@ namespace TickZoom.StarterTest
 			string fileName = @"..\..\Platform\TickZoomTesting\Startup\dictionary.tzdict";
 			SymbolDictionary dictionary = SymbolDictionary.Create(new StreamReader(fileName));
 			foreach( SymbolProperties properties in dictionary) {
-				InstrumentImpl instrument = InstrumentImpl.Get(properties.Symbol);
+				InstrumentImpl instrument = InstrumentImpl.Get(properties.ExpandedSymbol);
 				Assert.AreEqual( instrument.DepthIncrement, properties.Level2Increment);
 				Assert.AreEqual( instrument.LotSize, properties.Level2LotSize);
 				Assert.AreEqual( instrument.LotSizeDomLimit, properties.Level2LotSizeMinimum);

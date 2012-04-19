@@ -283,7 +283,7 @@ namespace TickZoom.Charting
 			GraphPane myPaneT = new GraphPane( new Rectangle( 10, 10, 10, 10 ),
 				"",
 				"Time, Days",
-				symbol.Symbol );
+				symbol.ExpandedSymbol );
 			
 			myPaneT.Fill.IsVisible = false;
 			// pretty it up a little
@@ -1133,7 +1133,7 @@ namespace TickZoom.Charting
 				// Calculate the Axis Scale Ranges
 				dataGraph.AxisChange();
    			    var form = FindForm();
-   			    form.Text = symbol.Symbol;
+   			    form.Text = symbol.ExpandedSymbol;
 				isDrawn = true;		
    			} catch (Exception ex) {
    				log.Error("ERROR: DrawChart ", ex);
