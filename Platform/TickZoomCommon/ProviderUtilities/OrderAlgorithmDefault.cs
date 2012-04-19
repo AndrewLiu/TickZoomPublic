@@ -64,7 +64,7 @@ namespace TickZoom.Common
         private List<LogicalOrder> extraLogicals;
 		private int desiredPosition;
 		private Action<SymbolInfo,LogicalFillBinary> onProcessFill;
-        private Action<SymbolInfo,long> onProcessTouch;
+        private Action<SymbolInfo,LogicalTouch> onProcessTouch;
         private bool handleSimulatedExits = false;
 		private TickSync tickSync;
 	    private LogicalOrderCache logicalOrderCache;
@@ -1374,7 +1374,7 @@ namespace TickZoom.Common
             order.UtcCreateTime = synthetic.UtcTime;
             order.Type = OrderType.Market;
             TryCreateBrokerOrder(order, logical);
-            TryRemovePhysicalFill(synthetic);
+            //TryRemovePhysicalFill(synthetic);
         }
 
         public void Clear()
@@ -1427,7 +1427,6 @@ namespace TickZoom.Common
             }
             else
             {
-                TryAddTouchedLogicalStop(symbol,logical);
                 if (logical.Price.ToLong() != order.Price.ToLong())
                 {
                     if (debug) log.Debug("Already canceled because physical order price " + order.Price + " dffers from logical order price " + logical);
@@ -1473,9 +1472,10 @@ namespace TickZoom.Common
             if( logical.Type == OrderType.Stop && !logical.IsTouched)
             {
                 logical.Status = OrderStatus.Touched;
-                if( onProcessTouch != null)
+                if( OnProcessTouch != null)
                 {
-                    onProcessTouch(symbol, logical.SerialNumber);
+                    var touch = new LogicalTouchBinary(logical.Id, logical.SerialNumber);
+                    OnProcessTouch(symbol, touch);
                 }
             }
 		}
@@ -2002,6 +2002,12 @@ namespace TickZoom.Common
         public bool ReceivedDesiredPosition
         {
             get { return receivedDesiredPosition; }
+        }
+
+        public Action<SymbolInfo, LogicalTouch> OnProcessTouch
+        {
+            get { return onProcessTouch; }
+            set { onProcessTouch = value; }
         }
 
         // This is a callback to confirm order was properly placed.

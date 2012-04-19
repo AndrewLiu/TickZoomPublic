@@ -32,8 +32,7 @@ using TickZoom.Api;
 
 namespace TickZoom.Api
 {
-	    
-	public struct LogicalFillBinary : LogicalFill
+    public struct LogicalFillBinary : LogicalFill
 	{
 		private int position;
 		private double price;

@@ -251,6 +251,8 @@
     <Compile Include="Provider\LogicalFill.cs" />
     <Compile Include="Provider\LogicalFillBinary.cs" />
     <Compile Include="Provider\LogicalFillBinaryBox.cs" />
+    <Compile Include="Provider\LogicalTouch.cs" />
+    <Compile Include="Provider\LogicalTouchBinary.cs" />
     <Compile Include="Provider\OrderAlgorithm.cs" />
     <Compile Include="Provider\Message.cs" />
     <Compile Include="Provider\MessageFactory.cs" />
