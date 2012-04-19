@@ -6,10 +6,13 @@ namespace TickZoom.Api
     {
         private int orderId;
         private long orderSerialNumber;
-        public LogicalTouchBinary(int orderId, long orderSerialNumber)
+        private long recency;
+
+        public LogicalTouchBinary(int orderId, long orderSerialNumber, long recency)
         {
             this.orderId = orderId;
             this.orderSerialNumber = orderSerialNumber;
+            this.recency = recency;
         }
 
         public int OrderId
@@ -20,6 +23,11 @@ namespace TickZoom.Api
         public long OrderSerialNumber
         {
             get { return orderSerialNumber; }
+        }
+
+        public long Recency
+        {
+            get { return recency; }
         }
 
         public override string ToString()

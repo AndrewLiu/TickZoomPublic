@@ -1757,7 +1757,13 @@ namespace TickZoom.FIX
             var symbolAlgorithm = GetAlgorithm(symbol.BinaryIdentifier);
             if (!symbolAlgorithm.OrderAlgorithm.IsBrokerOnline)
             {
-                if (debug) log.Debug("Broker offline but sending logical touch anyway for " + symbol + " to receiver for logical touch: " + touch);
+                if (debug) log.Debug("Broker offline so not sending logical touch for " + symbol + ": " + touch);
+                if (SyncTicks.Enabled)
+                {
+                    var tickSync = SyncTicks.GetTickSync(symbol.BinaryIdentifier);
+                    tickSync.RemovePhysicalFill(touch);
+                }
+                return;
             }
             if (debug) log.Debug("Sending logical touch for " + symbol + " to receiver for logical touch: " + touch);
             var item = new EventItem(symbol, EventType.LogicalTouch, touch);

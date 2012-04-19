@@ -1368,13 +1368,12 @@ namespace TickZoom.Common
                     tickSync.AddWaitingMatch("SyntheticFill");
                 }
             }
-            TryAddTouchedLogicalStop(symbol,logical);
+            TryAddTouchedLogicalStop(symbol,logical, synthetic);
             var order = new CreateOrChangeOrderDefault(OrderAction.Create, symbol, logical, syntheticOrder.Side, syntheticOrder.Size, syntheticOrder.Price);
             order.IsSynthetic = false;
             order.UtcCreateTime = synthetic.UtcTime;
             order.Type = OrderType.Market;
             TryCreateBrokerOrder(order, logical);
-            //TryRemovePhysicalFill(synthetic);
         }
 
         public void Clear()
@@ -1467,16 +1466,26 @@ namespace TickZoom.Common
             ProcessFill(fill, logical, isCompletePhysicalFill, physical.IsRealTime);
 		}
 
-        private void TryAddTouchedLogicalStop(SymbolInfo symbol, LogicalOrder logical)
+        private void TryAddTouchedLogicalStop(SymbolInfo symbol, LogicalOrder logical, PhysicalFill synthetic)
         {
             if( logical.Type == OrderType.Stop && !logical.IsTouched)
             {
                 logical.Status = OrderStatus.Touched;
                 if( OnProcessTouch != null)
                 {
-                    var touch = new LogicalTouchBinary(logical.Id, logical.SerialNumber);
+                    ++recency;
+                    var touch = new LogicalTouchBinary(logical.Id, logical.SerialNumber, recency);
                     OnProcessTouch(symbol, touch);
                 }
+                else
+                {
+                    throw new InvalidOperationException("OnProcessTouch was never set.");
+                }
+            }
+            else
+            {
+                if( debug) log.Debug("Not sending logical touch for: " + logical);
+                TryRemovePhysicalFill(synthetic);
             }
 		}
 
