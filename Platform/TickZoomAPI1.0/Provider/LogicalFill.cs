@@ -30,7 +30,7 @@ using TickZoom.Api;
 
 namespace TickZoom.Api
 {
-	public interface LogicalFill
+    public interface LogicalFill
 	{
 		int OrderId { get; }
 		long OrderSerialNumber { get; }

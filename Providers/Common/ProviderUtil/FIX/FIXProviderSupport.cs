@@ -1715,6 +1715,7 @@ namespace TickZoom.FIX
                     symbolAlgorithm = new SymbolAlgorithm { OrderAlgorithm = algorithm, Synthetics = syntheticRouter };
                     orderAlgorithms.Add(symbol, symbolAlgorithm);
                     algorithm.OnProcessFill = ProcessFill;
+                    algorithm.OnProcessTouch = ProcessTouch;
                 }
             }
             return symbolAlgorithm;
@@ -1743,6 +1744,23 @@ namespace TickZoom.FIX
             }
             if (debug) log.Debug("Sending fill event for " + symbol + " to receiver: " + fill);
             var item = new EventItem(symbol, EventType.LogicalFill, fill);
+            symbolReceiver.Agent.SendEvent(item);
+        }
+
+        public virtual void ProcessTouch(SymbolInfo symbol, LogicalTouch touch)
+        {
+            SymbolReceiver symbolReceiver;
+            if (!symbolsRequested.TryGetValue(symbol.BinaryIdentifier, out symbolReceiver))
+            {
+                throw new InvalidOperationException("Can't find symbol request for " + symbol);
+            }
+            var symbolAlgorithm = GetAlgorithm(symbol.BinaryIdentifier);
+            if (!symbolAlgorithm.OrderAlgorithm.IsBrokerOnline)
+            {
+                if (debug) log.Debug("Broker offline but sending logical touch anyway for " + symbol + " to receiver for logical touch: " + touch);
+            }
+            if (debug) log.Debug("Sending logical touch for " + symbol + " to receiver for logical touch: " + touch);
+            var item = new EventItem(symbol, EventType.LogicalTouch, touch);
             symbolReceiver.Agent.SendEvent(item);
         }
 
