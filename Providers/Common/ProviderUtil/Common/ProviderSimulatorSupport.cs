@@ -82,10 +82,10 @@ namespace TickZoom.FIX
                         {
                             tickSync.RemoveOrderChange();
                         }
-                        while (tickSync.SentPhysicalFillsCreated)
-                        {
-                            tickSync.RemovePhysicalFill("Rollback");
-                        }
+                        //while (tickSync.SentPhysicalFillsCreated)
+                        //{
+                        //    tickSync.RemovePhysicalFill("Rollback");
+                        //}
                         while (tickSync.SentPositionChange)
                         {
                             tickSync.RemovePositionChange("Rollback");

@@ -2025,7 +2025,7 @@ namespace TickZoom.Common
             CreateOrChangeOrder order;
             if (!physicalOrderCache.TryGetOrderById(brokerOrder, out order))
             {
-                log.Warn("ConfirmChange: Cannot find physical order for id " + brokerOrder);
+                if( debug) log.Debug("ConfirmChange: Cannot find physical order for id " + brokerOrder);
                 return;
             }
             ++confirmedOrderCount;
