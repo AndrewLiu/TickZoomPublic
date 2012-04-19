@@ -47,17 +47,35 @@ namespace TickZoom.Symbols
         {
 			var dictionary = SymbolDictionary.Create("universal",SymbolDictionary.UniversalDictionary);
 			symbolMap = new Dictionary<string, SymbolProperties>();
-			foreach( var properties in dictionary) {
-				symbolMap[properties.ExpandedSymbol] = properties;
+			foreach( var properties in dictionary)
+			{
+			    AddSymbolProperies(properties);
 			}
 			dictionary = SymbolDictionary.Create("user",SymbolDictionary.UserDictionary);
 			foreach( var properties in dictionary) {
-				symbolMap[properties.ExpandedSymbol] = properties;
-			}
+                AddSymbolProperies(properties);
+            }
 			AddAbbreviations();
 			AdjustSessions();
 			CreateUniversalIds();
 		}
+
+        private void AddSymbolProperies(SymbolProperties properties)
+        {
+            if( properties.Account == "default")
+            {
+                symbolMap[properties.ExpandedSymbol] = properties;
+                properties.SourceSymbol = properties;
+            }
+            else
+            {
+                var sourceSymbol = properties.Copy();
+                sourceSymbol.Account = "default";
+                symbolMap[sourceSymbol.ExpandedSymbol] = sourceSymbol;
+                symbolMap[properties.ExpandedSymbol] = properties;
+                properties.SourceSymbol = sourceSymbol;
+            }
+        }
 		
 		private void CreateUniversalIds() {
 			universalMap = new Dictionary<long, SymbolProperties>();
@@ -151,16 +169,14 @@ namespace TickZoom.Symbols
 			}
             if (GetSymbolProperties(symbol, out properties))
             {
+                var sourceSymbol = properties;
                 properties = properties.Copy();
                 properties.Account = account;
+                properties.SourceSymbol = sourceSymbol;
                 properties.BinaryIdentifier = ++universalIdentifier;
-                symbolMap.Add(symbolAccount,properties);
-                universalMap.Add(properties.BinaryIdentifier,properties);
-                var abbreviation = symbolAccount.StripInvalidPathChars();
-                if( !symbolMap.ContainsKey(abbreviation))
-                {
-                    symbolMap.Add(abbreviation, properties);
-                }
+                universalMap.Add(properties.BinaryIdentifier, properties);
+                symbolMap[properties.ExpandedSymbol] = properties;
+                symbolMap[properties.ExpandedSymbol.StripInvalidPathChars()] = properties;
                 return properties;
             }
             if( account == "default")
