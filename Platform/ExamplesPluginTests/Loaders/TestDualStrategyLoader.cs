@@ -53,10 +53,10 @@ namespace Loaders
 			properties.Engine.RealtimeOutput = false;
 			Portfolio portfolio = CreatePortfolio("Portfolio","EntirePortfolio");
 			foreach( var symbol in properties.Starter.SymbolProperties) {
-				string name = "ExampleOrderStrategy+" + symbol.Symbol;
+				string name = "ExampleOrderStrategy+" + symbol.ExpandedSymbol;
 				ExampleOrderStrategy strategy = (ExampleOrderStrategy) CreateStrategy("ExampleOrderStrategy",name);
 				strategy.Multiplier = 10D;
-				strategy.SymbolDefault = symbol.Symbol;
+				strategy.SymbolDefault = symbol.ExpandedSymbol;
 				AddDependency(portfolio,strategy);
 			}
 			TopModel = portfolio;

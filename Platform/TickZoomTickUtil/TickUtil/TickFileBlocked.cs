@@ -69,7 +69,7 @@ namespace TickZoom.TickUtil
 
         private void InitLogging()
         {
-            log = Factory.SysLog.GetLogger("TickZoom.TickUtil.TickFileBlocked." + mode + "." + symbol.Symbol.StripInvalidPathChars());
+            log = Factory.SysLog.GetLogger("TickZoom.TickUtil.TickFileBlocked." + mode + "." + symbol.ExpandedSymbol.StripInvalidPathChars());
             debug = log.IsDebugEnabled;
             trace = log.IsTraceEnabled;
         }

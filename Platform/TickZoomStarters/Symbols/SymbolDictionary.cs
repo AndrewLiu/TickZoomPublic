@@ -250,7 +250,7 @@ namespace TickZoom.Symbols
 		
 		public SymbolProperties Get(string symbol) {
 			foreach( SymbolProperties properties in this) {
-				if( symbol == properties.Symbol) {
+				if( symbol == properties.ExpandedSymbol) {
 					return properties;
 				}
 			}

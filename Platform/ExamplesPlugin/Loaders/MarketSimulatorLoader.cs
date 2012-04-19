@@ -50,7 +50,7 @@ namespace TickZoom.Examples
         {
             foreach (ISymbolProperties symbol in properties.Starter.SymbolProperties)
             {
-                string name = symbol.Symbol;
+                string name = symbol.ExpandedSymbol;
                 Strategy strategy = new MarketSimulatorStrategy();
                 strategy.SymbolDefault = name;
                 strategy.Performance.Equity.GraphEquity = false;

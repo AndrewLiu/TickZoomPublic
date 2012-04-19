@@ -38,6 +38,8 @@ namespace TickZoom.Symbols
 	[Serializable]
 	public class SymbolProperties : PropertiesBase, ISymbolProperties
 	{
+        private static Log log = Factory.SysLog.GetLogger(typeof(SymbolProperties));
+	    private bool debug = log.IsDebugEnabled;
 		private Elapsed sessionStart = new Elapsed( 8, 0, 0);
 		private Elapsed sessionEnd = new Elapsed( 16, 30, 0);
 	    private PartialFillSimulation partialFillSimulation = PartialFillSimulation.PartialFillsTillComplete;
@@ -100,7 +102,7 @@ namespace TickZoom.Symbols
 	    
 		public override string ToString()
 		{
-			return symbol == null ? "empty" : symbol;
+            return symbol == null ? "empty" : ExpandedSymbol;
 		}
 		
 		[Obsolete("Please create your data with the IsSimulateTicks flag set to true instead of this property.",true)]
@@ -143,9 +145,15 @@ namespace TickZoom.Symbols
 			set { fullPointValue = value; }
 		}
 	
-		public string Symbol {
-			get { return symbol; }
-			set { symbol = value; }
+        public string Symbol
+        {
+            get { return symbol; }
+            set { symbol = value; }
+        }
+
+        public string ExpandedSymbol
+        {
+            get { return symbol + (account != "default" ? "!" + account : ""); }
 		}
 		
 		public int Level2LotSize {
@@ -309,10 +317,6 @@ namespace TickZoom.Symbols
                 if( symbolFile == null)
                 {
                     return symbol;
-                }
-                else
-                {
-                    
                 }
                 return symbolFile;
             }

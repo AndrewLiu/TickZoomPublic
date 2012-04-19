@@ -64,7 +64,7 @@ namespace TickZoom.TickUtil
 
         private void InitLogging()
         {
-            log = Factory.SysLog.GetLogger("TickZoom.TickUtil.TickFileLegacy." + mode + "." + symbol.Symbol.StripInvalidPathChars());
+            log = Factory.SysLog.GetLogger("TickZoom.TickUtil.TickFileLegacy." + mode + "." + symbol.ExpandedSymbol.StripInvalidPathChars());
             debug = log.IsDebugEnabled;
             trace = log.IsTraceEnabled;
         }

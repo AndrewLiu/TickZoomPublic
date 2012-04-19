@@ -83,8 +83,8 @@ namespace TickZoom.Common
         	this.symbol = symbol;
 			this.agent = agent;
             this.providerName = providerName;
-			this.quotesLatency = new LatencyMetric( "SymbolHandler-Quotes-" + symbol.Symbol.StripInvalidPathChars());
-			this.salesLatency = new LatencyMetric( "SymbolHandler-Trade-" + symbol.Symbol.StripInvalidPathChars());
+			this.quotesLatency = new LatencyMetric( "SymbolHandler-Quotes-" + symbol.ExpandedSymbol.StripInvalidPathChars());
+			this.salesLatency = new LatencyMetric( "SymbolHandler-Trade-" + symbol.ExpandedSymbol.StripInvalidPathChars());
             tickPool =  Factory.Parallel.TickPool(symbol);
 		    tickPoolCallerId = tickPool.GetCallerId("SymbolHandler-" + symbol + "-" + agent);
             SyntheticClear();

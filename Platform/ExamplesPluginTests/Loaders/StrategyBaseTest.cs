@@ -1241,7 +1241,7 @@ namespace Loaders
             ChartControl chart;
             for( int i=0; i<portfolioDocs.Count; i++) {
                 chart = portfolioDocs[i].ChartControl;
-                if( chart.Symbol.Symbol == symbol) {
+                if( chart.Symbol.ExpandedSymbol == symbol) {
                     return chart;
                 }
             }

@@ -48,11 +48,11 @@ namespace TickZoom.Symbols
 			var dictionary = SymbolDictionary.Create("universal",SymbolDictionary.UniversalDictionary);
 			symbolMap = new Dictionary<string, SymbolProperties>();
 			foreach( var properties in dictionary) {
-				symbolMap[properties.Symbol] = properties;
+				symbolMap[properties.ExpandedSymbol] = properties;
 			}
 			dictionary = SymbolDictionary.Create("user",SymbolDictionary.UserDictionary);
 			foreach( var properties in dictionary) {
-				symbolMap[properties.Symbol] = properties;
+				symbolMap[properties.ExpandedSymbol] = properties;
 			}
 			AddAbbreviations();
 			AdjustSessions();
@@ -75,7 +75,7 @@ namespace TickZoom.Symbols
 				var properties = kvp.Value;
 				var symbolAccount = kvp.Key;
                 tempSymbolMap.Add(symbolAccount, properties);
-                var abbreviation = properties.Symbol.StripInvalidPathChars();
+                var abbreviation = properties.ExpandedSymbol.StripInvalidPathChars();
                 if (!symbolMap.ContainsKey(abbreviation))
                 {
 					tempSymbolMap[abbreviation] = properties;

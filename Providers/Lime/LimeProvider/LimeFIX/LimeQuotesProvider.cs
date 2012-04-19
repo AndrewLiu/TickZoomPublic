@@ -182,7 +182,7 @@ namespace TickZoom.LimeQuotes
             LimeQuotesInterop.subscription_request_msg* subRequest = (LimeQuotesInterop.subscription_request_msg*)message.Ptr;
 
             subRequest->msg_type = LimeQuotesInterop.limeq_message_type.SUBSCRIPTION_REQUEST;
-            ushort msgLength = (ushort)(sizeof(LimeQuotesInterop.subscription_request_msg) - 64 + symbol.Symbol.Length + 1);
+            ushort msgLength = (ushort)(sizeof(LimeQuotesInterop.subscription_request_msg) - 64 + symbol.ExpandedSymbol.Length + 1);
             subRequest->msg_len = Reverse(msgLength);
             message.Length = msgLength;
 
@@ -191,10 +191,10 @@ namespace TickZoom.LimeQuotes
                 subRequest->qsid[i] = (byte)BATS[i];
             subRequest->flags = LimeQuotesInterop.subscription_flags.SUBSCRIPTION_FLAG_MARKET_DATA;
             subRequest->num_symbols = 1;
-            for (int i = 0; i < symbol.Symbol.Length; i++)
-                subRequest->syb_symbols[i] = (byte)symbol.Symbol[i];
-            subRequest->syb_symbols[symbol.Symbol.Length] = 0;
-            log.InfoFormat("Sending subscrption request for {0}", symbol.Symbol);
+            for (int i = 0; i < symbol.ExpandedSymbol.Length; i++)
+                subRequest->syb_symbols[i] = (byte)symbol.ExpandedSymbol[i];
+            subRequest->syb_symbols[symbol.ExpandedSymbol.Length] = 0;
+            log.InfoFormat("Sending subscrption request for {0}", symbol.ExpandedSymbol);
             while (!Socket.TrySendMessage(message))
             {
                 if (IsInterrupted) return;

@@ -27,7 +27,7 @@ namespace TickZoom.Examples
             {
                 symbol.LimitOrderQuoteSimulation = LimitOrderQuoteSimulation.OppositeQuoteTouch;
                 var strategy = new SimplexStrategy();
-                strategy.SymbolDefault = symbol.Symbol;
+                strategy.SymbolDefault = symbol.ExpandedSymbol;
                 strategy.IsActive = true;
                 strategy.IsVisible = true;
                 portfolio.AddDependency(strategy);

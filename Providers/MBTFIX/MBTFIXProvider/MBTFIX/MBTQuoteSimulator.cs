@@ -58,7 +58,7 @@ namespace TickZoom.MBTFIX
         {
             var symbolInfo = Factory.Symbol.LookupSymbol(message.Symbol);
             log.Info("Received symbol request for " + symbolInfo);
-            ProviderSimulator.AddSymbol(symbolInfo.Symbol);
+            ProviderSimulator.AddSymbol(symbolInfo.ExpandedSymbol);
             switch (message.FeedType)
             {
                 case "20000": // Level 1
@@ -213,7 +213,7 @@ namespace TickZoom.MBTFIX
                 position += snippet.Length;
 
                 // Symbol
-                var value = symbol.Symbol.ToCharArray();
+                var value = symbol.ExpandedSymbol.ToCharArray();
                 for (var i = 0; i < value.Length; i++)
                 {
                     buffer[position] = (byte)value[i];
@@ -319,7 +319,7 @@ namespace TickZoom.MBTFIX
                 Array.Copy(snippet, 0, buffer, position, snippet.Length);
                 position += snippet.Length;
 
-                var value = symbol.Symbol.ToCharArray();
+                var value = symbol.ExpandedSymbol.ToCharArray();
                 for (var i = 0; i < value.Length; i++)
                 {
                     buffer[position] = (byte)value[i];

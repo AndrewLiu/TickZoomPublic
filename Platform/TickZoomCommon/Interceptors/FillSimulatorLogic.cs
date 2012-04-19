@@ -28,7 +28,7 @@ namespace TickZoom.Interceptors
             this.symbol = symbol;
             this.name = name;
             fillCallback = callback;
-            log = Factory.SysLog.GetLogger(typeof(FillSimulatorPhysical).FullName + "." + symbol.Symbol.StripInvalidPathChars() + "." + name);
+            log = Factory.SysLog.GetLogger(typeof(FillSimulatorPhysical).FullName + "." + symbol.ExpandedSymbol.StripInvalidPathChars() + "." + name);
             RefreshLogLevel();
             log.Register(this);
             limitOrderQuoteSimulation = symbol.LimitOrderQuoteSimulation;
