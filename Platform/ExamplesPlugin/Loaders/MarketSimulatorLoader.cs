@@ -38,7 +38,7 @@ namespace TickZoom.Examples
             /// <summary>
             /// You can personalize the name of each model loader.
             /// </summary>
-            category = "Example";
+            category = "Test";
             name = "Market Simulator";
         }
 
@@ -48,7 +48,7 @@ namespace TickZoom.Examples
             {
                 if (symbol.Account != "market")
                 {
-                    properties.Starter.SetSymbols(symbol.Symbol + "!market");
+                    properties.Starter.TryAddSymbols(symbol.Symbol + "!market");
                 }
             }
         }

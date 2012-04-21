@@ -56,7 +56,7 @@ namespace Loaders
 				starter.ProjectProperties.Starter.StartTime = new TimeStamp(1800,1,1);
 	    		starter.ProjectProperties.Starter.EndTime = new TimeStamp(1990,1,1);
 	    		starter.DataFolder = "Test";
-	    		starter.ProjectProperties.Starter.SetSymbols("Daily4Sim");
+	    		starter.ProjectProperties.Starter.TryAddSymbols("Daily4Sim");
 				starter.ProjectProperties.Starter.IntervalDefault = Intervals.Day1;
 				
 	    		starter.CreateChartCallback = new CreateChartCallback(HistoricalCreateChart);

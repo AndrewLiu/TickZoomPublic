@@ -75,7 +75,7 @@ namespace TickZoom.StarterTest
 			starter.ProjectProperties.Starter.StartTime = (TimeStamp) new DateTime(2005,1,1);
     		starter.ProjectProperties.Starter.EndTime = (TimeStamp) new DateTime(2006,2,1);
     		starter.DataFolder = "Test";
-    		starter.ProjectProperties.Starter.SetSymbols("USD_JPY");
+    		starter.ProjectProperties.Starter.TryAddSymbols("USD_JPY");
 			Interval intervalDefault = Intervals.Hour1;
 			starter.ProjectProperties.Starter.IntervalDefault = intervalDefault;
 			
@@ -113,7 +113,7 @@ namespace TickZoom.StarterTest
     		starter.ProjectProperties.Starter.EndTime = (TimeStamp) new DateTime(2006,2,1);
 			starter.ProjectProperties.Starter.IntervalDefault = Intervals.Hour1;
     		starter.DataFolder = "Test";
-    		starter.ProjectProperties.Starter.SetSymbols("USD_JPY");
+    		starter.ProjectProperties.Starter.TryAddSymbols("USD_JPY");
     		starter.ProjectProperties.Starter.SymbolProperties[0].ProfitLoss = profitLossLogic;
             FillSimulatorPhysical.MaxPartialFillsPerOrder = 10;
             starter.Run(new OptimizeLoader());
@@ -129,7 +129,7 @@ namespace TickZoom.StarterTest
     		starter.ProjectProperties.Starter.EndTime = (TimeStamp) new DateTime(2006,2,1);
 			starter.ProjectProperties.Starter.IntervalDefault = Intervals.Hour1;
     		starter.DataFolder = "Test";
-    		starter.ProjectProperties.Starter.SetSymbols("USD_JPY");
+    		starter.ProjectProperties.Starter.TryAddSymbols("USD_JPY");
     		try { 
 	    		starter.Run(new OptimizeLoaderBad());
 	    		Assert.Fail("Supposed to throw an exception about a bad optimize variable.");
@@ -148,7 +148,7 @@ namespace TickZoom.StarterTest
     		starter.ProjectProperties.Starter.EndTime = (TimeStamp) new DateTime(2006,2,1);
 			starter.ProjectProperties.Starter.IntervalDefault = Intervals.Hour1;
     		starter.DataFolder = "Test";
-    		starter.ProjectProperties.Starter.SetSymbols("USD_JPY");
+    		starter.ProjectProperties.Starter.TryAddSymbols("USD_JPY");
     		try { 
 	    		starter.Run(new OptimizeLoaderBad());
 	    		Assert.Fail("Supposed to throw an exception about a bad optimize variable.");
@@ -189,7 +189,7 @@ namespace TickZoom.StarterTest
     		starter.ProjectProperties.Starter.EndTime = (TimeStamp) new DateTime(2006,2,1);
 			starter.ProjectProperties.Starter.IntervalDefault = Intervals.Hour1;
      		starter.DataFolder = "Test";
-     		starter.ProjectProperties.Starter.SetSymbols("USD_JPY");
+     		starter.ProjectProperties.Starter.TryAddSymbols("USD_JPY");
     		starter.Run(new GeneticLoader());
     		Assert.IsTrue(FileCompare(storageFolder+@"\Statistics\optimizeResults.csv",@"..\..\Platform\TickZoomTesting\Startup\geneticResults.csv"));
 		}
@@ -202,7 +202,7 @@ namespace TickZoom.StarterTest
     		starter.ProjectProperties.Starter.EndTime = (TimeStamp) new DateTime(2006,2,1);
 			starter.ProjectProperties.Starter.IntervalDefault = Intervals.Hour1;
      		starter.DataFolder = "Test";
-     		starter.ProjectProperties.Starter.SetSymbols("USD_JPY");
+     		starter.ProjectProperties.Starter.TryAddSymbols("USD_JPY");
     		starter.Run(new GeneticLoader());
 //    		Assert.IsTrue(FileCompare(storageFolder+@"\Statistics\optimizeResults.csv",@"..\..\Platform\TickZoomTesting\Startup\geneticResults.csv"));
 		}

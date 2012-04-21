@@ -50,7 +50,7 @@ namespace TickZoom.TradingFramework
 			logic = new StrategySupportMock();
 			Starter starter = new HistoricalStarter();
 			starter.EndCount = 1;
-			starter.ProjectProperties.Starter.SetSymbols(symbol);
+			starter.ProjectProperties.Starter.TryAddSymbols(symbol);
 			Elapsed start = new Elapsed(6,0,0);
 			Elapsed end = new Elapsed(15,0,0);
 			starter.DataFolder = "Test";

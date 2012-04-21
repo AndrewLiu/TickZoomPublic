@@ -96,7 +96,7 @@ namespace TickZoom.TradingFramework
 			logic = new StrategySupportMock();
 			weeklogic = new StrategySupportMock();
 			Starter starter = new HistoricalStarter();
-			starter.ProjectProperties.Starter.SetSymbols("USD_JPY");
+			starter.ProjectProperties.Starter.TryAddSymbols("USD_JPY");
 			starter.ProjectProperties.Starter.SymbolProperties[0].SessionStart = new Elapsed(6,20,0);
             starter.ProjectProperties.Starter.SymbolProperties[0].SessionEnd = new Elapsed(15, 0, 0);
 			starter.DataFolder = "Test";

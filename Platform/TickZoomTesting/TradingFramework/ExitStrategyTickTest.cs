@@ -62,7 +62,7 @@ namespace TickZoom.TradingFramework
 			strategy.IntervalDefault = Intervals.Day1;
 			Starter starter = new HistoricalStarter();
 			starter.EndCount = 2048;
-			starter.ProjectProperties.Starter.SetSymbols("USD_JPY_YEARS");
+			starter.ProjectProperties.Starter.TryAddSymbols("USD_JPY_YEARS");
 			starter.DataFolder = "Test";
 			starter.Run(strategy);
 		}

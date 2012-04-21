@@ -171,10 +171,8 @@ namespace TickZoom.FIX
             }
             log.Info("OnConnect( " + socket + " ) ");
             ConnectionStatus = Status.Connected;
-            if (debug) log.Debug("ConnectionStatus changed to: " + ConnectionStatus);
             SendLogin();
             ConnectionStatus = Status.PendingLogin;
-            if (debug) log.Debug("ConnectionStatus changed to: " + ConnectionStatus);
             IncreaseRetryTimeout();
         }
 
@@ -190,7 +188,6 @@ namespace TickZoom.FIX
 			log.Info("OnDisconnect( " + socket + " ) ");
 			ConnectionStatus = Status.Disconnected;
 		    debugDisconnect = true;
-            if (debug) log.Debug("ConnectionStatus changed to: " + ConnectionStatus);
             if (debug) log.Debug("Socket state now: " + socket.State);
             if( isDisposed)
             {
@@ -247,13 +244,11 @@ namespace TickZoom.FIX
 	
 		public void StartRecovery() {
 			ConnectionStatus = Status.PendingRecovery;
-			if( debug) log.Debug("ConnectionStatus changed to: " + ConnectionStatus);
 			OnStartRecovery();
 		}
 		
 		public void EndRecovery() {
 			ConnectionStatus = Status.Recovered;
-			if( debug) log.Debug("ConnectionStatus changed to: " + ConnectionStatus);
 		}
 		
 		public bool IsRecovered {
@@ -265,7 +260,6 @@ namespace TickZoom.FIX
 		private void SetupRetry() {
 			OnRetry();
 			RegenerateSocket();
-			if( trace) log.Trace("ConnectionStatus changed to: " + ConnectionStatus);
 		}
 		
 		public bool IsRecovering {
@@ -342,7 +336,6 @@ namespace TickZoom.FIX
             if (debugDisconnect)
             {
                 if( debug) log.Debug("Invoke() Current socket state: " + socket.State + ", " + socket);
-                if (debug) log.Debug("Invoke: Current connection status: " + ConnectionStatus);
                 debugDisconnect = false;
             }
             if( socket.State != lastSocketState)
@@ -352,7 +345,6 @@ namespace TickZoom.FIX
             }
             if (ConnectionStatus != lastStatus)
             {
-                if (debug) log.Debug("Connection status changed to: " + ConnectionStatus);
                 lastStatus = ConnectionStatus;
             }
             switch (socket.State)
@@ -419,7 +411,7 @@ namespace TickZoom.FIX
                 case Status.Disconnected:
 	                retryTimeout = Factory.Parallel.TickCount + retryDelay * 1000;
 	                ConnectionStatus = Status.PendingRetry;
-	                if( debug) log.Debug("ConnectionStatus changed to: " + ConnectionStatus + ". Retrying in " + retryDelay + " seconds.");
+	                if( debug) log.Debug("Retrying in " + retryDelay + " seconds.");
 	                retryDelay += retryIncrease;
 	                retryDelay = retryDelay > retryMaximum ? retryMaximum : retryDelay;
 	                return Yield.NoWork.Repeat;
@@ -428,7 +420,6 @@ namespace TickZoom.FIX
 	                    log.Info(providerName + " retry time elapsed. Retrying.");
 	                    OnRetry();
 	                    CreateNewSocket();
-	                    if( trace) log.Trace("ConnectionStatus changed to: " + ConnectionStatus);
 	                    return Yield.DidWork.Repeat;
 	                } else {
 	                    return Yield.NoWork.Repeat;
@@ -444,8 +435,9 @@ namespace TickZoom.FIX
         private Yield TryProcessMessage()
 	    {
 	        switch( ConnectionStatus) {
-	            case Status.Connected:
-	                return Yield.DidWork.Repeat;
+                case Status.New:
+                case Status.Connected:
+	                return Yield.NoWork.Repeat;
 	            case Status.PendingLogin:
 	                if( VerifyLogin())
 	                {

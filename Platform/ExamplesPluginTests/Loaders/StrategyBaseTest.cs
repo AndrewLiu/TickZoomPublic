@@ -199,7 +199,7 @@ namespace Loaders
             starter.ProjectProperties.Starter.EndTime = endTime;
 
             starter.DataFolder = "Test";
-            starter.ProjectProperties.Starter.SetSymbols(Symbols);
+            starter.ProjectProperties.Starter.TryAddSymbols(Symbols);
             starter.ProjectProperties.Starter.IntervalDefault = intervalDefault;
             starter.CreateChartCallback = new CreateChartCallback(HistoricalCreateChart);
             starter.ShowChartCallback = new ShowChartCallback(HistoricalShowChart);

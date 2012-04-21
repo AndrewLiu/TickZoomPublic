@@ -63,7 +63,7 @@ namespace TickZoom.TradingFramework
 
 			starter.EndCount = maxCount;
 			starter.DataFolder = "Test";
-			starter.ProjectProperties.Starter.SetSymbols("USD_JPY");
+			starter.ProjectProperties.Starter.TryAddSymbols("USD_JPY");
 			starter.ProjectProperties.Starter.SymbolProperties[0].ProfitLoss = profitLossLogic;
 			starter.Run(random);
 			

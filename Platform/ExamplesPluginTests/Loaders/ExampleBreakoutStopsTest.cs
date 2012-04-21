@@ -58,7 +58,7 @@ namespace Loaders
 				starter.ProjectProperties.Starter.StartTime = new TimeStamp(1800,1,1);
 	    		starter.ProjectProperties.Starter.EndTime = new TimeStamp(2010,1,1);
 	    		starter.DataFolder = "Test";
-	    		starter.ProjectProperties.Starter.SetSymbols("USD/JPY");
+	    		starter.ProjectProperties.Starter.TryAddSymbols("USD/JPY");
 				starter.ProjectProperties.Starter.IntervalDefault = Intervals.Minute1;
 				
 	    		starter.CreateChartCallback = new CreateChartCallback(HistoricalCreateChart);

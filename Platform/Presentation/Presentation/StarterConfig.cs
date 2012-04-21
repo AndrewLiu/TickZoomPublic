@@ -952,7 +952,7 @@ namespace TickZoom.Presentation
                 log.Warn("You have the \"disable charts\" check box enabled.");
             }
             starterInstance.ProjectProperties.Chart.ChartType = chartType;
-            starterInstance.ProjectProperties.Starter.SetSymbols(symbolList);
+            starterInstance.ProjectProperties.Starter.TryAddSymbols(symbolList);
             starterInstance.ProjectProperties.Starter.IntervalDefault = intervalDefault;
             starterInstance.Config = serviceConfig;
             starterInstance.Port = servicePort;

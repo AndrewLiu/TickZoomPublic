@@ -77,34 +77,36 @@ namespace TickZoom.Examples.Strategies
             //ExitStrategy.BreakEven = 30 * minimumTick;
             //ExitStrategy.StopLoss = 45 * minimumTick;
         }
-        public override bool OnProcessTick(Tick tick) {
+
+        public override bool OnIntervalClose()
+        {
             bool retCode = false;
             switch (_Current) {
                 case Tests.FirstTest:
                     NextTest();
                     break;
                 case Tests.BuyMarket:
-                    retCode = BuyMarketTest(tick, _StardardSize);
+                    retCode = BuyMarketTest(_StardardSize);
                     if (_State == TradeState.MarketBuyTradeClosed)
                         NextTest();
                     break;
                 case Tests.SellMarket:
-                    retCode = SellMarketTest(tick, _StardardSize);
+                    retCode = SellMarketTest(_StardardSize);
                     if (_State == TradeState.MarketSellTradeClosed)
                         NextTest();
                     break;
                 case Tests.LimitOrders:
-                    retCode = LimeOrderTest(tick, _StardardSize);
+                    retCode = LimitOrderTest(_StardardSize);
                     if ( _State == TradeState.LimitBuyAndSellFilled )
                         NextTest();
                     break;
                 case Tests.BuyPartialFill:
-                    retCode = BuyMarketTest(tick, _StardardSize*_LargeTestMultiplier);
+                    retCode = BuyMarketTest(_StardardSize*_LargeTestMultiplier);
                     if (_State == TradeState.MarketSellTradeClosed)
                         NextTest();
                     break;
                 case Tests.SellPartialFill:
-                    retCode = SellMarketTest(tick, _StardardSize*_LargeTestMultiplier);
+                    retCode = SellMarketTest(_StardardSize*_LargeTestMultiplier);
                     if (_State == TradeState.MarketSellTradeClosed)
                         NextTest();
                     break;
@@ -117,10 +119,11 @@ namespace TickZoom.Examples.Strategies
             return retCode;
         }
 
-        private bool LimeOrderTest(Tick tick, int size) {
-            var midPoint = (tick.Ask + tick.Bid) / 2;
-            var bid = midPoint - Data.SymbolInfo.MinimumTick * tickOffset;
-            var ask = midPoint + Data.SymbolInfo.MinimumTick * tickOffset;
+        private bool LimitOrderTest(int size)
+        {
+            var price = Bars.Close[0];
+            var bid = price - Data.SymbolInfo.MinimumTick * tickOffset;
+            var ask = price + Data.SymbolInfo.MinimumTick * tickOffset;
             switch (_State) {
                 case TradeState.Start:
                     _State = TradeState.LimitStart;
@@ -147,7 +150,7 @@ namespace TickZoom.Examples.Strategies
             return true;
         }
 
-        public bool BuyMarketTest(Tick tick, int size)
+        public bool BuyMarketTest(int size)
         {
             switch (_State)
             {
@@ -178,7 +181,7 @@ namespace TickZoom.Examples.Strategies
             return true;
         }
       
-        public bool SellMarketTest(Tick tick,int size)
+        public bool SellMarketTest(int size)
         {
             switch (_State)
             {
