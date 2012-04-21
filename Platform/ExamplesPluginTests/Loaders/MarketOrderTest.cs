@@ -57,7 +57,7 @@ namespace Loaders
 	    		starter.ProjectProperties.Starter.EndTime = new TimeStamp(2009,06,10);
 	    		
 	    		starter.DataFolder = "Test";
-	    		starter.ProjectProperties.Starter.SetSymbols( Symbols);
+	    		starter.ProjectProperties.Starter.TryAddSymbols( Symbols);
 				starter.ProjectProperties.Starter.IntervalDefault = Intervals.Minute1;
 	    		starter.CreateChartCallback = new CreateChartCallback(HistoricalCreateChart);
 	    		starter.ShowChartCallback = new ShowChartCallback(HistoricalShowChart);

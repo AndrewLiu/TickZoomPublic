@@ -58,7 +58,7 @@ namespace Loaders
 				starter.ProjectProperties.Starter.StartTime = new TimeStamp("1800/1/1");
 	    		starter.ProjectProperties.Starter.EndTime = new TimeStamp("2010/2/17");
 	    		starter.DataFolder = "Test";
-	    		starter.ProjectProperties.Starter.SetSymbols( Symbols);
+	    		starter.ProjectProperties.Starter.TryAddSymbols( Symbols);
 				starter.ProjectProperties.Starter.IntervalDefault = Intervals.Minute1;
 				starter.ProjectProperties.Engine.RealtimeOutput = false;
 				

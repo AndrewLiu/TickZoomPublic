@@ -627,7 +627,7 @@ namespace TickZoom.LimeFIX
                 }
             }
             fixMsg.SetSymbol(order.Symbol.Symbol);
-            fixMsg.SetSide(order.Side == OrderSide.Buy ? 1 : 2);
+            fixMsg.SetSide(order.Side == OrderSide.Buy ? 1 : 5);
 			switch( order.Type) {
                 case OrderType.Limit:
                     fixMsg.SetOrderType(2);

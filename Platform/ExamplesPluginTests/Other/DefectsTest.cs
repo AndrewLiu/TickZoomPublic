@@ -71,7 +71,7 @@ namespace Other
 		{
 			Starter starter = new HistoricalStarter();
     		starter.DataFolder = "Test";
-    		starter.ProjectProperties.Starter.SetSymbols("spyTestBars");
+    		starter.ProjectProperties.Starter.TryAddSymbols("spyTestBars");
 			Interval intervalDefault = Intervals.Minute1;
 			starter.ProjectProperties.Starter.IntervalDefault = intervalDefault;
 			

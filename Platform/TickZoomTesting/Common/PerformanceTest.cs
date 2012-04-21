@@ -112,7 +112,7 @@ namespace TickZoom.Common
 			Starter starter = new HistoricalStarter();
 			starter.StartCount = 0;
 			starter.EndCount = starter.StartCount + count + 1;
-			starter.ProjectProperties.Starter.SetSymbols("USD_JPY_YEARS");
+			starter.ProjectProperties.Starter.TryAddSymbols("USD_JPY_YEARS");
 			starter.ProjectProperties.Starter.SymbolProperties[0].ProfitLoss = profitLossLogic;
 			starter.DataFolder = "Test";
 			starter.Run(random);

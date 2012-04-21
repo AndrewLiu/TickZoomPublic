@@ -63,7 +63,7 @@ namespace TickZoom.Properties
 			}
 		}
 		
-		public void SetSymbols(string value)
+		public void TryAddSymbols(string value)
 		{
             var factory = (SymbolFactoryImpl)Factory.Symbol;
             var library = factory.Library;
@@ -87,9 +87,9 @@ namespace TickZoom.Properties
 		}
 		
 		/// <summary>
-		/// Obsolete: Please use SetSymbols()
+		/// Obsolete: Please use TryAddSymbols()
 		/// </summary>
-		[Obsolete("Please use SetSymbols() instead.",true)]
+		[Obsolete("Please use TryAddSymbols() instead.",true)]
 		public string Symbols {
 			set { throw new NotImplementedException(); }
 		}

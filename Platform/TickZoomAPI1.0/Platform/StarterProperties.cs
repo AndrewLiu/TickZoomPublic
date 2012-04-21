@@ -57,9 +57,9 @@ namespace TickZoom.Api
 			set;
 		}
 
-		void SetSymbols( string symbols);
+		void TryAddSymbols( string symbols);
 		
-		[Obsolete("Please call SetSymbols() method instead.",true)]
+		[Obsolete("Please call TryAddSymbols() method instead.",true)]
 		string Symbols {
 			set;
 		}
