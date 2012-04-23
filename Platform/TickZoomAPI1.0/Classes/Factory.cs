@@ -119,7 +119,7 @@ namespace TickZoom.Api
 			}
 		}
 		
-		public static LogManager Log {
+		public static LogManager UserLog {
 			get { 
 				if( logManager == null) {
 					lock(Locker) {

@@ -35,7 +35,7 @@ namespace TickZoom.Properties
     /// <summary>
 	/// Description of StarterProperties.
 	/// </summary>
-	public class StarterProperties : PropertiesBase, TickZoom.Api.StarterProperties
+	public class StarterProperties : PropertiesBase, Api.StarterProperties
 	{
 		private readonly static Log log = Factory.SysLog.GetLogger(typeof(StarterProperties));
 		private readonly bool debug = log.IsDebugEnabled;
@@ -64,8 +64,9 @@ namespace TickZoom.Properties
 		
 		public void SetSymbols(string value)
 		{
-		    var factory = (SymbolFactoryImpl) Factory.Symbol;
-		    var library = factory.Library;
+            var factory = (SymbolFactoryImpl)Factory.Symbol;
+            var library = factory.Library;
+            if (debug) log.Debug("SetSymbols uses the global library of symbols.");
 			value = value.StripWhiteSpace();
 			value = value.StripInvalidPathChars();
 			var symbolFileArray = value.Split(new char[] { ',' });
@@ -73,9 +74,9 @@ namespace TickZoom.Properties
 			for( int i=0; i<symbolFileArray.Length; i++) {
 				var tempSymbolFile = symbolFileArray[i].Trim();
 				if( !string.IsNullOrEmpty(tempSymbolFile)) {
-					var symbol = library.GetSymbolProperties(tempSymbolFile);
-				    symbol.SymbolFile = tempSymbolFile;
-					symbol.ChartGroup = i+1;
+					var symbol = library.GetSymbolProperties(tempSymbolFile).Copy();
+                    symbol.SymbolFile = tempSymbolFile;
+                    symbol.ChartGroup = i+1;
 					log.Info(symbol + " set to chart group " + symbol.ChartGroup);
 					symbolInfo.Add(symbol);
 					symbolList.Add(tempSymbolFile);

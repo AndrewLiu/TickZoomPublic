@@ -187,7 +187,7 @@ namespace Loaders
             config.DefaultPeriod = intervalDefault.Period;
             config.DefaultBarUnit = intervalDefault.BarUnit.ToString();
             config.ModelLoader = loader.Name;
-            config.Initialize();
+            //config.Initialize();
             return config;
         }
 
@@ -259,7 +259,7 @@ namespace Loaders
                         {
                             config.Stop();
                         }
-                        Factory.Log.Flush();
+                        Factory.UserLog.Flush();
                         Factory.SysLog.Flush();
                     }
 
@@ -406,7 +406,7 @@ namespace Loaders
             goodTransactionMap.Clear();
             testTransactionMap.Clear();
             topModel = null;
-            Factory.Log.Flush();
+            Factory.UserLog.Flush();
             Factory.SysLog.Flush();
             TickFileBlocked.VerifyClosed();
             if (testFailed)
