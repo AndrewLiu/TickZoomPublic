@@ -5,7 +5,7 @@ namespace TickZoom.TickUtil
 {
     public class DataReceiverQueueWrapper : ReceiveEventQueue
     {
-        private static readonly Log log = Factory.Log.GetLogger(typeof (DataReceiverQueueWrapper));
+        private static readonly Log log = Factory.UserLog.GetLogger(typeof (DataReceiverQueueWrapper));
         private bool debug = log.IsDebugEnabled;
         private Pool<TickBinaryBox> tickPool;
         private TickQueue tickQueue;

@@ -66,7 +66,7 @@ namespace TickZoom.Api
 			}
             if (verbose)
             {
-                //manager.Log(id, timeStamp);
+                //manager.UserLog(id, timeStamp);
                 //Update(timeStamp);
                 //tickCount++;
             }

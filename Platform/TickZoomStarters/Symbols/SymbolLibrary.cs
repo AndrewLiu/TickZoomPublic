@@ -68,7 +68,8 @@ namespace TickZoom.Symbols
 			}
 		}
 
-		private void AddAbbreviations() {
+        private void AddAbbreviations()
+        {
 			var tempSymbolMap = new Dictionary<string,SymbolProperties>();
 			foreach( var kvp in symbolMap) {
 				var properties = kvp.Value;
