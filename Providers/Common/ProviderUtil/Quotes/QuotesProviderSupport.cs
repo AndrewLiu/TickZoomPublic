@@ -396,7 +396,8 @@ namespace TickZoom.FIX
             {
                 if (!symbolHandlers.TryGetValue(order.Symbol.BinaryIdentifier, out symbolHandler))
                 {
-                    throw new ApplicationException("SymbolHandler for " + order.Symbol + " was not found.");
+                    log.Info("SymbolHandler for " + order.Symbol + " was not found.");
+                    return;
                 }
             }
 	        symbolHandler.SyntheticOrder(eventItem);

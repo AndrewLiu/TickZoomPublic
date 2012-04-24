@@ -1533,7 +1533,8 @@ namespace TickZoom.FIX
             SymbolReceiver symbolReceiver;
             if( !symbolsRequested.TryGetValue(symbol.BinaryIdentifier, out symbolReceiver))
             {
-                throw new InvalidOperationException("Can't find symbol request for " + symbol);
+                if( debug) log.Debug("Can't find symbol request for " + symbol);
+                return;
             }
             if( !IsRecovered)
             {
@@ -1702,11 +1703,6 @@ namespace TickZoom.FIX
                 {
                     var symbolInfo = Factory.Symbol.LookupSymbol(symbol);
                     var orderCache = Factory.Engine.LogicalOrderCache(symbolInfo, false);
-                    SymbolReceiver symbolReceiver;
-                    if (!symbolsRequested.TryGetValue(symbol, out symbolReceiver))
-                    {
-                        throw new InvalidOperationException("Can't find symbol request for " + symbol);
-                    }
                     var syntheticRouter = new SyntheticOrderRouter(symbolInfo, Agent, receiver);
                     var algorithm = Factory.Utility.OrderAlgorithm(providerName, symbolInfo, this, syntheticRouter, orderCache, OrderStore);
                     algorithm.EnableSyncTicks = SyncTicks.Enabled;
@@ -1959,7 +1955,7 @@ namespace TickZoom.FIX
                 var synthetics = OrderStore.GetOrders((o) => o.IsSynthetic);
                 foreach (var order in synthetics)
                 {
-                    var algo = GetAlgorithm(order.Symbol.BinaryIdentifier);
+                    var algo = CreateAlgorithm(order.Symbol.BinaryIdentifier);
                     switch( order.Action)
                     {
                         case OrderAction.Create:
