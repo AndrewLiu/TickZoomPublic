@@ -743,7 +743,7 @@ namespace TickZoom.MBTFIX
 				}
 			}
 			fixMsg.SetHandlingInstructions(1);
-			fixMsg.SetSymbol(order.Symbol.ExpandedSymbol);
+			fixMsg.SetSymbol(order.Symbol.Symbol);
 			fixMsg.SetSide( GetOrderSide(order.Side));
 			switch( order.Type) {
 				case OrderType.Limit:
@@ -855,7 +855,7 @@ namespace TickZoom.MBTFIX
             fixMsg.SetAccount(AccountNumber);
             fixMsg.SetSide(GetOrderSide(order.OriginalOrder.Side));
             fixMsg.AddHeader("F");
-            fixMsg.SetSymbol(order.Symbol.ExpandedSymbol);
+            fixMsg.SetSymbol(order.Symbol.Symbol);
             fixMsg.SetSendTime(order.OriginalOrder.UtcCreateTime);
             if (resend)
             {

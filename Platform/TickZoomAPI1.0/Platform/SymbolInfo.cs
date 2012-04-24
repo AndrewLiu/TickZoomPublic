@@ -29,6 +29,12 @@ using System.Collections.Generic;
 
 namespace TickZoom.Api
 {
+    public class Symbol
+    {
+        public const char AccountSeparator = '!';
+        public const string TimeSyncSymbol = "TimeSync!default";
+    }
+
 	public interface SymbolInfo : IEquatable<SymbolInfo>
 	{
 		/// <summary>

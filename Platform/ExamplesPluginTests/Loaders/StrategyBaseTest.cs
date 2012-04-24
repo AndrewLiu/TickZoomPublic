@@ -44,6 +44,7 @@ using TickZoom.Statistics;
 using TickZoom.TickUtil;
 using TickZoom.Transactions;
 using ZedGraph;
+using Symbol = TickZoom.Api.Symbol;
 
 namespace Loaders
 {
@@ -531,6 +532,10 @@ namespace Loaders
                     string[] fields = line.Split(',');
                     int fieldIndex = 0;
                     string strategyName = fields[fieldIndex++];
+                    if (strategyName != "EntirePortfolio" && !strategyName.Contains(Symbol.AccountSeparator + "default"))
+                    {
+                        strategyName += Symbol.AccountSeparator + "default";
+                    }
                     var testInfo = new FinalStatsInfo();
 					
                     testInfo.StartingEquity = double.Parse(fields[fieldIndex++]);
@@ -567,6 +572,10 @@ namespace Loaders
                     string[] fields = line.Split(',');
                     int fieldIndex = 0;
                     string strategyName = fields[fieldIndex++];
+                    if (strategyName != "EntirePortfolio" && !strategyName.Contains(Symbol.AccountSeparator + "default"))
+                    {
+                        strategyName += Symbol.AccountSeparator + "default";
+                    }
                     TradeInfo testInfo = new TradeInfo();
 					
                     testInfo.ClosedEquity = double.Parse(fields[fieldIndex++]);
@@ -611,6 +620,10 @@ namespace Loaders
                     string[] fields = line.Split(',');
                     int fieldIndex = 0;
                     string strategyName = fields[fieldIndex++];
+                    if (strategyName != "EntirePortfolio" && !strategyName.Contains(Symbol.AccountSeparator + "default"))
+                    {
+                        strategyName += Symbol.AccountSeparator + "default";
+                    }
                     TransactionInfo testInfo = new TransactionInfo();
 					
                     testInfo.Symbol = fields[fieldIndex++];
@@ -638,6 +651,10 @@ namespace Loaders
                     string[] fields = line.Split(',');
                     int fieldIndex = 0;
                     string strategyName = fields[fieldIndex++];
+                    if (strategyName != "EntirePortfolio" && !strategyName.Contains(Symbol.AccountSeparator + "default"))
+                    {
+                        strategyName += Symbol.AccountSeparator + "default";
+                    }
                     TransactionInfo testInfo = new TransactionInfo();
 					
                     testInfo.Symbol = fields[fieldIndex++];
@@ -683,6 +700,10 @@ namespace Loaders
                     string[] fields = line.Split(',');
                     int fieldIndex = 0;
                     string strategyName = fields[fieldIndex++];
+                    if (strategyName != "EntirePortfolio" && !strategyName.Contains(Symbol.AccountSeparator + "default"))
+                    {
+                        strategyName += Symbol.AccountSeparator + "default";
+                    }
                     BarInfo barInfo = new BarInfo();
 					
                     barInfo.Time = new TimeStamp(fields[fieldIndex++]);
@@ -729,6 +750,10 @@ namespace Loaders
                     string[] fields = line.Split(',');
                     int fieldIndex = 0;
                     string strategyName = fields[fieldIndex++];
+                    if (strategyName != "EntirePortfolio" && !strategyName.Contains(Symbol.AccountSeparator + "default"))
+                    {
+                        strategyName += Symbol.AccountSeparator + "default";
+                    }
 					
                     StatsInfo statsInfo = new StatsInfo();
                     statsInfo.Time = new TimeStamp(fields[fieldIndex++]);
@@ -754,18 +779,18 @@ namespace Loaders
 		
         public void DynamicTradeCount(string strategyName) {
             try {
-            if( string.IsNullOrEmpty(strategyName)) return;
-            List<TradeInfo> goodTrades = null;
-            goodTradeMap.TryGetValue(strategyName,out goodTrades);
-            List<TradeInfo> testTrades = null;
-            testTradeMap.TryGetValue(strategyName,out testTrades);
-            if( goodTrades == null) {
-                Assert.IsNull(testTrades, "test trades empty like good trades");
-                return;
+                if( string.IsNullOrEmpty(strategyName)) return;
+                List<TradeInfo> goodTrades = null;
+                goodTradeMap.TryGetValue(strategyName,out goodTrades);
+                List<TradeInfo> testTrades = null;
+                testTradeMap.TryGetValue(strategyName,out testTrades);
+                if( goodTrades == null) {
+                    Assert.IsNull(testTrades, "test trades empty like good trades");
+                    return;
+                }
+                Assert.IsNotNull(testTrades, "test trades");
+                Assert.AreEqual(goodTrades.Count,testTrades.Count,"trade count");
             }
-            Assert.IsNotNull(testTrades, "test trades");
-            Assert.AreEqual(goodTrades.Count,testTrades.Count,"trade count");
-        }
             catch (AssertionException ex)
             {
                 log.Error(ex.Message);
