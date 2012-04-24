@@ -38,8 +38,17 @@ namespace TickZoom.Examples
         public override void OnInitialize(ProjectProperties properties) {
         }
 		
-        public override void OnLoad(ProjectProperties properties) {
-            TopModel = GetStrategy("ExampleOrderStrategy");
+        public override void OnLoad(ProjectProperties properties)
+        {
+            var portfolio = new Portfolio();
+            foreach (ISymbolProperties symbol in properties.Starter.SymbolProperties)
+            {
+                var strategy = new ExampleOrderStrategy();
+                strategy.SymbolDefault = symbol.ExpandedSymbol;
+                portfolio.AddDependency(strategy);
+            }
+
+            TopModel = portfolio;
         }
     }
 }

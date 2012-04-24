@@ -128,8 +128,8 @@ namespace TickZoom.Symbols
 			}
 		}
 		
-		public bool GetSymbolProperties(string symbolAccount, out SymbolProperties properties) {
-			return symbolMap.TryGetValue(symbolAccount,out properties);
+		public bool GetSymbolProperties(string symbolArgumentAccount, out SymbolProperties properties) {
+			return symbolMap.TryGetValue(symbolArgumentAccount,out properties);
 		}
 		private string GetDictionarySymbol(string symbol) {
 			var parts = symbol.Split( '.','@','!');
@@ -153,21 +153,20 @@ namespace TickZoom.Symbols
             return "default";
         }
 
-        public SymbolProperties GetSymbolProperties(string symbolAccount)
+        public SymbolProperties GetSymbolProperties(string symbolArgument)
         {
-			var symbol  = GetDictionarySymbol(symbolAccount);
-            var account = GetDynamicAccount(symbolAccount);
+            var brokerSymbol = GetDictionarySymbol(symbolArgument);
+            var defaultSymbol = brokerSymbol + Symbol.AccountSeparator + "default";
+
+            var account = GetDynamicAccount(symbolArgument);
+
 			SymbolProperties properties;
-            symbolAccount = symbol;
-            //if (account != "default")
-            //{
-                symbolAccount += Symbol.AccountSeparator + account;
-            //}
-            if (GetSymbolProperties(symbolAccount, out properties))
+            var expandedSymbol = brokerSymbol + Symbol.AccountSeparator + account;
+            if (GetSymbolProperties(expandedSymbol, out properties))
             {
                 return properties;
 			}
-            if (GetSymbolProperties(symbol, out properties))
+            if (GetSymbolProperties(defaultSymbol, out properties))
             {
                 var sourceSymbol = properties;
                 properties = properties.Copy();
@@ -179,14 +178,7 @@ namespace TickZoom.Symbols
                 symbolMap[properties.ExpandedSymbol.StripInvalidPathChars()] = properties;
                 return properties;
             }
-            if( account == "default")
-            {
-                throw new ApplicationException("Sorry, symbol " + symbolAccount + " was not found with default account in any symbol dictionary.");
-            }
-            else
-            {
-                throw new ApplicationException("Sorry, symbol " + symbolAccount + " was not found with either default or " + account + " account in any symbol dictionary and .");
-            }
+            throw new ApplicationException("Sorry, symbol " + symbolArgument + " was not found with default account in any symbol dictionary.");
         }
 		
 		public SymbolInfo LookupSymbol(string symbol) {
