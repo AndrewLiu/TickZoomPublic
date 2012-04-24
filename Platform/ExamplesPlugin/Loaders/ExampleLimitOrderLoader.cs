@@ -40,15 +40,22 @@ namespace TickZoom.Examples
 		
         public override void OnLoad(ProjectProperties properties)
         {
-            var portfolio = new Portfolio();
-            foreach (ISymbolProperties symbol in properties.Starter.SymbolProperties)
+            if( properties.Starter.SymbolProperties.Length > 1)
             {
-                var strategy = new ExampleOrderStrategy();
-                strategy.SymbolDefault = symbol.ExpandedSymbol;
-                portfolio.AddDependency(strategy);
-            }
+                var portfolio = new Portfolio();
+                foreach (ISymbolProperties symbol in properties.Starter.SymbolProperties)
+                {
+                    var strategy = new ExampleOrderStrategy();
+                    strategy.SymbolDefault = symbol.ExpandedSymbol;
+                    portfolio.AddDependency(strategy);
+                }
 
-            TopModel = portfolio;
+                TopModel = portfolio;
+            }
+            else
+            {
+                TopModel = new ExampleOrderStrategy();
+            }
         }
     }
 }

@@ -126,7 +126,7 @@ namespace Test
                 order = Factory.Utility.PhysicalOrder(OrderAction.Create, OrderState.Active, symbolInfo, OrderSide.Sell, OrderType.Limit, OrderFlags.None,
                                                       124.34, 1234, 14, logicalSerial + 1, clientId, null, TimeStamp.UtcNow);
                 store.SetOrder(order);
-                var list = store.GetOrders((o) => o.Symbol.ExpandedSymbol == "EUR/USD");
+                var list = store.GetOrders((o) => o.Symbol.Symbol == "EUR/USD");
                 var enumerator = list.GetEnumerator();
                 var count = 0;
                 CreateOrChangeOrder firstItem = null;
