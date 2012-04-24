@@ -40,7 +40,7 @@ namespace Loaders
 		public AutoTestSettings[] GetAutoTestSettings() {
             AutoTestSettings next;
             var list = new System.Collections.Generic.List<AutoTestSettings>();
-			var storeKnownGood = true;
+			var storeKnownGood = false;
 			var showCharts = false;
 			var primarySymbol = "USD/JPY";
 			try { 

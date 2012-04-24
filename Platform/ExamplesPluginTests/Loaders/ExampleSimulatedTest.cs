@@ -63,7 +63,7 @@ namespace Loaders
 	    		starter.ShowChartCallback = new ShowChartCallback(HistoricalShowChart);
 				
 				// Run the loader.
-				ExampleLimitOrderLoader loader = new ExampleLimitOrderLoader();
+				var loader = new ExampleLimitOrderLoader();
 	    		starter.Run(loader);
 	
 	    		// Get the stategy

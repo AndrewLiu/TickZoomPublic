@@ -28,6 +28,7 @@
 using System;
 using System.IO;
 using NUnit.Framework;
+using TickZoom.Api;
 using TickZoom.Common;
 using TickZoom.Symbols;
 
@@ -42,7 +43,7 @@ namespace TickZoom.StarterTest
 			string fileName = @"..\..\Platform\TickZoomTesting\Startup\dictionary.tzdict";
 			SymbolDictionary dictionary = SymbolDictionary.Create(new StreamReader(fileName));
 			foreach( SymbolProperties properties in dictionary) {
-				InstrumentImpl instrument = InstrumentImpl.Get(properties.ExpandedSymbol);
+				InstrumentImpl instrument = InstrumentImpl.Get(properties.Symbol);
 				Assert.AreEqual( instrument.DepthIncrement, properties.Level2Increment);
 				Assert.AreEqual( instrument.LotSize, properties.Level2LotSize);
 				Assert.AreEqual( instrument.LotSizeDomLimit, properties.Level2LotSizeMinimum);
@@ -53,8 +54,8 @@ namespace TickZoom.StarterTest
 		{
 			string fileName = @"..\..\Platform\TickZoomTesting\Startup\dictionary.tzdict";
 			SymbolDictionary dictionary = SymbolDictionary.Create(new StreamReader(fileName));
-			SymbolProperties properties = dictionary.Get("USD/JPY");
-			InstrumentImpl instrument = InstrumentImpl.Get("USD/JPY");
+			SymbolProperties properties = dictionary.Get("USD/JPY" + Symbol.AccountSeparator + "default");
+            InstrumentImpl instrument = InstrumentImpl.Get("USD/JPY");
 			Assert.AreEqual( instrument.DepthIncrement, properties.Level2Increment);
 			Assert.AreEqual( instrument.LotSize, properties.Level2LotSize);
 			Assert.AreEqual( instrument.LotSizeDomLimit, properties.Level2LotSizeMinimum);
