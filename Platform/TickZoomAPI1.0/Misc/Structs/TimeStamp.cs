@@ -199,9 +199,9 @@ namespace TickZoom.Api
         {
             public long OriginalSystemClock;
             public TimeStamp OriginalTimeStamp;
-            public long LastSystemClock;
             public long LastTimeStamp;
             public long SynchronizeOffset;
+            public int lastTickCount;
             public override string ToString()
             {
                 return LastTimeStamp.ToString();
@@ -212,7 +212,7 @@ namespace TickZoom.Api
 	    private static HardwareTimeStamp[] hardwareTimeStamps = new HardwareTimeStamp[1024];
 	    private static long adjustedFrequency;
 
-        private static TimeStamp ResetUtcNow(int index)
+        private static TimeStamp ResetOriginalUtcNow(int index)
         {
             var thread = Thread.CurrentThread;
             var threadPriority = thread.Priority;
@@ -223,6 +223,8 @@ namespace TickZoom.Api
             stopWatchFrequency = Stopwatch.Frequency;
             adjustedFrequency = (stopWatchFrequency << 20) / 1000000L;
             hardwareTimeStamps[index].OriginalSystemClock = Stopwatch.GetTimestamp();
+            hardwareTimeStamps[index].LastTimeStamp = timeStamp.Internal;
+            hardwareTimeStamps[index].lastTickCount = Environment.TickCount;
             thread.Priority = threadPriority;
             return timeStamp;
         }
@@ -243,15 +245,13 @@ namespace TickZoom.Api
                     }
                     if (hardwareTimeStamps[index].OriginalTimeStamp == default(TimeStamp))
                     {
-                        var timeStamp = ResetUtcNow(index);
-                        hardwareTimeStamps[index].LastTimeStamp = timeStamp.Internal;
-                        hardwareTimeStamps[index].LastSystemClock = Stopwatch.GetTimestamp();
+                        var timeStamp = ResetOriginalUtcNow(index);
                     }
                     TimeStamp result;
                     var count = 0;
                     while (!CalculateTimeStamp(index, out result))
                     {
-                        ResetUtcNow(index);
+                        ResetOriginalUtcNow(index);
                         ++count;
                     }
                     if (count > 0)
@@ -274,6 +274,7 @@ namespace TickZoom.Api
         {
             var result = true;
             var systemClock = Stopwatch.GetTimestamp();
+            var tickCount = Environment.TickCount;
             var systemClockChange = systemClock - hardwareTimeStamps[index].OriginalSystemClock + hardwareTimeStamps[index].SynchronizeOffset;
             var adjustedClockChange = (systemClockChange << 20) / adjustedFrequency;
             if (adjustedClockChange < 0)
@@ -287,20 +288,17 @@ namespace TickZoom.Api
             {
                 result = false;
             }
-            for (var i = 0; i < hardwareTimestampsCount; i++ )
+            var timeDiffms = timeDiff/1000;
+            var tickCountDiff = tickCount - hardwareTimeStamps[index].lastTickCount;
+            var driftms = Math.Abs(timeDiffms - tickCountDiff);
+            if( driftms > 500)
             {
-                var diff = timeStamp.Internal - hardwareTimeStamps[i].LastTimeStamp;
-                if( diff < 0)
-                {
-                    hardwareTimeStamps[i].SynchronizeOffset = -diff;
-                    result = false;
-                    break;
-                }
+                result = false;
             }
             if (result)
             {
-                hardwareTimeStamps[index].LastSystemClock = systemClock;
                 hardwareTimeStamps[index].LastTimeStamp = timeStamp.Internal;
+                hardwareTimeStamps[index].lastTickCount = Environment.TickCount;
             }
             return result;
         }
