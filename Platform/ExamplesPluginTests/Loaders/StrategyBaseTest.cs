@@ -532,10 +532,6 @@ namespace Loaders
                     string[] fields = line.Split(',');
                     int fieldIndex = 0;
                     string strategyName = fields[fieldIndex++];
-                    if (strategyName != "EntirePortfolio" && !strategyName.Contains(Symbol.AccountSeparator + "default"))
-                    {
-                        strategyName += Symbol.AccountSeparator + "default";
-                    }
                     var testInfo = new FinalStatsInfo();
 					
                     testInfo.StartingEquity = double.Parse(fields[fieldIndex++]);
@@ -572,10 +568,6 @@ namespace Loaders
                     string[] fields = line.Split(',');
                     int fieldIndex = 0;
                     string strategyName = fields[fieldIndex++];
-                    if (strategyName != "EntirePortfolio" && !strategyName.Contains(Symbol.AccountSeparator + "default"))
-                    {
-                        strategyName += Symbol.AccountSeparator + "default";
-                    }
                     TradeInfo testInfo = new TradeInfo();
 					
                     testInfo.ClosedEquity = double.Parse(fields[fieldIndex++]);
@@ -620,10 +612,6 @@ namespace Loaders
                     string[] fields = line.Split(',');
                     int fieldIndex = 0;
                     string strategyName = fields[fieldIndex++];
-                    if (strategyName != "EntirePortfolio" && !strategyName.Contains(Symbol.AccountSeparator + "default"))
-                    {
-                        strategyName += Symbol.AccountSeparator + "default";
-                    }
                     TransactionInfo testInfo = new TransactionInfo();
 					
                     testInfo.Symbol = fields[fieldIndex++];
@@ -651,10 +639,6 @@ namespace Loaders
                     string[] fields = line.Split(',');
                     int fieldIndex = 0;
                     string strategyName = fields[fieldIndex++];
-                    if (strategyName != "EntirePortfolio" && !strategyName.Contains(Symbol.AccountSeparator + "default"))
-                    {
-                        strategyName += Symbol.AccountSeparator + "default";
-                    }
                     TransactionInfo testInfo = new TransactionInfo();
 					
                     testInfo.Symbol = fields[fieldIndex++];
@@ -700,10 +684,6 @@ namespace Loaders
                     string[] fields = line.Split(',');
                     int fieldIndex = 0;
                     string strategyName = fields[fieldIndex++];
-                    if (strategyName != "EntirePortfolio" && !strategyName.Contains(Symbol.AccountSeparator + "default"))
-                    {
-                        strategyName += Symbol.AccountSeparator + "default";
-                    }
                     BarInfo barInfo = new BarInfo();
 					
                     barInfo.Time = new TimeStamp(fields[fieldIndex++]);
@@ -750,11 +730,6 @@ namespace Loaders
                     string[] fields = line.Split(',');
                     int fieldIndex = 0;
                     string strategyName = fields[fieldIndex++];
-                    if (strategyName != "EntirePortfolio" && !strategyName.Contains(Symbol.AccountSeparator + "default"))
-                    {
-                        strategyName += Symbol.AccountSeparator + "default";
-                    }
-					
                     StatsInfo statsInfo = new StatsInfo();
                     statsInfo.Time = new TimeStamp(fields[fieldIndex++]);
                     statsInfo.ClosedEquity = double.Parse(fields[fieldIndex++]);

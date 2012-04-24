@@ -1,5 +1,5 @@
 Portfolio,10000,7983,-45,7938
-ExampleOrder-EUR/USD,10000,9649,-1,9648
-AutoGen-Portfolio-CSCO,10000,8334,-44,8290
-ExampleOrder-CSCO,10000,8390,-40,8350
-ExampleReversal-CSCO,10000,9940,0,9940
+ExampleOrder-EUR/USD!default,10000,9649,-1,9648
+AutoGen-Portfolio-CSCO!default,10000,8334,-44,8290
+ExampleOrder-CSCO!default,10000,8390,-40,8350
+ExampleReversal-CSCO!default,10000,9940,0,9940
