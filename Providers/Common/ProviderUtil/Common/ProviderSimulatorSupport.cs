@@ -99,9 +99,10 @@ namespace TickZoom.FIX
             }
         }
 
-        public void AddSymbol(string symbol)
+        public void AddSymbol(string expandedSymbol)
         {
-            var symbolInfo = Factory.Symbol.LookupSymbol(symbol);
+            var symbolInfo = Factory.Symbol.LookupSymbol(expandedSymbol);
+            var symbol = symbolInfo.Symbol;
             using (symbolHandlersLocker.Using())
             {
                 if (!symbolHandlers.ContainsKey(symbolInfo.BinaryIdentifier))

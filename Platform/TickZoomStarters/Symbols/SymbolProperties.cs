@@ -162,10 +162,10 @@ namespace TickZoom.Symbols
 	    private void UpdateExpandedSymbol()
 	    {
 	        expandedSymbol = symbol;
-            if( account.ToLower() != "default")
-            {
-                expandedSymbol += "!" + account.ToLower();
-            }
+            //if( account.ToLower() != "default")
+            //{
+                expandedSymbol += Api.Symbol.AccountSeparator + account.ToLower();
+            //}
 	    }
 
 	    public string ExpandedSymbol

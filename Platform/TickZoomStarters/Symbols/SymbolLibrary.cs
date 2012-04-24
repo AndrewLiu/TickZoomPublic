@@ -159,10 +159,10 @@ namespace TickZoom.Symbols
             var account = GetDynamicAccount(symbolAccount);
 			SymbolProperties properties;
             symbolAccount = symbol;
-            if (account != "default")
-            {
-                symbolAccount += "!" + account;
-            }
+            //if (account != "default")
+            //{
+                symbolAccount += Symbol.AccountSeparator + account;
+            //}
             if (GetSymbolProperties(symbolAccount, out properties))
             {
                 return properties;
