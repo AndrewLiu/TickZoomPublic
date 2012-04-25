@@ -1,4 +1,5 @@
-﻿using TickZoom.Api;
+﻿using System;
+using TickZoom.Api;
 using TickZoom.Common;
 
 namespace TickZoom.Examples
@@ -27,6 +28,7 @@ namespace TickZoom.Examples
     /// </summary>
     public class ExampleLimitOrderLoader : ModelLoaderCommon
     {
+        private double multiplier = 1.0;
         public ExampleLimitOrderLoader() {
             /// <summary>
             /// IMPORTANT: You can personalize the name of each model loader.
@@ -34,7 +36,7 @@ namespace TickZoom.Examples
             category = "Example";
             name = "Limit Orders";
         }
-		
+
         public override void OnInitialize(ProjectProperties properties) {
         }
 		
@@ -49,6 +51,7 @@ namespace TickZoom.Examples
                     if( symbol.Account == "default")
                     {
                         var strategy = new ExampleOrderStrategy();
+                        strategy.Multiplier = multiplier;
                         strategy.SymbolDefault = symbol.ExpandedSymbol;
                         portfolio.AddDependency(strategy);
                     }
@@ -60,6 +63,12 @@ namespace TickZoom.Examples
             {
                 TopModel = new ExampleOrderStrategy();
             }
+        }
+
+        public double Multiplier
+        {
+            get { return multiplier; }
+            set { multiplier = value; }
         }
     }
 }

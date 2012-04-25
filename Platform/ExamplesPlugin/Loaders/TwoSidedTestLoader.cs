@@ -15,6 +15,7 @@ namespace TickZoom.Examples
             category = "Test";
             name = "Two Sided Test";
             clientSimulator = new ExampleLimitOrderLoader();
+            clientSimulator.Multiplier = 0.2D;
             marketSimulator = new MarketSimulatorLoader();
         }
 

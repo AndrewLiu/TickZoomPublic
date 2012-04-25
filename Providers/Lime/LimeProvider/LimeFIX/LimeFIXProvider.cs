@@ -35,11 +35,10 @@ namespace TickZoom.LimeFIX
 {
     public class LimeFIXProvider : FIXProviderSupport, PhysicalOrderHandler
     {
-        private static readonly Log log = Factory.SysLog.GetLogger(typeof(LimeFIXProvider));
-		private readonly bool info = log.IsDebugEnabled;
-        private volatile bool trace = log.IsTraceEnabled;
-        private volatile bool debug = log.IsDebugEnabled;
-        private volatile bool verbose = log.IsVerboseEnabled;
+        private Log log = Factory.SysLog.GetLogger(typeof(LimeFIXProvider));
+        private volatile bool trace;
+        private volatile bool debug;
+        private volatile bool verbose;
         Dictionary<int, int> physicalToLogicalOrderMap = new Dictionary<int, int>();
         private string fixDestination = "LIME";
 
@@ -65,6 +64,7 @@ namespace TickZoom.LimeFIX
         public LimeFIXProvider(string name)
             : base(name)
         {
+            log = Factory.SysLog.GetLogger(typeof(LimeFIXProvider) + "." + name);
             log.Register(this);
             log.Notice("Using config section: " + name);
 			if( name.Contains(".config")) {

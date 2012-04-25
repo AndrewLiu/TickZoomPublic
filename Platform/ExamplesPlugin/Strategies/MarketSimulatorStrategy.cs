@@ -4,7 +4,7 @@ using TickZoom.Common;
 namespace TickZoom.Examples
 {
     public class MarketSimulatorStrategy : Strategy {
-        private double tickOffset = 3;
+        private double tickOffset = 1;
         double multiplier = 1.0D;
         double minimumTick;
         int tradeSize;
@@ -31,16 +31,16 @@ namespace TickZoom.Examples
             var ask = midPoint + Data.SymbolInfo.MinimumTick * tickOffset;
             if (Position.IsFlat) 
             {
-                if( Performance.ComboTrades.Count <= 0 || Performance.ComboTrades.Tail.Completed)
-                {
-                    Orders.Enter.ActiveNow.BuyLimit(bid, tradeSize);
-                    Orders.Enter.ActiveNow.SellLimit(ask, tradeSize);
-                }
-                else
-                {
+                //if( Performance.ComboTrades.Count <= 0 || Performance.ComboTrades.Tail.Completed)
+                //{
+                //    Orders.Enter.ActiveNow.BuyLimit(bid, tradeSize);
+                //    Orders.Enter.ActiveNow.SellLimit(ask, tradeSize);
+                //}
+                //else
+                //{
                     Orders.Change.ActiveNow.BuyLimit(bid, tradeSize);
                     Orders.Change.ActiveNow.SellLimit(ask, tradeSize);
-                }
+                //}
             }
             else if (Position.HasPosition)
             {

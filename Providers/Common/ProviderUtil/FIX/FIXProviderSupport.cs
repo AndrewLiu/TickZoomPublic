@@ -1019,12 +1019,12 @@ namespace TickZoom.FIX
 
         public void StartBroker(EventItem eventItem)
         {
-        	log.Info("StartSymbol( " + eventItem.Symbol + ")");
+            log.Info("StartBroker(" + eventItem.Symbol + ")");
         	// This adds a new order handler.
-            TryAddSymbol(eventItem.Symbol.SourceSymbol,eventItem.Agent);
+            TryAddSymbol(eventItem.Symbol,eventItem.Agent);
             using( orderStore.BeginTransaction())
             {
-                OnStartSymbol(eventItem.Symbol.SourceSymbol);
+                OnStartBroker(eventItem.Symbol);
             }
         }
 
@@ -1177,14 +1177,15 @@ namespace TickZoom.FIX
 		
 		public bool GetSymbolStatus(SymbolInfo symbol) {
 			lock( symbolsRequestedLocker) {
-				return symbolsRequested.ContainsKey(symbol.BinaryIdentifier);
+				return symbolsRequested.ContainsKey(symbol.SourceSymbol.BinaryIdentifier);
 			}
 		}
 		
 		private bool TryAddSymbol(SymbolInfo symbol, Agent agent) {
 			lock( symbolsRequestedLocker) {
-				if( !symbolsRequested.ContainsKey(symbol.BinaryIdentifier)) {
-					symbolsRequested.Add(symbol.BinaryIdentifier, new SymbolReceiver { Symbol = symbol, Agent = agent});
+                if (!symbolsRequested.ContainsKey(symbol.SourceSymbol.BinaryIdentifier))
+                {
+                    symbolsRequested.Add(symbol.SourceSymbol.BinaryIdentifier, new SymbolReceiver { Symbol = symbol, Agent = agent });
 					return true;
 				}
 			}
@@ -1193,12 +1194,8 @@ namespace TickZoom.FIX
 		
 		private bool TryRemoveSymbol(SymbolInfo symbol) {
 			lock( symbolsRequestedLocker) {
-				if( symbolsRequested.ContainsKey(symbol.BinaryIdentifier)) {
-					symbolsRequested.Remove(symbol.BinaryIdentifier);
-					return true;
-				}
+                return symbolsRequested.Remove(symbol.SourceSymbol.BinaryIdentifier);
 			}
-			return false;
 		}
 
         private bool isFinalized;
@@ -1482,7 +1479,7 @@ namespace TickZoom.FIX
             SymbolAlgorithm symbolAlgorithm;
             lock (orderAlgorithmsLocker)
             {
-                if (!orderAlgorithms.TryGetValue(symbol.BinaryIdentifier, out symbolAlgorithm))
+                if (!orderAlgorithms.TryGetValue(symbol.SourceSymbol.BinaryIdentifier, out symbolAlgorithm))
                 {
                     throw new ApplicationException("OrderAlgorirhm was not found for " + symbol);
                 }
@@ -1490,11 +1487,12 @@ namespace TickZoom.FIX
             return symbolAlgorithm;
         }
 
-        protected bool TryGetAlgorithm(long symbol, out SymbolAlgorithm algorithm)
+        protected bool TryGetAlgorithm(long symbolId, out SymbolAlgorithm algorithm)
         {
+            var symbol = Factory.Symbol.LookupSymbol(symbolId);
             lock (orderAlgorithmsLocker)
             {
-                return orderAlgorithms.TryGetValue(symbol, out algorithm);
+                return orderAlgorithms.TryGetValue(symbol.SourceSymbol.BinaryIdentifier, out algorithm);
             }
         }
 
@@ -1518,7 +1516,7 @@ namespace TickZoom.FIX
         protected void TryRequestPosition(SymbolInfo symbol)
         {
             SymbolReceiver symbolReceiver;
-            if (!symbolsRequested.TryGetValue(symbol.BinaryIdentifier, out symbolReceiver))
+            if (!symbolsRequested.TryGetValue(symbol.SourceSymbol.BinaryIdentifier, out symbolReceiver))
             {
                 throw new InvalidOperationException("Can't find symbol request for " + symbol);
             }
@@ -1539,7 +1537,7 @@ namespace TickZoom.FIX
         protected void TrySendStartBroker(SymbolInfo symbol, string message)
         {
             SymbolReceiver symbolReceiver;
-            if( !symbolsRequested.TryGetValue(symbol.BinaryIdentifier, out symbolReceiver))
+            if (!symbolsRequested.TryGetValue(symbol.SourceSymbol.BinaryIdentifier, out symbolReceiver))
             {
                 if( debug) log.Debug("Can't find symbol request for " + symbol);
                 return;
@@ -1591,7 +1589,7 @@ namespace TickZoom.FIX
 
         protected void TrySendEndBroker( SymbolInfo symbol)
         {
-            var symbolReceiver = symbolsRequested[symbol.BinaryIdentifier];
+            var symbolReceiver = symbolsRequested[symbol.SourceSymbol.BinaryIdentifier];
             var algorithm = GetAlgorithm(symbol.BinaryIdentifier);
             if (!algorithm.OrderAlgorithm.IsBrokerOnline)
             {
@@ -1704,18 +1702,17 @@ namespace TickZoom.FIX
             }
         }
 
-        protected SymbolAlgorithm CreateAlgorithm(long symbol) {
+        protected SymbolAlgorithm CreateAlgorithm(SymbolInfo symbol) {
             SymbolAlgorithm symbolAlgorithm;
             lock( orderAlgorithmsLocker) {
-                if (!orderAlgorithms.TryGetValue(symbol, out symbolAlgorithm))
+                if (!orderAlgorithms.TryGetValue(symbol.SourceSymbol.BinaryIdentifier, out symbolAlgorithm))
                 {
-                    var symbolInfo = Factory.Symbol.LookupSymbol(symbol);
-                    var orderCache = Factory.Engine.LogicalOrderCache(symbolInfo, false);
-                    var syntheticRouter = new SyntheticOrderRouter(symbolInfo, Agent, receiver);
-                    var algorithm = Factory.Utility.OrderAlgorithm(providerName, symbolInfo, this, syntheticRouter, orderCache, OrderStore);
+                    var orderCache = Factory.Engine.LogicalOrderCache(symbol, false);
+                    var syntheticRouter = new SyntheticOrderRouter(symbol.SourceSymbol, Agent, receiver);
+                    var algorithm = Factory.Utility.OrderAlgorithm(providerName, symbol, this, syntheticRouter, orderCache, OrderStore);
                     algorithm.EnableSyncTicks = SyncTicks.Enabled;
                     symbolAlgorithm = new SymbolAlgorithm { OrderAlgorithm = algorithm, Synthetics = syntheticRouter };
-                    orderAlgorithms.Add(symbol, symbolAlgorithm);
+                    orderAlgorithms.Add(symbol.SourceSymbol.BinaryIdentifier, symbolAlgorithm);
                     algorithm.OnProcessFill = ProcessFill;
                     algorithm.OnProcessTouch = ProcessTouch;
                 }
@@ -1735,7 +1732,7 @@ namespace TickZoom.FIX
         public virtual void ProcessFill(SymbolInfo symbol, LogicalFillBinary fill)
         {
             SymbolReceiver symbolReceiver;
-            if (!symbolsRequested.TryGetValue(symbol.BinaryIdentifier, out symbolReceiver))
+            if (!symbolsRequested.TryGetValue(symbol.SourceSymbol.BinaryIdentifier, out symbolReceiver))
             {
                 throw new InvalidOperationException("Can't find symbol request for " + symbol);
             }
@@ -1752,7 +1749,7 @@ namespace TickZoom.FIX
         public virtual void ProcessTouch(SymbolInfo symbol, LogicalTouch touch)
         {
             SymbolReceiver symbolReceiver;
-            if (!symbolsRequested.TryGetValue(symbol.BinaryIdentifier, out symbolReceiver))
+            if (!symbolsRequested.TryGetValue(symbol.SourceSymbol.BinaryIdentifier, out symbolReceiver))
             {
                 throw new InvalidOperationException("Can't find symbol request for " + symbol);
             }
@@ -1947,23 +1944,23 @@ namespace TickZoom.FIX
                 // Reset the order algorithms
                 lock (orderAlgorithmsLocker)
                 {
-                    var symbolIds = new List<long>();
+                    var symbolIds = new List<SymbolInfo>();
                     foreach (var kvp in orderAlgorithms)
                     {
                         var algo = kvp.Value.OrderAlgorithm;
-                        symbolIds.Add(kvp.Key);
+                        symbolIds.Add(algo.Symbol);
                         algo.Clear();
                     }
                     orderAlgorithms.Clear();
-                    foreach (var symbolId in symbolIds)
+                    foreach (var symbol in symbolIds)
                     {
-                        CreateAlgorithm(symbolId);
+                        CreateAlgorithm(symbol);
                     }
                 }
                 var synthetics = OrderStore.GetOrders((o) => o.IsSynthetic);
                 foreach (var order in synthetics)
                 {
-                    var algo = CreateAlgorithm(order.Symbol.BinaryIdentifier);
+                    var algo = CreateAlgorithm(order.Symbol);
                     switch( order.Action)
                     {
                         case OrderAction.Create:
@@ -1997,13 +1994,13 @@ namespace TickZoom.FIX
             return true;
         }
 
-        public virtual void OnStartSymbol(SymbolInfo symbol)
+        public virtual void OnStartBroker(SymbolInfo symbol)
         {
-            var algorithm = CreateAlgorithm(symbol.BinaryIdentifier);
+            var algorithm = CreateAlgorithm(symbol);
             if (ConnectionStatus == Status.Recovered)
             {
                 algorithm.OrderAlgorithm.ProcessOrders();
-                TrySendStartBroker(symbol,"Start symbol");
+                TrySendStartBroker(symbol,"Start broker");
             }
         }
 
@@ -2023,7 +2020,7 @@ namespace TickZoom.FIX
             foreach (var kvp in orderAlgorithms)
             {
                 var algorithm = kvp.Value;
-                var symbol = Factory.Symbol.LookupSymbol(kvp.Key);
+                var symbol = algorithm.OrderAlgorithm.Symbol;
                 algorithm.OrderAlgorithm.ProcessOrders();
                 TrySendStartBroker(symbol, "start position sync");
             }

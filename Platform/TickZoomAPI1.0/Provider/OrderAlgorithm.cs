@@ -62,6 +62,7 @@ namespace TickZoom.Api
 	    void ProcessHeartBeat();
         int RejectRepeatCounter { get; set;  }
 	    Action<SymbolInfo, LogicalTouch> OnProcessTouch { get; set; }
+	    SymbolInfo Symbol { get; }
 	    void SyntheticFill(PhysicalFill fill);
 	    void Clear();
 	}
