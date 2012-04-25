@@ -136,16 +136,6 @@ namespace TickZoom.MBTFIX
             // MBT doesn't send any rejected login messages.
         }
 
-        public override void OnStartSymbol(SymbolInfo symbol)
-        {
-            var algorithm = CreateAlgorithm(symbol.BinaryIdentifier);
-            if (ConnectionStatus == Status.Recovered)
-            {
-                algorithm.OrderAlgorithm.ProcessOrders();
-                TrySendStartBroker(symbol,"Start symbol");
-            }
-        }
-
 		public override void OnStopBroker(SymbolInfo symbol)
 		{
             TrySendEndBroker();

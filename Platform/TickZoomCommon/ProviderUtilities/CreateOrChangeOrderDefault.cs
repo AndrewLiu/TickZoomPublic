@@ -431,6 +431,11 @@ namespace TickZoom.Common
         }
 
                  
+        public bool OffsetTooLateToChange
+        {
+            get { return (binary.orderFlags & OrderFlags.OffsetTooLateToChange) > 0; }
+        }
+
         public bool OffsetTooLateToCancel
         {
             get { return (binary.orderFlags & OrderFlags.OffsetTooLateToCancel) > 0; }

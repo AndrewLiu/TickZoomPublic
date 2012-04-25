@@ -333,6 +333,19 @@ namespace TickZoom.Api
         /// For internal use. Gives the symbol info object that has a default (or neutral) account.
         /// This is the symbol used to match feeds of the same symbol across different accounts.
         /// </summary>
-	    SymbolInfo SourceSymbol { get; set; }
-	}
+	    SymbolInfo SourceSymbol { get; }
+
+        /// <summary>
+        /// This causes fills that arrive after a changed order that had a different price to
+        /// be offset with a market adjustment order. Then the execution provider replaces the
+        /// at the current price. The default is true.
+        /// </summary>
+	    bool OffsetTooLateToChange { get; }
+
+        /// <summary>
+        /// This causes fills that arrive after a cancel order that had a different price to
+        /// be offset with a market adjustment order. The default is true.
+        /// </summary>
+        bool OffsetTooLateToCancel { get; }
+    }
 }
