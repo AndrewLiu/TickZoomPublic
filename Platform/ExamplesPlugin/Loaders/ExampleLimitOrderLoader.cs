@@ -43,11 +43,15 @@ namespace TickZoom.Examples
             if( properties.Starter.SymbolProperties.Length > 1)
             {
                 var portfolio = new Portfolio();
+                portfolio.Name = "Portfolio-Client";
                 foreach (ISymbolProperties symbol in properties.Starter.SymbolProperties)
                 {
-                    var strategy = new ExampleOrderStrategy();
-                    strategy.SymbolDefault = symbol.ExpandedSymbol;
-                    portfolio.AddDependency(strategy);
+                    if( symbol.Account == "default")
+                    {
+                        var strategy = new ExampleOrderStrategy();
+                        strategy.SymbolDefault = symbol.ExpandedSymbol;
+                        portfolio.AddDependency(strategy);
+                    }
                 }
 
                 TopModel = portfolio;

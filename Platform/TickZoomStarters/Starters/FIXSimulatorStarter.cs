@@ -38,14 +38,18 @@ namespace TickZoom.Starters
     public class FIXSimulatorStarter : RealTimeStarterBase
     {
         private static readonly Log log = Factory.SysLog.GetLogger(typeof (FIXSimulatorStarter));
-		public FIXSimulatorStarter() {
+        private Dictionary<string,string> executionProviders = new Dictionary<string,string>();
+
+        public FIXSimulatorStarter()
+        {
 			SyncTicks.Enabled = true;
 			ConfigurationManager.AppSettings.Set("ProviderAddress","InProcess");
-		}
+        }
 		
 		public override void Run(ModelLoaderInterface loader)
 		{
-		    var stopwatch = new Stopwatch();
+            executionProviders.Clear();
+            var stopwatch = new Stopwatch();
 		    stopwatch.Start();
             SetupSymbolData();
 		    var elapsed = stopwatch.Elapsed;
@@ -65,12 +69,12 @@ namespace TickZoom.Starters
             var fixSimulator = "ProviderSimulator";
 #else
             var dataProvider = "LimeProvider/Simulate";
-            var executionProvider = "LimeProvider/Simulate";
+            executionProviders.Add("default","LimeProvider/Simulate");
+            //executionProviders.Add("market", "LimeProvider/SimulateMarket");
             var fixAssembly = "LimeProvider";
             var fixSimulator = "ProviderSimulator";
 #endif
             AddDataProvider(dataProvider);
-            AddExecutionProvider(executionProvider);
             SetupProviderServiceConfig();
             var providerManager = Factory.Parallel.SpawnProvider("ProviderCommon", "ProviderManager");
             providerManager.SendEvent(new EventItem(EventType.SetConfig, "WarehouseTest"));
@@ -129,6 +133,44 @@ namespace TickZoom.Starters
             {
                 var ex = errors[errors.Count - 1];
                 throw new IOException("Can't delete " + path, ex);
+            }
+        }
+
+        public void SetupProviderServiceConfig()
+        {
+            try
+            {
+                var storageFolder = Factory.Settings["AppDataFolder"];
+                var providersPath = Path.Combine(storageFolder, "Providers");
+                var configPath = Path.Combine(providersPath, "ProviderService");
+                var configFile = Path.Combine(configPath, "WarehouseTest.config");
+                var warehouseConfig = new ConfigFile(configFile);
+                warehouseConfig.SetValue("ServerCacheFolder", "Test\\ServerCache");
+                var dataProvider = DataProviders[0];
+                var activeAccounts = "";
+                foreach (var kvp in executionProviders)
+                {
+                    var account = kvp.Key;
+                    if( activeAccounts.Length > 0)
+                    {
+                        activeAccounts += ",";
+                    }
+                    activeAccounts += account;
+                }
+
+                warehouseConfig.SetValue("ActiveAccounts", activeAccounts);
+                warehouseConfig.SetValue("DataProvider", dataProvider);
+                foreach( var kvp in executionProviders)
+                {
+                    var account = kvp.Key;
+                    var executionProvider = kvp.Value;
+                    warehouseConfig.SetValue(account+"/ExecutionProvider", executionProvider);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Setup error.", ex);
+                throw ex;
             }
         }
 
@@ -273,5 +315,6 @@ namespace TickZoom.Starters
 </configuration>
 ";				
 		}
-	}
+
+    }
 }

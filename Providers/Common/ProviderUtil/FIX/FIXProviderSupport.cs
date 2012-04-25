@@ -1084,6 +1084,14 @@ namespace TickZoom.FIX
             configFile.AssureValue("Simulate/AccountNumber", "11111111");
             configFile.AssureValue("Simulate/SessionIncludes", "*");
             configFile.AssureValue("Simulate/SessionExcludes", "");
+            configFile.AssureValue("SimulateMarket/UseLocalFillTime", "false");
+            configFile.AssureValue("SimulateMarket/ServerAddress", "127.0.0.1");
+            configFile.AssureValue("SimulateMarket/ServerPort", "6489");
+            configFile.AssureValue("SimulateMarket/UserName", "Simulate2");
+            configFile.AssureValue("SimulateMarket/Password", "only4sim");
+            configFile.AssureValue("SimulateMarket/AccountNumber", "11111111");
+            configFile.AssureValue("SimulateMarket/SessionIncludes", "*");
+            configFile.AssureValue("SimulateMarket/SessionExcludes", "");
             configFile.AssureValue("ClientTest/UseLocalFillTime", "false");
             configFile.AssureValue("ClientTest/ServerAddress", "127.0.0.1");
             configFile.AssureValue("ClientTest/ServerPort", "6489");
