@@ -71,13 +71,16 @@ namespace TickZoom.Properties
 			value = value.StripWhiteSpace();
 			value = value.StripInvalidPathChars();
 			var symbolFileArray = value.Split(',');
-			for( int i=0; i<symbolFileArray.Length; i++) {
-				var tempSymbolFile = symbolFileArray[i].Trim();
-                if (symbolList.Contains(tempSymbolFile)) continue;
-                if (!string.IsNullOrEmpty(tempSymbolFile))
+			for( int i=0; i<symbolFileArray.Length; i++)
+			{
+			    var tempExpandedSymbol = symbolFileArray[i].Trim();
+                if (symbolList.Contains(tempExpandedSymbol)) continue;
+                if (!string.IsNullOrEmpty(tempExpandedSymbol))
                 {
-					var symbol = library.GetSymbolProperties(tempSymbolFile).Copy();
-				    symbol.SymbolFile = tempSymbolFile;
+					var symbol = library.GetSymbolProperties(tempExpandedSymbol).Copy();
+                    var expandedSymbolParts = tempExpandedSymbol.Split(Symbol.AccountSeparator);
+                    var tempSymbolFile = expandedSymbolParts[0];
+                    symbol.SymbolFile = tempSymbolFile;
 					symbol.ChartGroup = i+1;
 					log.Info(symbol + " set to chart group " + symbol.ChartGroup);
 					symbolInfo.Add(symbol);

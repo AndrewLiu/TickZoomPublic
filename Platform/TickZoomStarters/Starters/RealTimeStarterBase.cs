@@ -35,7 +35,7 @@ namespace TickZoom.Starters
 {
 	public class RealTimeStarterBase : StarterCommon
 	{
-		Log log = Factory.SysLog.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+	    protected Log log = Factory.SysLog.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 		public override void Run(ModelInterface model)
 		{
@@ -50,28 +50,6 @@ namespace TickZoom.Starters
                 parallelMode = ParallelMode.Normal;
                 Factory.Provider.ShutdownSockets();
             }
-		}
-
-		public void SetupProviderServiceConfig()
-		{
-			try {
-                var storageFolder = Factory.Settings["AppDataFolder"];
-                var providersPath = Path.Combine(storageFolder, "Providers");
-                var configPath = Path.Combine(providersPath, "ProviderService");
-                var configFile = Path.Combine(configPath, "WarehouseTest.config");
-                var warehouseConfig = new ConfigFile(configFile);
-                warehouseConfig.SetValue("ServerCacheFolder", "Test\\ServerCache");
-                var dataProvider = DataProviders[0];
-                warehouseConfig.SetValue("ActiveAccounts", "default");
-                warehouseConfig.SetValue("DataProvider", dataProvider);
-                var executionProvider = ExecutionProviders[0];
-                warehouseConfig.SetValue("default/ExecutionProvider", executionProvider);
-            }
-            catch (Exception ex)
-            {
-				log.Error("Setup error.",ex);
-				throw ex;
-			}
 		}
 	}
 }

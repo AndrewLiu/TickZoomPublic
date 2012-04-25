@@ -61,7 +61,6 @@ namespace TickZoom.Starters
 		private string address = "InProcess";
 		private int port = 6490;
 		private List<string> dataProviders = new List<string>();
-        private List<string> executionProviders = new List<string>();
         protected int maxParallelPasses = 1000;
 		private string config;
 		private TickEngine engine;
@@ -533,13 +532,7 @@ namespace TickZoom.Starters
 			dataProviders.Add(provider);
 		}
 
-        public void AddExecutionProvider(string provider)
-        {
-            ExecutionProviders.Clear();
-            ExecutionProviders.Add(provider);
-        }
-
-        public List<string> DataProviders
+	    public List<string> DataProviders
         {
 			get { return dataProviders; }
 		}		
@@ -549,9 +542,5 @@ namespace TickZoom.Starters
 			set { config = value; }
 		}
 
-	    public List<string> ExecutionProviders
-	    {
-	        get { return executionProviders; }
-	    }
 	}
 }

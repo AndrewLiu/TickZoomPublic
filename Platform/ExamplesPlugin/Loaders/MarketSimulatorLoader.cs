@@ -56,6 +56,7 @@ namespace TickZoom.Examples
         public override void OnLoad(ProjectProperties properties)
         {
             var portfolio = new Portfolio();
+            portfolio.Name = "Portfolio-Market";
             foreach (ISymbolProperties symbol in properties.Starter.SymbolProperties)
             {
                 if( symbol.Account == "market")
