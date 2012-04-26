@@ -44,11 +44,22 @@ namespace TickZoom.Examples
 
         public override void OnInitialize(ProjectProperties properties)
         {
+            // Add market symbols.
             foreach (ISymbolProperties symbol in properties.Starter.SymbolProperties)
             {
                 if (symbol.Account != "market")
                 {
                     properties.Starter.TryAddSymbols(symbol.Symbol + "!market");
+                }
+            }
+            // Setup market symbols.
+            foreach (ISymbolProperties symbol in properties.Starter.SymbolProperties)
+            {
+                if (symbol.Account == "market")
+                {
+                    symbol.DisableRealtimeSimulation = true;
+                    symbol.OffsetTooLateToChange = false;
+                    symbol.OffsetTooLateToCancel = false;
                 }
             }
         }
@@ -61,7 +72,6 @@ namespace TickZoom.Examples
             {
                 if( symbol.Account == "market")
                 {
-                    symbol.DisableRealtimeSimulation = true;
                     var strategy = new MarketSimulatorStrategy();
                     strategy.SymbolDefault = symbol.ExpandedSymbol;
                     strategy.Performance.Equity.GraphEquity = false;
