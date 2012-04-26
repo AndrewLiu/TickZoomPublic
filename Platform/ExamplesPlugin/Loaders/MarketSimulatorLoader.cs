@@ -59,7 +59,6 @@ namespace TickZoom.Examples
                 {
                     symbol.DisableRealtimeSimulation = true;
                     symbol.OffsetTooLateToChange = false;
-                    symbol.OffsetTooLateToCancel = false;
                 }
             }
         }

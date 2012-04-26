@@ -1419,29 +1419,39 @@ namespace TickZoom.Common
             var isFilledAfterCancel = false;
 
             var logical = FindActiveLogicalOrder(order.LogicalSerialNumber);
-            if( logical == null)
+            if (logical == null)
             {
-                if (debug) log.Debug("Logical order not found. So logical was already canceled: " + physical );
+                if (debug) log.Debug("Logical order not found. So logical was already canceled: " + physical);
                 isFilledAfterCancel = true;
             }
             else
             {
                 if (logical.Price.ToLong() != order.Price.ToLong())
                 {
-                    if (debug) log.Debug("Already canceled because physical order price " + order.Price + " dffers from logical order price " + logical);
+                    if (debug)
+                        log.Debug("Already canceled because physical order price " + order.Price +
+                                  " differs from logical order price " + logical);
+                    if (debug) log.Debug("OffsetTooLateToChange " + order.OffsetTooLateToChange);
+                    if (order.OffsetTooLateToChange)
+                    {
                         isFilledAfterCancel = true;
                     }
                 }
+            }
 
-		    if (debug) log.Debug("isFilledAfterCancel " + isFilledAfterCancel + ", OffsetTooLateToCancel " + order.OffsetTooLateToCancel);
+            if (debug) log.Debug("isFilledAfterCancel " + isFilledAfterCancel);
             if (isFilledAfterCancel)
             {
                 TryRemovePhysicalFill(physical);
-                if( ReceivedDesiredPosition)
+                if (debug) log.Debug("OffsetTooLateToCancel " + order.OffsetTooLateToChange);
+                if (order.OffsetTooLateToCancel)
                 {
+                    if (ReceivedDesiredPosition)
+                    {
                         if (debug) log.Debug("Will sync positions because fill from order already canceled: " + order.ReplacedBy);
                         SyncPosition();
                     }
+                }
                 return;
             } 
 
