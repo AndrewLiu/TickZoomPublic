@@ -331,7 +331,7 @@ namespace TickZoom.LimeFIX
 		    SymbolInfo symbolInfo = packetFIX.Symbol != null ? Factory.Symbol.LookupSymbol(packetFIX.Symbol) : null;
             if( symbolInfo != null)
             {
-                TryGetAlgorithm(symbolInfo.BinaryIdentifier, out algorithm);
+                algorithms.TryGetAlgorithm(symbolInfo, out algorithm);
             }
 
             string orderStatus = packetFIX.OrderStatus;
@@ -527,13 +527,13 @@ namespace TickZoom.LimeFIX
             var symbolInfo = Factory.Symbol.LookupSymbol(packetFIX.Symbol);
             var timeZone = new SymbolTimeZone(symbolInfo);
             SymbolAlgorithm algorithm;
-            if (!TryGetAlgorithm(symbolInfo.BinaryIdentifier, out algorithm))
+            if (!algorithms.TryGetAlgorithm(symbolInfo, out algorithm))
             {
                 log.Info("Fill received but OrderAlgorithm not found for " + symbolInfo + ". Ignoring.");
                 return;
             }
             var fillPosition = packetFIX.LastQuantity * SideToSign(packetFIX.Side);
-            if (GetSymbolStatus(symbolInfo))
+            if (symbolReceivers.GetSymbolStatus(symbolInfo))
             {
                 CreateOrChangeOrder order;
                 if( OrderStore.TryGetOrderById( clientOrderId, out order)) {
@@ -593,7 +593,7 @@ namespace TickZoom.LimeFIX
                 throw new ApplicationException("Order was greater than MaxOrderSize of " + order.Symbol.MaxPositionSize + " for:\n" + order);
             }
 
-            var orderHandler = GetAlgorithm(order.Symbol.BinaryIdentifier);
+            var orderHandler = algorithms.GetAlgorithm(order.Symbol);
             var orderSize = order.Side == OrderSide.Sell ? -order.Size : order.Size;
             if (Math.Abs(orderHandler.OrderAlgorithm.ActualPosition + orderSize) > order.Symbol.MaxPositionSize)
             {

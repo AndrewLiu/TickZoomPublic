@@ -25,7 +25,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -55,13 +54,8 @@ namespace TickZoom.FIX
             if (fixLog != null)
                 fixDebug = fixLog.IsDebugEnabled;
         }
-        protected readonly object symbolsRequestedLocker = new object();
-        public class SymbolReceiver
-        {
-            public Agent Agent;
-            public SymbolInfo Symbol;
-        }
-        protected Dictionary<long, SymbolReceiver> symbolsRequested = new Dictionary<long, SymbolReceiver>();
+
+        protected SymbolReceivers symbolReceivers = new SymbolReceivers();
 		private Socket socket;
 		private Task socketTask;
 		private string failedFile;
@@ -129,6 +123,7 @@ namespace TickZoom.FIX
             debug = log.IsDebugEnabled;
             trace = log.IsTraceEnabled;
             fixDebug = fixLog.IsDebugEnabled;
+            algorithms = new SymbolAlgorithms(this);
         }
 
         public void Start(EventItem eventItem)
@@ -340,9 +335,8 @@ namespace TickZoom.FIX
         public virtual void CancelRecovered()
         {
             ConnectionStatus = Status.PendingRecovery;
-            foreach (var kvp in orderAlgorithms)
+            foreach (var algorithm in algorithms.GetAlgorithms())
             {
-                var algorithm = kvp.Value;
                 algorithm.OrderAlgorithm.IsPositionSynced = false;
             }
         }
@@ -520,7 +514,7 @@ namespace TickZoom.FIX
         private void SyntheticReject(CreateOrChangeOrder order)
         {
             if (debug) log.Debug("SyntheticReject: " + order);
-            var orderAlgorithm = GetAlgorithm(order.Symbol.BinaryIdentifier);
+            var orderAlgorithm = algorithms.GetAlgorithm(order.Symbol);
             var algorithm = orderAlgorithm.OrderAlgorithm;
             var retryImmediately = algorithm.RejectRepeatCounter == 0;
             algorithm.RejectOrder(order.BrokerOrder, IsRecovered, true);
@@ -533,13 +527,13 @@ namespace TickZoom.FIX
         private void SyntheticFill(PhysicalFill fill)
         {
             if( debug) log.Debug("SyntheticFill: " + fill);
-            var orderAlgorithm = GetAlgorithm(fill.Symbol.BinaryIdentifier);
+            var orderAlgorithm = algorithms.GetAlgorithm(fill.Symbol);
             orderAlgorithm.OrderAlgorithm.SyntheticFill(fill);
         }
 
         private void SyntheticConfirmation(CreateOrChangeOrder order)
         {
-            var orderAlgorithm = GetAlgorithm(order.Symbol.BinaryIdentifier);
+            var orderAlgorithm = algorithms.GetAlgorithm(order.Symbol);
             switch( order.Action)
             {
                 case OrderAction.Create:
@@ -1019,19 +1013,19 @@ namespace TickZoom.FIX
 
         public void StartBroker(EventItem eventItem)
         {
-        	log.Info("StartSymbol( " + eventItem.Symbol + ")");
+            log.Info("StartBroker(" + eventItem.Symbol + ")");
         	// This adds a new order handler.
-            TryAddSymbol(eventItem.Symbol.SourceSymbol,eventItem.Agent);
+            symbolReceivers.TryAddSymbol(eventItem.Symbol,eventItem.Agent);
             using( orderStore.BeginTransaction())
             {
-                OnStartSymbol(eventItem.Symbol.SourceSymbol);
+                OnStartBroker(eventItem.Symbol);
             }
         }
 
         public void StopBroker(EventItem eventItem)
         {
         	log.Info("StopBroker( " + eventItem.Symbol + ")");
-            if (TryRemoveSymbol(eventItem.Symbol))
+            if (symbolReceivers.TryRemoveSymbol(eventItem.Symbol))
             {
                 OnStopBroker(eventItem.Symbol);
         	}
@@ -1174,38 +1168,13 @@ namespace TickZoom.FIX
 				log.Error(detail.ErrorMessage);
 			}
 		}
-		
-		public bool GetSymbolStatus(SymbolInfo symbol) {
-			lock( symbolsRequestedLocker) {
-				return symbolsRequested.ContainsKey(symbol.BinaryIdentifier);
-			}
-		}
-		
-		private bool TryAddSymbol(SymbolInfo symbol, Agent agent) {
-			lock( symbolsRequestedLocker) {
-				if( !symbolsRequested.ContainsKey(symbol.BinaryIdentifier)) {
-					symbolsRequested.Add(symbol.BinaryIdentifier, new SymbolReceiver { Symbol = symbol, Agent = agent});
-					return true;
-				}
-			}
-			return false;
-		}
-		
-		private bool TryRemoveSymbol(SymbolInfo symbol) {
-			lock( symbolsRequestedLocker) {
-				if( symbolsRequested.ContainsKey(symbol.BinaryIdentifier)) {
-					symbolsRequested.Remove(symbol.BinaryIdentifier);
-					return true;
-				}
-			}
-			return false;
-		}
 
         private bool isFinalized;
 
 	 	protected volatile bool isDisposed = false;
-        protected readonly object orderAlgorithmsLocker = new object();
-        protected Dictionary<long, SymbolAlgorithm> orderAlgorithms = new Dictionary<long, SymbolAlgorithm>();
+
+        protected SymbolAlgorithms algorithms;
+
         protected TimeStamp previousHeartbeatTime = default(TimeStamp);
         protected TimeStamp recentHeartbeatTime = default(TimeStamp);
         protected volatile bool isOrderServerOnline = false;
@@ -1465,69 +1434,40 @@ namespace TickZoom.FIX
             set { }
         }
 
+        public Agent Receiver
+        {
+            get { return receiver; }
+        }
+
         private unsafe void LogMessage(string messageFIX, bool received)
         {
             fixLog.DebugFormat("{0}: {1}", received ? "RCV" : "SND", messageFIX);
         }
 
-        protected class SymbolAlgorithm
-        {
-            public OrderAlgorithm OrderAlgorithm;
-            public SyntheticOrderRouter Synthetics;
-        }
-
-        protected SymbolAlgorithm GetAlgorithm(long symbolId)
-        {
-            var symbol = Factory.Symbol.LookupSymbol(symbolId);
-            SymbolAlgorithm symbolAlgorithm;
-            lock (orderAlgorithmsLocker)
-            {
-                if (!orderAlgorithms.TryGetValue(symbol.BinaryIdentifier, out symbolAlgorithm))
-                {
-                    throw new ApplicationException("OrderAlgorirhm was not found for " + symbol);
-                }
-            }
-            return symbolAlgorithm;
-        }
-
-        protected bool TryGetAlgorithm(long symbol, out SymbolAlgorithm algorithm)
-        {
-            lock (orderAlgorithmsLocker)
-            {
-                return orderAlgorithms.TryGetValue(symbol, out algorithm);
-            }
-        }
-
         protected void TrySend(EventType type, SymbolInfo symbol, Agent agent)
         {
-            lock( symbolsRequestedLocker) {
-                if( debug) log.Debug("Sending " + type + " for " + symbol + " ...");
-                SymbolAlgorithm algorithm;
-                if (TryGetAlgorithm(symbol.BinaryIdentifier, out algorithm))
-                {
-                    var item = new EventItem(symbol, type);
-                    agent.SendEvent(item);
-                }
-                else
-                {
-                    log.Info("TrySend " + type + " for " + symbol + " but OrderAlgorithm not found for " + symbol + ". Ignoring.");
-                }
+            if( debug) log.Debug("Sending " + type + " for " + symbol + " ...");
+            SymbolAlgorithm algorithm;
+            if (algorithms.TryGetAlgorithm(symbol, out algorithm))
+            {
+                var item = new EventItem(symbol, type);
+                agent.SendEvent(item);
+            }
+            else
+            {
+                log.Info("TrySend " + type + " for " + symbol + " but OrderAlgorithm not found for " + symbol + ". Ignoring.");
             }
         }
 
         protected void TryRequestPosition(SymbolInfo symbol)
         {
-            SymbolReceiver symbolReceiver;
-            if (!symbolsRequested.TryGetValue(symbol.BinaryIdentifier, out symbolReceiver))
-            {
-                throw new InvalidOperationException("Can't find symbol request for " + symbol);
-            }
+            var symbolReceiver = symbolReceivers.GetSymbolRequest(symbol);
             if (!IsRecovered)
             {
                 if (debug) log.Debug("Attempted RequestPosition but IsRecovered is " + IsRecovered);
                 return;
             }
-            var symbolAlgorithm = GetAlgorithm(symbol.BinaryIdentifier);
+            var symbolAlgorithm = algorithms.GetAlgorithm(symbol);
             if (symbolAlgorithm.OrderAlgorithm.IsBrokerOnline)
             {
                 if (debug) log.Debug("Attempted RequestPosition but isBrokerStarted is " + symbolAlgorithm.OrderAlgorithm.IsBrokerOnline);
@@ -1538,18 +1478,13 @@ namespace TickZoom.FIX
 
         protected void TrySendStartBroker(SymbolInfo symbol, string message)
         {
-            SymbolReceiver symbolReceiver;
-            if( !symbolsRequested.TryGetValue(symbol.BinaryIdentifier, out symbolReceiver))
-            {
-                if( debug) log.Debug("Can't find symbol request for " + symbol);
-                return;
-            }
+            var symbolReceiver = symbolReceivers.GetSymbolRequest(symbol);
             if( !IsRecovered)
             {
                 if (debug) log.Debug("Attempted StartBroker but IsRecovered is " + IsRecovered);
                 return;
             }
-            var algorithm = GetAlgorithm(symbol.BinaryIdentifier);
+            var algorithm = algorithms.GetAlgorithm(symbol);
 
             if (algorithm.OrderAlgorithm.RejectRepeatCounter > 0) return;
 
@@ -1578,21 +1513,15 @@ namespace TickZoom.FIX
         }
 
         public void TrySendEndBroker() {
-
-            lock (symbolsRequestedLocker)
-            {
-                foreach(var kvp in symbolsRequested) {
-                    var symbolReceiver = kvp.Value;
-                    if (!symbolReceiver.Symbol.DisableRealtimeSimulation)
-                        TrySendEndBroker(symbolReceiver.Symbol);
-                }
+            foreach(var symbolReceiver in symbolReceivers.GetReceivers()) {
+                TrySendEndBroker(symbolReceiver.Symbol);
             }
         }
 
         protected void TrySendEndBroker( SymbolInfo symbol)
         {
-            var symbolReceiver = symbolsRequested[symbol.BinaryIdentifier];
-            var algorithm = GetAlgorithm(symbol.BinaryIdentifier);
+            var symbolReceiver = symbolReceivers.GetSymbolRequest(symbol);
+            var algorithm = algorithms.GetAlgorithm(symbol);
             if (!algorithm.OrderAlgorithm.IsBrokerOnline)
             {
                 if (debug) log.Debug("Tried to send EndBroker for " + symbol + " but broker status is already offline.");
@@ -1630,12 +1559,11 @@ namespace TickZoom.FIX
 
         public virtual void PositionChange(PositionChangeDetail positionChange)
         {
-            var symbol = positionChange.Symbol.SourceSymbol;
             if( debug) log.Debug( "PositionChange " + positionChange);
-            var algorithm = GetAlgorithm(symbol.BinaryIdentifier);
+            var algorithm = algorithms.GetAlgorithm(positionChange.Symbol);
             if( algorithm.OrderAlgorithm.PositionChange(positionChange, IsRecovered))
             {
-                TrySendStartBroker(symbol, "position change sync");
+                TrySendStartBroker(positionChange.Symbol, "position change sync");
             }
         }
 
@@ -1704,25 +1632,6 @@ namespace TickZoom.FIX
             }
         }
 
-        protected SymbolAlgorithm CreateAlgorithm(long symbol) {
-            SymbolAlgorithm symbolAlgorithm;
-            lock( orderAlgorithmsLocker) {
-                if (!orderAlgorithms.TryGetValue(symbol, out symbolAlgorithm))
-                {
-                    var symbolInfo = Factory.Symbol.LookupSymbol(symbol);
-                    var orderCache = Factory.Engine.LogicalOrderCache(symbolInfo, false);
-                    var syntheticRouter = new SyntheticOrderRouter(symbolInfo, Agent, receiver);
-                    var algorithm = Factory.Utility.OrderAlgorithm(providerName, symbolInfo, this, syntheticRouter, orderCache, OrderStore);
-                    algorithm.EnableSyncTicks = SyncTicks.Enabled;
-                    symbolAlgorithm = new SymbolAlgorithm { OrderAlgorithm = algorithm, Synthetics = syntheticRouter };
-                    orderAlgorithms.Add(symbol, symbolAlgorithm);
-                    algorithm.OnProcessFill = ProcessFill;
-                    algorithm.OnProcessTouch = ProcessTouch;
-                }
-            }
-            return symbolAlgorithm;
-        }
-
         public abstract bool OnCreateBrokerOrder(CreateOrChangeOrder createOrChangeOrder);
         public abstract bool OnCancelBrokerOrder(CreateOrChangeOrder order);
         public abstract bool OnChangeBrokerOrder(CreateOrChangeOrder createOrChangeOrder);
@@ -1734,12 +1643,8 @@ namespace TickZoom.FIX
 
         public virtual void ProcessFill(SymbolInfo symbol, LogicalFillBinary fill)
         {
-            SymbolReceiver symbolReceiver;
-            if (!symbolsRequested.TryGetValue(symbol.BinaryIdentifier, out symbolReceiver))
-            {
-                throw new InvalidOperationException("Can't find symbol request for " + symbol);
-            }
-            var symbolAlgorithm = GetAlgorithm(symbol.BinaryIdentifier);
+            var symbolReceiver = symbolReceivers.GetSymbolRequest(symbol);
+            var symbolAlgorithm = algorithms.GetAlgorithm(symbol);
             if( !symbolAlgorithm.OrderAlgorithm.IsBrokerOnline)
             {
                 if (debug) log.Debug("Broker offline but sending fill anyway for " + symbol + " to receiver: " + fill);
@@ -1751,12 +1656,8 @@ namespace TickZoom.FIX
 
         public virtual void ProcessTouch(SymbolInfo symbol, LogicalTouch touch)
         {
-            SymbolReceiver symbolReceiver;
-            if (!symbolsRequested.TryGetValue(symbol.BinaryIdentifier, out symbolReceiver))
-            {
-                throw new InvalidOperationException("Can't find symbol request for " + symbol);
-            }
-            var symbolAlgorithm = GetAlgorithm(symbol.BinaryIdentifier);
+            var symbolReceiver = symbolReceivers.GetSymbolRequest(symbol);
+            var symbolAlgorithm = algorithms.GetAlgorithm(symbol);
             if (!symbolAlgorithm.OrderAlgorithm.IsBrokerOnline)
             {
                 if (debug) log.Debug("Broker offline so not sending logical touch for " + symbol + ": " + touch);
@@ -1784,7 +1685,7 @@ namespace TickZoom.FIX
             {
                 var symbol = order.Symbol;
                 SymbolAlgorithm algorithm;
-                if (TryGetAlgorithm(symbol.BinaryIdentifier, out algorithm))
+                if (algorithms.TryGetAlgorithm(symbol, out algorithm))
                 {
                     var orderAlgo = algorithm.OrderAlgorithm;
                     if (IsRecovered && orderAlgo.RejectRepeatCounter > 0 && orderAlgo.IsBrokerOnline)
@@ -1819,7 +1720,7 @@ namespace TickZoom.FIX
             long.TryParse(clientOrderIdStr, out originalClientOrderId);
             var symbol = Factory.Symbol.LookupSymbol(symbolStr);
             SymbolAlgorithm algorithm;
-            if (TryGetAlgorithm(symbol.BinaryIdentifier, out algorithm))
+            if (algorithms.TryGetAlgorithm(symbol, out algorithm))
             {
                 var orderAlgo = algorithm.OrderAlgorithm;
                 if (IsRecovered && orderAlgo.RejectRepeatCounter > 0 && orderAlgo.IsBrokerOnline)
@@ -1863,7 +1764,7 @@ namespace TickZoom.FIX
                 {
                     var symbol = order.Symbol;
                     SymbolAlgorithm algorithm;
-                    if (TryGetAlgorithm(symbol.BinaryIdentifier, out algorithm))
+                    if (algorithms.TryGetAlgorithm(symbol, out algorithm))
                     {
                         var orderAlgo = algorithm.OrderAlgorithm;
                         if (IsRecovered && orderAlgo.RejectRepeatCounter > 0 && orderAlgo.IsBrokerOnline)
@@ -1902,16 +1803,12 @@ namespace TickZoom.FIX
             if (!IsRecovered) TryEndRecovery();
             if (IsRecovered)
             {
-                lock( orderAlgorithmsLocker)
+                foreach( var algo in algorithms.GetAlgorithms())
                 {
-                    foreach( var kvp in orderAlgorithms)
+                    algo.OrderAlgorithm.RejectRepeatCounter = 0;
+                    if( !algo.OrderAlgorithm.CheckForPending())
                     {
-                        var algo = kvp.Value;
-                        algo.OrderAlgorithm.RejectRepeatCounter = 0;
-                        if( !algo.OrderAlgorithm.CheckForPending())
-                        {
-                            algo.OrderAlgorithm.ProcessOrders();
-                        }
+                        algo.OrderAlgorithm.ProcessOrders();
                     }
                 }
             }
@@ -1945,25 +1842,11 @@ namespace TickZoom.FIX
             if (OrderStore.Recover())
             {
                 // Reset the order algorithms
-                lock (orderAlgorithmsLocker)
-                {
-                    var symbolIds = new List<long>();
-                    foreach (var kvp in orderAlgorithms)
-                    {
-                        var algo = kvp.Value.OrderAlgorithm;
-                        symbolIds.Add(kvp.Key);
-                        algo.Clear();
-                    }
-                    orderAlgorithms.Clear();
-                    foreach (var symbolId in symbolIds)
-                    {
-                        CreateAlgorithm(symbolId);
-                    }
-                }
+                algorithms.Reset();
                 var synthetics = OrderStore.GetOrders((o) => o.IsSynthetic);
                 foreach (var order in synthetics)
                 {
-                    var algo = CreateAlgorithm(order.Symbol.BinaryIdentifier);
+                    var algo = algorithms.CreateAlgorithm(order.Symbol);
                     switch( order.Action)
                     {
                         case OrderAction.Create:
@@ -1997,13 +1880,13 @@ namespace TickZoom.FIX
             return true;
         }
 
-        public virtual void OnStartSymbol(SymbolInfo symbol)
+        public virtual void OnStartBroker(SymbolInfo symbol)
         {
-            var algorithm = CreateAlgorithm(symbol.BinaryIdentifier);
+            var algorithm = algorithms.CreateAlgorithm(symbol);
             if (ConnectionStatus == Status.Recovered)
             {
                 algorithm.OrderAlgorithm.ProcessOrders();
-                TrySendStartBroker(symbol,"Start symbol");
+                TrySendStartBroker(symbol,"Start broker");
             }
         }
 
@@ -2020,10 +1903,9 @@ namespace TickZoom.FIX
                 if (debug) log.Debug("Orders prior to sync:\n" + openOrders);
             }
             MessageFIXT1_1.IsQuietRecovery = false;
-            foreach (var kvp in orderAlgorithms)
+            foreach (var algorithm in algorithms.GetAlgorithms())
             {
-                var algorithm = kvp.Value;
-                var symbol = Factory.Symbol.LookupSymbol(kvp.Key);
+                var symbol = algorithm.OrderAlgorithm.Symbol;
                 algorithm.OrderAlgorithm.ProcessOrders();
                 TrySendStartBroker(symbol, "start position sync");
             }

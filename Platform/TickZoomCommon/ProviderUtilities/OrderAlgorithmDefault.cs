@@ -1426,11 +1426,9 @@ namespace TickZoom.Common
             }
             else
             {
-                if (logical.Price.ToLong() != order.Price.ToLong())
+                if (order.Type != OrderType.Market && logical.Price.ToLong() != order.Price.ToLong())
                 {
-                    if (debug)
-                        log.Debug("Already canceled because physical order price " + order.Price +
-                                  " differs from logical order price " + logical);
+                    if (debug) log.Debug("Already canceled because physical order price " + order.Price + " differs from logical order price " + logical);
                     if (debug) log.Debug("OffsetTooLateToChange " + order.OffsetTooLateToChange);
                     if (order.OffsetTooLateToChange)
                     {

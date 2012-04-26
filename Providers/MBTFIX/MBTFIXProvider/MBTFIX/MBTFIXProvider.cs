@@ -395,7 +395,7 @@ namespace TickZoom.MBTFIX
                     return;
                 }
                 SymbolAlgorithm algorithm;
-                if( TryGetAlgorithm(symbol.BinaryIdentifier, out algorithm))
+                if( algorithms.TryGetAlgorithm(symbol, out algorithm))
                 {
                     if (debug) log.Debug("PositionUpdate for " + symbolInfo + ": MBT actual =" + position + ", TZ actual=" + algorithm.OrderAlgorithm.ActualPosition);
                 }
@@ -420,7 +420,7 @@ namespace TickZoom.MBTFIX
 		    SymbolInfo symbolInfo = packetFIX.Symbol != null ? Factory.Symbol.LookupSymbol(packetFIX.Symbol) : null;
             if( symbolInfo != null)
             {
-                TryGetAlgorithm(symbolInfo.BinaryIdentifier, out algorithm);
+                algorithms.TryGetAlgorithm(symbolInfo, out algorithm);
             }
 
             string orderStatus = packetFIX.OrderStatus;
@@ -624,13 +624,13 @@ namespace TickZoom.MBTFIX
 			var symbolInfo = Factory.Symbol.LookupSymbol(packetFIX.Symbol);
 			var timeZone = new SymbolTimeZone(symbolInfo);
             SymbolAlgorithm algorithm;
-            if (!TryGetAlgorithm(symbolInfo.BinaryIdentifier, out algorithm))
+            if (!algorithms.TryGetAlgorithm(symbolInfo, out algorithm))
             {
                 log.Info("Fill received but OrderAlgorithm not found for " + symbolInfo + ". Ignoring.");
                 return;
             }
             var fillPosition = packetFIX.LastQuantity * SideToSign(packetFIX.Side);
-            if (GetSymbolStatus(symbolInfo))
+            if (symbolReceivers.GetSymbolStatus(symbolInfo))
             {
                 CreateOrChangeOrder order;
                 if( OrderStore.TryGetOrderById( clientOrderId, out order)) {
@@ -699,7 +699,7 @@ namespace TickZoom.MBTFIX
                 throw new ApplicationException("Order was greater than MaxOrderSize of " + order.Symbol.MaxPositionSize + " for:\n" + order);
             }
 
-            var orderHandler = GetAlgorithm(order.Symbol.BinaryIdentifier);
+            var orderHandler = algorithms.GetAlgorithm(order.Symbol);
 		    var orderSize = order.Side == OrderSide.Buy ? order.Size : -order.Size;
             if (Math.Abs(orderHandler.OrderAlgorithm.ActualPosition + orderSize) > order.Symbol.MaxPositionSize)
             {
