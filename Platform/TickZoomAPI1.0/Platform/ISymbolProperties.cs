@@ -84,7 +84,5 @@ namespace TickZoom.Api
 
 	    PartialFillSimulation PartialFillSimulation { get; set; }
 	    bool DisableRealtimeSimulation { get; set; }
-	    bool OffsetTooLateToChange { get; set; }
-	    bool OffsetTooLateToCancel { get; set; }
 	}
 }

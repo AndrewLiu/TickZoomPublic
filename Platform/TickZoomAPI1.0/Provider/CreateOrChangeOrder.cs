@@ -104,7 +104,6 @@ namespace TickZoom.Api
 
         OrderFlags OrderFlags { get;  }
 
-        bool OffsetTooLateToChange { get; }
         bool OffsetTooLateToCancel { get; }
         bool IsSynthetic { get; set; }
     }
