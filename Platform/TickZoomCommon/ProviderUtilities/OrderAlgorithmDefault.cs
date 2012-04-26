@@ -957,7 +957,8 @@ namespace TickZoom.Common
 
         private bool ProcessMissingReverse(LogicalOrder logical, int size, double price, int logicalPosition)
         {
-            if (size == 0) return true;
+            var result = true;
+            if (size == 0) return result;
             if (debug) log.Debug("ProcessMissingReverse(" + logical + ")");
             var side = GetOrderSide(logical.Side);
             var strategyPosition = GetStrategyPosition(logical);
@@ -967,11 +968,13 @@ namespace TickZoom.Common
                 {
                     var physical = new CreateOrChangeOrderDefault(OrderState.Pending, symbol, logical, side, strategyPosition, price);
                     TryCreateBrokerOrder(physical, logical);
+                    result = false;
                 }
                 else if( strategyPosition > logicalPosition)
                 {
                     var physical = new CreateOrChangeOrderDefault(OrderState.Pending, symbol, logical, side, size, price);
                     TryCreateBrokerOrder(physical, logical);
+                    result = false;
                 }
             }
             if (logicalPosition > 0)
@@ -980,14 +983,16 @@ namespace TickZoom.Common
                 {
                     var physical = new CreateOrChangeOrderDefault(OrderState.Pending, symbol, logical, side, -strategyPosition, price);
                     TryCreateBrokerOrder(physical, logical);
+                    result = false;
                 }
                 else if( strategyPosition < logicalPosition)
                 {
                     var physical = new CreateOrChangeOrderDefault(OrderState.Pending, symbol, logical, side, size, price);
                     TryCreateBrokerOrder(physical, logical);
+                    result = false;
                 }
             }
-            return false;
+            return result;
         }
 
         private bool ProcessMissingExit(LogicalOrder logical, int size, double price)
