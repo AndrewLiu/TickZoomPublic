@@ -32,8 +32,9 @@ namespace TickZoom.Api
     public enum OrderFlags
     {
         None = 0x00,
-        OffsetTooLateToCancel = 0x01,
+        OffsetTooLateToChange = 0x01,
         IsSynthetic = 0x02,
+        OffsetTooLateToCancel = 0x04,
     }
 
     public enum OrderStatus
@@ -156,5 +157,6 @@ namespace TickZoom.Api
         OrderFlags OrderFlags { get; set; }
 	    bool IsSynthetic { get; set; }
 	    bool IsTouched { get; }
+	    bool OffsetTooLateToChange { get; set; }
     }
 }
