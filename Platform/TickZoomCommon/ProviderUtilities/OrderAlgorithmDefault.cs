@@ -1428,27 +1428,19 @@ namespace TickZoom.Common
             {
                 if (logical.Price.ToLong() != order.Price.ToLong())
                 {
-                    if (debug) log.Debug("Already canceled because physical order price " + order.Price + " differs from logical order price " + logical);
-                    if (debug) log.Debug("OffsetTooLateToChange " + order.OffsetTooLateToChange);
-                    if( order.OffsetTooLateToChange )
-                    {
-                        isFilledAfterCancel = true;
-                    }
+                    if (debug) log.Debug("Already canceled because physical order price " + order.Price + " dffers from logical order price " + logical);
+                    isFilledAfterCancel = true;
                 }
             }
 
-		    if (debug) log.Debug("isFilledAfterCancel " + isFilledAfterCancel);
+		    if (debug) log.Debug("isFilledAfterCancel " + isFilledAfterCancel + ", OffsetTooLateToCancel " + order.OffsetTooLateToCancel);
             if (isFilledAfterCancel)
             {
                 TryRemovePhysicalFill(physical);
-                if (debug) log.Debug("OffsetTooLateToCancel " + order.OffsetTooLateToChange);
-                if (order.OffsetTooLateToCancel)
+                if( ReceivedDesiredPosition)
                 {
-                    if (ReceivedDesiredPosition)
-                    {
-                        if (debug) log.Debug("Will sync positions because fill from order already canceled: " + order.ReplacedBy);
-                        SyncPosition();
-                    }
+                    if (debug) log.Debug("Will sync positions because fill from order already canceled: " + order.ReplacedBy);
+                    SyncPosition();
                 }
                 return;
             } 
@@ -2025,11 +2017,6 @@ namespace TickZoom.Common
         {
             get { return onProcessTouch; }
             set { onProcessTouch = value; }
-        }
-
-        public SymbolInfo Symbol
-        {
-            get { return symbol; }
         }
 
         // This is a callback to confirm order was properly placed.
