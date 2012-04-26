@@ -1429,9 +1429,9 @@ namespace TickZoom.Common
                 if (logical.Price.ToLong() != order.Price.ToLong())
                 {
                     if (debug) log.Debug("Already canceled because physical order price " + order.Price + " dffers from logical order price " + logical);
-                    isFilledAfterCancel = true;
+                        isFilledAfterCancel = true;
+                    }
                 }
-            }
 
 		    if (debug) log.Debug("isFilledAfterCancel " + isFilledAfterCancel + ", OffsetTooLateToCancel " + order.OffsetTooLateToCancel);
             if (isFilledAfterCancel)
@@ -1439,9 +1439,9 @@ namespace TickZoom.Common
                 TryRemovePhysicalFill(physical);
                 if( ReceivedDesiredPosition)
                 {
-                    if (debug) log.Debug("Will sync positions because fill from order already canceled: " + order.ReplacedBy);
-                    SyncPosition();
-                }
+                        if (debug) log.Debug("Will sync positions because fill from order already canceled: " + order.ReplacedBy);
+                        SyncPosition();
+                    }
                 return;
             } 
 
@@ -2017,6 +2017,11 @@ namespace TickZoom.Common
         {
             get { return onProcessTouch; }
             set { onProcessTouch = value; }
+        }
+
+        public SymbolInfo Symbol
+        {
+            get { return symbol; }
         }
 
         // This is a callback to confirm order was properly placed.
