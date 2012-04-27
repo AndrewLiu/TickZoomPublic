@@ -43,7 +43,6 @@ namespace TickZoom
 		
 		public TrendStrategyMA()
 		{
-			ExitStrategy.ControlStrategy = false;
 			IntervalDefault = Intervals.Range30;
 			RequestUpdate( Intervals.Second10);
 			RequestUpdate( Intervals.Day1);
@@ -74,19 +73,11 @@ namespace TickZoom
 //					trend = Trend.Up;	
 					if( !Position.IsLong) { 
 						Orders.Enter.ActiveNow.BuyMarket();
-						ExitStrategy.StopLoss = 300;
-						ExitStrategy.DailyMaxLoss = 600;
-						ExitStrategy.WeeklyMaxLoss = 1200;
-						ExitStrategy.MonthlyMaxLoss = 1800;
 					}
 				} else if ( average[0] < slowAvg[0]) {
 //					trend = Trend.Down;
 					if( !Position.IsShort) {
 						Orders.Enter.ActiveNow.SellMarket();
-						ExitStrategy.StopLoss = 300;
-						ExitStrategy.DailyMaxLoss = 600;
-						ExitStrategy.WeeklyMaxLoss = 1000;
-						ExitStrategy.MonthlyMaxLoss = 1800;
 					}
 				}
 			}

@@ -59,8 +59,6 @@ namespace TickZoom.TradingFramework
 //			if( trace) log.Trace("RandomTest engine.Formula.Chain="+starter.Model.Chain.ToString());
 			exits = random.ExitStrategy;
 			
-			exits.StopLoss = 0.050;
-
 			starter.EndCount = maxCount;
 			starter.DataFolder = "Test";
 			starter.ProjectProperties.Starter.TryAddSymbols("USD_JPY");

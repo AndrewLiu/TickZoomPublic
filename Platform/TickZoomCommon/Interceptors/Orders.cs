@@ -81,7 +81,27 @@ namespace TickZoom.Interceptors
 			public EnterCommon NextBar {
 				get { return nextBar; }
 			}
-		}
+
+		    public bool AreBuyOrdersActive
+		    {
+                get { return activeNow.Orders.AreBuyOrdersActive; }
+		    }
+
+            public bool AreSellOrdersActive
+            {
+                get { return activeNow.Orders.AreSellOrdersActive; }
+            }
+
+            public bool AreBuyOrdersNextBar
+            {
+                get { return activeNow.Orders.AreBuyOrdersNextBar; }
+            }
+
+            public bool AreSellOrdersNextBar
+            {
+                get { return activeNow.Orders.AreSellOrdersNextBar; }
+            }
+        }
 		
 		public class ReverseTiming {
 			ReverseCommon activeNow;

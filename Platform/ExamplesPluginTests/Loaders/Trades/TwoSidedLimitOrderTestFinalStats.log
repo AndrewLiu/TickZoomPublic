@@ -1,5 +1,5 @@
-Portfolio,10000,-98600,0,-98600
-Portfolio-Client,10000,-98600,0,-98600
-ExampleOrderStrategy,10000,-98600,0,-98600
+Portfolio,10000,-88700,-600,-89300
+Portfolio-Client,10000,-88700,-600,-89300
+ExampleOrderStrategy,10000,-88700,-600,-89300
 Portfolio-Market,10000,10000,0,10000
 MarketSimulatorStrategy,10000,10000,0,10000

@@ -39,11 +39,15 @@ namespace TickZoom.Interceptors
 		private static readonly Log log = Factory.SysLog.GetLogger(typeof(EnterCommon));
 		private readonly bool debug = log.IsDebugEnabled;
         private InternalOrders orders;
+        private Strategy strategy;
+        internal Action processExitStrategy;
 		
 		private bool enableWrongSideOrders = false;
 		private bool isNextBar = false;
 		
-		public EnterCommon(Strategy strategy) : base(strategy) {
+		public EnterCommon(Strategy strategy) : base(strategy)
+		{
+		    this.strategy = strategy;
             orders = new InternalOrders(strategy,TradeDirection.Entry);
 		}
 		
@@ -65,8 +69,15 @@ namespace TickZoom.Interceptors
         		if( IsDebug) Log.Debug("Bar="+Strategy.Chart.ChartBars.CurrentBar+", " + description);
 			}
 		}
+
+        private void UpdateExitStrategy()
+        {
+            if( processExitStrategy != null)
+            {
+                processExitStrategy();
+            }
+        }
 		
-        #region Properties		
         public void SellMarket() {
         	SellMarket(1);
         }
@@ -93,6 +104,7 @@ namespace TickZoom.Interceptors
         	} else {
                 order.Status = OrderStatus.Active;
         	}
+            UpdateExitStrategy();
         }
         
         [Obsolete("AllowReversals = true is now default until reverse order types.",true)]
@@ -124,6 +136,7 @@ namespace TickZoom.Interceptors
         	} else {
                 order.Status = OrderStatus.Active;
         	}
+            UpdateExitStrategy();
         }
         
         [Obsolete("AllowReversals = true is now default until reverse order types.",true)]
@@ -177,6 +190,7 @@ namespace TickZoom.Interceptors
             {
                 orders.BuyLimit.Status = OrderStatus.Active;
             }
+            UpdateExitStrategy();
         }
 
         public void SellLimit(double price)
@@ -212,7 +226,8 @@ namespace TickZoom.Interceptors
         	} else {
         		orders.SellLimit.Status = OrderStatus.Active;
         	}
-		}
+            UpdateExitStrategy();
+        }
         
         public void BuyStop( double price) {
         	BuyStop( price, 1);
@@ -241,7 +256,8 @@ namespace TickZoom.Interceptors
         	} else {
         		orders.BuyStop.Status = OrderStatus.Active;
         	}
-		}
+            UpdateExitStrategy();
+        }
 	
         public void SellStop( double price) {
         	SellStop( price, 1);
@@ -270,9 +286,8 @@ namespace TickZoom.Interceptors
         	} else {
         		orders.SellStop.Status = OrderStatus.Active;
         	}
+            UpdateExitStrategy();
         }
-        
-		#endregion
 	
 		public override string ToString()
 		{

@@ -47,15 +47,12 @@ namespace TickZoom.Examples
 		public ExampleOrderStrategy() {
 			Performance.GraphTrades = true;
 			Performance.Equity.GraphEquity = true;
-			ExitStrategy.ControlStrategy = false;
 		}
 		
 		public override void OnInitialize()
 		{
 			tradeSize = Data.SymbolInfo.Level2LotSize * 10;
 			minimumTick = multiplier * Data.SymbolInfo.MinimumTick;
-			ExitStrategy.BreakEven = 30 * minimumTick;
-			ExitStrategy.StopLoss = 45 * minimumTick;
 		}
 		
 		public override bool OnIntervalClose()
@@ -74,7 +71,6 @@ namespace TickZoom.Examples
                 if (isFlat)
                 {
                     Orders.Enter.NextBar.SellMarket(tradeSize);
-                    ExitStrategy.StopLoss = 15 * minimumTick;
                     return true;
                 }
             }
@@ -102,7 +98,6 @@ namespace TickZoom.Examples
                 if (isFlat)
                 {
 					Orders.Enter.NextBar.SellLimit(Bars.Close[0] + 30 * minimumTick,tradeSize);
-					ExitStrategy.StopLoss = 45 * minimumTick;
                     return true;
                 }
 			}

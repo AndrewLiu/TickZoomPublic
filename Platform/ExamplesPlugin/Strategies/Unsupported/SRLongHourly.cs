@@ -42,7 +42,6 @@ namespace TickZoom
 		int stretchDivisor = 95;
 		public SRLongHourly()
 		{
-			ExitStrategy.ControlStrategy  = false;
 			IntervalDefault = Intervals.Minute10;
 		}
 		

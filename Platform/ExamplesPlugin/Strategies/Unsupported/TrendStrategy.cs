@@ -42,7 +42,6 @@ namespace TickZoom
 		
 		public TrendStrategy()
 		{
-			ExitStrategy.ControlStrategy = false;
 			RequestUpdate( Intervals.Second10);
 			RequestUpdate( Intervals.Day1);
 		}

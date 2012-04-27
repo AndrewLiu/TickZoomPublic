@@ -80,9 +80,14 @@ namespace TickZoom.Common
 			Chain.Dependencies.Clear();
 			isStrategy = true;
 			result = new Result(this);
-			
-			exitActiveNow = new ExitCommon(this);
+
+            // Interceptors.
+            performance = new Performance(this);
+            exitStrategy = new ExitStrategy(this);
+
+            exitActiveNow = new ExitCommon(this);
 			enterActiveNow = new EnterCommon(this);
+		    enterActiveNow.processExitStrategy = exitStrategy.OnProcessPosition;
 			reverseActiveNow = new ReverseCommon(this);
 			changeActiveNow = new ChangeCommon(this);
 			changeNextBar = new ChangeCommon(this);
@@ -95,16 +100,14 @@ namespace TickZoom.Common
 			exitNextBar.Orders = exitActiveNow.Orders;
 			exitNextBar.IsNextBar = true;
 			enterNextBar = new EnterCommon(this);
-			enterNextBar.Orders = enterActiveNow.Orders;
+            enterNextBar.processExitStrategy = exitStrategy.OnProcessPosition;
+            enterNextBar.Orders = enterActiveNow.Orders;
 			enterNextBar.IsNextBar = true;
 			orders = new OrderHandlers(enterActiveNow,enterNextBar,
 			                           exitActiveNow,exitNextBar,
 			                           reverseActiveNow,reverseNextBar,
 			                           changeActiveNow,changeNextBar);
 			
-			// Interceptors.
-			performance = new Performance(this);
-		    exitStrategy = new ExitStrategy(this);
 			
 		    preFillManager = new FillManager(this);
 			postFillManager = new FillManager(this);

@@ -528,7 +528,6 @@ namespace TickZoom.Common
             var buyLimit = logical.Side == OrderSide.Buy && logical.Type == OrderType.Limit;
             switch (logical.Type)
             {
-                    // TODO: Check if market needs sell/buy sign set.
                 case OrderType.Market:
                     break;
                 case OrderType.Limit:
@@ -1374,11 +1373,8 @@ namespace TickZoom.Common
                 }
             }
             TryAddTouchedLogicalStop(symbol,logical, synthetic);
-            var order = new CreateOrChangeOrderDefault(OrderAction.Create, symbol, logical, syntheticOrder.Side, syntheticOrder.Size, syntheticOrder.Price);
-            order.IsSynthetic = false;
-            order.UtcCreateTime = synthetic.UtcTime;
-            order.Type = OrderType.Market;
-            TryCreateBrokerOrder(order, logical);
+            if (debug) log.Debug("Performing compare to attempt to create the market order for touched order.");
+            PerformCompareProtected();
         }
 
         public void Clear()
@@ -1408,7 +1404,6 @@ namespace TickZoom.Common
             {
                 if (debug) log.Debug("Physical order partially filled: " + order);
                 order.Size = physical.RemainingSize;
-
             }
 
             if( adjustment) {

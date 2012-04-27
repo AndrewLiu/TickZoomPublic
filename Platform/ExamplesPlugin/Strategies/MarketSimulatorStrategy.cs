@@ -12,7 +12,6 @@ namespace TickZoom.Examples
         public MarketSimulatorStrategy() {
             Performance.GraphTrades = true;
             Performance.Equity.GraphEquity = true;
-            ExitStrategy.ControlStrategy = false;
         }
 		
         public override void OnInitialize()
