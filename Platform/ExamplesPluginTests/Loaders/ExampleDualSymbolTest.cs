@@ -93,7 +93,7 @@ namespace Loaders
             portfolio.TryMergeEquity();
 			double portfolioTotal = portfolio.Performance.Equity.CurrentEquity;
 			portfolioTotal -= portfolio.Performance.Equity.StartingEquity;
-			Assert.AreEqual(Math.Round(-120.40,2), Math.Round(portfolioTotal,2));
+			Assert.AreEqual(Math.Round(-150.40,2), Math.Round(portfolioTotal,2));
 			Assert.AreEqual(Math.Round(expected,2), Math.Round(portfolioTotal,2));
 		}
 		
@@ -106,7 +106,7 @@ namespace Loaders
 			double portfolioTotal = portfolio.Performance.Equity.ClosedEquity;
 			portfolioTotal -= portfolio.Performance.Equity.StartingEquity;
 			Assert.AreEqual(expected, portfolioTotal);
-			Assert.AreEqual(Math.Round(-120.00,2), Math.Round(portfolioTotal,2));
+			Assert.AreEqual(Math.Round(-150.00,2), Math.Round(portfolioTotal,2));
 		}
 		
 		[Test]
