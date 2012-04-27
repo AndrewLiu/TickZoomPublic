@@ -234,7 +234,7 @@ namespace TickZoom.Interceptors
                     }
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException("Unexpected OrderType: " + order.Type);
             }
             if (triggers != null)
             {

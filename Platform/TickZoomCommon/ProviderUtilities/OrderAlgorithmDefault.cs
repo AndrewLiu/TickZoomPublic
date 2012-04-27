@@ -957,6 +957,16 @@ namespace TickZoom.Common
         private bool ProcessMissingReverse(LogicalOrder logical, int size, double price, int logicalPosition)
         {
             var result = true;
+            //var activeOrders = physicalOrderCache.GetActiveOrders(symbol);
+            //foreach( var order in activeOrders)
+            //{
+            //    var otherLogical = FindActiveLogicalOrder(order.LogicalSerialNumber);
+            //    if (otherLogical != null && otherLogical.TradeDirection == TradeDirection.Reverse)
+            //    {
+            //        if (debug) log.Debug("Ignoring logical reverse order because the physical order cache already has an order for a reversal.");
+            //        return result;
+            //    }
+            //}
             if (size == 0) return result;
             if (debug) log.Debug("ProcessMissingReverse(" + logical + ")");
             var side = GetOrderSide(logical.Side);
@@ -1224,21 +1234,27 @@ namespace TickZoom.Common
 		        var order = originalPhysicals[i];
 				if( order.IsPending)
 				{
-                    //order.PendingCount++;
-                    //if( order.PendingCount > 100)
-                    //{
-                    //    log.Error("This order was pending a long time: " + order.PendingCount);
-                    //    while(true)
-                    //    {
-                    //        Thread.Sleep(1000);
-                    //    }
-                    //}
 					if( debug) log.Debug("Pending order: " + order);
 					result = true;	
 				}
-			}
+            }
 			return result;
 		}
+
+        private bool CheckForMarketOrdersInternal()
+        {
+            var result = false;
+            for (var i = 0; i < originalPhysicals.Count; i++)
+            {
+                var order = originalPhysicals[i];
+                if (order.Type == OrderType.Market)
+                {
+                    if (debug) log.Debug("Market order: " + order);
+                    result = true;
+                }
+            }
+            return result;
+        }
 
         public void ProcessHeartBeat()
         {
@@ -1635,15 +1651,15 @@ namespace TickZoom.Common
                 else if( isRealTime)
                 {
                     if (debug) log.Debug("Found complete physical fill but incomplete logical fill. Physical orders...");
-                    var matches = TryMatchId(physicalOrderCache.GetActiveOrders(symbol), filledOrder);
-                    if( matches.Count > 0)
-                    {
-                        ProcessMatch(filledOrder, matches);
-                    }
-                    else
-                    {
-                        ProcessMissingPhysical(filledOrder);
-                    }
+                    //var matches = TryMatchId(physicalOrderCache.GetActiveOrders(symbol), filledOrder);
+                    //if( matches.Count > 0)
+                    //{
+                    //    ProcessMatch(filledOrder, matches);
+                    //}
+                    //else
+                    //{
+                    //    ProcessMissingPhysical(filledOrder);
+                    //}
                 }
 			}
             if (onProcessFill != null)
@@ -1833,7 +1849,13 @@ namespace TickZoom.Common
                 return false;
             }
 
-		    TryFlushBufferedLogicals();
+            var hasMarketOrders = CheckForMarketOrdersInternal();
+            if (hasMarketOrders)
+            {
+                if (debug) log.Debug("Found pending physical orders. So only checking for extra physicals.");
+            }
+
+            TryFlushBufferedLogicals();
 
             if (debug)
             {
@@ -1862,7 +1884,15 @@ namespace TickZoom.Common
 			    var matches = TryMatchId(physicalOrders, logical);
                 if( matches.Count > 0)
                 {
-                    if( !ProcessMatch( logical, matches))
+                    if( hasMarketOrders)
+                    {
+                        foreach( var order in matches)
+                        {
+                            physicalOrders.Remove(order);
+                        }
+                        result = false;
+                    }
+                    else if( !ProcessMatch( logical, matches))
                     {
                         if (debug) log.Debug("logical order didn't match: " + logical);
                         result = false;
@@ -1896,16 +1926,23 @@ namespace TickZoom.Common
 				return result;
 			}
 
-            if (trace) log.Trace("Found " + extraLogicals.Count + " extra logicals.");
-            while (extraLogicals.Count > 0)
+            if (hasMarketOrders)
             {
-                var logical = extraLogicals[0];
-                if( !ProcessExtraLogical(logical))
+                result = false;
+            }
+            else
+		    {
+                if (trace) log.Trace("Found " + extraLogicals.Count + " extra logicals.");
+                while (extraLogicals.Count > 0)
                 {
-                    if (debug) log.Debug("Extra logical order: " + logical);
-                    result = false;
+                    var logical = extraLogicals[0];
+                    if (!ProcessExtraLogical(logical))
+                    {
+                        if (debug) log.Debug("Extra logical order: " + logical);
+                        result = false;
+                    }
+                    extraLogicals.Remove(logical);
                 }
-                extraLogicals.Remove(logical);
             }
             return result;
         }
