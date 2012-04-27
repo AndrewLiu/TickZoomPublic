@@ -46,7 +46,6 @@ namespace TickZoom.Examples
 		public TestCancelReplaceStrategy() {
 			Performance.GraphTrades = true;
 			Performance.Equity.GraphEquity = true;
-			ExitStrategy.ControlStrategy = false;
 		}
 		
 		public override void OnInitialize()

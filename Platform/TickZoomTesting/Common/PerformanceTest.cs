@@ -107,8 +107,6 @@ namespace TickZoom.Common
 			random.Performance.Equity.EnableWeeklyStats = true;
 
 			// Stops
-			random.ExitStrategy.StopLoss = stop;
-			
 			Starter starter = new HistoricalStarter();
 			starter.StartCount = 0;
 			starter.EndCount = starter.StartCount + count + 1;

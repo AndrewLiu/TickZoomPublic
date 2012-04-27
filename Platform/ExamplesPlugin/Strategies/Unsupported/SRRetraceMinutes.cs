@@ -44,7 +44,6 @@ namespace TickZoom
 		
 		public SRRetraceMinutes()
 		{
-			ExitStrategy.ControlStrategy  = false;
 		}
 		
 		public override void OnInitialize()

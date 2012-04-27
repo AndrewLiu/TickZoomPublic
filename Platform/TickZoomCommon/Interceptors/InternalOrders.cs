@@ -1,3 +1,4 @@
+using System;
 using TickZoom.Api;
 using TickZoom.Common;
 
@@ -95,6 +96,7 @@ namespace TickZoom.Interceptors
             }
         }
         private LogicalOrder sellLimit;
+
         public LogicalOrder SellLimit
         {
             get
@@ -110,6 +112,42 @@ namespace TickZoom.Interceptors
                 return sellLimit;
             }
         }
+
+        internal bool AreBuyOrdersActive
+        {
+            get { return (buyLimit != null && buyLimit.IsActive) ||
+                (buyStop != null && buyStop.IsActive) ||
+                (buyMarket != null && buyMarket.IsActive);
+            }
+        }
+
+        internal bool AreSellOrdersActive
+        {
+            get { return (sellLimit != null && sellLimit.IsActive) ||
+                (sellStop != null && sellStop.IsActive) || 
+                (sellMarket != null && sellMarket.IsActive); }
+        }
+
+        internal bool AreBuyOrdersNextBar
+        {
+            get
+            {
+                return (buyLimit != null && buyLimit.IsNextBar) ||
+                    (buyStop != null && buyStop.IsNextBar) ||
+                    (buyMarket != null && buyMarket.IsNextBar);
+            }
+        }
+
+        internal bool AreSellOrdersNextBar
+        {
+            get
+            {
+                return (sellLimit != null && sellLimit.IsNextBar) ||
+                    (sellStop != null && sellStop.IsNextBar) ||
+                    (sellMarket != null && sellMarket.IsNextBar);
+            }
+        }
+
         public void CancelOrders()
         {
             if( buyMarket != null) buyMarket.Status = OrderStatus.AutoCancel;

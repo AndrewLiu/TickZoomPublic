@@ -46,7 +46,6 @@ namespace TickZoom
 		
 		public SimpleStrategy2()
 		{
-			ExitStrategy.ControlStrategy = false;
 			IntervalDefault = Intervals.Range30;
 			RequestUpdate(Intervals.Second10);
 			RequestUpdate(Intervals.Day1);
@@ -81,9 +80,6 @@ namespace TickZoom
 			equity.Drawing.Color = Color.Green;
 			AddIndicator(equity);
 			
-			ExitStrategy.DailyMaxProfit = 320;
-//			Exits.DailyMaxLoss = 320;
- 		    ExitStrategy.StopLoss = 300;
 		}
 
 		public override bool OnProcessTick(Tick tick)

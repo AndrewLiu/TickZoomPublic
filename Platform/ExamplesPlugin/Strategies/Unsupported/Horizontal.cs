@@ -41,7 +41,6 @@ namespace TickZoom
 		
 		public Horizontal()
 		{
-			ExitStrategy.ControlStrategy = false;
 			IntervalDefault = Intervals.Range10;
 			RequestUpdate(Intervals.Range5);
 			RequestUpdate(Intervals.Second10);

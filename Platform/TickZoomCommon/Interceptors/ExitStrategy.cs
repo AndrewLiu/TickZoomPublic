@@ -80,7 +80,7 @@ namespace TickZoom.Interceptors
 			context.Invoke();
 			this.context = context;
 			if( eventType == EventType.LogicalFill) {
-				OnProcessPosition(eventType);
+				OnProcessPosition();
 			}
 		}
 				
@@ -105,20 +105,21 @@ namespace TickZoom.Interceptors
             buyStopLossOrder = Factory.Engine.LogicalOrder(Strategy.Data.SymbolInfo, Strategy);
 			buyStopLossOrder.TradeDirection = TradeDirection.ExitStrategy;
 		    buyStopLossOrder.Side = OrderSide.Buy;
-            buyStopLossOrder.Type = OrderType.Stop;
+            buyStopLossOrder.Type = OrderType.StopLoss;
 			buyStopLossOrder.Tag = "ExitStrategy" ;
 			Strategy.AddOrder(buyStopLossOrder);
             sellStopLossOrder = Factory.Engine.LogicalOrder(Strategy.Data.SymbolInfo, Strategy);
 			sellStopLossOrder.TradeDirection = TradeDirection.ExitStrategy;
 		    sellStopLossOrder.Side = OrderSide.Sell;
-            sellStopLossOrder.Type = OrderType.Stop;
+		    sellStopLossOrder.Type = OrderType.StopLoss;
 			sellStopLossOrder.Tag = "ExitStrategy" ;
 			Strategy.AddOrder(sellStopLossOrder);
 			if( IsTrace) Log.Trace(Strategy.FullName+".Initialize()");
 			Strategy.Drawing.Color = Color.Black;
-		}
+        }
+
 		
-		public void OnProcessPosition(EventType eventType) {
+		public void OnProcessPosition() {
 			Tick tick = Strategy.Data.Ticks[0];
 			
 			if( stopTradingToday || stopTradingThisWeek || stopTradingThisMonth ) {
@@ -147,10 +148,9 @@ namespace TickZoom.Interceptors
 					pnl = (entryPrice - exitPrice).Round();
 				}
 				maxPnl = pnl > maxPnl ? pnl : maxPnl;
-                if( stopLoss > 0) processStopLoss(tick);
 			}
-			
-		}
+            if (stopLoss > 0) processStopLoss(tick);
+        }
 		
 		private void CancelOrders() {
 			marketOrder.Status = OrderStatus.AutoCancel;
@@ -160,23 +160,19 @@ namespace TickZoom.Interceptors
 			sellStopLossOrder.Status = OrderStatus.AutoCancel;
 		}
 		
-		private void processStopLoss(Tick tick) {
-			if( position.IsShort) {
-				var price = entryPrice + stopLoss;
-				if( double.IsNaN(price) || double.IsInfinity(price)) {
-					throw new OverflowException( "StopLoss value " + stopLoss + " from entry price " + entryPrice + " created an overflow.");
-				}
-				buyStopLossOrder.Price = price;
+		private void processStopLoss(Tick tick)
+		{
+		    var entry = strategy.Orders.Enter;
+            if (position.IsShort || entry.AreSellOrdersActive || entry.AreSellOrdersNextBar)
+            {
+                buyStopLossOrder.Price = stopLoss;
 				buyStopLossOrder.Status = OrderStatus.Active;
 			} else {
 				buyStopLossOrder.Status = OrderStatus.Inactive;
 			}
-			if( position.IsLong) {
-				var price = entryPrice - stopLoss;
-				if( double.IsNaN(price) || double.IsInfinity(price)) {
-					throw new OverflowException( "StopLoss value " + stopLoss + " from entry price " + entryPrice + " created an overflow.");
-				}
-				sellStopLossOrder.Price = price;
+            if (position.IsLong || entry.AreBuyOrdersActive || entry.AreBuyOrdersNextBar)
+            {
+				sellStopLossOrder.Price = stopLoss;
 				sellStopLossOrder.Status = OrderStatus.Active;
 			} else {
 				sellStopLossOrder.Status = OrderStatus.Inactive;
@@ -229,6 +225,7 @@ namespace TickZoom.Interceptors
         #region Properties
         
         [DefaultValue(0d)]
+        [Obsolete("Please use Exit Buy and Sell Stops", true)]
         public double StopLoss
         {
             get { return stopLoss; }
@@ -237,6 +234,7 @@ namespace TickZoom.Interceptors
         }		
 
         [DefaultValue(0d)]
+        [Obsolete("Please use Exit Buy and Sell Stops", true)]
 		public double TrailStop
         {
             get { return trailStop; }
@@ -244,6 +242,7 @@ namespace TickZoom.Interceptors
         }		
 		
         [DefaultValue(0d)]
+        [Obsolete("Please use Exit Buy and Sell Stops", true)]
 		public double TargetProfit
         {
             get { return targetProfit; }
@@ -252,6 +251,7 @@ namespace TickZoom.Interceptors
         }		
 		
         [DefaultValue(0d)]
+        [Obsolete("Please use Exit Buy and Sell Stops", true)]
 		public double BreakEven
         {
             get { return breakEven; }
@@ -259,53 +259,55 @@ namespace TickZoom.Interceptors
         }	
 		
         [DefaultValue(false)]
+        [Obsolete("Please use Exit Buy and Sell Stops", true)]
 		public bool ControlStrategy {
 			get { return controlStrategy; }
 			set { controlStrategy = value; }
 		}
 		
         [DefaultValue(0d)]
+        [Obsolete("Please use Exit Buy and Sell Stops", true)]
 		public double WeeklyMaxProfit {
 			get { return weeklyMaxProfit; }
 			set { weeklyMaxProfit = value; }
 		}
 		
         [DefaultValue(0d)]
+        [Obsolete("Please use Exit Buy and Sell Stops", true)]
 		public double WeeklyMaxLoss {
 			get { return weeklyMaxLoss; }
 			set { weeklyMaxLoss = value; }
 		}
 		
         [DefaultValue(0d)]
+        [Obsolete("Please use Exit Buy and Sell Stops", true)]
 		public double DailyMaxProfit {
 			get { return dailyMaxProfit; }
 			set { dailyMaxProfit = value; }
 		}
 		
         [DefaultValue(0d)]
+        [Obsolete("Please use Exit Buy and Sell Stops", true)]
 		public double DailyMaxLoss {
 			get { return dailyMaxLoss; }
 			set { dailyMaxLoss = value; }
 		}
 		
         [DefaultValue(0d)]
+        [Obsolete("Please use Exit Buy and Sell Stops", true)]
 		public double MonthlyMaxLoss {
 			get { return monthlyMaxLoss; }
 			set { monthlyMaxLoss = value; }
 		}
 		
         [DefaultValue(0d)]
+        [Obsolete("Please use Exit Buy and Sell Stops", true)]
 		public double MonthlyMaxProfit {
 			get { return monthlyMaxProfit; }
 			set { monthlyMaxProfit = value; }
 		}
 		#endregion
 	
-//		public override string ToString()
-//		{
-//			return Strategy.FullName;
-//		}
-		
 		public PositionCommon Position {
 			get { return position; }
 			set { position = value; }

@@ -42,7 +42,6 @@ namespace TickZoom
 		
 		public SRRetraceHourly()
 		{
-			ExitStrategy.ControlStrategy  = false;
 			IntervalDefault = Intervals.Define(BarUnit.Change,50);
 		}
 		

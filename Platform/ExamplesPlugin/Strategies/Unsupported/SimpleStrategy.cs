@@ -45,7 +45,6 @@ namespace TickZoom
 		
 		public SimpleStrategy()
 		{
-			ExitStrategy.ControlStrategy = false;
 			IntervalDefault = Intervals.Range30;
 			RequestUpdate(Intervals.Range5);
 			RequestUpdate(Intervals.Second10);
@@ -74,8 +73,6 @@ namespace TickZoom
 			equity.Drawing.PaneType = PaneType.Secondary;
 			equity.Drawing.GroupName = "Equity";
 			AddIndicator(equity);
-			
- 		    ExitStrategy.StopLoss = 300;
 		}
 
 		public override bool OnProcessTick(Tick tick)

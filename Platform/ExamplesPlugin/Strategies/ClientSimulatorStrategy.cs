@@ -57,7 +57,6 @@ namespace TickZoom.Examples.Strategies
         {
             Performance.GraphTrades = true;
             Performance.Equity.GraphEquity = true;
-            ExitStrategy.ControlStrategy = false;
         }
 
         private void NextTest() {

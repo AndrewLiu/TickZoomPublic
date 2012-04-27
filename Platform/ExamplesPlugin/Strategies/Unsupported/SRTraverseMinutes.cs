@@ -53,7 +53,6 @@ namespace TickZoom
 		
 		public SRTraverseMinutes()
 		{
-			ExitStrategy.ControlStrategy  = false;
 			lastCodes = Integers(3);
 			lastPrices = Doubles(3);
 		}
