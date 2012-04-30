@@ -1552,6 +1552,9 @@ namespace TickZoom.Common
                         {
                             SyncPosition();
                         }
+
+                        CheckForPending();
+
                         // Is it still not synced?
                         if (isPositionSynced)
                         {
@@ -1841,7 +1844,6 @@ namespace TickZoom.Common
             originalPhysicals.Clear();
             originalPhysicals.AddRange(physicalOrderCache.GetActiveOrders(symbol));
 
-		    CheckForPending();
 		    var hasPendingOrders = CheckForPendingInternal();
             if (hasPendingOrders)
             {
