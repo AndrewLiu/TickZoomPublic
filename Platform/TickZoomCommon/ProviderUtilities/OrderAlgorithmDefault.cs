@@ -474,9 +474,7 @@ namespace TickZoom.Common
             var result = true;
             var strategyPosition = GetStrategyPosition(logical);
             var logicalPosition = logical.Side  == OrderSide.Buy ? position : - position;
-			var physicalPosition = 
-				createOrChange.Side == OrderSide.Buy ?
-				createOrChange.Size : - createOrChange.Size;
+			var physicalPosition = createOrChange.Side == OrderSide.Buy ? createOrChange.Size : - createOrChange.Size;
 			var delta = logicalPosition - strategyPosition;
 			var difference = delta - physicalPosition;
 			if( delta == 0 || (logicalPosition > 0 && strategyPosition > logicalPosition) ||
@@ -1373,7 +1371,7 @@ namespace TickZoom.Common
             LogicalOrder logical = null;
             try
             {
-                logical = logicalOrderCache.FindLogicalOrder(syntheticOrder.LogicalOrderId);
+                logical = logicalOrderCache.FindLogicalOrder(syntheticOrder.LogicalSerialNumber);
             }
             catch( ApplicationException)
             {
