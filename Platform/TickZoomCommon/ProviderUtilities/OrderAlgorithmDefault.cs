@@ -1375,7 +1375,7 @@ namespace TickZoom.Common
             }
             catch( ApplicationException)
             {
-                if( debug) log.Debug("LogicalOrder id " + syntheticOrder.LogicalOrderId + " wasn't found for synthetic fill. Must have been canceled. Ignoring.");
+                if( debug) log.Debug("LogicalOrder serial number " + syntheticOrder.LogicalSerialNumber + " wasn't found for synthetic fill. Must have been canceled. Ignoring.");
                 TryRemovePhysicalFill(synthetic);
                 return;
             }
