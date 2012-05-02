@@ -50,7 +50,7 @@ namespace TickZoom.Common
         {
             if (debug) log.Debug("GetActiveOrders( " + symbol + ")");
             AssertAtomic();
-            var list = GetOrders((o) => o.Symbol == symbol);
+            var list = GetOrders((o) => o.Symbol.BinaryIdentifier == symbol.BinaryIdentifier);
             foreach (var order in list)
             {
                 if (order.OrderState != OrderState.Filled)

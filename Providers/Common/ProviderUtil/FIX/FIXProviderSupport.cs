@@ -215,9 +215,17 @@ namespace TickZoom.FIX
                 {
                     socket.Connect();
                     if (debug) log.Debug("Requested Connect for " + socket);
-                    var startTime = TimeStamp.UtcNow;
+                    var startTime = Factory.Parallel.UtcNow;
                     var fastRetryDelay = 1;
-                    startTime.AddSeconds(fastRetry ? fastRetryDelay : RetryDelay);
+                    var retryDelay = fastRetry ? fastRetryDelay : RetryDelay;
+                    if( SyncTicks.Enabled)
+                    {
+                        startTime.AddMilliseconds(retryDelay*100);
+                    }
+                    else
+                    {
+                        startTime.AddSeconds(retryDelay);
+                    }
                     retryTimer.Start(startTime);
                     if (fastRetry) log.InfoFormat("Quick retry requested.  Connection will retry in {0} seconds", fastRetryDelay);
                     else
@@ -684,15 +692,18 @@ namespace TickZoom.FIX
                         else
                         {
                             var handledAlready = false;
+                            switch (messageFIX.MessageType)
+                            {
+                                case "1":
+                                    IsResendComplete = true;
+                                    break;      
+                                case "2":
+                                    HandleResend(messageFIX);
+                                    handledAlready = true;
+                                    break;
+                            }
                             if (connectionStatus == Status.PendingServerResend)
                             {
-                                switch (messageFIX.MessageType)
-                                {
-                                    case "2":
-                                        HandleResend(messageFIX);
-                                        handledAlready = true;
-                                        break;
-                                }
                                 if (CheckForServerSync(messageFIX))
                                 {
                                     if (ConnectionStatus == Status.PendingServerResend)
@@ -957,6 +968,7 @@ namespace TickZoom.FIX
                         {
                             case "g":
                             case "5": // Logoff
+                            case "2":
                                 if (previous < i)
                                 {
                                     var gapMessage = GapFillMessage(previous, i);
@@ -966,7 +978,6 @@ namespace TickZoom.FIX
                                 sentFlag = true;
                                 break;
                             case "A":
-                            case "2":
                             case "0":
                             case "AN":
                             case "G":
@@ -994,7 +1005,14 @@ namespace TickZoom.FIX
 		protected void IncreaseHeartbeatTimeout()
 		{
 		    var heartbeatTime = TimeStamp.UtcNow;
-		    heartbeatTime.AddSeconds(heartbeatDelay);
+            if( SyncTicks.Enabled)
+            {
+                heartbeatTime.AddMilliseconds(heartbeatDelay * 100);
+            }
+            else
+            {
+                heartbeatTime.AddSeconds(heartbeatDelay);
+            }
 			heartbeatTimer.Start(heartbeatTime);
 		}
 
@@ -1914,6 +1932,11 @@ namespace TickZoom.FIX
         public void Clear()
         {
             throw new NotImplementedException();
+        }
+
+        protected virtual void BusinessReject(MessageFIXT1_1 packetFIX)
+        {
+            HandleBusinessReject(false, packetFIX);
         }
     }
 }

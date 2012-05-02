@@ -569,14 +569,6 @@ namespace TickZoom.FIX
                             {
                                 case "A":
                                     throw new InvalidOperationException("Invalid FIX message type " + packetFIX.MessageType + ". Already logged in.");
-                                case "2":
-                                    if( fixState == ServerState.ServerResend)
-                                    {
-                                        OnBusinessReject("Client must respond to resend request of server before submitting any resend requests.");
-                                        return true;
-                                    }
-                                    HandleResend(packetFIX);
-                                    break;
                             }
                             if (packetFIX.Sequence > RemoteSequence)
                             {
@@ -588,30 +580,32 @@ namespace TickZoom.FIX
                                 if (debug) log.Debug("Already received packet sequence " + packetFIX.Sequence + ". Ignoring.");
                                 return true;
                             }
-                            else
+                            switch (packetFIX.MessageType)
                             {
-                                switch (packetFIX.MessageType)
-                                {
-                                    case "2": // resend request
-                                        // already handled prior to sequence checking.
-                                        if (debug) log.Debug("Resend request with sequence " + packetFIX.Sequence + ". So updating remote sequence...");
-                                        RemoteSequence = packetFIX.Sequence + 1;
-                                        break;
-                                    case "4":
-                                        result = HandleGapFill(packetFIX);
-                                        break;
-                                    default:
-                                        result = ProcessMessage(packetFIX);
-                                        break;
-                                }
-                                if (RemoteSequence >= recoveryRemoteSequence)
-                                {
-                                    isResendComplete = true;
+                                case "2":
                                     if (fixState == ServerState.ServerResend)
                                     {
-                                        // Sequences are synchronized now. Send TradeSessionStatus.
-                                        ServerSyncComplete();
+                                        OnBusinessReject("Client must respond to resend request of server before submitting any resend requests.");
+                                        return true;
                                     }
+                                    HandleResend(packetFIX);
+                                    if (debug) log.Debug("Resend request with sequence " + packetFIX.Sequence + ". So updating remote sequence...");
+                                    RemoteSequence = packetFIX.Sequence + 1;
+                                    break;
+                                case "4":
+                                    result = HandleGapFill(packetFIX);
+                                    break;
+                                default:
+                                    result = ProcessMessage(packetFIX);
+                                    break;
+                            }
+                            if (RemoteSequence >= recoveryRemoteSequence)
+                            {
+                                isResendComplete = true;
+                                if (fixState == ServerState.ServerResend)
+                                {
+                                    // Sequences are synchronized now. Send TradeSessionStatus.
+                                    ServerSyncComplete();
                                 }
                             }
                             break;
@@ -862,8 +856,8 @@ namespace TickZoom.FIX
 
 		private void IncreaseHeartbeat()
 		{
-		    var timeStamp = TimeStamp.UtcNow;
-		    timeStamp.AddSeconds(HeartbeatDelay);
+		    var timeStamp = Factory.Parallel.UtcNow;
+            timeStamp.AddMilliseconds(HeartbeatDelay*100);
             if (debug) log.Debug("Setting next heartbeat for " + timeStamp);
             heartbeatTimer.Start(timeStamp);
 		}		

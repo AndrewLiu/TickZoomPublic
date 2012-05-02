@@ -210,7 +210,6 @@ namespace TickZoom.Common
         {
 			var result = false;
             var cancelOrder = new CreateOrChangeOrderDefault(OrderState.Pending, symbol, physical);
-            physical.ReplacedBy = cancelOrder;
             if (physicalOrderCache.HasCancelOrder(cancelOrder))
             {
                 if (debug) log.Debug("Ignoring cancel broker order " + physical.BrokerOrder + " as physical order cache has a cancel or replace already.");
@@ -221,6 +220,7 @@ namespace TickZoom.Common
                 if (debug) log.Debug("Ignoring broker order while waiting on reject recovery.");
                 return result;
             }
+            physical.ReplacedBy = cancelOrder;
 #if CancelLimit
             if (physical.CancelCount > 15)
             {
@@ -267,9 +267,6 @@ namespace TickZoom.Common
             }
             if (origOrder.OrderState == OrderState.Active)
             {
-                createOrChange.Side = origOrder.Side;
-                createOrChange.OriginalOrder = origOrder;
-                origOrder.ReplacedBy = createOrChange;
                 if (physicalOrderCache.HasCancelOrder(createOrChange))
                 {
                     if (debug) log.Debug("Ignoring broker order " + origOrder.BrokerOrder + " as physical order cache has a cancel or replace already.");
@@ -280,6 +277,9 @@ namespace TickZoom.Common
                     if (debug) log.Debug("Ignoring broker order while waiting on reject recovery.");
                     return;
                 }
+                createOrChange.Side = origOrder.Side;
+                createOrChange.OriginalOrder = origOrder;
+                origOrder.ReplacedBy = createOrChange;
                 if (debug) log.Debug("Change Broker Order: " + createOrChange);
                 TryAddPhysicalOrder(createOrChange);
                 physicalOrderCache.SetOrder(createOrChange);
@@ -1681,7 +1681,7 @@ namespace TickZoom.Common
             }
             catch (ApplicationException ex)
             {
-                log.Warn("Ignoring execption and continuing: " + ex.Message, ex);
+                log.Warn("Ignoring exception and continuing: " + ex.Message, ex);
             }
             catch (ArgumentException ex)
             {

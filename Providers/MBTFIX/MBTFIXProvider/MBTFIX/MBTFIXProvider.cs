@@ -251,7 +251,7 @@ namespace TickZoom.MBTFIX
 			}
 		}
 
-        private void BusinessReject(MessageFIX4_4 packetFIX)
+        protected override void BusinessReject(MessageFIXT1_1 packetFIX)
         {
             var text = packetFIX.Text;
             var lower = text.ToLower();
