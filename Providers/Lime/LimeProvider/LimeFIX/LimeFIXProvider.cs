@@ -284,10 +284,6 @@ namespace TickZoom.LimeFIX
             }
         }
 
-        private void BusinessReject(MessageFIX4_2 packetFIX) {
-            HandleBusinessReject(false, packetFIX);
-        }
-
         protected override void TryEndRecovery()
         {
             if (debug) log.Debug("TryEndRecovery Status " + ConnectionStatus +

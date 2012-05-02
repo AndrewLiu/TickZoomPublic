@@ -163,6 +163,7 @@ namespace Loaders
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.SystemOffline] = 0;
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.ServerOfflineReject] = 0;
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.ReceiveDisconnect] = 0;
+            next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.SendDisconnect] = 0;
 
 		    list.Add(next = new AutoTestSettings
 		                        {
