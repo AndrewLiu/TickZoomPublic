@@ -48,13 +48,19 @@ namespace TickZoom.Common
 
         public IEnumerable<CreateOrChangeOrder> GetActiveOrders(SymbolInfo symbol)
         {
+            if (debug) log.Debug("GetActiveOrders( " + symbol + ")");
             AssertAtomic();
             var list = GetOrders((o) => o.Symbol == symbol);
             foreach (var order in list)
             {
                 if (order.OrderState != OrderState.Filled)
                 {
+                    if (debug) log.Debug("Including order: " + order);
                     yield return order;
+                }
+                else
+                {
+                    if (debug) log.Debug("Excluding order: " + order);
                 }
             }
         }
