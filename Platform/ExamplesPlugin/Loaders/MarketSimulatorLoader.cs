@@ -69,6 +69,7 @@ namespace TickZoom.Examples
             portfolio.Name = "Portfolio-Market";
             foreach (ISymbolProperties symbol in properties.Starter.SymbolProperties)
             {
+                portfolio.SymbolDefault = symbol.ExpandedSymbol;
                 if( symbol.Account == "market")
                 {
                     var strategy = new MarketSimulatorStrategy();
