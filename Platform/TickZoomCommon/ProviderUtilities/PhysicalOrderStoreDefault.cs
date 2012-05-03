@@ -50,9 +50,9 @@ namespace TickZoom.Common
         private bool snapshotNeeded;
         private PhysicalOrderLock physicalOrderLock;
 
-        public PhysicalOrderStoreDefault(string name)
+        public PhysicalOrderStoreDefault(string name) : base(name)
         {
-            log = Factory.SysLog.GetLogger(typeof(PhysicalOrderStoreDefault));
+            log = Factory.SysLog.GetLogger(typeof(PhysicalOrderStoreDefault).FullName + "." + name);
             log.Register(this);
             storeName = name;
             writeFileAction = SnapShotHandler;

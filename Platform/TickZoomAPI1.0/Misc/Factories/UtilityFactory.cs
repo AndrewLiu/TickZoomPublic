@@ -48,6 +48,6 @@ namespace TickZoom.Api
 		PositionInterface Position(ModelInterface model);
         PhysicalFill PhysicalFill(SymbolInfo symbol, int size, double price, TimeStamp time, TimeStamp utcTime, long brokerOrder, bool isSimulated, int totalSize, int cumulativeSize, int remainingSize, bool isRealTime, bool isActual);
 		StrategyInterface Strategy();
-	    PhysicalOrderCache PhyscalOrderCache();
+	    PhysicalOrderCache PhyscalOrderCache(string name);
 	}
 }
