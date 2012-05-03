@@ -267,6 +267,8 @@ namespace TickZoom.Common
             }
             if (origOrder.OrderState == OrderState.Active)
             {
+                createOrChange.Side = origOrder.Side;
+                createOrChange.OriginalOrder = origOrder;
                 if (physicalOrderCache.HasCancelOrder(createOrChange))
                 {
                     if (debug) log.Debug("Ignoring broker order " + origOrder.BrokerOrder + " as physical order cache has a cancel or replace already.");
@@ -277,8 +279,6 @@ namespace TickZoom.Common
                     if (debug) log.Debug("Ignoring broker order while waiting on reject recovery.");
                     return;
                 }
-                createOrChange.Side = origOrder.Side;
-                createOrChange.OriginalOrder = origOrder;
                 origOrder.ReplacedBy = createOrChange;
                 if (debug) log.Debug("Change Broker Order: " + createOrChange);
                 TryAddPhysicalOrder(createOrChange);

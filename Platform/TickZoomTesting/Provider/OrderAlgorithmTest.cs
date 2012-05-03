@@ -55,7 +55,7 @@ namespace Orders
             var codeBase = Assembly.GetExecutingAssembly().CodeBase;
             strategy = new Strategy();
             strategy.Context = new MockContext();
-            physicalCache = Factory.Utility.PhyscalOrderCache();
+            physicalCache = Factory.Utility.PhyscalOrderCache("Test");
             handler = new TestOrderAlgorithm(symbol, strategy, ProcessFill, physicalCache);
             orders.Clear();
 		}

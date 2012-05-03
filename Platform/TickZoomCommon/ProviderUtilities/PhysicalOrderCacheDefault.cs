@@ -28,6 +28,7 @@ namespace TickZoom.Common
         protected Dictionary<long, CreateOrChangeOrder> ordersBySerial = new Dictionary<long, CreateOrChangeOrder>();
         protected Dictionary<long, SymbolPosition> positions = new Dictionary<long, SymbolPosition>();
         protected Dictionary<int, StrategyPosition> strategyPositions = new Dictionary<int, StrategyPosition>();
+        private string name;
 
         protected class SymbolPosition
         {
@@ -38,9 +39,10 @@ namespace TickZoom.Common
             }
         }
 
-        public PhysicalOrderCacheDefault()
+        public PhysicalOrderCacheDefault(string name)
         {
-            log = Factory.SysLog.GetLogger(typeof(PhysicalOrderCacheDefault));
+            this.name = name;
+            log = Factory.SysLog.GetLogger(typeof(PhysicalOrderCacheDefault).FullName + "." + name);
             log.Register(this);
         }
 

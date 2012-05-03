@@ -37,9 +37,9 @@ namespace TickZoom.Common
         {
             return new PhysicalOrderStoreDefault(name);
         }
-        public PhysicalOrderCache PhyscalOrderCache()
+        public PhysicalOrderCache PhyscalOrderCache(string name)
         {
-            return new PhysicalOrderCacheDefault();
+            return new PhysicalOrderCacheDefault(name);
         }
         public CreateOrChangeOrder PhysicalOrder(OrderState orderState, SymbolInfo symbol, CreateOrChangeOrder origOrder)
         {
