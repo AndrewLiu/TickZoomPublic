@@ -398,13 +398,13 @@ namespace TickZoom.FIX
             var typeStr = ConnectionStatus == Status.PendingLogin ? "Login Timeout" : "Heartbeat timeout";
             log.Info(typeStr + ". Last Message UTC Time: " + lastMessageTime + ", current UTC Time: " + TimeStamp.UtcNow);
             log.Error("FIXProvider " + typeStr);
-            SyncTicks.LogStatus();
             if (SyncTicks.Frozen)
             {
                 frozenHeartbeatCounter++;
                 if (frozenHeartbeatCounter > 3)
                 {
                     if (debug) log.Debug("More than 3 heart beats sent after frozen.  Ending heartbeats.");
+                    HeartbeatDelay = 50;
                 }
                 else
                 {
