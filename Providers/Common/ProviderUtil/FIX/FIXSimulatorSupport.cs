@@ -264,6 +264,7 @@ namespace TickZoom.FIX
                     if( frozenHeartbeatCounter > 3)
                     {
                         if (debug) log.Debug("More than 3 heart beats sent after frozen.  Ending heartbeats.");
+                        heartbeatDelay = 50;
                     }
                     else
                     {
