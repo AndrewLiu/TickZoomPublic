@@ -27,7 +27,7 @@
 using System;
 using TickZoom.Api;
 
-namespace TickZoom.MBTFIX
+namespace TickZoom.Provider.MBTFIX
 {
 	static class Program
 	{

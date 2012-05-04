@@ -27,7 +27,7 @@
 using System;
 using TickZoom.Api;
 
-namespace TickZoom.LimeQuotes
+namespace TickZoom.Provider.LimeQuotes
 {
     public class MessageFactoryLimeQuotes : MessageFactory
     {

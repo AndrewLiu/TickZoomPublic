@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using TickZoom.Api;
 using System.Net;
 
-namespace TickZoom.LimeQuotes
+namespace TickZoom.Provider.LimeQuotes
 {
     public unsafe class LimeQuoteMessage :Message,IDisposable
     {

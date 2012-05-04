@@ -1,7 +1,7 @@
 using System;
 using TickZoom.Api;
 
-namespace TickZoom.FIX
+namespace TickZoom.Provider.FIX
 {
     public interface SimulateSymbol : AgentPerformer
     {

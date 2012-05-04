@@ -27,7 +27,7 @@
 using System;
 using TickZoom.Api;
 
-namespace TickZoom.FIX
+namespace TickZoom.Provider.FIX
 {
 	public interface FIXFilter {
 		void Local( FIXContext context, Message localMessage);

@@ -30,9 +30,9 @@ using System.IO;
 using System.Security.Cryptography;
 
 using TickZoom.Api;
-using TickZoom.LimeQuotes;
+using TickZoom.Provider.LimeQuotes;
 
-namespace TickZoom.LimeFIX
+namespace TickZoom.Provider.LimeFIX
 {
     //TODO: Not used any more?
 #if OLD_CODE

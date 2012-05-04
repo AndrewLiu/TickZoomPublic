@@ -1,7 +1,7 @@
 ﻿using TickZoom.Api;
-using TickZoom.FIX;
+using TickZoom.Provider.FIX;
 
-namespace TickZoom.MBTFIX
+namespace TickZoom.Provider.MBTFIX
 {
     public class MBTProviderSimulator : ProviderSimulatorSupport
     {

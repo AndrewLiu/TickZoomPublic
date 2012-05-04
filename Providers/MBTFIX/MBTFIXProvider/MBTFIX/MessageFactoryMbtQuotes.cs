@@ -27,7 +27,7 @@
 using System;
 using TickZoom.Api;
 
-namespace TickZoom.MBTQuotes
+namespace TickZoom.Provider.MBTQuotes
 {
 	public class MessageFactoryMbtQuotes : MessageFactory
 	{

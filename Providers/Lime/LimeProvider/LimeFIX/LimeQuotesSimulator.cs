@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using TickZoom.Api;
-using TickZoom.FIX;
-using TickZoom.LimeQuotes;
+using TickZoom.Provider.FIX;
+using TickZoom.Provider.LimeQuotes;
 
-namespace TickZoom.LimeFIX
+namespace TickZoom.Provider.LimeFIX
 {
     public class LimeQuotesSimulator : QuoteSimulatorSupport 
     {

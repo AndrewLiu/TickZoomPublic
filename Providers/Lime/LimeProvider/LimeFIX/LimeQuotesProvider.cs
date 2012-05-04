@@ -28,9 +28,9 @@ using System;
 using System.Collections.Generic;
 using TickZoom.Api;
 using System.Text;
-using TickZoom.FIX;
+using TickZoom.Provider.FIX;
 
-namespace TickZoom.LimeQuotes
+namespace TickZoom.Provider.LimeQuotes
 {
     [SkipDynamicLoad]
     public class LimeQuotesProvider : QuotesProviderSupport

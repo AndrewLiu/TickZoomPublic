@@ -31,7 +31,7 @@ using System.Threading;
 
 using TickZoom.Api;
 
-namespace TickZoom.FIX
+namespace TickZoom.Provider.FIX
 {
 	public class FIXTFactory1_1 : FIXTFactory
 	{

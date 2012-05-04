@@ -366,6 +366,16 @@ namespace TickZoom.Logging
 			<conversionPattern value=""%message%newline"" />
 		</layout>
  	</appender>
+    <appender name=""FixLogAppender"" type=""TickZoom.Logging.RollingFileAppender"">
+      <rollingStyle value=""Size"" />
+      <maxSizeRollBackups value=""10"" />
+      <maximumFileSize value=""100MB"" />
+      <file value=""LogFolder\FIX.log"" />
+      <appendToFile value=""false"" />
+      <layout type=""log4net.Layout.PatternLayout"">
+        <conversionPattern value=""%logger - %message%newline"" />
+      </layout>
+    </appender>
 	<appender name=""ConsoleAppender"" type=""log4net.Appender.ConsoleAppender"" >
  		<threshold value=""WARN""/>
 		<layout type=""log4net.Layout.PatternLayout"">

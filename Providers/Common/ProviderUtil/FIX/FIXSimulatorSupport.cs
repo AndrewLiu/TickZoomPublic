@@ -32,7 +32,7 @@ using System.Text;
 using System.Threading;
 using TickZoom.Api;
 
-namespace TickZoom.FIX
+namespace TickZoom.Provider.FIX
 {
     public abstract class FIXSimulatorSupport : FIXSimulator, LogAware
 	{

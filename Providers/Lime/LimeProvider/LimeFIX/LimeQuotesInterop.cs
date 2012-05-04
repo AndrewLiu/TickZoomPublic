@@ -7,7 +7,7 @@ using System.IO;
 using System.Net;
 using TickZoom.Api;
 
-namespace TickZoom.LimeQuotes
+namespace TickZoom.Provider.LimeQuotes
 {
     // Code translated from C++ Citrus API supplied by Lime.
     internal static class LimeQuotesInterop

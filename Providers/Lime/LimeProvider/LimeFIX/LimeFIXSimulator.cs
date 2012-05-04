@@ -32,10 +32,10 @@ using System.Text;
 using System.Threading;
 
 using TickZoom.Api;
-using TickZoom.FIX;
-using TickZoom.LimeQuotes;
+using TickZoom.Provider.FIX;
+using TickZoom.Provider.LimeQuotes;
 
-namespace TickZoom.LimeFIX 
+namespace TickZoom.Provider.LimeFIX 
 {
     public class LimeFIXSimulator : FIXSimulatorSupport {
         private static Log log = Factory.SysLog.GetLogger(typeof(LimeFIXSimulator));

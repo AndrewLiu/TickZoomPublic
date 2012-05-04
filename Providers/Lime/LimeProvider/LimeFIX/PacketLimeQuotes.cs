@@ -31,7 +31,7 @@ using System.Text;
 
 using TickZoom.Api;
 
-namespace TickZoom.LimeQuotes
+namespace TickZoom.Provider.LimeQuotes
 {
 
     //UNDONE: Packet needs to be redone for Lime Quotes

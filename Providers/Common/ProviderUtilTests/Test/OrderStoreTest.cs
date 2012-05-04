@@ -4,7 +4,7 @@ using TickZoom.Api;
 using System.IO;
 using System;
 using System.Text;
-using TickZoom.FIX;
+using TickZoom.Provider.FIX;
 
 namespace Test
 {

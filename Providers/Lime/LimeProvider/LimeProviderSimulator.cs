@@ -1,7 +1,7 @@
 using TickZoom.Api;
-using TickZoom.FIX;
+using TickZoom.Provider.FIX;
 
-namespace TickZoom.LimeFIX 
+namespace TickZoom.Provider.LimeFIX 
 {
     class LimeProviderSimulator : ProviderSimulatorSupport
     {

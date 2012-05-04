@@ -29,7 +29,7 @@ using System;
 using TickZoom.Api;
 
 
-namespace TickZoom.LimeFIX
+namespace TickZoom.Provider.LimeFIX
 {
     class Program
     {

@@ -6,7 +6,7 @@ using System.Text;
 
 using TickZoom.Api;
 
-namespace TickZoom.FIX
+namespace TickZoom.Provider.FIX
 {
 	public class MessageFIX4_2 : MessageFIXT1_1 {
         private static readonly Log log = Factory.SysLog.GetLogger(typeof(MessageFIX4_2));
