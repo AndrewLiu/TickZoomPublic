@@ -597,6 +597,16 @@ namespace TickZoom.Common
 
         private bool ProcessMatchPhysicalChange(LogicalOrder logical, List<CreateOrChangeOrder> matches)
         {
+            if (logical.Levels == 1)
+            {
+                if (matches.Count != 1)
+                {
+                    log.Warn("Expected 1 match but found " + matches.Count + " matches for logical order: " + logical + "\n" + ToString(matches));
+                }
+                physicalOrders.Remove(matches[0]);
+                var physical = matches[0];
+                return ProcessMatchPhysicalChange(logical, physical, logical.Position, logical.Price);
+            }
             return MatchLogicalToPhysicals(logical, matches, ProcessMatchPhysicalChange);
         }
 
@@ -606,9 +616,7 @@ namespace TickZoom.Common
             var strategyPosition = GetStrategyPosition(logical);
             var logicalPosition = logical.Side == OrderSide.Buy ? position : - position;
 			logicalPosition += strategyPosition;
-			var physicalPosition = 
-				createOrChange.Side == OrderSide.Buy ?
-				createOrChange.Size : - createOrChange.Size;
+			var physicalPosition = createOrChange.Side == OrderSide.Buy ? createOrChange.Size : - createOrChange.Size;
 			var delta = logicalPosition - strategyPosition;
 			var difference = delta - physicalPosition;
 			if( debug) log.Debug("PhysicalChange("+logical.SerialNumber+") delta="+delta+", strategyPosition="+strategyPosition+", difference="+difference);
@@ -1232,7 +1240,6 @@ namespace TickZoom.Common
 		        var order = originalPhysicals[i];
 				if( order.IsPending)
 				{
-					if( debug) log.Debug("Pending order: " + order);
 					result = true;	
 				}
             }
@@ -1639,8 +1646,8 @@ namespace TickZoom.Common
                 if (debug) log.Debug("LogicalOrder is completely filled.");
 			    MarkAsFilled(filledOrder);
             }
-            CleanupAfterFill(filledOrder, fill);
             UpdateOrderCache(filledOrder, fill);
+            CleanupAfterFill(filledOrder, fill);
             if (isCompletePhysicalFill && !fill.IsComplete)
             {
                 if (filledOrder.TradeDirection == TradeDirection.Entry && fill.Position == 0)
@@ -1691,6 +1698,7 @@ namespace TickZoom.Common
 
         private void CancelLogical(LogicalOrder order)
         {
+            if( debug) log.Debug("Canceling via OCO " + order);
             originalLogicals.Remove(order);
         }
 
@@ -1701,7 +1709,6 @@ namespace TickZoom.Common
 			bool cancelAllExitStrategies = false;
 			bool cancelAllReverse = false;
 			bool cancelAllChanges = false;
-		    bool cancelDueToPartialFill = false;
             if( fill.IsComplete)
             {
                 var strategyPosition = GetStrategyPosition(filledOrder);
@@ -1709,6 +1716,7 @@ namespace TickZoom.Common
                 {
                     cancelAllChanges = true;
                     clean = true;
+                    if (debug) log.Debug("Canceling all change orders since strategy position " + strategyPosition);
                 }
                 switch (filledOrder.TradeDirection)
                 {
@@ -1717,6 +1725,7 @@ namespace TickZoom.Common
                     case TradeDirection.Entry:
                         cancelAllEntries = true;
                         clean = true;
+                        if (debug) log.Debug("Canceling all entry orders after an entry order was filled.");
                         break;
                     case TradeDirection.Exit:
                     case TradeDirection.ExitStrategy:
@@ -1725,11 +1734,13 @@ namespace TickZoom.Common
                         cancelAllEntries = true;
                         cancelAllChanges = true;
                         clean = true;
+                        if (debug) log.Debug("Canceling all exits, exit strategies, entries, and change orders after an exit or exit strategy was filled.");
                         break;
                     case TradeDirection.Reverse:
                         cancelAllReverse = true;
                         cancelAllEntries = true;
                         clean = true;
+                        if (debug) log.Debug("Canceling all reverse and entry orders after a reverse order was filled.");
                         break;
                     default:
                         throw new ApplicationException("Unknown trade direction: " + filledOrder.TradeDirection);
@@ -1747,8 +1758,8 @@ namespace TickZoom.Common
                     case TradeDirection.Reverse:
                         cancelAllEntries = true;
                         cancelAllChanges = true;
-                        cancelDueToPartialFill = true;
                         clean = true;
+                        if (debug) log.Debug("Canceling all entry and change orders after a partial exit, exit strategy, or reverse order.");
                         break;
                     default:
                         throw new ApplicationException("Unknown trade direction: " + filledOrder.TradeDirection);
@@ -1763,20 +1774,12 @@ namespace TickZoom.Common
 							case TradeDirection.Entry:
 								if( cancelAllEntries)
 								{
-                                    if( cancelDueToPartialFill)
-                                    {
-                                        if( debug) log.Debug("Canceling Entry order due to partial fill: " + order);
-                                    }
 								    CancelLogical(order);
 								}
 								break;
 							case TradeDirection.Change:
                                 if (cancelAllChanges)
                                 {
-                                    if (cancelDueToPartialFill)
-                                    {
-                                        if (debug) log.Debug("Canceling Entry order due to partial fill: " + order);
-                                    }
                                     CancelLogical(order);
                                 }
 								break;
@@ -1842,19 +1845,6 @@ namespace TickZoom.Common
             originalPhysicals.Clear();
             originalPhysicals.AddRange(physicalOrderCache.GetActiveOrders(symbol));
 
-		    var hasPendingOrders = CheckForPendingInternal();
-            if (hasPendingOrders)
-            {
-                if (debug) log.Debug("Found pending physical orders. So ending order comparison.");
-                return false;
-            }
-
-            var hasMarketOrders = CheckForMarketOrdersInternal();
-            if (hasMarketOrders)
-            {
-                if (debug) log.Debug("Found pending physical orders. So only checking for extra physicals.");
-            }
-
             TryFlushBufferedLogicals();
 
             if (debug)
@@ -1866,6 +1856,19 @@ namespace TickZoom.Common
             {
                 LogOrders(originalLogicals, "Original Logical");
                 LogOrders(originalPhysicals, "Original Physical");
+            }
+
+            var hasPendingOrders = CheckForPendingInternal();
+            if (hasPendingOrders)
+            {
+                if (debug) log.Debug("Found pending physical orders. So ending order comparison.");
+                return false;
+            }
+
+            var hasMarketOrders = CheckForMarketOrdersInternal();
+            if (hasMarketOrders)
+            {
+                if (debug) log.Debug("Found pending physical orders. So only checking for extra physicals.");
             }
 
             logicalOrders.Clear();

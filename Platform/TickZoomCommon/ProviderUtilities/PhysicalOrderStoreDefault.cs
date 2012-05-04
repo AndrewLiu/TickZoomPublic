@@ -266,13 +266,10 @@ namespace TickZoom.Common
             foreach (var file in files)
             {
                 var parts = file.Split('.');
-                if (parts.Length == 3)
+                int count;
+                if (int.TryParse(parts[parts.Length-1], out count) && count > 0)
                 {
-                    int count;
-                    if (int.TryParse(parts[2], out count) && count > 0)
-                    {
-                        fileList.Add(new SnapshotFile { Order = count, Filename = file });
-                    }
+                    fileList.Add(new SnapshotFile { Order = count, Filename = file });
                 }
                 else
                 {
