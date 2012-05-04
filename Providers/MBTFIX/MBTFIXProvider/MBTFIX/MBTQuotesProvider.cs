@@ -29,9 +29,9 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 using TickZoom.Api;
-using TickZoom.FIX;
+using TickZoom.Provider.FIX;
 
-namespace TickZoom.MBTQuotes
+namespace TickZoom.Provider.MBTQuotes
 {
 	public class MBTQuotesProvider : QuotesProviderSupport
 	{

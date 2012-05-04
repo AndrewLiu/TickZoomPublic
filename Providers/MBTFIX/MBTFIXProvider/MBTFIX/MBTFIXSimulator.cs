@@ -31,10 +31,10 @@ using System.IO;
 using System.Threading;
 
 using TickZoom.Api;
-using TickZoom.FIX;
-using TickZoom.MBTQuotes;
+using TickZoom.Provider.FIX;
+using TickZoom.Provider.MBTQuotes;
 
-namespace TickZoom.MBTFIX
+namespace TickZoom.Provider.MBTFIX
 {
     public class MBTFIXSimulator : FIXSimulatorSupport {
 		private static Log log = Factory.SysLog.GetLogger(typeof(MBTFIXSimulator));

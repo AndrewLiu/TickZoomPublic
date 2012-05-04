@@ -32,7 +32,7 @@ using System.Threading;
 
 using TickZoom.Api;
 
-namespace TickZoom.FIX
+namespace TickZoom.Provider.FIX
 {
     public abstract class FIXProviderSupport : AgentPerformer, PhysicalOrderHandler, LogAware
     {
@@ -117,7 +117,7 @@ namespace TickZoom.FIX
             this.providerName = GetType().Name;
             log = Factory.SysLog.GetLogger(typeof(FIXProviderSupport) + "." + providerName + "." + name);
             log.Register(this);
-            fixLog = Factory.SysLog.GetLogger("TickZoom.FIX.FIXLog");
+            fixLog = Factory.SysLog.GetLogger(typeof(FIXProviderSupport).Namespace + ".FIXLog." + providerName + "." + name);
             fixLog.Register(this);
             verbose = log.IsVerboseEnabled;
             debug = log.IsDebugEnabled;

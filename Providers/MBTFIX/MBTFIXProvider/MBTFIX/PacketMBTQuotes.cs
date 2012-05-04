@@ -31,7 +31,7 @@ using System.Text;
 
 using TickZoom.Api;
 
-namespace TickZoom.MBTQuotes
+namespace TickZoom.Provider.MBTQuotes
 {
     public class MessageMbtQuotes : Message {
         private const byte EndOfField = 59;

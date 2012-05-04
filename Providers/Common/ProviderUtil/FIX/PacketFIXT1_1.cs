@@ -31,7 +31,7 @@ using System.Text;
 
 using TickZoom.Api;
 
-namespace TickZoom.FIX
+namespace TickZoom.Provider.FIX
 {
     public unsafe class MessageFIXT1_1 : Message
     {

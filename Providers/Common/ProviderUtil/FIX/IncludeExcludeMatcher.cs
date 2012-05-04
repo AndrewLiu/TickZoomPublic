@@ -1,6 +1,6 @@
 ﻿using TickZoom.Api;
 
-namespace TickZoom.FIX
+namespace TickZoom.Provider.FIX
 {
     public class IncludeExcludeMatcher : LogAware
     {

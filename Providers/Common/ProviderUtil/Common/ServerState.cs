@@ -1,4 +1,4 @@
-﻿namespace TickZoom.FIX
+﻿namespace TickZoom.Provider.FIX
 {
     public enum ServerState
     {

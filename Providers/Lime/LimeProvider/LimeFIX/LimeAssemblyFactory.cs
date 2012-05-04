@@ -1,8 +1,8 @@
 using System;
 using System.Reflection;
 using TickZoom.Api;
-using TickZoom.LimeFIX;
-using TickZoom.LimeQuotes;
+using TickZoom.Provider.LimeFIX;
+using TickZoom.Provider.LimeQuotes;
 
 namespace TickZoom.LimeFix
 {

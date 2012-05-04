@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using TickZoom.Api;
 
-namespace TickZoom.FIX
+namespace TickZoom.Provider.FIX
 {
     public class ProviderSimulatorSupport : AgentPerformer
     {

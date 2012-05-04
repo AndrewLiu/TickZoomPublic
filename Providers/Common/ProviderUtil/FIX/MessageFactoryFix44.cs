@@ -30,7 +30,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace TickZoom.FIX
+namespace TickZoom.Provider.FIX
 {
 	public class MessageFactoryFix44 : MessageFactory
 	{

@@ -29,7 +29,7 @@ using System.IO;
 using TickZoom.Api;
 using TickZoom.TickUtil;
 
-namespace TickZoom.FIX
+namespace TickZoom.Provider.FIX
 {
     public class SimulateSymbolRealTime : SimulateSymbol, LogAware
     {

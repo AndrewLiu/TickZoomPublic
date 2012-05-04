@@ -28,7 +28,7 @@ using System;
 using System.Text;
 using TickZoom.Api;
 
-namespace TickZoom.FIX
+namespace TickZoom.Provider.FIX
 {
 	public class FIXFactory4_4 : FIXTFactory1_1 {
 		public FIXFactory4_4(int nextSequence,string sender,string destination) :

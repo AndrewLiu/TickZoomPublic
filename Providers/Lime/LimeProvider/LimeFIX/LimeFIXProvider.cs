@@ -29,9 +29,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using TickZoom.Api;
-using TickZoom.FIX;
+using TickZoom.Provider.FIX;
 
-namespace TickZoom.LimeFIX
+namespace TickZoom.Provider.LimeFIX
 {
     public class LimeFIXProvider : FIXProviderSupport, PhysicalOrderHandler
     {

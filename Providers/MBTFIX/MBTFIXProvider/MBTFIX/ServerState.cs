@@ -30,9 +30,9 @@ using System.Text;
 using System.Threading;
 
 using TickZoom.Api;
-using TickZoom.FIX;
-using TickZoom.MBTQuotes;
+using TickZoom.Provider.FIX;
+using TickZoom.Provider.MBTQuotes;
 
-namespace TickZoom.MBTFIX
+namespace TickZoom.Provider.MBTFIX
 {
 }

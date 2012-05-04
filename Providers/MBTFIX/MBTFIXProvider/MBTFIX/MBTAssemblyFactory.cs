@@ -1,8 +1,8 @@
 ﻿using System;
 using TickZoom.Api;
-using TickZoom.MBTQuotes;
+using TickZoom.Provider.MBTQuotes;
 
-namespace TickZoom.MBTFIX
+namespace TickZoom.Provider.MBTFIX
 {
     public class MBTAssemblyFactory : AssemblyFactory
     {

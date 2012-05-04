@@ -2,7 +2,7 @@
 using System.Text;
 using TickZoom.Api;
 
-namespace TickZoom.FIX
+namespace TickZoom.Provider.FIX
 {
     public abstract class QuoteSimulatorSupport : LogAware, AgentPerformer
     {

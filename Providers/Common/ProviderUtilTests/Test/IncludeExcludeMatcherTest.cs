@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using TickZoom.FIX;
+using TickZoom.Provider.FIX;
 
 namespace Test
 {
