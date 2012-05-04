@@ -58,13 +58,16 @@ namespace TickZoom.Starters
  <log4net>
     <root>
 	<level value=""INFO"" />
-	<appender-ref ref=""FileAppender"" />
+	    <appender-ref ref=""FileAppender"" />
     </root>
     <logger name=""TickZoom.Provider"">
         <level value=""DEBUG"" />
     </logger>
+    <logger name=""TickZoom.ProviderService"">
+        <level value=""DEBUG"" />
+    </logger>
     <logger name=""TickZoom.Provider.FIX.FIXLog"">
-      <level value=""TRACE""/>
+      <level value=""DEBUG""/>
       <appender-ref ref=""FixLogAppender"" />
     </logger>
  </log4net>

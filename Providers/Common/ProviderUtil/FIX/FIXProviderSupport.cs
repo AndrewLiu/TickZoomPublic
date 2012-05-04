@@ -147,8 +147,8 @@ namespace TickZoom.Provider.FIX
             socketTask.Scheduler = Scheduler.EarliestTime;
             retryTimer = Factory.Parallel.CreateTimer("Retry", socketTask, RetryTimerEvent);
             heartbeatTimer = Factory.Parallel.CreateTimer("Heartbeat", socketTask, HeartBeatTimerEvent);
-            resendQueue = Factory.Parallel.FastQueue<MessageFIXT1_1>(name + "_" + providerName + ".Resend");
-            orderStore = Factory.Utility.PhyscalOrderStore(name + "_" + providerName);
+            resendQueue = Factory.Parallel.FastQueue<MessageFIXT1_1>(providerName + "." + name + ".Resend");
+            orderStore = Factory.Utility.PhyscalOrderStore(providerName + "." + name);
             resendQueue.ConnectInbound(socketTask);
             socketTask.Start();
             string logRecoveryString = Factory.Settings["LogRecovery"];
