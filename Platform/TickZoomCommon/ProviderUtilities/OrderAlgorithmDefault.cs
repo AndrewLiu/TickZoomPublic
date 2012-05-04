@@ -260,7 +260,7 @@ namespace TickZoom.Common
 		    return result;
 		}
 		
-		private void TryChangeBrokerOrder(CreateOrChangeOrder createOrChange, CreateOrChangeOrder origOrder) {
+		private void TryChangeBrokerOrder(CreateOrChangeOrder createOrChange, CreateOrChangeOrder origOrder, LogicalOrder logical) {
             if( createOrChange.IsSynthetic && !origOrder.IsSynthetic)
             {
                 throw new ApplicationException("A synthetic fill order cannot be changed (which is a market order) only canceled: " + origOrder);
@@ -280,6 +280,13 @@ namespace TickZoom.Common
                     return;
                 }
                 origOrder.ReplacedBy = createOrChange;
+                if (logical != null && logical.Type == OrderType.Stop && logical.IsTouched)
+                {
+                    // After logical stops are "touched" by getting any physical or synthetic fill
+                    // then any additional physical orders for that stop must be market orders.
+                    createOrChange.Type = OrderType.Market;
+                    createOrChange.IsSynthetic = false;
+                }
                 if (debug) log.Debug("Change Broker Order: " + createOrChange);
                 TryAddPhysicalOrder(createOrChange);
                 physicalOrderCache.SetOrder(createOrChange);
@@ -401,7 +408,7 @@ namespace TickZoom.Common
 			        physicalOrders.Remove(physical);
 			        var side = GetOrderSide(logical.Side);
 			        var changeOrder = new CreateOrChangeOrderDefault(OrderAction.Change, symbol, logical, side, difference, price);
-			        TryChangeBrokerOrder(changeOrder, physical);
+			        TryChangeBrokerOrder(changeOrder, physical, logical);
 			    }
 			    else
 			    {
@@ -413,7 +420,7 @@ namespace TickZoom.Common
 			                var side = GetOrderSide(logical.Side);
 			                var changeOrder = new CreateOrChangeOrderDefault(OrderAction.Change, symbol, logical, side,
 			                                                                 difference, price);
-			                TryChangeBrokerOrder(changeOrder, physical);
+			                TryChangeBrokerOrder(changeOrder, physical, logical);
 			            }
 			            else
 			            {
@@ -431,7 +438,7 @@ namespace TickZoom.Common
 			                var side = GetOrderSide(logical.Side);
 			                var changeOrder = new CreateOrChangeOrderDefault(OrderAction.Change, symbol, logical, side,
 			                                                                 difference, price);
-			                TryChangeBrokerOrder(changeOrder, physical);
+			                TryChangeBrokerOrder(changeOrder, physical, logical);
 			            }
 			            else
 			            {
@@ -449,7 +456,7 @@ namespace TickZoom.Common
                 physicalOrders.Remove(physical);
 				var side = GetOrderSide(logical.Side);
                 var changeOrder = new CreateOrChangeOrderDefault(OrderAction.Change, symbol, logical, side, difference, price);
-                TryChangeBrokerOrder(changeOrder, physical);
+                TryChangeBrokerOrder(changeOrder, physical, logical);
             }
             else
             {
@@ -493,7 +500,7 @@ namespace TickZoom.Common
                 result = false;
 				if( delta > 0) {
                     var changeOrder = new CreateOrChangeOrderDefault(OrderAction.Change, symbol, logical, OrderSide.Buy, Math.Abs(delta), price);
-                    TryChangeBrokerOrder(changeOrder, createOrChange);
+                    TryChangeBrokerOrder(changeOrder, createOrChange, logical);
                 }
                 else
                 {
@@ -510,7 +517,7 @@ namespace TickZoom.Common
 					}
 					side = (long) strategyPosition >= (long) Math.Abs(delta) ? OrderSide.Sell : OrderSide.SellShort;
                     var changeOrder = new CreateOrChangeOrderDefault(OrderAction.Change, symbol, logical, side, Math.Abs(delta), price);
-                    TryChangeBrokerOrder(changeOrder, createOrChange);
+                    TryChangeBrokerOrder(changeOrder, createOrChange, logical);
                 }
 			} else {
 				result = ProcessMatchPhysicalChangePriceAndSide( logical, createOrChange, delta, price);
@@ -638,7 +645,7 @@ namespace TickZoom.Common
 				if( delta > 0) {
                     var changeOrder = new CreateOrChangeOrderDefault(OrderAction.Change, symbol, logical, OrderSide.Buy, Math.Abs(delta), price);
 					if( debug) log.Debug("(Delta) Changing " + origBrokerOrder + " to " + changeOrder);
-                    TryChangeBrokerOrder(changeOrder, createOrChange);
+                    TryChangeBrokerOrder(changeOrder, createOrChange, logical);
                 }
                 else
                 {
@@ -656,7 +663,7 @@ namespace TickZoom.Common
 					if( side == createOrChange.Side) {
                         var changeOrder = new CreateOrChangeOrderDefault(OrderAction.Change, symbol, logical, side, Math.Abs(delta), price);
 						if( debug) log.Debug("(Size) Changing " + origBrokerOrder + " to " + changeOrder);
-                        TryChangeBrokerOrder(changeOrder, createOrChange);
+                        TryChangeBrokerOrder(changeOrder, createOrChange, logical);
                     }
                     else
                     {
@@ -682,7 +689,7 @@ namespace TickZoom.Common
 				if( side == createOrChange.Side) {
                     var changeOrder = new CreateOrChangeOrderDefault(OrderAction.Change, symbol, logical, side, Math.Abs(delta), price);
 					if( debug) log.Debug("(Price) Changing " + origBrokerOrder + " to " + changeOrder);
-                    TryChangeBrokerOrder(changeOrder, createOrChange);
+                    TryChangeBrokerOrder(changeOrder, createOrChange, logical);
                 }
                 else
                 {
@@ -726,7 +733,7 @@ namespace TickZoom.Common
 				physicalOrders.Remove(createOrChange);
 				var side = GetOrderSide(logical.Side);
                 var changeOrder = new CreateOrChangeOrderDefault(OrderAction.Change, symbol, logical, side, Math.Abs(strategyPosition), price);
-                TryChangeBrokerOrder(changeOrder, createOrChange);
+                TryChangeBrokerOrder(changeOrder, createOrChange, logical);
             }
             else
             {
@@ -770,7 +777,7 @@ namespace TickZoom.Common
 				physicalOrders.Remove(createOrChange);
 				var side = GetOrderSide(logical.Side);
                 var changeOrder = new CreateOrChangeOrderDefault(OrderAction.Change, symbol, logical, side, Math.Abs(strategyPosition), price);
-                TryChangeBrokerOrder(changeOrder, createOrChange);
+                TryChangeBrokerOrder(changeOrder, createOrChange, logical);
             }
             else
             {
