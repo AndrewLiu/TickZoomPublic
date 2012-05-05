@@ -105,7 +105,6 @@ namespace TickZoom.Api
         OrderFlags OrderFlags { get;  }
 
         bool OffsetTooLateToChange { get; }
-        bool OffsetTooLateToCancel { get; }
         bool IsSynthetic { get; set; }
     }
 
@@ -121,6 +120,6 @@ namespace TickZoom.Api
         int Size { get; set;  }
 	    int CancelCount { get; set; }
 	    int PendingCount { get; set; }
-	    OrderType Type { get; set; }
+	    new OrderType Type { get; set; }
 	}
 }

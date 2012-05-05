@@ -34,7 +34,6 @@ namespace TickZoom.Api
         None = 0x00,
         OffsetTooLateToChange = 0x01,
         IsSynthetic = 0x02,
-        OffsetTooLateToCancel = 0x04,
     }
 
     public enum OrderStatus
@@ -71,13 +70,13 @@ namespace TickZoom.Api
             set;
         }
 
-        OrderType Type
+	    new OrderType Type
         {
             get;
             set;
         }
 
-        OrderSide Side
+	    new OrderSide Side
         {
             get;
             set;
@@ -89,7 +88,7 @@ namespace TickZoom.Api
             set;
         }
 
-        double Price
+	    new double Price
         {
             get;
             set;

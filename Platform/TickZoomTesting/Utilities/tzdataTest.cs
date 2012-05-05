@@ -126,7 +126,6 @@ namespace TickZoom.Utilities
 			};
 	       	var import = new Import();
 	       	import.DataFolder = @"Test";
-	       	import.AssemblyName = "tzdata";
 	       	import.Run(args);
 
 		    var reader = Factory.TickUtil.TickFile();
@@ -193,7 +192,6 @@ namespace TickZoom.Utilities
             var export = new Export();
             export.Output = sb.WriteLine;
             export.DataFolder = @"Test";
-            export.AssemblyName = "tzdata";
             export.Run(args);
             var actual = sb.ToString();
 

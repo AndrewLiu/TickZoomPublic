@@ -79,7 +79,6 @@ namespace TickZoom.Symbols
 	    private string expandedSymbol;
 	    private SymbolInfo sourceSymbol;
 	    private bool offsetTooLateToChange = true;
-        private bool offsetTooLateToCancel = true;
 
 	    public SymbolProperties()
         {
@@ -370,12 +369,6 @@ namespace TickZoom.Symbols
 	    {
 	        get { return offsetTooLateToChange; }
 	        set { offsetTooLateToChange = value; }
-	    }
-
-	    public bool OffsetTooLateToCancel
-	    {
-	        get { return offsetTooLateToCancel; }
-	        set { offsetTooLateToCancel = value; }
 	    }
 	}
 }

@@ -13,7 +13,6 @@ namespace TickZoom.Examples
         private double addInventorySpread;
         private double bidSpread;
         private double offerSpread;
-        private double extremePrice;
         private int maxLots;
         private Func<int> getHedgePosition;
         private Func<double> getRatio;

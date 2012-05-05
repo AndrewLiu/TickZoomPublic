@@ -178,11 +178,6 @@ namespace TickZoom.Common
         public bool TryGetOrderById(long brokerOrder, out CreateOrChangeOrder order)
         {
             AssertAtomic();
-            if (brokerOrder == null)
-            {
-                order = null;
-                return false;
-            }
             return ordersByBrokerId.TryGetValue(brokerOrder, out order);
         }
 

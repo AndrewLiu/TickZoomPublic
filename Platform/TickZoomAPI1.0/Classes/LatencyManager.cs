@@ -88,8 +88,8 @@ namespace TickZoom.Api
 		}
 
         private long lastSelectCount;
-        private long lastRoundRobinCount;
-        private long lastEarliestCount;
+        //private long lastRoundRobinCount;
+        //private long lastEarliestCount;
         private long lastReceiveCount;
         private long lastTryReadCount;
         private long lastSendCount;

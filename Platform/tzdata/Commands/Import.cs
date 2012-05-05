@@ -263,11 +263,6 @@ namespace TickZoom.TZData
 			return new string[] { assemblyName + " import <symbol> <fromfile> <tofile> [<starttimestamp> <endtimestamp>]" };
 		}
 		
-		public string AssemblyName {
-			get { return assemblyName; }
-			set { assemblyName = value; }
-		}
-		
 		public string DataFolder {
 			get { return dataFolder; }
 			set { dataFolder = value; }

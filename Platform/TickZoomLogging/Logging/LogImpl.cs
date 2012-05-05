@@ -50,8 +50,6 @@ namespace TickZoom.Logging
 		private readonly static Type callingType = typeof(LogImpl);
 		private LogImplWrapper logWrapper;
 		private static Dictionary<string,string> symbolMap;
-		private static TimeStamp beginTime;
-		private static TimeStamp endTime;
 
 	    #region OldStuff
         private static LoggingQueue messageQueue = null; 
@@ -505,23 +503,6 @@ namespace TickZoom.Logging
 			}
 		}
 		
-		private FilterDecision TimeStampDecide()
-		{
-			string timeStampStr = log4net.MDC.Get("TimeStamp");
-			if( timeStampStr != null && timeStampStr.Length>0) {
-				TimeStamp timeStamp = new TimeStamp(timeStampStr);
-				if( timeStamp >= beginTime && timeStamp <= endTime) {
-					return FilterDecision.Neutral;
-				}
-				else
-				{
-					return FilterDecision.Deny;
-				}
-			} else {
-				return FilterDecision.Accept;
-			}
-		}
-
 		private void SetProperties(LoggingEvent loggingEvent) {
 //			loggingEvent.Properties["TimeStamp"] = CheckNull(log4net.MDC.Get("TimeStamp");
 //			loggingEvent.Properties["Symbol"] = CheckNull(log4net.MDC.Get("Symbol"));

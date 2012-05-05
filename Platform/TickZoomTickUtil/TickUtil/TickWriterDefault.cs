@@ -165,7 +165,7 @@ namespace TickZoom.TickUtil
 				if( ex.EntryType == EventType.Terminate) {
                     log.Notice("Last tick written: " + tickIO);
                     if( debug) log.Debug("Exiting, queue terminated.");
-					Finalize();
+					Finish();
 					return Yield.Terminate;
 				} else {
 					Exception exception = new ApplicationException("Queue returned unexpected: " + ex.EntryType);
@@ -189,8 +189,6 @@ namespace TickZoom.TickUtil
             if (debug) log.Debug("After flush write queue " + writeQueue.Count);
         }
 
-	    private long tickCount = 0;
-		
 		public void Add(TickIO tick) {
 			while( !TryAdd(tick)) {
 				Thread.Sleep(1);
@@ -260,7 +258,7 @@ namespace TickZoom.TickUtil
                         {
                             if( ex.EntryType == EventType.Terminate)
                             {
-                                Finalize();
+                                Finish();
                             }
                             else
                             {
@@ -272,11 +270,11 @@ namespace TickZoom.TickUtil
 			}
 		}
 
-	    private bool isFinalized;
+	    private bool isFinished;
 
-        private void Finalize()
+        private void Finish()
         {
-            if (debug) log.Debug("Finalize()");
+            if (debug) log.Debug("Finish()");
             Flush();
             var count = tickFile.WriteCounter;
             var append = Interlocked.Read(ref appendCounter);
@@ -285,7 +283,7 @@ namespace TickZoom.TickUtil
             {
                 tickFile.Dispose();
             }
-            isFinalized = true;
+            isFinished = true;
         }
 
  		public BackgroundWorker BackgroundWorker {
@@ -315,9 +313,9 @@ namespace TickZoom.TickUtil
 			get { return writeQueue; }
 		}
 
-	    public bool IsFinalized
+	    public bool IsFinished
 	    {
-	        get { return isFinalized; }
+	        get { return isFinished; }
 	    }
 	}
 }

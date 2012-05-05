@@ -13,7 +13,6 @@ namespace TickZoom.Common
         private volatile bool info;
         private volatile bool trace;
         private volatile bool debug;
-        private volatile bool anySnapShotWritten = false;
         public override void RefreshLogLevel()
         {
             base.RefreshLogLevel();
@@ -93,7 +92,7 @@ namespace TickZoom.Common
             get { return false; }
         }
 
-        public void AssertAtomic()
+        public override void AssertAtomic()
         {
             //if (!IsLocked)
             //{
@@ -384,7 +383,6 @@ namespace TickZoom.Common
 
         private void SnapShotInMemory()
         {
-            anySnapShotWritten = true;
             CheckSnapshotRollover();
 
             memory.SetLength(0);

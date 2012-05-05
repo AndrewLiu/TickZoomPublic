@@ -414,7 +414,7 @@ namespace TickZoom.TickUtil
                 } while (tickIO.UtcTime < StartTime);
                 return true;
             }
-            catch (EndOfStreamException ex)
+            catch (EndOfStreamException)
             {
                 ReportEndOfData();
                 return false;

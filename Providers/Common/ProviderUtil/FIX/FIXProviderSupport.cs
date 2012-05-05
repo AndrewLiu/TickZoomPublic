@@ -1390,10 +1390,6 @@ namespace TickZoom.Provider.FIX
 	        get { return remoteSequence; }
 	        set
 	        {
-                if( value == 0)
-                {
-                    int x = 0;
-                }
 	            remoteSequence = value;
 	        }
 	    }

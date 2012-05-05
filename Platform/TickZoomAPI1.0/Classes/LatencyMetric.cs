@@ -43,8 +43,10 @@ namespace TickZoom.Api
 		private long total;
 		private long totalSelf;
 		private long count;
+#pragma warning disable 649
 		private long tickCount;
-		private int metricCount;
+        private int metricCount;
+#pragma warning restore 649
 		private LatencyManager manager;
 		private string name;
 		private TaskLock locker = new TaskLock();

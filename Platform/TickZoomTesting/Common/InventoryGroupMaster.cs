@@ -20,7 +20,7 @@ namespace TickZoom.Common
         private int _goal = 1;
         private InventoryGroupDefault bidOwner;
         private InventoryGroupDefault offerOwner;
-        private InventoryType type;
+        private InventoryType type = default(InventoryType);
         private double maximumSpread;
         private int maxInventories = 1;
 

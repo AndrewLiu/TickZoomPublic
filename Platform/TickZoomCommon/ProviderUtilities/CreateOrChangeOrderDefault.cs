@@ -207,11 +207,6 @@ namespace TickZoom.Common
             sb.Append(binary.logicalOrderId);
             sb.Append("-");
             sb.Append(binary.logicalSerialNumber);
-            if (binary.brokerOrder != null)
-            {
-                sb.Append(" broker: ");
-                sb.Append(binary.brokerOrder);
-            }
             if (binary.originalOrder != null)
             {
                 sb.Append(" original: ");
@@ -436,12 +431,7 @@ namespace TickZoom.Common
             get { return (binary.orderFlags & OrderFlags.OffsetTooLateToChange) > 0; }
         }
 
-        public bool OffsetTooLateToCancel
-        {
-            get { return (binary.orderFlags & OrderFlags.OffsetTooLateToCancel) > 0; }
-        }
-
-        public OrderFlags OrderFlags
+	    public OrderFlags OrderFlags
         {
             get { return binary.orderFlags; }
         }

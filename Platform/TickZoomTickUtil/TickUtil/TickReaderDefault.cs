@@ -40,8 +40,6 @@ namespace TickZoom.TickUtil
 	{
 		static readonly Log log = Factory.SysLog.GetLogger(typeof(TickReader));
 		readonly bool debug = log.IsDebugEnabled;
-		double startDouble = double.MinValue;
-		double endDouble = double.MaxValue;
 	    private Agent agent;
         public Agent Agent
         {
@@ -131,19 +129,5 @@ namespace TickZoom.TickUtil
 			throw new NotImplementedException();
 		}
 
-        public bool SendEvent(EventItem eventItem)
-        {
-            var result = true;
-            var receiver = eventItem.Agent;
-            var symbol = eventItem.Symbol;
-            var eventType = eventItem.EventType;
-            var eventDetail = eventItem.EventDetail;
-            switch ((EventType)eventType)
-            {
-				default:
-					throw new ApplicationException("Unexpected event type: " + (EventType)eventType);
-            }
-            return result;
-        }
 	}
 }

@@ -127,13 +127,12 @@ namespace TickZoom.TickUtil
                 tickIO.SetTime(utcTime);
                 return true;
             }
-            catch (EndOfStreamException ex)
+            catch (EndOfStreamException)
             {
                 return false;
             }
             catch( IndexOutOfRangeException)
             {
-                int x = 0;
                 return false;
             }
         }

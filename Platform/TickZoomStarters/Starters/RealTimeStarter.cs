@@ -35,7 +35,7 @@ namespace TickZoom.Starters
 {
 	public class RealTimeStarter : RealTimeStarterBase
 	{
-		Log log = Factory.SysLog.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+		private Log log = Factory.SysLog.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 		
 		public override void Run(ModelLoaderInterface loader)
 		{
