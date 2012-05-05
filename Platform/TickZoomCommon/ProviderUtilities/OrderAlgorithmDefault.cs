@@ -1167,7 +1167,17 @@ namespace TickZoom.Common
 
 	    private void SyncPosition()
         {
-            if( !ReceivedDesiredPosition) return;
+            if( !ReceivedDesiredPosition)
+            {
+                if (debug) log.Debug("Skipping position sync because ReceivedDesiredPosition = " + ReceivedDesiredPosition);
+                return;
+            }
+            if( symbol.DisableRealtimeSimulation)
+            {
+                if( debug) log.Debug("Skipping position sync because DisableRealtimeSimulation = " + symbol.DisableRealtimeSimulation);
+                isPositionSynced = true;
+                return;
+            }
             // Find any pending adjustments.
             var pendingAdjustments = FindPendingAdjustments();
             var positionDelta = desiredPosition - physicalOrderCache.GetActualPosition(symbol);

@@ -380,12 +380,11 @@ namespace TickZoom.Provider.FIX
             SymbolHandler symbolHandler;
             lock (symbolHandlersLocker)
             {
-                if (!symbolHandlers.TryGetValue(symbol.BinaryIdentifier, out symbolHandler))
+                if (symbolHandlers.TryGetValue(symbol.BinaryIdentifier, out symbolHandler))
                 {
-                    throw new ApplicationException("SymbolHandler for " + symbol + " was not found.");
+                    symbolHandler.SyntheticClear();
                 }
             }
-            symbolHandler.SyntheticClear();
         }
 
 	    private void SyntheticOrder(EventItem eventItem)
