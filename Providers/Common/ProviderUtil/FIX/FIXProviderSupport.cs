@@ -1496,7 +1496,11 @@ namespace TickZoom.Provider.FIX
 
         protected void TrySendStartBroker(SymbolInfo symbol, string message)
         {
-            var symbolReceiver = symbolReceivers.GetSymbolRequest(symbol);
+            SymbolReceiver symbolReceiver;
+            if( !symbolReceivers.TryGetSymbolRequest(symbol, out symbolReceiver))
+            {
+                return;
+            }
             if( !IsRecovered)
             {
                 if (debug) log.Debug("Attempted StartBroker but IsRecovered is " + IsRecovered);

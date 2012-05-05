@@ -26,6 +26,15 @@ namespace TickZoom.Provider.FIX
             }
             return list.ToArray();
         }
+
+        public bool TryGetSymbolRequest(SymbolInfo symbol, out SymbolReceiver symbolReceiver)
+        {
+            lock (symbolRequestsLocker)
+            {
+                return symbolRequests.TryGetValue(GetSource(symbol).BinaryIdentifier, out symbolReceiver);
+            }
+        }
+
         public SymbolReceiver GetSymbolRequest(SymbolInfo symbol)
         {
             lock (symbolRequestsLocker)
