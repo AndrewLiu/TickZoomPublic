@@ -158,7 +158,6 @@ namespace TickZoom.Common
             inventory.MinimumLotSize = 1000;
             inventory.Goal = 5000;
             //Console.WriteLine("Price,Quantity,Cumulative,BreakEven,PandL");
-            var first = true;
             var sb = new StringBuilder();
             for (var price = 1.7000D; price > 1.4000; price -= 10*symbol.MinimumTick )
             {
@@ -182,7 +181,6 @@ namespace TickZoom.Common
             inventory.MinimumLotSize = 1000;
             inventory.Goal = 5000;
             //Console.WriteLine("Price,Quantity,Cumulative,BreakEven,PandL");
-            var first = true;
             var sb = new StringBuilder();
             var price = 1.7000D;
             for (var i = 0; i < 3000; i++ )

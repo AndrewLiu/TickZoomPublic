@@ -39,7 +39,7 @@ namespace TickZoom.TradingFramework
 		public List<TimeStamp> signalChanges = new List<TimeStamp>();
 		public List<double> signalDirection = new List<double>();
 		double prevSignal = 0;
-	    private Strategy strategy;
+	    private Strategy strategy = null;
 		
 		public ExitStrategyMock(Strategy strategy) : base(strategy) {
 			signalChanges = new List<TimeStamp>();

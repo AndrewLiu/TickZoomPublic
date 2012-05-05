@@ -1480,14 +1480,11 @@ namespace TickZoom.Common
             {
                 TryRemovePhysicalFill(physical);
                 if (debug) log.Debug("OffsetTooLateToCancel " + order.OffsetTooLateToChange);
-                if (order.OffsetTooLateToCancel)
-                {
                     if (ReceivedDesiredPosition)
                     {
                         if (debug) log.Debug("Will sync positions because fill from order already canceled: " + order.ReplacedBy);
                         SyncPosition();
                     }
-                }
                 return;
             } 
 
@@ -2191,8 +2188,6 @@ namespace TickZoom.Common
                 tickSync.RemovePhysicalOrder(order);
             }
         }
-
-        private int rejectCounter;
 
         public void ConfirmCancel(long brokerOrderId, bool isRealTime)
         {

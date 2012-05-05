@@ -127,7 +127,7 @@ namespace TickZoom.Update
                     {
                         File.Delete(file);
                     }
-                    catch( IOException ex)
+                    catch( IOException)
                     {
                         continue;
                     }

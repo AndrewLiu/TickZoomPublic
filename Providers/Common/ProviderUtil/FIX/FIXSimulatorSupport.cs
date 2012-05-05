@@ -340,8 +340,7 @@ namespace TickZoom.Provider.FIX
 		
 		private enum State { Start, ProcessFIX, WriteFIX, Return };
 		private State state = State.Start;
-		private bool hasQuotePacket = false;
-		private bool hasFIXPacket = false;
+		private bool hasFIXPacket;
 		public Yield Invoke()
 		{
             if( isConnectionLost)

@@ -139,9 +139,9 @@ namespace TickZoom.Provider.LimeFIX
             if (!ProviderSimulator.IsOrderServerOnline)
             {
                 throw new LimeException("Order server offline testing for Lime not yet implemeneted");
-                log.Info(symbol + ": Rejected " + packet.ClientOrderId + ". Order server offline.");
-                OnRejectOrder(order, symbol + ": Order Server Offline.");
-                return;
+                //log.Info(symbol + ": Rejected " + packet.ClientOrderId + ". Order server offline.");
+                //OnRejectOrder(order, symbol + ": Order Server Offline.");
+                //return;
             }
             var simulator = simulators[SimulatorType.RejectSymbol];
             if (FixFactory != null && simulator.CheckFrequencyAndSymbol(symbol))
@@ -154,11 +154,11 @@ namespace TickZoom.Provider.LimeFIX
             if (FixFactory != null && simulator.CheckFrequency())
             {
                 throw new LimeException("Order server offline testing for Lime not yet implemeneted");
-                if (debug) log.Debug("Simulating order server offline business reject of 35=" + packet.MessageType);
-                OnBusinessRejectOrder(packet.ClientOrderId, "Server offline for change order.");
-                ProviderSimulator.SwitchBrokerState("offline", false);
-                ProviderSimulator.SetOrderServerOffline();
-                return;
+                //if (debug) log.Debug("Simulating order server offline business reject of 35=" + packet.MessageType);
+                //OnBusinessRejectOrder(packet.ClientOrderId, "Server offline for change order.");
+                //ProviderSimulator.SwitchBrokerState("offline", false);
+                //ProviderSimulator.SetOrderServerOffline();
+                //return;
             }
             CreateOrChangeOrder origOrder = null;
             if (debug) log.Debug("FIXChangeOrder() for " + packet.Symbol + ". Client id: " + packet.ClientOrderId + ". Original client id: " + packet.OriginalClientOrderId);
@@ -260,9 +260,9 @@ namespace TickZoom.Provider.LimeFIX
             if (!ProviderSimulator.IsOrderServerOnline)
             {
                 throw new LimeException("Order server offline testing for Lime not yet implemeneted");
-                if (debug) log.Debug(symbol + ": Cannot cancel order by client id: " + packet.OriginalClientOrderId + ". Order Server Offline.");
-                OnRejectCancel(packet.Symbol, packet.ClientOrderId, packet.OriginalClientOrderId, symbol + ": Order Server Offline");
-                return;
+                //if (debug) log.Debug(symbol + ": Cannot cancel order by client id: " + packet.OriginalClientOrderId + ". Order Server Offline.");
+                //OnRejectCancel(packet.Symbol, packet.ClientOrderId, packet.OriginalClientOrderId, symbol + ": Order Server Offline");
+                //return;
             }
             var simulator = simulators[SimulatorType.RejectSymbol];
             if (FixFactory != null && simulator.CheckFrequencyAndSymbol(symbol))
@@ -275,11 +275,11 @@ namespace TickZoom.Provider.LimeFIX
             if (FixFactory != null && simulator.CheckFrequency())
             {
                 throw new LimeException("Order server offline testing for Lime not yet implemeneted");
-                if (debug) log.Debug("Simulating order server offline business reject of 35=" + packet.MessageType);
-                OnBusinessRejectOrder(packet.ClientOrderId, "Server offline for cancel order.");
-                ProviderSimulator.SwitchBrokerState("offline", false);
-                ProviderSimulator.SetOrderServerOffline();
-                return;
+                //if (debug) log.Debug("Simulating order server offline business reject of 35=" + packet.MessageType);
+                //OnBusinessRejectOrder(packet.ClientOrderId, "Server offline for cancel order.");
+                //ProviderSimulator.SwitchBrokerState("offline", false);
+                //ProviderSimulator.SetOrderServerOffline();
+                //return;
             }
             var cancelOrder = ConstructCancelOrder(packet, packet.ClientOrderId, origOrder);
             ProviderSimulator.CancelOrder(cancelOrder);

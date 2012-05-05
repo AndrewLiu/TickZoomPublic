@@ -341,11 +341,5 @@ namespace TickZoom.Api
         /// at the current price. The default is true.
         /// </summary>
 	    bool OffsetTooLateToChange { get; }
-
-        /// <summary>
-        /// This causes fills that arrive after a cancel order that had a different price to
-        /// be offset with a market adjustment order. The default is true.
-        /// </summary>
-        bool OffsetTooLateToCancel { get; }
-    }
+	}
 }

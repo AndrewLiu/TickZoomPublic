@@ -10,7 +10,6 @@ namespace TickZoom.TZData
 {
     public class Export : Command
     {
-        string assemblyName;
         string dataFolder = "DataCache";
 
         // Log log = Factory.SysLog.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -87,12 +86,6 @@ namespace TickZoom.TZData
         public override string[] UsageLines()
         {
             return new string[] { AssemblyName + " export <file> [<symbol>] [<starttimestamp> <endtimestamp>]" };
-        }
-
-        public string AssemblyName
-        {
-            get { return assemblyName; }
-            set { assemblyName = value; }
         }
 
         public string DataFolder

@@ -73,7 +73,7 @@ namespace TickZoom.Api
 			}
 		}
 
-	    private static Yield blank;
+	    private static readonly Yield blank = default(Yield);
 		public static Yield Terminate {
 			get
 			{

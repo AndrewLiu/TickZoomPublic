@@ -65,10 +65,6 @@ namespace TickZoom.Examples
                 var gbpUsdPosition = gbpUsd.Position.Current;
                 var eurUsdPosition = eurUsd.Position.Current;
                 var eurGbpPosition = eurGbp.Position.Current;
-                if (ratio >= 1.0003D)
-                {
-                    int x = 0;
-                }
             }
         }
     }

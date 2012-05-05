@@ -31,7 +31,7 @@ namespace TickZoom.Api
 {
 	public interface ISymbolProperties : SymbolInfo
 	{
-        string SymbolFile { get; set; }
+	    new string SymbolFile { get; set; }
 
 		new Elapsed SessionStart {
 			get;
@@ -82,9 +82,8 @@ namespace TickZoom.Api
 
         new FIXSimulationType FixSimulationType { get; set;  }
 
-	    PartialFillSimulation PartialFillSimulation { get; set; }
-	    bool DisableRealtimeSimulation { get; set; }
-	    bool OffsetTooLateToChange { get; set; }
-	    bool OffsetTooLateToCancel { get; set; }
+	    new PartialFillSimulation PartialFillSimulation { get; set; }
+	    new bool DisableRealtimeSimulation { get; set; }
+	    new bool OffsetTooLateToChange { get; set; }
 	}
 }

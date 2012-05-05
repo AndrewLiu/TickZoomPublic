@@ -11,7 +11,6 @@ namespace TickZoom.Api
         void GetLastTick(TickIO lastTickIO);
         bool TryReadTick(TickIO tickIO);
         void Flush();
-        void Dispose();
         long Length { get; }
         long Position { get; }
         int DataVersion { get; }

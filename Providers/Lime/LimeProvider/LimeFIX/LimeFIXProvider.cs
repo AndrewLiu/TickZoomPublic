@@ -95,17 +95,6 @@ namespace TickZoom.Provider.LimeFIX
             return new MessageFactoryFix42();
         }
 
-        public int ProcessOrders()
-        {
-            return 0;
-        }
-
-        public bool IsChanged
-        {
-            get { return false; }
-            set { }
-        }
-
         #region Login
 
         protected override void SendLogin(int localSequence, bool restartSequence)
@@ -157,7 +146,6 @@ namespace TickZoom.Provider.LimeFIX
 
         protected override void HandleRejectedLogin(MessageFIXT1_1 message)
         {
-            bool handled = false;
             var message42 = (MessageFIX4_2)message;
             if (message42.Text != null)
             {
@@ -172,7 +160,6 @@ namespace TickZoom.Provider.LimeFIX
                         log.Error(message42.Text);
                         OrderStore.SetSequences(OrderStore.RemoteSequence, newSequenceNumber);
                         Socket.Dispose();
-                        handled = true;
                         RetryStart = 2;
                         fastRetry = true;
                     }

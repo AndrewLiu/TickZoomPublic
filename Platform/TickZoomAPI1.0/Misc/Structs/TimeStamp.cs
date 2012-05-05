@@ -200,7 +200,6 @@ namespace TickZoom.Api
             public long OriginalSystemClock;
             public TimeStamp OriginalTimeStamp;
             public long LastTimeStamp;
-            public long SynchronizeOffset;
             public int lastTickCount;
             public override string ToString()
             {
@@ -268,14 +267,13 @@ namespace TickZoom.Api
 		}
 
 	    private static long adjustedClockCounter;
-	    private static Log log;
 
         private static bool CalculateTimeStamp(int index, out TimeStamp timeStamp)
         {
             var result = true;
             var systemClock = Stopwatch.GetTimestamp();
             var tickCount = Environment.TickCount;
-            var systemClockChange = systemClock - hardwareTimeStamps[index].OriginalSystemClock + hardwareTimeStamps[index].SynchronizeOffset;
+            var systemClockChange = systemClock - hardwareTimeStamps[index].OriginalSystemClock;
             var adjustedClockChange = (systemClockChange << 20) / adjustedFrequency;
             if (adjustedClockChange < 0)
             {

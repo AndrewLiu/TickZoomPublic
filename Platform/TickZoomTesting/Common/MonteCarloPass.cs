@@ -60,7 +60,6 @@ namespace TickZoom.Common
             inventory.MinimumLotSize = 1000;
             inventory.MaximumLotSize = inventory.MinimumLotSize * 10;
             inventory.Goal = 1000;
-            var first = true;
             var sb = writeOutput ? new StringBuilder() : null;
             var price = 1.7000D;
             var lastPrice = price;

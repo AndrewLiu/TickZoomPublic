@@ -16,7 +16,6 @@ namespace TickZoom.Utilities
         private long addCounter;
         private long removeCounter;
         private long readCounter;
-        private long addFailureCounter;
         private long readFailureCounter;
         private Random random = new Random();
 
@@ -29,7 +28,6 @@ namespace TickZoom.Utilities
             addCounter = 0;
             removeCounter = 0;
             readCounter = 0;
-            addFailureCounter = 0;
             readFailureCounter = 0;
         }
 

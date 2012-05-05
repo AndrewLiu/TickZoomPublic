@@ -593,7 +593,6 @@ namespace TickZoom.Interceptors
         private void Adjust(ActiveList<CreateOrChangeOrder> list, CreateOrChangeOrder order)
         {
             AssureNode(order);
-            var addedOne = false;
             var node = (ActiveListNode<CreateOrChangeOrder>)order.Reference;
             if (node.List == null)
             {

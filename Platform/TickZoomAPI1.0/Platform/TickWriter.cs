@@ -45,7 +45,7 @@ namespace TickZoom.Api
 			get;
 		}
 
-	    bool IsFinalized { get; }
+	    bool IsFinished { get; }
 
 	    void Flush();
 	}
