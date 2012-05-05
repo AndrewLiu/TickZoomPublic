@@ -210,17 +210,17 @@ namespace TickZoom.TradingFramework
 				sb.AppendLine(i + "," + random.Performance.ComboTrades[i]);
 			}
 			log.Info("All trades: \n" + sb);
-			Assert.AreEqual(-4.7340,Math.Round(baseStats.ProfitLoss,4),"Profit Loss");
+			Assert.AreEqual(-3.8040,Math.Round(baseStats.ProfitLoss,4),"Profit Loss");
 		}
 
 		[Test]
 		public void Average() {
-			Assert.AreEqual(-0.0255,Math.Round(baseStats.Average,4),"Average Trade");
+			Assert.AreEqual(-0.0205,Math.Round(baseStats.Average,4),"Average Trade");
 		}
 		
 		[Test]
 		public void Variance() {
-			Assert.AreEqual(0.0056,Math.Round(baseStats.Variance,4),"Variance");
+			Assert.AreEqual(0.0203,Math.Round(baseStats.Variance,4),"Variance");
 		}
 		
 		[Test]
@@ -230,17 +230,17 @@ namespace TickZoom.TradingFramework
 		
 		[Test]
 		public void SortinoRatio() {
-			Assert.AreEqual(-0.0227,Math.Round(baseStats.SortinoRatio,4),"SortinoRatio");
+			Assert.AreEqual(-0.0223,Math.Round(baseStats.SortinoRatio,4),"SortinoRatio");
 		}
 		
 		[Test]
 		public void SharpeRatio() {
-			Assert.AreEqual(-182.4362,Math.Round(baseStats.SharpeRatio,4),"SharpeRatio");
+			Assert.AreEqual(-93.9168,Math.Round(baseStats.SharpeRatio,4),"SharpeRatio");
 		}
 		
 		[Test]
 		public void ModifiedSharpe() {
-			Assert.AreEqual(-0.3407,Math.Round(baseStats.ModifiedSharpe,4),"ModifiedSharpe");
+			Assert.AreEqual(-0.1435,Math.Round(baseStats.ModifiedSharpe,4),"ModifiedSharpe");
 		}
 		
 		[Test]
@@ -250,12 +250,12 @@ namespace TickZoom.TradingFramework
 		
 		[Test]
 		public void AnnualReturn() {
-			Assert.AreEqual(-0.0010,Math.Round(baseStats.AnnualReturn,4),"AnnualReturn");
+			Assert.AreEqual(-0.0008,Math.Round(baseStats.AnnualReturn,4),"AnnualReturn");
 		}
 		
 		[Test]
 		public void StandardDeviation() {
-			Assert.AreEqual(0.0747,Math.Round(baseStats.StandardDeviation,4),"StandardDeviation");
+			Assert.AreEqual(0.1426,Math.Round(baseStats.StandardDeviation,4),"StandardDeviation");
 		}
 		
 		[Test]

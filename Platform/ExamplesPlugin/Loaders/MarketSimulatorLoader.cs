@@ -49,7 +49,7 @@ namespace TickZoom.Examples
             {
                 if (symbol.Account != "market")
                 {
-                    properties.Starter.TryAddSymbols(symbol.Symbol + "!market");
+                    properties.Starter.TryAddSymbols(symbol.SymbolWithSource + Symbol.AccountSeparator + "market");
                 }
             }
             // Setup market symbols.

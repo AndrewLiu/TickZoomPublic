@@ -31,6 +31,7 @@ namespace TickZoom.Api
 {
     public class Symbol
     {
+        public static char SourceSeparator = '.';
         public const char AccountSeparator = '!';
         public const string TimeSyncSymbol = "TimeSync!default";
     }
@@ -333,7 +334,7 @@ namespace TickZoom.Api
         /// For internal use. Gives the symbol info object that has a default (or neutral) account.
         /// This is the symbol used to match feeds of the same symbol across different accounts.
         /// </summary>
-	    SymbolInfo SourceSymbol { get; }
+	    SymbolInfo CommonSymbol { get; }
 
         /// <summary>
         /// This causes fills that arrive after a changed order that had a different price to
@@ -341,5 +342,8 @@ namespace TickZoom.Api
         /// at the current price. The default is true.
         /// </summary>
 	    bool OffsetTooLateToChange { get; }
+
+	    string SymbolWithSource { get; }
+	    string DataSource { get; set; }
 	}
 }
