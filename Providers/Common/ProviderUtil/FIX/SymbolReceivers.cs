@@ -11,7 +11,7 @@ namespace TickZoom.Provider.FIX
 
         private SymbolInfo GetSource( SymbolInfo symbol)
         {
-            return symbol.SourceSymbol;
+            return symbol.CommonSymbol;
         }
 
         public SymbolReceiver[] GetReceivers()

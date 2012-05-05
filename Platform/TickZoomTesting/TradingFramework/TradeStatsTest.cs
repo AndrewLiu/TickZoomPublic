@@ -49,18 +49,18 @@ namespace TickZoom.TradingFramework
 		[Test]
 		public void Winners() {
 			Assert.IsNotNull(tradeStats.Winners,"Winners");
-			Assert.AreEqual(43,tradeStats.Winners.Count,"Winners");
+			Assert.AreEqual(54,tradeStats.Winners.Count,"Winners");
 		}
 		
 		[Test]
 		public void Losers() {
 			Assert.IsNotNull(tradeStats.Losers,"Losers");
-			Assert.AreEqual(143,tradeStats.Losers.Count,"Losers");
+			Assert.AreEqual(132,tradeStats.Losers.Count,"Losers");
 		}
 		
 		[Test]
 		public void WinRate() {
-			Assert.AreEqual(0.2312,Math.Round(tradeStats.WinRate,4),"WinRate");
+			Assert.AreEqual(0.2903,Math.Round(tradeStats.WinRate,4),"WinRate");
 		}
 		
 		[Test]
@@ -71,7 +71,7 @@ namespace TickZoom.TradingFramework
 		
 		[Test]
 		public void Expectancy() {
-			Assert.AreEqual(-0.0255,Math.Round(tradeStats.Expectancy,4),"Expectancy");
+			Assert.AreEqual(-0.0205,Math.Round(tradeStats.Expectancy,4),"Expectancy");
 		}		
 		
 		public override void ToStringTest() {
@@ -79,7 +79,7 @@ namespace TickZoom.TradingFramework
 		}
 		[Test]
 		public void ProfitFactor() {
-			Assert.AreEqual(0.37,Math.Round(tradeStats.ProfitFactor,2),"Expectancy");
+			Assert.AreEqual(0.58,Math.Round(tradeStats.ProfitFactor,2),"Expectancy");
 		}
 	}
 }

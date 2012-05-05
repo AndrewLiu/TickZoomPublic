@@ -39,6 +39,7 @@ namespace TickZoom.Starters
     {
         private static readonly Log log = Factory.SysLog.GetLogger(typeof (FIXSimulatorStarter));
         private Dictionary<string,string> executionProviders = new Dictionary<string,string>();
+        private string dataProvider;
 
         public FIXSimulatorStarter()
         {
@@ -63,18 +64,17 @@ namespace TickZoom.Starters
             Config = "WarehouseTest.config";
 		    Address = "inprocess";
 #if USE_MBT
-            var dataProvider = "MBTFIXProvider/Simulate";
+            dataProvider = "MBTFIXProvider/Simulate";
             var executionProvider = "MBTFIXProvider/Simulate";
             var fixAssembly = "MBTFIXProvider";
             var fixSimulator = "ProviderSimulator";
 #else
-            var dataProvider = "LimeProvider/Simulate";
+            dataProvider = "LimeProvider/Simulate";
             executionProviders.Add("default","LimeProvider/Simulate");
             //executionProviders.Add("market", "LimeProvider/SimulateMarket");
             var fixAssembly = "LimeProvider";
             var fixSimulator = "ProviderSimulator";
 #endif
-            AddDataProvider(dataProvider);
             SetupProviderServiceConfig();
             var providerManager = Factory.Parallel.SpawnProvider("ProviderCommon", "ProviderManager");
             providerManager.SendEvent(new EventItem(EventType.SetConfig, "WarehouseTest"));
@@ -146,7 +146,6 @@ namespace TickZoom.Starters
                 var configFile = Path.Combine(configPath, "WarehouseTest.config");
                 var warehouseConfig = new ConfigFile(configFile);
                 warehouseConfig.SetValue("ServerCacheFolder", "Test\\ServerCache");
-                var dataProvider = DataProviders[0];
                 var activeAccounts = "";
                 foreach (var kvp in executionProviders)
                 {

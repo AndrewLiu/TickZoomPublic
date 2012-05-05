@@ -65,7 +65,7 @@ namespace TickZoom.Symbols
             if( properties.Account == "default")
             {
                 symbolMap[properties.ExpandedSymbol] = properties;
-                properties.SourceSymbol = properties;
+                properties.CommonSymbol = properties;
             }
             else
             {
@@ -73,7 +73,7 @@ namespace TickZoom.Symbols
                 sourceSymbol.Account = "default";
                 symbolMap[sourceSymbol.ExpandedSymbol] = sourceSymbol;
                 symbolMap[properties.ExpandedSymbol] = properties;
-                properties.SourceSymbol = sourceSymbol;
+                properties.CommonSymbol = sourceSymbol;
             }
         }
 		
@@ -171,7 +171,7 @@ namespace TickZoom.Symbols
                 var sourceSymbol = properties;
                 properties = properties.Copy();
                 properties.Account = account;
-                properties.SourceSymbol = sourceSymbol;
+                properties.CommonSymbol = sourceSymbol;
                 properties.BinaryIdentifier = ++universalIdentifier;
                 universalMap.Add(properties.BinaryIdentifier, properties);
                 symbolMap[properties.ExpandedSymbol] = properties;

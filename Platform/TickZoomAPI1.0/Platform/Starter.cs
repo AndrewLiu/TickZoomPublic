@@ -128,12 +128,5 @@ namespace TickZoom.Api
 			set;
 		}
 		
-		/// <summary>
-		/// The names of provider plugins to use for connection to
-		/// data vendors, brokers, exchanges, ECNs, etc. At time
-		/// of writing only support a single one.
-		/// </summary>
-		/// <param name="provider"></param>
-		void AddDataProvider( string provider);
 	}
 }

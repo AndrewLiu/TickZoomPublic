@@ -44,7 +44,7 @@ namespace TickZoom.Provider.FIX
         public void Clear()
         {
             if (receiver == null) return;
-            receiver.SendEvent(new EventItem(self, EventType.SyntheticClear, symbol.SourceSymbol));
+            receiver.SendEvent(new EventItem(self, EventType.SyntheticClear, symbol.CommonSymbol));
         }
 
         public bool IsChanged

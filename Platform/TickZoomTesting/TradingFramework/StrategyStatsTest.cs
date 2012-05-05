@@ -48,19 +48,19 @@ namespace TickZoom.TradingFramework
 		public void TransactionPair()
 		{
 			Assert.AreEqual(186,strategyStats.ComboTrades.Count,"Daily Count");
-			Assert.AreEqual(-0.0300,Math.Round(equityStats.Daily.Average,2),"Daily Average");
+			Assert.AreEqual(-0.02,Math.Round(equityStats.Daily.Average,2),"Daily Average");
 		}
 		[Test]
 		public void ComboTrade()
 		{
 			Assert.AreEqual(186,strategyStats.ComboTrades.Count,"Weekly Count");
-			Assert.AreEqual(-0.0300,Math.Round(equityStats.Weekly.Average,2),"Weekly Average");
+			Assert.AreEqual(-0.02,Math.Round(equityStats.Weekly.Average,2),"Weekly Average");
 		}
 		[Test]
 		public void Monthly()
 		{
 			Assert.AreEqual(186,equityStats.Weekly.Count,"Monthly Count");
-			Assert.AreEqual(-0.0300,Math.Round(equityStats.Weekly.Average,2),"Monthly Average");
+			Assert.AreEqual(-0.02,Math.Round(equityStats.Weekly.Average,2),"Monthly Average");
 		}
 		
 	}

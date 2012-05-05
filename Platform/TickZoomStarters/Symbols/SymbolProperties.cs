@@ -68,6 +68,8 @@ namespace TickZoom.Symbols
 		private double maxOrderSize = double.MaxValue;
 		private double maxValidPrice = double.MaxValue;
         private int minimumTickPrecision;
+        private string symbolWithSource;
+	    private string dataSource = "default";
 	    private FIXSimulationType fixSimulationType;
         private LimitOrderQuoteSimulation _limitOrderQuoteSimulation = LimitOrderQuoteSimulation.OppositeQuoteTouch;
 	    private LimitOrderTradeSimulation _limitOrderTradeSimulation = LimitOrderTradeSimulation.TradeTouch;
@@ -77,7 +79,7 @@ namespace TickZoom.Symbols
         private bool _disableRealtimeSimulation = false;
 	    private string account = "default";
 	    private string expandedSymbol;
-	    private SymbolInfo sourceSymbol;
+        private SymbolInfo _commonSymbol;
 	    private bool offsetTooLateToChange = true;
 
 	    public SymbolProperties()
@@ -155,19 +157,22 @@ namespace TickZoom.Symbols
                 if( symbol != value)
                 {
                     symbol = value;
-                    UpdateExpandedSymbol();
+                    UpdateSymbols();
                 }
             }
         }
 
-	    private void UpdateExpandedSymbol()
+	    private void UpdateSymbols()
 	    {
 	        expandedSymbol = symbol;
-            //if( account.ToLower() != "default")
-            //{
-                expandedSymbol += Api.Symbol.AccountSeparator + account.ToLower();
-            //}
-	    }
+            if( dataSource != "default")
+            {
+                expandedSymbol += Api.Symbol.SourceSeparator + dataSource.ToLower();
+            }
+	        symbolWithSource = expandedSymbol;
+            expandedSymbol += Api.Symbol.AccountSeparator + account.ToLower();
+            symbolWithSource = symbol;
+        }
 
 	    public string ExpandedSymbol
 	    {
@@ -184,9 +189,9 @@ namespace TickZoom.Symbols
 			set { level2Increment = value; }
 		}
 
-		public SymbolInfo SourceSymbol {
-            get { return sourceSymbol; }
-            set { sourceSymbol = value; }
+		public SymbolInfo CommonSymbol {
+            get { return _commonSymbol; }
+            set { _commonSymbol = value; }
 		}
 		
 		public long BinaryIdentifier {
@@ -360,7 +365,7 @@ namespace TickZoom.Symbols
                 if (account != value)
                 {
                     account = value.ToLower();
-                    UpdateExpandedSymbol();
+                    UpdateSymbols();
                 }
             }
         }
@@ -369,6 +374,17 @@ namespace TickZoom.Symbols
 	    {
 	        get { return offsetTooLateToChange; }
 	        set { offsetTooLateToChange = value; }
+	    }
+
+	    public string DataSource
+	    {
+	        get { return dataSource; }
+	        set { dataSource = value; }
+	}
+
+	    public string SymbolWithSource
+	    {
+	        get { return symbolWithSource; }
 	    }
 	}
 }
