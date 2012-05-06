@@ -39,7 +39,7 @@ namespace TickZoom.Starters
     {
         private static readonly Log log = Factory.SysLog.GetLogger(typeof (FIXSimulatorStarter));
         private Dictionary<string,string> executionProviders = new Dictionary<string,string>();
-        private string dataProvider;
+        private Dictionary<string, string> dataProviders = new Dictionary<string, string>();
 
         public FIXSimulatorStarter()
         {
@@ -50,6 +50,7 @@ namespace TickZoom.Starters
 		public override void Run(ModelLoaderInterface loader)
 		{
             executionProviders.Clear();
+            dataProviders.Clear();
             var stopwatch = new Stopwatch();
 		    stopwatch.Start();
             SetupSymbolData();
@@ -69,9 +70,8 @@ namespace TickZoom.Starters
             var fixAssembly = "MBTFIXProvider";
             var fixSimulator = "ProviderSimulator";
 #else
-            dataProvider = "LimeProvider/Simulate";
             executionProviders.Add("default","LimeProvider/Simulate");
-            //executionProviders.Add("market", "LimeProvider/SimulateMarket");
+            dataProviders.Add("mbt", "LimeProvider/Simulate");
             var fixAssembly = "LimeProvider";
             var fixSimulator = "ProviderSimulator";
 #endif
@@ -157,14 +157,31 @@ namespace TickZoom.Starters
                     activeAccounts += account;
                 }
 
+                var dataSources = "";
+                foreach (var kvp in dataProviders)
+                {
+                    var source = kvp.Key;
+                    if (dataSources.Length > 0)
+                    {
+                        dataSources += ",";
+                    }
+                    dataSources += source;
+                }
+
                 warehouseConfig.SetValue("ActiveAccounts", activeAccounts);
-                warehouseConfig.SetValue("DataProvider", dataProvider);
+                warehouseConfig.SetValue("DataSources", dataSources);
                 foreach( var kvp in executionProviders)
                 {
                     var account = kvp.Key;
                     var executionProvider = kvp.Value;
                     warehouseConfig.SetValue(account+"/ExecutionProvider", executionProvider);
                 }
+                foreach (var kvp in dataProviders)
+                {
+                    var source = kvp.Key;
+                    var dataProvider = kvp.Value;
+                    warehouseConfig.SetValue(source + "/DataProvider", dataProvider);
+            }
             }
             catch (Exception ex)
             {

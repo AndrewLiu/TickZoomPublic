@@ -18,21 +18,21 @@ namespace TickZoom.Provider.FIX
         public bool OnChangeBrokerOrder(CreateOrChangeOrder order)
         {
             if( receiver == null) return false;
-            receiver.SendEvent(new EventItem(self, EventType.SyntheticOrder, order));
+            receiver.SendEvent(new EventItem(self, symbol.CommonSymbol, EventType.SyntheticOrder, order));
             return true;
         }
 
         public bool OnCreateBrokerOrder(CreateOrChangeOrder order)
         {
             if (receiver == null) return false;
-            receiver.SendEvent(new EventItem(self, EventType.SyntheticOrder, order));
+            receiver.SendEvent(new EventItem(self, symbol.CommonSymbol, EventType.SyntheticOrder, order));
             return true;
         }
 
         public bool OnCancelBrokerOrder(CreateOrChangeOrder order)
         {
             if (receiver == null) return false;
-            receiver.SendEvent(new EventItem(self, EventType.SyntheticOrder, order));
+            receiver.SendEvent(new EventItem(self, symbol.CommonSymbol, EventType.SyntheticOrder, order));
             return true;
         }
 
@@ -44,7 +44,7 @@ namespace TickZoom.Provider.FIX
         public void Clear()
         {
             if (receiver == null) return;
-            receiver.SendEvent(new EventItem(self, EventType.SyntheticClear, symbol.CommonSymbol));
+            receiver.SendEvent(new EventItem(self, symbol.CommonSymbol, EventType.SyntheticClear));
         }
 
         public bool IsChanged
