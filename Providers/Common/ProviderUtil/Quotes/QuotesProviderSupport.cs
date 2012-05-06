@@ -319,7 +319,7 @@ namespace TickZoom.Provider.FIX
                         filter.Pop();
                         break;
                     case EventType.SyntheticClear:
-                        SyntheticClear((SymbolInfo) eventItem.EventDetail);
+                        SyntheticClear(eventItem.Symbol);
                         filter.Pop();
                         break;
                     case EventType.Shutdown:
