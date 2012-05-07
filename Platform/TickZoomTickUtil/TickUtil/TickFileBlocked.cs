@@ -316,7 +316,7 @@ namespace TickZoom.TickUtil
 
         public bool TryWriteTick(TickIO tickIO)
         {
-            if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+            if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
             if( isFirstTick)
             {
                 HandleFirstWrite();
@@ -345,7 +345,7 @@ namespace TickZoom.TickUtil
 
         public void WriteTick(TickIO tickIO)
         {
-            if (!isInitialized) throw new InvalidOperationException("Please call one of the Initialize() methods first.");
+            if (!IsInitialized) throw new InvalidOperationException("Please call one of the Initialize() methods first.");
             TryWriteTick(tickIO);
         }
 
@@ -541,7 +541,7 @@ namespace TickZoom.TickUtil
 
         public void GetLastTick(TickIO lastTickIO)
         {
-            if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+            if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
             if (isLegacy)
             {
                 legacy.GetLastTick(lastTickIO);
@@ -564,7 +564,7 @@ namespace TickZoom.TickUtil
 
         public bool TryReadTick(TickIO tickIO)
         {
-            if (!isInitialized) return false;
+            if (!IsInitialized) return false;
             if (isLegacy) return legacy.TryReadTick(tickIO);
             if( tickCount > MaxCount || endOfData)
             {
@@ -647,7 +647,7 @@ namespace TickZoom.TickUtil
 
         public void Flush()
         {
-            if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+            if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
             if (isLegacy)
             {
                 legacy.Flush();
@@ -825,7 +825,7 @@ namespace TickZoom.TickUtil
         {
             get
             {
-                if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+                if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
                 if (isLegacy) return legacy.Length;
                 return fs.Length;
             }
@@ -835,7 +835,7 @@ namespace TickZoom.TickUtil
         {
             get
             {
-                if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+                if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
                 if (isLegacy) return legacy.Position;
                 return fs.Position;
             }
@@ -845,7 +845,7 @@ namespace TickZoom.TickUtil
         {
             get
             {
-                if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+                if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
                 if (isLegacy) return legacy.DataVersion;
                 return dataVersion;
             }
@@ -855,7 +855,7 @@ namespace TickZoom.TickUtil
         {
             get
             {
-                if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+                if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
                 return fileHeader.blockHeader.version;
             }
         }
@@ -864,13 +864,13 @@ namespace TickZoom.TickUtil
         {
             get
             {
-                if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+                if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
                 if (isLegacy) return legacy.QuietMode;
                 return quietMode;
             }
             set
             {
-                if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+                if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
                 if (isLegacy)
                 {
                     legacy.QuietMode = value;
@@ -884,7 +884,7 @@ namespace TickZoom.TickUtil
         {
             get
             {
-                if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+                if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
                 if (isLegacy) return legacy.FileName;
                 return fileName;
             }
@@ -894,7 +894,7 @@ namespace TickZoom.TickUtil
         {
             get
             {
-                if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+                if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
                 if (isLegacy) return legacy.Symbol;
                 return symbol;
             }
@@ -909,7 +909,7 @@ namespace TickZoom.TickUtil
             }
             set
             {
-                if (isInitialized) throw new InvalidStateException("Please set EraseFileToStart before any Initialize() method.");
+                if (IsInitialized) throw new InvalidStateException("Please set EraseFileToStart before any Initialize() method.");
                 legacy.EraseFileToStart = value;
                 eraseFileToStart = value;
             }
@@ -919,7 +919,7 @@ namespace TickZoom.TickUtil
         {
             get
             {
-                if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+                if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
                 if (isLegacy) return legacy.WriteCounter;
                 return writeCounter;
             }
@@ -929,13 +929,13 @@ namespace TickZoom.TickUtil
         {
             get
             {
-                if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+                if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
                 if (isLegacy) return legacy.MaxCount;
                 return maxCount;
             }
             set
             {
-                if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+                if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
                 if (isLegacy)
                 {
                     legacy.MaxCount = value;
@@ -949,12 +949,12 @@ namespace TickZoom.TickUtil
         {
             get
             {
-                if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+                if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
                 return startCount;
             }
             set
             {
-                if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+                if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
                 startCount = value;
             }
         }
@@ -963,13 +963,13 @@ namespace TickZoom.TickUtil
         {
             get
             {
-                if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+                if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
                 if (isLegacy) return legacy.StartTime;
                 return startTime;
             }
             set
             {
-                if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+                if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
                 if (isLegacy)
                 {
                     legacy.StartTime = value;
@@ -982,12 +982,12 @@ namespace TickZoom.TickUtil
         {
             get
             {
-                if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+                if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
                 return endTime;
             }
             set
             {
-                if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
+                if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
                 if (isLegacy)
                 {
                     legacy.EndTime = value;
@@ -1000,6 +1000,11 @@ namespace TickZoom.TickUtil
         {
             get { return reportProgressCallback; }
             set { reportProgressCallback = value; }
+        }
+
+        public bool IsInitialized
+        {
+            get { return isInitialized; }
         }
     }
 }
