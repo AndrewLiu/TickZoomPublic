@@ -53,8 +53,20 @@ namespace TickZoom.Starters
             dataProviders.Clear();
             var stopwatch = new Stopwatch();
 		    stopwatch.Start();
+            var elapsed = stopwatch.Elapsed;
+#if USE_MBT
+            dataProvider = "MBTFIXProvider/Simulate";
+            var executionProvider = "MBTFIXProvider/Simulate";
+            var fixAssembly = "MBTFIXProvider";
+            var fixSimulator = "ProviderSimulator";
+            defaultDataSource = "mbt";
+#else
+            executionProviders.Add("default", "LimeProvider/Simulate");
+            dataProviders.Add("lime", "LimeProvider/Simulate");
+            var fixAssembly = "LimeProvider";
+            var fixSimulator = "ProviderSimulator";
+#endif
             SetupSymbolData();
-		    var elapsed = stopwatch.Elapsed;
             log.Debug("SetupSymbolData took " + elapsed.TotalSeconds + " seconds and " + elapsed.Milliseconds + " milliseconds");
             stopwatch.Reset();
             stopwatch.Start();
@@ -64,17 +76,6 @@ namespace TickZoom.Starters
             Factory.SysLog.RegisterRealTime("FIXSimulator", GetDefaultLogConfig());
             Config = "WarehouseTest.config";
 		    Address = "inprocess";
-#if USE_MBT
-            dataProvider = "MBTFIXProvider/Simulate";
-            var executionProvider = "MBTFIXProvider/Simulate";
-            var fixAssembly = "MBTFIXProvider";
-            var fixSimulator = "ProviderSimulator";
-#else
-            executionProviders.Add("default","LimeProvider/Simulate");
-            dataProviders.Add("mbt", "LimeProvider/Simulate");
-            var fixAssembly = "LimeProvider";
-            var fixSimulator = "ProviderSimulator";
-#endif
             SetupProviderServiceConfig();
             var providerManager = Factory.Parallel.SpawnProvider("ProviderCommon", "ProviderManager");
             providerManager.SendEvent(new EventItem(EventType.SetConfig, "WarehouseTest"));
@@ -214,15 +215,27 @@ namespace TickZoom.Starters
                     else if( files.Length == 1)
                     {
                         var fromFile = files[0];
-                        var realTimeFile = realTime + Path.DirectorySeparatorChar + symbol + ".tck";
-                        var historyFile = historical + Path.DirectorySeparatorChar + symbol + ".tck";
+                        var symbolAndSource = symbol;
+                        var defaultDataSource = "default";
+                        foreach( var kvp in dataProviders)
+                        {
+                            // First data source is the default.
+                            defaultDataSource = kvp.Key;
+                            break;
+                        }
+                        if( defaultDataSource != "default")
+                        {
+                            symbolAndSource += Symbol.SourceSeparator + defaultDataSource;
+                        }
+                        var mockProviderFile = realTime + Path.DirectorySeparatorChar + symbol + ".tck";
+                        var serverCacheFile = historical + Path.DirectorySeparatorChar + symbolAndSource + ".tck";
                         if( ProjectProperties.Simulator.WarmStartTime < ProjectProperties.Starter.EndTime)
                         {
-                            SplitAndCopy(fromFile, historyFile, realTimeFile, ProjectProperties.Simulator.WarmStartTime);
+                            SplitAndCopy(fromFile, serverCacheFile, mockProviderFile, ProjectProperties.Simulator.WarmStartTime);
                         }
                         else
                         {
-                            File.Copy(fromFile, realTimeFile);
+                            File.Copy(fromFile, mockProviderFile);
                         }
                     }
                     break;
