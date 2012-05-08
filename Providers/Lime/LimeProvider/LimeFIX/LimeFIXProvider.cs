@@ -628,10 +628,6 @@ namespace TickZoom.Provider.LimeFIX
                 default:
                     throw new LimeException("Unknown OrderType");
             }
-            if( order.RemainingSize != order.CompleteSize)
-            {
-                int x = 0;
-            }
             fixMsg.SetOrderQuantity((int)order.CompleteSize);
             if (order.Action == OrderAction.Change)
             {

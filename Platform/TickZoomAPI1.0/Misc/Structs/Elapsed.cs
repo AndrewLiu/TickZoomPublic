@@ -189,7 +189,7 @@ namespace TickZoom.Api
 		public override string ToString()
 		{
 		    return TotalHours.ToString().PadLeft(2, '0') + ":" + Minutes.ToString().PadLeft(2, '0') + ":" +
-		           Seconds.ToString().PadLeft(2, '0') + "." + Milliseconds.ToString().PadLeft(3, '0'); // +Microseconds.ToString().PadLeft(3, '0');
+		           Seconds.ToString().PadLeft(2, '0') + "." + Milliseconds.ToString().PadLeft(3, '0') + Microseconds.ToString().PadLeft(3, '0');
 		}
 	}
 }
