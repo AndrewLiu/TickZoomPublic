@@ -1275,8 +1275,14 @@ namespace TickZoom.Provider.FIX
 			}
 
 	        var packet = Socket.MessageFactory.Create();
-	        packet.SendUtcTime = TimeStamp.UtcNow.Internal;
+	        packet.SendUtcTime = fixMsg.SendTime.Internal;
 			packet.DataOut.Write(fixString.ToCharArray());
+            if( fixMsg.Type == "D")
+            {
+                var current = TimeStamp.UtcNow;
+                var elapsed = current - fixMsg.SendTime;
+                log.Info("Latency round trip time " + elapsed + " from " + fixMsg.SendTime + " to " + current);
+            }
 			var end = Factory.Parallel.TickCount + (long)heartbeatDelay * 1000L;
 			while( !Socket.TrySendMessage(packet)) {
 				if( IsInterrupted) return;
@@ -1285,8 +1291,8 @@ namespace TickZoom.Provider.FIX
 				}
 				Factory.Parallel.Yield();
 			}
-            lastMessageTime = TimeStamp.UtcNow;
-        }
+	        lastMessageTime = Factory.Parallel.UtcNow;
+	    }
 
         protected virtual void TryEndRecovery()
         {

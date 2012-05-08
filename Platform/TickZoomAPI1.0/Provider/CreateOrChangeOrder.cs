@@ -98,7 +98,7 @@ namespace TickZoom.Api
 
         void ResetLastChange();
 
-        TimeStamp UtcCreateTime { get; }
+        TimeStamp UtcCreateTime { get; set; }
 
         int Sequence { get; set; }
 

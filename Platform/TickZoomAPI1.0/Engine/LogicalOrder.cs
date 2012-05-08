@@ -157,5 +157,8 @@ namespace TickZoom.Api
 	    bool IsSynthetic { get; set; }
 	    bool IsTouched { get; }
 	    bool OffsetTooLateToChange { get; set; }
+	    TimeStamp UtcTouchTime { get; }
+	    void SetTouched(TimeStamp utcTime);
+	    void SetPartialFill(TimeStamp utcTime);
     }
 }

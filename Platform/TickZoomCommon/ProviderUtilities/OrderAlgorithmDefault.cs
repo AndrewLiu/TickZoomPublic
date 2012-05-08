@@ -341,6 +341,7 @@ namespace TickZoom.Common
                 // then any additional physical orders for that stop must be market orders.
                 physical.Type = OrderType.Market;
                 physical.IsSynthetic = false;
+                physical.UtcCreateTime = logical.UtcTouchTime;
             }
             TryAddPhysicalOrder(physical);
             physicalOrderCache.SetOrder(physical);
@@ -1511,11 +1512,11 @@ namespace TickZoom.Common
         {
             if( logical.Type == OrderType.Stop && !logical.IsTouched)
             {
-                logical.Status = OrderStatus.Touched;
+                logical.SetTouched(synthetic.UtcTime);
                 if( OnProcessTouch != null)
                 {
                     ++recency;
-                    var touch = new LogicalTouchBinary(logical.Id, logical.SerialNumber, recency);
+                    var touch = new LogicalTouchBinary(logical.Id, logical.SerialNumber, recency, synthetic.UtcTime);
                     OnProcessTouch(symbol, touch);
                 }
                 else
@@ -1652,7 +1653,7 @@ namespace TickZoom.Common
             {
                 fill.IsComplete = CheckFilledOrder(filledOrder, fill.Position);
             }
-            filledOrder.Status = OrderStatus.PartialFill;
+		    filledOrder.SetPartialFill(fill.UtcTime);
             if (fill.IsComplete)
 			{
                 if (debug) log.Debug("LogicalOrder is completely filled.");

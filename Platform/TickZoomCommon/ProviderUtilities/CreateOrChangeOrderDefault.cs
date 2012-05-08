@@ -25,10 +25,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Diagnostics;
-using System.IO;
 using System.Text;
 using System.Threading;
 
@@ -148,7 +144,7 @@ namespace TickZoom.Common
 		    binary.originalOrder = null;
 			binary.brokerOrder = CreateBrokerOrderId();
 		    binary.utcCreateTime = logical.UtcChangeTime;
-		    binary.orderFlags = logical.OrderFlags;
+            binary.orderFlags = logical.OrderFlags;
             instanceId = ++nextInstanceId;
         }
 
@@ -224,6 +220,11 @@ namespace TickZoom.Common
             sb.Append(binary.logicalOrderId);
             sb.Append("-");
             sb.Append(binary.logicalSerialNumber);
+            if (binary.brokerOrder != null)
+            {
+                sb.Append(" broker: ");
+                sb.Append(binary.brokerOrder);
+            }
             if (binary.originalOrder != null)
             {
                 sb.Append(" original: ");
