@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace TickZoom.Api
@@ -33,25 +34,26 @@ namespace TickZoom.Api
 	/// Description of TickBinary.
 	/// </summary>
 	[CLSCompliant(false)]
+    [StructLayout(LayoutKind.Explicit, Size=16, CharSet=CharSet.Ansi)]
 	unsafe public struct TickBinary
 	{
 		public const int DomLevels = 5;
 		public const int SymbolSize = 8;
 		public const int minTickSize = 256;
-		
-		public long Symbol;
-		public byte contentMask;
-	    public long Id;
-		public long UtcTime;
-        public long UtcOptionExpiration;
-        public long Strike;
-        public long Bid;
-		public long Ask;
-		public byte Side;
-		public long Price;
-		public int Size;
-		public fixed ushort DepthAskLevels[DomLevels];
-		public fixed ushort DepthBidLevels[DomLevels];
+
+        [FieldOffset(0)]  public long Symbol;
+        [FieldOffset(8)]  public long Id;
+		[FieldOffset(16)] public long UtcTime;
+        [FieldOffset(24)] public long UtcOptionExpiration;
+        [FieldOffset(32)] public long Strike;
+        [FieldOffset(40)] public long Bid;
+        [FieldOffset(48)] public long Ask;
+        [FieldOffset(56)] public long Price;
+        [FieldOffset(64)] public int Size;
+        [FieldOffset(68)] public fixed ushort DepthAskLevels[DomLevels];
+        [FieldOffset(78)] public fixed ushort DepthBidLevels[DomLevels];
+        [FieldOffset(88)] public byte Side;
+        [FieldOffset(89)] public byte contentMask;
 
         public bool IsQuote
         {
