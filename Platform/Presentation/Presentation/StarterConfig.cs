@@ -614,7 +614,7 @@ namespace TickZoom.Presentation
                 engine.Agent.SendEvent(new EventItem(EventType.Shutdown));
                 isEngineLoaded = true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
             	var version = GetType().Assembly.GetName().Version;
                 string msg = "Sorry, cannot find engine version " + version +".";
@@ -622,7 +622,7 @@ namespace TickZoom.Presentation
                 {
                     msg += " Please enable AutoUpdate.";
                 }
-                log.Notice(msg);
+                log.Notice(msg, ex);
             }
             if (isEngineLoaded)
             {
