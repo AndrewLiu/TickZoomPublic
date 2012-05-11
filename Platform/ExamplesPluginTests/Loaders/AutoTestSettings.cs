@@ -62,8 +62,7 @@ namespace Loaders
 			binary.endTime = TimeStamp.MaxValue;
 			binary.categories = new List<string>();
 		    binary.simulatorProperties = Factory.Starter.SimulatorProperties();
-            binary.testFinishedTimeout = 45;
-            //binary.testFinishedTimeout = int.MaxValue;
+            binary.testFinishedTimeout = 100;
 		}
 		
 		public AutoTestSettings(AutoTestSettingsBinary binary) {
