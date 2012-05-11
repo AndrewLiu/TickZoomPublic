@@ -107,7 +107,7 @@ namespace TickZoom.Common
 				if( isRunning) {
 					if( Symbol.QuoteType != QuoteType.Level1) {
 						if( !errorWrongLevel1Type) {
-							log.Error( "Received " + QuoteType.Level1 + " quote but " + Symbol + " is configured for QuoteType = " + Symbol.QuoteType + " in the symbol dictionary.");
+							log.Warn( "Received " + QuoteType.Level1 + " quote but " + Symbol + " is configured for QuoteType = " + Symbol.QuoteType + " in the symbol dictionary.");
 							errorWrongLevel1Type = true;
 						}
 					} else if( Bid == 0D ) {
@@ -174,7 +174,7 @@ namespace TickZoom.Common
             {
                 if (!errorOptionChainType)
                 {
-                    log.Error("Received option price but " + Symbol + " is configured for TimeAndSales = " + Symbol.OptionChain + " in the symbol dictionary.");
+                    log.Warn("Received option price but " + Symbol + " is configured for TimeAndSales = " + Symbol.OptionChain + " in the symbol dictionary.");
                     errorOptionChainType = true;
                 }
                 return;
@@ -229,7 +229,7 @@ namespace TickZoom.Common
 			}
 			if( Symbol.TimeAndSales != TimeAndSales.ActualTrades) {
 				if( !errorWrongTimeAndSalesType) {
-					log.Error( "Received " + TimeAndSales.ActualTrades + " trade but " + Symbol + " is configured for TimeAndSales = " + Symbol.TimeAndSales + " in the symbol dictionary.");
+					log.Warn( "Received " + TimeAndSales.ActualTrades + " trade but " + Symbol + " is configured for TimeAndSales = " + Symbol.TimeAndSales + " in the symbol dictionary.");
 					errorWrongTimeAndSalesType = true;
 				}
 				return;
