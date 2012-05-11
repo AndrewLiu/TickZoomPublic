@@ -5,8 +5,8 @@ namespace TickZoom.Examples
 {
     public class TwoSidedTestLoader : ModelLoaderCommon
     {
-        private MarketSimulatorLoader marketSimulator;
-        private ExampleLimitOrderLoader clientSimulator;
+        private ModelLoaderCommon marketSimulator;
+        private ModelLoaderCommon clientSimulator;
         public TwoSidedTestLoader()
         {
             /// <summary>
@@ -14,8 +14,7 @@ namespace TickZoom.Examples
             /// </summary>
             category = "Test";
             name = "Two Sided Test";
-            clientSimulator = new ExampleLimitOrderLoader();
-            clientSimulator.Multiplier = 0.2D;
+            clientSimulator = new ExampleBreakoutReversalLoader();
             marketSimulator = new MarketSimulatorLoader();
         }
 

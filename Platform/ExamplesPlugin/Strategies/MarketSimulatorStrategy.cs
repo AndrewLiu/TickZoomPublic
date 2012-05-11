@@ -16,30 +16,27 @@ namespace TickZoom.Examples
 		
         public override void OnInitialize()
         {
-            tradeSize = Data.SymbolInfo.Level2LotSize * 10;
+            tradeSize = Data.SymbolInfo.Level2LotSize;
             minimumTick = multiplier * Data.SymbolInfo.MinimumTick;
-            //ExitStrategy.BreakEven = 30 * minimumTick;
-            //ExitStrategy.StopLoss = 45 * minimumTick;
         }
 
         public override bool OnProcessTick(Tick tick)
         {
-            if (!tick.IsQuote) return true;
-            var midPoint = (tick.Ask + tick.Bid)/2;
+            var midPoint = 0D;
+            if (tick.IsQuote)
+            {
+                midPoint = (tick.Ask + tick.Bid) / 2;
+            }
+            else if( tick.IsTrade)
+            {
+                midPoint = tick.Price;
+            }
             var bid = midPoint - Data.SymbolInfo.MinimumTick * tickOffset;
             var ask = midPoint + Data.SymbolInfo.MinimumTick * tickOffset;
             if (Position.IsFlat) 
             {
-                //if( Performance.ComboTrades.Count <= 0 || Performance.ComboTrades.Tail.Completed)
-                //{
-                //    Orders.Enter.ActiveNow.BuyLimit(bid, tradeSize);
-                //    Orders.Enter.ActiveNow.SellLimit(ask, tradeSize);
-                //}
-                //else
-                //{
-                    Orders.Change.ActiveNow.BuyLimit(bid, tradeSize);
-                    Orders.Change.ActiveNow.SellLimit(ask, tradeSize);
-                //}
+                Orders.Change.ActiveNow.BuyLimit(bid, tradeSize);
+                Orders.Change.ActiveNow.SellLimit(ask, tradeSize);
             }
             else if (Position.HasPosition)
             {
