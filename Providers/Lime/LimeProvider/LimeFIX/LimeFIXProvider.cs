@@ -628,7 +628,10 @@ namespace TickZoom.Provider.LimeFIX
                 default:
                     throw new LimeException("Unknown OrderType");
             }
-            fixMsg.SetOrderQuantity((int)order.Size);
+            if( order.Action == OrderAction.Create)
+            {
+                fixMsg.SetOrderQuantity((int)order.Size);
+            }
             if (order.Action == OrderAction.Change)
             {
                 if (verbose) log.Verbose("Change order: \n" + fixMsg);
@@ -699,12 +702,6 @@ namespace TickZoom.Provider.LimeFIX
             SendCancelOrder(order, false);
             return true;
 
-        }
-
-        private void TryAddPhysicalOrder(CreateOrChangeOrder order)
-        {
-            var tickSync = SyncTicks.GetTickSync(order.Symbol.BinaryIdentifier);
-            tickSync.AddPhysicalOrder(order);
         }
 
         private void SendCancelOrder(CreateOrChangeOrder order, bool resend)
