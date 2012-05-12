@@ -156,7 +156,7 @@ namespace Orders
             var order = handler.Orders.CreatedOrders[index];
             Assert.AreEqual(type, order.Type);
             Assert.AreEqual(price, order.Price);
-            Assert.AreEqual(size, order.Size);
+            Assert.AreEqual(size, order.RemainingSize);
             AssertBrokerOrder(order.BrokerOrder);
         }
 
@@ -279,7 +279,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Buy, order.Side);
             Assert.AreEqual(OrderType.Limit, order.Type);
 			Assert.AreEqual(234.12,order.Price);
-			Assert.AreEqual(1000,order.Size);
+			Assert.AreEqual(1000,order.RemainingSize);
 			Assert.AreEqual(buyLimitId,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 
@@ -287,7 +287,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Sell, order.Side);
             Assert.AreEqual(OrderType.Stop, order.Type);
 			Assert.AreEqual(154.12,order.Price);
-			Assert.AreEqual(1000,order.Size);
+			Assert.AreEqual(1000,order.RemainingSize);
 			Assert.AreEqual(buyStopId,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 		}
@@ -367,7 +367,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Sell, order.Side);
             Assert.AreEqual(OrderType.Limit, order.Type);
 			Assert.AreEqual(334.12,order.Price);
-			Assert.AreEqual(1000,order.Size);
+			Assert.AreEqual(1000,order.RemainingSize);
 			Assert.AreEqual(sellLimitId,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 			
@@ -375,7 +375,7 @@ namespace Orders
 			Assert.AreEqual(OrderSide.Sell, order.Side);
             Assert.AreEqual(OrderType.Stop, order.Type);
             Assert.AreEqual(134.12, order.Price);
-			Assert.AreEqual(1000,order.Size);
+			Assert.AreEqual(1000,order.RemainingSize);
 			Assert.AreEqual(sellStop2Id,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 		}
@@ -432,7 +432,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Sell, order.Side);
             Assert.AreEqual(OrderType.Stop, order.Type);
             Assert.AreEqual(334.12, order.Price);
-			Assert.AreEqual(1000,order.Size);
+			Assert.AreEqual(1000,order.RemainingSize);
 			Assert.AreEqual(sellLimitId,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 			
@@ -440,7 +440,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Sell, order.Side);
             Assert.AreEqual(OrderType.Stop, order.Type);
             Assert.AreEqual(134.12, order.Price);
-			Assert.AreEqual(1000,order.Size);
+			Assert.AreEqual(1000,order.RemainingSize);
 			Assert.AreEqual(sellStopId,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 		}
@@ -479,7 +479,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Sell, order.Side);
             Assert.AreEqual(OrderType.Stop, order.Type);
             Assert.AreEqual(334.12, order.Price);
-			Assert.AreEqual(500,order.Size);
+			Assert.AreEqual(500,order.RemainingSize);
 			Assert.AreEqual(sellLimitId,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 			
@@ -487,7 +487,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Sell, order.Side);
             Assert.AreEqual(OrderType.Stop, order.Type);
             Assert.AreEqual(134.12, order.Price);
-			Assert.AreEqual(500,order.Size);
+			Assert.AreEqual(500,order.RemainingSize);
 			Assert.AreEqual(sellStop2Id,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 		}
@@ -517,7 +517,7 @@ namespace Orders
 			Assert.AreEqual(OrderSide.Sell, change.Order.Side);
             Assert.AreEqual(OrderType.Stop, change.Order.Type);
 			Assert.AreEqual(134.12,change.Order.Price);
-			Assert.AreEqual(500,change.Order.Size);
+			Assert.AreEqual(500,change.Order.RemainingSize);
 			Assert.AreEqual(sellStopId,change.Order.LogicalOrderId);
 			Assert.AreEqual(sellOrder1,change.OrigBrokerOrder);
 		}
@@ -550,7 +550,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Buy, order.Side);
             Assert.AreEqual(OrderType.Limit, order.Type);
 			Assert.AreEqual(124.12,order.Price);
-			Assert.AreEqual(1000,order.Size);
+			Assert.AreEqual(1000,order.RemainingSize);
 			Assert.AreEqual(buyLimit2Id,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 			
@@ -558,7 +558,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Buy, order.Side);
             Assert.AreEqual(OrderType.Stop, order.Type);
 			Assert.AreEqual(194.12,order.Price);
-			Assert.AreEqual(1000,order.Size);
+			Assert.AreEqual(1000,order.RemainingSize);
 			Assert.AreEqual(buyStopId,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 		}
@@ -622,7 +622,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Buy, order.Side);
             Assert.AreEqual(OrderType.Limit, order.Type);
             Assert.AreEqual(124.12, order.Price);
-			Assert.AreEqual(500,order.Size);
+			Assert.AreEqual(500,order.RemainingSize);
 			Assert.AreEqual(buyLimit2Id,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 			
@@ -630,7 +630,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Buy, order.Side);
             Assert.AreEqual(OrderType.Stop, order.Type);
             Assert.AreEqual(194.12, order.Price);
-			Assert.AreEqual(500,order.Size);
+			Assert.AreEqual(500,order.RemainingSize);
 			Assert.AreEqual(buyStopId,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 		}
@@ -661,7 +661,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Buy, change.Order.Side);
             Assert.AreEqual(OrderType.Limit, change.Order.Type);
             Assert.AreEqual(124.12, change.Order.Price);
-			Assert.AreEqual(500,change.Order.Size);
+			Assert.AreEqual(500,change.Order.RemainingSize);
 			Assert.AreEqual(buyLimitId,change.Order.LogicalOrderId);
 			Assert.AreEqual(buyOrder1,change.OrigBrokerOrder);
 			
@@ -669,7 +669,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Buy, change.Order.Side);
             Assert.AreEqual(OrderType.Stop, change.Order.Type);
             Assert.AreEqual(194.12, change.Order.Price);
-			Assert.AreEqual(500,change.Order.Size);
+			Assert.AreEqual(500,change.Order.RemainingSize);
 			Assert.AreEqual(buyStopId,change.Order.LogicalOrderId);
 			Assert.AreEqual(buyOrder2,change.OrigBrokerOrder);
 		}
@@ -705,7 +705,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Buy, change.Order.Side);
             Assert.AreEqual(OrderType.Limit, change.Order.Type);
             Assert.AreEqual(234.12, change.Order.Price);
-			Assert.AreEqual(700,change.Order.Size);
+			Assert.AreEqual(700,change.Order.RemainingSize);
 			Assert.AreEqual(buyLimitId,change.Order.LogicalOrderId);
 			Assert.AreEqual(buyOrder,change.OrigBrokerOrder);
 			
@@ -713,7 +713,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Sell, change.Order.Side);
             Assert.AreEqual(OrderType.Stop, change.Order.Type);
 			Assert.AreEqual(154.12,change.Order.Price);
-			Assert.AreEqual(800,change.Order.Size);
+			Assert.AreEqual(800,change.Order.RemainingSize);
 			Assert.AreEqual(sellStopId,change.Order.LogicalOrderId);
 			Assert.AreEqual(sellOrder,change.OrigBrokerOrder);
 			
@@ -750,7 +750,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Buy, change.Order.Side);
             Assert.AreEqual(OrderType.Limit, change.Order.Type);
             Assert.AreEqual(244.12, change.Order.Price);
-			Assert.AreEqual(1000,change.Order.Size);
+			Assert.AreEqual(1000,change.Order.RemainingSize);
 			Assert.AreEqual(buyLimitId,change.Order.LogicalOrderId);
 			Assert.AreEqual(buyOrder,change.OrigBrokerOrder);
 			
@@ -758,7 +758,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Sell, change.Order.Side);
             Assert.AreEqual(OrderType.Stop, change.Order.Type);
             Assert.AreEqual(164.12, change.Order.Price);
-			Assert.AreEqual(1000,change.Order.Size);
+			Assert.AreEqual(1000,change.Order.RemainingSize);
 			Assert.AreEqual(sellStopId,change.Order.LogicalOrderId);
 			Assert.AreEqual(sellOrder,change.OrigBrokerOrder);
 			
@@ -796,7 +796,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Sell, change.Order.Side);
             Assert.AreEqual(OrderType.Limit, change.Order.Type);
             Assert.AreEqual(374.12, change.Order.Price);
-			Assert.AreEqual(1000,change.Order.Size);
+			Assert.AreEqual(1000,change.Order.RemainingSize);
 			Assert.AreEqual(sellLimitId,change.Order.LogicalOrderId);
 			Assert.AreEqual(sellOrder2,change.OrigBrokerOrder);
 			
@@ -804,7 +804,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Sell, change.Order.Side);
             Assert.AreEqual(OrderType.Stop, change.Order.Type);
 			Assert.AreEqual(184.12,change.Order.Price);
-			Assert.AreEqual(1000,change.Order.Size);
+			Assert.AreEqual(1000,change.Order.RemainingSize);
 			Assert.AreEqual(sellStopId,change.Order.LogicalOrderId);
 			Assert.AreEqual(sellOrder1,change.OrigBrokerOrder);
 			
@@ -840,7 +840,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Sell, change.Order.Side);
             Assert.AreEqual(OrderType.Limit, change.Order.Type);
 			Assert.AreEqual(374.12,change.Order.Price);
-			Assert.AreEqual(1000,change.Order.Size);
+			Assert.AreEqual(1000,change.Order.RemainingSize);
 			Assert.AreEqual(sellLimitId,change.Order.LogicalOrderId);
 			Assert.AreEqual(sellOrder2,change.OrigBrokerOrder);
 			
@@ -848,7 +848,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Sell, change.Order.Side);
             Assert.AreEqual(OrderType.Stop, change.Order.Type);
             Assert.AreEqual(184.12, change.Order.Price);
-			Assert.AreEqual(1000,change.Order.Size);
+			Assert.AreEqual(1000,change.Order.RemainingSize);
 			Assert.AreEqual(sellStopId,change.Order.LogicalOrderId);
 			Assert.AreEqual(sellOrder1,change.OrigBrokerOrder);
 			
@@ -874,7 +874,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Sell, order.Side);
             Assert.AreEqual(OrderType.Market, order.Type);
 			Assert.AreEqual(0,order.Price);
-			Assert.AreEqual(1000,order.Size);
+			Assert.AreEqual(1000,order.RemainingSize);
 			Assert.AreEqual(0,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 			
@@ -901,7 +901,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.SellShort, order.Side);
             Assert.AreEqual(OrderType.Market, order.Type);
             Assert.AreEqual(0, order.Price);
-			Assert.AreEqual(2,order.Size);
+			Assert.AreEqual(2,order.RemainingSize);
 			Assert.AreEqual(0,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 		}
@@ -926,7 +926,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Sell, order.Side);
             Assert.AreEqual(OrderType.Market, order.Type);
             Assert.AreEqual(0, order.Price);
-			Assert.AreEqual(2,order.Size);
+			Assert.AreEqual(2,order.RemainingSize);
 			Assert.AreEqual(0,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 
@@ -934,7 +934,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Sell, order.Side);
             Assert.AreEqual(OrderType.Market, order.Type);
             Assert.AreEqual(0, order.Price);
-            Assert.AreEqual(2, order.Size);
+            Assert.AreEqual(2, order.RemainingSize);
             Assert.AreEqual(0, order.LogicalOrderId);
 
             AssertBrokerOrder(order.BrokerOrder);
@@ -951,7 +951,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.SellShort, order.Side);
             Assert.AreEqual(OrderType.Market, order.Type);
             Assert.AreEqual(0, order.Price);
-			Assert.AreEqual(2,order.Size);
+			Assert.AreEqual(2,order.RemainingSize);
 			Assert.AreEqual(0,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 		}
@@ -976,7 +976,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Sell, order.Side);
             Assert.AreEqual(OrderType.Market, order.Type);
             Assert.AreEqual(0, order.Price);
-			Assert.AreEqual(1,order.Size);
+			Assert.AreEqual(1,order.RemainingSize);
 			Assert.AreEqual(0,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 			
@@ -1002,7 +1002,7 @@ namespace Orders
             Assert.AreEqual(OrderSide.Buy, order.Side);
             Assert.AreEqual(OrderType.Market, order.Type);
             Assert.AreEqual(0, order.Price);
-			Assert.AreEqual(1000,order.Size);
+			Assert.AreEqual(1000,order.RemainingSize);
 			Assert.AreEqual(0,order.LogicalOrderId);
 			AssertBrokerOrder(order.BrokerOrder);
 			
@@ -1688,7 +1688,7 @@ namespace Orders
             private void FillOrder(CreateOrChangeOrder physical)
             {
                 var price = physical.Price == 0 ? 1234.12 : physical.Price;
-                var size = physical.Side == OrderSide.Buy ? physical.Size : -physical.Size;
+                var size = physical.Side == OrderSide.Buy ? physical.RemainingSize : -physical.RemainingSize;
                 var fill = Factory.Utility.PhysicalFill(physical.Symbol, size, physical.Price, TimeStamp.UtcNow, TimeStamp.UtcNow, physical.BrokerOrder, false, size, size, 0, true, true);
                 orders.activeOrders.Remove(physical);
                 orderAlgorithm.ProcessFill(fill);

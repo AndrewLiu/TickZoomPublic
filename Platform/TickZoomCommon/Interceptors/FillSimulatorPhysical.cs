@@ -329,7 +329,7 @@ namespace TickZoom.Interceptors
         {
             var order = other.Clone();
             if (debug) log.Debug("OnCreateBrokerOrder( " + order + ")");
-            if (order.Size <= 0)
+            if (order.RemainingSize <= 0)
             {
                 throw new ApplicationException("Sorry, Size of order must be greater than zero: " + order);
             }
@@ -651,10 +651,10 @@ namespace TickZoom.Interceptors
             switch (order.Side)
             {
                 case OrderSide.Buy:
-                    size = physicalOrder.Size;
+                    size = physicalOrder.RemainingSize;
                     break;
                 default:
-                    size = -physicalOrder.Size;
+                    size = -physicalOrder.RemainingSize;
                     break;
             }
             CreatePhysicalFillHelper(size, price, tick.Time, tick.UtcTime, physicalOrder);
@@ -725,7 +725,10 @@ namespace TickZoom.Interceptors
         private void CreatePhysicalFillHelper(int totalSize, double price, TimeStamp time, TimeStamp utcTime, CreateOrChangeOrder order)
         {
             if (debug) log.Debug("Filling order: " + order);
-            var remainingSize = order.Size;
+			if( Math.Abs(totalSize) != order.RemainingSize) {
+                 int x = 0;
+            }
+            var remainingSize = totalSize;
             var split = 1;
             var numberFills = split;
             switch (partialFillSimulation)
@@ -754,13 +757,13 @@ namespace TickZoom.Interceptors
             var cumulativeQuantity = 0;
             if (lastSize == 0) lastSize = totalSize;
             var count = 0;
-            while (remainingSize > 0 && count < numberFills)
+            while (Math.Abs(remainingSize) > 0 && count < numberFills)
             {
                 count++;
-                remainingSize -= Math.Abs(lastSize);
+                remainingSize -= lastSize;
                 if (count >= split)
                 {
-                    lastSize += Math.Sign(lastSize) * remainingSize;
+                    lastSize += remainingSize;
                     remainingSize = 0;
                 }
                 cumulativeQuantity += lastSize;
@@ -768,7 +771,9 @@ namespace TickZoom.Interceptors
                 {
                     CancelBrokerOrder(order.BrokerOrder);
                 }
-                order.Size = remainingSize;
+                order.RemainingSize = Math.Abs(remainingSize);
+                order.CumulativeSize = Math.Abs(cumulativeQuantity);
+                order.RemainingSize = Math.Abs(remainingSize);
                 CreateSingleFill(lastSize, totalSize, cumulativeQuantity, remainingSize, price, time, utcTime, order);
             }
         }
@@ -777,9 +782,6 @@ namespace TickZoom.Interceptors
         {
             if (debug) log.Debug("Changing actual position from " + this.actualPosition + " to " + (actualPosition + size) + ". Fill size is " + size);
             this.actualPosition += size;
-            //if( onPositionChange != null) {
-            //    onPositionChange( actualPosition);
-            //}
             var fill = new PhysicalFillDefault(symbol, size, price, time, utcTime, order.BrokerOrder, createExitStrategyFills, totalSize, cumulativeSize, remainingSize, false, createActualFills);
             if (debug) log.Debug("Enqueuing fill (online: " + isOnline + "): " + fill);
             var wrapper = new FillWrapper

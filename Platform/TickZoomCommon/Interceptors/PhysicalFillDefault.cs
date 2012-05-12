@@ -39,14 +39,14 @@ namespace TickZoom.Interceptors
 		private TimeStamp utcTime;
 		private long brokerOrder;
 		private bool isExitStategy;
-	    private int totalSize;
+	    private int completeSize;
 	    private int cumulativeSize;
 	    private int remainingSize;
 	    private bool isRealTime;
 	    private bool isActual;
 
 	    public PhysicalFillDefault(SymbolInfo symbol, int size, double price, TimeStamp time, TimeStamp utcTime, long brokerOrder, 
-	                               bool isExitStategy, int totalSize, int cumulativeSize, int remainingSize, bool isRealTime, bool isActual)
+	                               bool isExitStategy, int completeSize, int cumulativeSize, int remainingSize, bool isRealTime, bool isActual)
 	    {
 	        this.symbol = symbol;
 			this.size = size;
@@ -55,7 +55,7 @@ namespace TickZoom.Interceptors
 			this.utcTime = utcTime;
 	        this.brokerOrder = brokerOrder;
 			this.isExitStategy = isExitStategy;
-	        this.totalSize = totalSize;
+	        this.completeSize = completeSize;
 	        this.cumulativeSize = cumulativeSize;
 	        this.remainingSize = remainingSize;
 	        this.isRealTime = isRealTime;
@@ -105,9 +105,9 @@ namespace TickZoom.Interceptors
 			get { return isExitStategy; }
 		}
 
-	    public int TotalSize
+	    public int CompleteSize
 	    {
-	        get { return totalSize; }
+	        get { return completeSize; }
 	    }
 
 	    public int CumulativeSize

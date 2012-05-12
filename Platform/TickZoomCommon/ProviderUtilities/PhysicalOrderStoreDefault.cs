@@ -476,7 +476,9 @@ namespace TickZoom.Common
                     writer.Write((int) 0);
                 }
                 writer.Write((int) order.Side);
-                writer.Write((int) order.Size);
+                writer.Write((int)order.CompleteSize);
+                writer.Write((int)order.CumulativeSize);
+                writer.Write((int)order.RemainingSize);
                 writer.Write(order.Symbol.ExpandedSymbol);
                 if (order.Tag == null)
                 {
@@ -666,7 +668,9 @@ namespace TickZoom.Common
                     var replaceId = reader.ReadInt32();
                     var originalId = reader.ReadInt32();
                     var side = (OrderSide)reader.ReadInt32();
-                    var size = reader.ReadInt32();
+                    var completeSize = reader.ReadInt32();
+                    var cumulativeSize = reader.ReadInt32();
+                    var remainingSize = reader.ReadInt32();
                     var symbol = reader.ReadString();
                     var tag = reader.ReadString();
                     if (string.IsNullOrEmpty(tag)) tag = null;
@@ -675,7 +679,7 @@ namespace TickZoom.Common
                     var lastStateChange = new TimeStamp(reader.ReadInt64());
                     var sequence = reader.ReadInt32();
                     var symbolInfo = Factory.Symbol.LookupSymbol(symbol);
-                    var order = Factory.Utility.PhysicalOrder(action, orderState, symbolInfo, side, type, flags, price, size,
+                    var order = Factory.Utility.PhysicalOrder(action, orderState, symbolInfo, side, type, flags, price, remainingSize, cumulativeSize, completeSize,
                                                               logicalOrderId, logicalSerialNumber, brokerOrder, tag, utcCreateTime);
                     order.ResetLastChange(lastStateChange);
                     order.Sequence = sequence;

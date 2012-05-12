@@ -117,9 +117,11 @@ namespace TickZoom.Api
 	    CreateOrChangeOrder Clone();
 	    void ResetLastChange(TimeStamp lastChange);
 
-        int Size { get; set;  }
+        int RemainingSize { get; set;  }
 	    int CancelCount { get; set; }
 	    int PendingCount { get; set; }
 	    new OrderType Type { get; set; }
+	    int CompleteSize { get; set; }
+	    int CumulativeSize { get; set; }
 	}
 }

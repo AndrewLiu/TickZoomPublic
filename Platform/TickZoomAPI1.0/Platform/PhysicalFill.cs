@@ -37,7 +37,7 @@ namespace TickZoom.Api
         int Size { get; }
         long BrokerOrder { get; }
         bool IsExitStategy { get; }
-        int TotalSize { get; }
+        int CompleteSize { get; }
         int CumulativeSize { get; }
         int RemainingSize { get; }
         bool IsRealTime { get; }
