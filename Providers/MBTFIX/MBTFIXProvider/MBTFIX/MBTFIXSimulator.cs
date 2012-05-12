@@ -169,9 +169,9 @@ namespace TickZoom.Provider.MBTFIX
 
         private void ProcessChangeOrder(CreateOrChangeOrder order)
         {
-			SendExecutionReport( order, "E", 0.0, 0, 0, 0, (int) order.Size, TimeStamp.UtcNow);
+			SendExecutionReport( order, "E", 0.0, 0, 0, 0, (int) order.RemainingSize, TimeStamp.UtcNow);
             SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
-			SendExecutionReport( order, "5", 0.0, 0, 0, 0, (int) order.Size, TimeStamp.UtcNow);
+			SendExecutionReport( order, "5", 0.0, 0, 0, 0, (int) order.RemainingSize, TimeStamp.UtcNow);
             SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
         }
 
@@ -261,9 +261,9 @@ namespace TickZoom.Provider.MBTFIX
         {
             var origOrder = cancelOrder.OriginalOrder;
 		    var randomOrder = random.Next(0, 10) < 5 ? cancelOrder : origOrder;
-            SendExecutionReport( randomOrder, "6", 0.0, 0, 0, 0, (int)origOrder.Size, TimeStamp.UtcNow);
+            SendExecutionReport( randomOrder, "6", 0.0, 0, 0, 0, (int)origOrder.RemainingSize, TimeStamp.UtcNow);
             SendPositionUpdate(cancelOrder.Symbol, ProviderSimulator.GetPosition(cancelOrder.Symbol));
-            SendExecutionReport( randomOrder, "4", 0.0, 0, 0, 0, (int)origOrder.Size, TimeStamp.UtcNow);
+            SendExecutionReport( randomOrder, "4", 0.0, 0, 0, 0, (int)origOrder.RemainingSize, TimeStamp.UtcNow);
             SendPositionUpdate(cancelOrder.Symbol, ProviderSimulator.GetPosition(cancelOrder.Symbol));
 		}
 
@@ -312,17 +312,17 @@ namespace TickZoom.Provider.MBTFIX
         }
 
 	    private void ProcessCreateOrder(CreateOrChangeOrder order) {
-			SendExecutionReport( order, "A", 0.0, 0, 0, 0, (int) order.Size, TimeStamp.UtcNow);
+			SendExecutionReport( order, "A", 0.0, 0, 0, 0, (int) order.RemainingSize, TimeStamp.UtcNow);
             SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
             if( order.Symbol.FixSimulationType == FIXSimulationType.BrokerHeldStopOrder &&
                 (order.Type == OrderType.Stop))
             {
-                SendExecutionReport(order, "A", "D", 0.0, 0, 0, 0, (int)order.Size, TimeStamp.UtcNow);
+                SendExecutionReport(order, "A", "D", 0.0, 0, 0, 0, (int)order.RemainingSize, TimeStamp.UtcNow);
                 SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
             }
             else
             {
-                SendExecutionReport(order, "0", 0.0, 0, 0, 0, (int)order.Size, TimeStamp.UtcNow);
+                SendExecutionReport(order, "0", 0.0, 0, 0, 0, (int)order.RemainingSize, TimeStamp.UtcNow);
                 SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
             }
 		}
@@ -433,15 +433,15 @@ namespace TickZoom.Provider.MBTFIX
                 order.Type = OrderType.Market;
                 var marketOrder = Factory.Utility.PhysicalOrder(order.Action, order.OrderState,
                                                                 order.Symbol, order.Side, order.Type, OrderFlags.None, 0,
-                                                                order.Size, order.LogicalOrderId,
+                                                                order.RemainingSize, order.LogicalOrderId,
                                                                 order.LogicalSerialNumber,
                                                                 order.BrokerOrder, null, TimeStamp.UtcNow);
-                SendExecutionReport(marketOrder, "0", 0.0, 0, 0, 0, (int)marketOrder.Size, TimeStamp.UtcNow);
+                SendExecutionReport(marketOrder, "0", 0.0, 0, 0, 0, (int)marketOrder.RemainingSize, TimeStamp.UtcNow);
             }
             if (debug) log.Debug("Converting physical fill to FIX: " + fill);
             SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
-            var orderStatus = fill.CumulativeSize == fill.TotalSize ? "2" : "1";
-            SendExecutionReport(order, orderStatus, "F", fill.Price, fill.TotalSize, fill.CumulativeSize, fill.Size, fill.RemainingSize, fill.UtcTime);
+            var orderStatus = fill.CumulativeSize == fill.CompleteSize ? "2" : "1";
+            SendExecutionReport(order, orderStatus, "F", fill.Price, fill.CompleteSize, fill.CumulativeSize, fill.Size, fill.RemainingSize, fill.UtcTime);
         }
 
         private void OnRejectCancel(string symbol, string clientOrderId, string origClientOrderId, string error)

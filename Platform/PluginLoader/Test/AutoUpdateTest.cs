@@ -45,6 +45,8 @@ namespace TickZoom.Utilities
 		private string dllFolder;
 		[TestFixtureSetUp]
 		public void Setup() {
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+		    testVersion = version.ToString();
 			appData = Factory.Settings["AppDataFolder"];
 			dllFolder =  appData + Path.DirectorySeparatorChar +
 				@"AutoUpdate\" + testVersion + Path.DirectorySeparatorChar;
@@ -89,9 +91,9 @@ namespace TickZoom.Utilities
 			string[] files = updater.GetFileList();
             Assert.NotNull(files,"result from getfiles");
 			Assert.AreEqual(2,files.Length);
-            
-            Assert.IsTrue(files[0].StartsWith("ProviderCommon-1.2.51.51756.dll.zip"), files[0]);
-            Assert.IsTrue(files[1].StartsWith("TickZoomEngine-1.2.51.51756.dll.zip"), files[1]);
+
+            Assert.IsTrue(files[0].StartsWith("ProviderCommon-" + testVersion + ".dll.zip"), files[0]);
+            Assert.IsTrue(files[1].StartsWith("TickZoomEngine-" + testVersion + ".dll.zip"), files[1]);
 		}
 		
 		[Test]

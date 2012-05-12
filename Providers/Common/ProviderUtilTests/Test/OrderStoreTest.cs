@@ -216,7 +216,7 @@ namespace Test
 
                 var result1 = store.GetOrderById(clientId1);
                 Assert.AreEqual(order1.Price, result1.Price);
-                Assert.AreEqual(order1.Size, result1.Size);
+                Assert.AreEqual(order1.RemainingSize, result1.RemainingSize);
                 Assert.AreEqual(order1.BrokerOrder, result1.BrokerOrder);
                 Assert.AreEqual(order1.Symbol, result1.Symbol);
                 Assert.AreEqual(order1.OrderState, result1.OrderState);
@@ -226,7 +226,7 @@ namespace Test
 
                 var result2 = store.GetOrderById(clientId2);
                 Assert.AreEqual(order2.Price, result2.Price);
-                Assert.AreEqual(order2.Size, result2.Size);
+                Assert.AreEqual(order2.RemainingSize, result2.RemainingSize);
                 Assert.AreEqual(order2.BrokerOrder, result2.BrokerOrder);
                 Assert.AreEqual(order2.Symbol, result2.Symbol);
                 Assert.AreEqual(order2.OrderState, result2.OrderState);
@@ -331,7 +331,7 @@ namespace Test
                     result1 = store.GetOrderById(clientId1);
                 }
                 Assert.AreEqual(order1.Price, result1.Price);
-                Assert.AreEqual(order1.Size, result1.Size);
+                Assert.AreEqual(order1.RemainingSize, result1.RemainingSize);
                 Assert.AreEqual(order1.BrokerOrder, result1.BrokerOrder);
                 Assert.AreEqual(order1.Symbol, result1.Symbol);
                 Assert.AreEqual(order1.OrderState, result1.OrderState);
@@ -344,7 +344,7 @@ namespace Test
                     result2 = store.GetOrderById(clientId2);
                 }
                 Assert.AreEqual(order2.Price, result2.Price);
-                Assert.AreEqual(order2.Size, result2.Size);
+                Assert.AreEqual(order2.RemainingSize, result2.RemainingSize);
                 Assert.AreEqual(order2.BrokerOrder, result2.BrokerOrder);
                 Assert.AreEqual(order2.Symbol, result2.Symbol);
                 Assert.AreEqual(order2.OrderState, result2.OrderState);

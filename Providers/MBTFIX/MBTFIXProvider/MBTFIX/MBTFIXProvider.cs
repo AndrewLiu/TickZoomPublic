@@ -694,13 +694,13 @@ namespace TickZoom.Provider.MBTFIX
             OrderStore.SetOrder(order);
             OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
 
-            if (order.Size > order.Symbol.MaxOrderSize)
+            if (order.RemainingSize > order.Symbol.MaxOrderSize)
             {
                 throw new ApplicationException("Order was greater than MaxOrderSize of " + order.Symbol.MaxPositionSize + " for:\n" + order);
             }
 
             var orderHandler = algorithms.GetAlgorithm(order.Symbol);
-		    var orderSize = order.Side == OrderSide.Buy ? order.Size : -order.Size;
+		    var orderSize = order.Side == OrderSide.Buy ? order.RemainingSize : -order.RemainingSize;
             if (Math.Abs(orderHandler.OrderAlgorithm.ActualPosition + orderSize) > order.Symbol.MaxPositionSize)
             {
                 throw new ApplicationException("Order was greater than MaxPositionSize of " + order.Symbol.MaxPositionSize + " for:\n" + order);
@@ -774,7 +774,7 @@ namespace TickZoom.Provider.MBTFIX
             }
 			fixMsg.SetLocateRequired("N");
 			fixMsg.SetSendTime(order.UtcCreateTime);
-			fixMsg.SetOrderQuantity(order.Size);
+			fixMsg.SetOrderQuantity(order.RemainingSize);
 			fixMsg.SetOrderCapacity("A");
 			fixMsg.SetUserName();
             if (order.Action == OrderAction.Change)

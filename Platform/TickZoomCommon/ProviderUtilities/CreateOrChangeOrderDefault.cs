@@ -46,7 +46,9 @@ namespace TickZoom.Common
         public SymbolInfo symbol;
         public OrderType type;
         public double price;
-        public int size;
+        public int completeSize;
+        public int cumulativeSize;
+        public int remainingSize;
         public OrderSide side;
         public int logicalOrderId;
         public long logicalSerialNumber;
@@ -59,6 +61,7 @@ namespace TickZoom.Common
         public OrderFlags orderFlags;
         public int cancelCount;
         public int pendingCount;
+
     }
 
 	public class CreateOrChangeOrderDefault : CreateOrChangeOrder
@@ -78,7 +81,9 @@ namespace TickZoom.Common
             binary.side = default(OrderSide);
             binary.type = default(OrderType);
             binary.price = 0D;
-            binary.size = 0;
+            binary.remainingSize = 0;
+            binary.completeSize = 0;
+            binary.cumulativeSize = 0;
             binary.logicalOrderId = 0;
             binary.logicalSerialNumber = 0L;
             binary.tag = null;
@@ -116,14 +121,14 @@ namespace TickZoom.Common
             }
 	    }
 
-		public CreateOrChangeOrderDefault(OrderAction orderAction, SymbolInfo symbol, LogicalOrder logical, OrderSide side, int size, double price)
-            : this(OrderState.Pending,symbol,logical,side,size,price)
+        public CreateOrChangeOrderDefault(OrderAction orderAction, SymbolInfo symbol, LogicalOrder logical, OrderSide side, int remainingSize, int cumulativeSize, double price)
+            : this(OrderState.Pending, symbol, logical, side, remainingSize, cumulativeSize, price)
 		{
 		    binary.action = orderAction;
             instanceId = ++nextInstanceId;
         }
-		
-		public CreateOrChangeOrderDefault(OrderState orderState, SymbolInfo symbol, LogicalOrder logical, OrderSide side, int size, double price)
+
+        public CreateOrChangeOrderDefault(OrderState orderState, SymbolInfo symbol, LogicalOrder logical, OrderSide side, int remainingSize, int cumulativeSize, double price)
 		{
             binary.action = OrderAction.Create;
 			OrderState = orderState;
@@ -132,8 +137,10 @@ namespace TickZoom.Common
 			binary.side = side;
 			binary.type = logical.Type;
 			binary.price = price;
-			binary.size = size;
-			binary.logicalOrderId = logical.Id;
+			binary.remainingSize = remainingSize;
+            binary.cumulativeSize = cumulativeSize;
+            binary.completeSize = remainingSize + cumulativeSize;
+            binary.logicalOrderId = logical.Id;
 			binary.logicalSerialNumber = logical.SerialNumber;
 			binary.tag = logical.Tag;
 			binary.reference = null;
@@ -145,7 +152,13 @@ namespace TickZoom.Common
             instanceId = ++nextInstanceId;
         }
 
-	    public CreateOrChangeOrderDefault(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type, OrderFlags flags, double price, int size, int logicalOrderId, long logicalSerialNumber, long brokerOrder, string tag, TimeStamp utcCreateTime)
+        public CreateOrChangeOrderDefault(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type, OrderFlags flags, double price, int remainingSize, int logicalOrderId, long logicalSerialNumber, long brokerOrder, string tag, TimeStamp utcCreateTime) 
+            : this( action, orderState, symbol, side, type, flags, price, remainingSize, 0, remainingSize, logicalOrderId, logicalSerialNumber, brokerOrder, tag, utcCreateTime)
+        {
+            
+        }
+
+        public CreateOrChangeOrderDefault(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type, OrderFlags flags, double price, int remainingSize, int cumulativeSize, int completeSize, int logicalOrderId, long logicalSerialNumber, long brokerOrder, string tag, TimeStamp utcCreateTime)
 	    {
             binary.action = action;
 			OrderState = orderState;
@@ -154,8 +167,10 @@ namespace TickZoom.Common
 			binary.side = side;
 			binary.type = type;
 			binary.price = price;
-			binary.size = size;
-			binary.logicalOrderId = logicalOrderId;
+			binary.remainingSize = remainingSize;
+            binary.completeSize = completeSize;
+            binary.cumulativeSize = cumulativeSize;
+            binary.logicalOrderId = logicalOrderId;
 			binary.logicalSerialNumber = logicalSerialNumber;
 			binary.tag = tag;
 			binary.brokerOrder = brokerOrder;
@@ -187,7 +202,9 @@ namespace TickZoom.Common
                 case OrderAction.Change:
                     sb.Append(binary.side);
                     sb.Append(" ");
-                    sb.Append(binary.size);
+                    sb.Append(binary.completeSize);
+                    sb.Append(" remains ");
+                    sb.Append(binary.remainingSize);
                     sb.Append(" ");
                     sb.Append(binary.type);
                     sb.Append(" ");
@@ -268,12 +285,12 @@ namespace TickZoom.Common
             //}
         }
 		
-		public int Size {
-            get { return binary.size; }
+		public int RemainingSize {
+            get { return binary.remainingSize; }
             set
             {
                 AssertAtomic();
-                binary.size = value;
+                binary.remainingSize = value;
             }
 		}
 		
@@ -436,6 +453,17 @@ namespace TickZoom.Common
             get { return binary.orderFlags; }
         }
 
+        public int CompleteSize
+        {
+            get { return binary.completeSize; }
+            set { binary.completeSize = value; }
+        }
+
+        public int CumulativeSize
+        {
+            get { return binary.cumulativeSize; }
+            set { binary.cumulativeSize = value; }
+        }
         public int CancelCount
         {
             get { return binary.cancelCount; }

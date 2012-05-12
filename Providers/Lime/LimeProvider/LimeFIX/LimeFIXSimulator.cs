@@ -178,6 +178,15 @@ namespace TickZoom.Provider.LimeFIX
                 OnRejectOrder(order, symbol + ": Cannot change order. Probably already filled or canceled.");
                 return;
             }
+            if( packet.OrderQuantity < origOrder.CumulativeSize)
+            {
+                if (debug) log.Debug(symbol + ": Rejected " + packet.ClientOrderId + ". Order quantity must be greater then cumulative filled quantity: " + origOrder.CumulativeSize);
+                OnRejectOrder(order, symbol + ": Order quantity must be greater then cumulative filled quantity.");
+                return;
+            }
+            order.CumulativeSize = origOrder.CumulativeSize;
+            order.CompleteSize = packet.OrderQuantity;
+            order.RemainingSize = order.CompleteSize - order.CumulativeSize;
             order.OriginalOrder = origOrder;
 #if VERIFYSIDE
 			if( order.Side != origOrder.Side) {
@@ -199,7 +208,7 @@ namespace TickZoom.Provider.LimeFIX
 
         private void ProcessChangeOrder(CreateOrChangeOrder order)
         {
-            SendExecutionReport(order, "5", 0.0, 0, 0, 0, (int)order.Size, TimeStamp.UtcNow);
+            SendExecutionReport(order, "5", 0.0, 0, 0, 0, (int)order.RemainingSize, TimeStamp.UtcNow);
             SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
         }
 
@@ -292,9 +301,9 @@ namespace TickZoom.Provider.LimeFIX
         {
             var origOrder = cancelOrder.OriginalOrder;
             var randomOrder = random.Next(0, 10) < 5 ? cancelOrder : origOrder;
-            SendExecutionReport(randomOrder, "6", 0.0, 0, 0, 0, (int)origOrder.Size, TimeStamp.UtcNow);
+            SendExecutionReport(randomOrder, "6", 0.0, 0, 0, 0, (int)origOrder.RemainingSize, TimeStamp.UtcNow);
             SendPositionUpdate(cancelOrder.Symbol, ProviderSimulator.GetPosition(cancelOrder.Symbol));
-            SendExecutionReport(randomOrder, "4", 0.0, 0, 0, 0, (int)origOrder.Size, TimeStamp.UtcNow);
+            SendExecutionReport(randomOrder, "4", 0.0, 0, 0, 0, (int)origOrder.RemainingSize, TimeStamp.UtcNow);
             SendPositionUpdate(cancelOrder.Symbol, ProviderSimulator.GetPosition(cancelOrder.Symbol));
         }
 
@@ -344,7 +353,7 @@ namespace TickZoom.Provider.LimeFIX
 
         private void ProcessCreateOrder(CreateOrChangeOrder order)
         {
-            SendExecutionReport(order, "0", 0.0, 0, 0, 0, (int)order.Size, TimeStamp.UtcNow);
+            SendExecutionReport(order, "0", 0.0, 0, 0, 0, (int)order.RemainingSize, TimeStamp.UtcNow);
             SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
         }
 
@@ -464,15 +473,19 @@ namespace TickZoom.Provider.LimeFIX
                 order.Type = OrderType.Market;
                 var marketOrder = Factory.Utility.PhysicalOrder(order.Action, order.OrderState,
                                                                 order.Symbol, order.Side, order.Type, OrderFlags.None, 0,
-                                                                order.Size, order.LogicalOrderId,
+                                                                order.RemainingSize, order.LogicalOrderId,
                                                                 order.LogicalSerialNumber,
                                                                 order.BrokerOrder, null, TimeStamp.UtcNow);
-                SendExecutionReport(marketOrder, "0", 0.0, 0, 0, 0, (int)marketOrder.Size, TimeStamp.UtcNow);
+                SendExecutionReport(marketOrder, "0", 0.0, 0, 0, 0, (int)marketOrder.RemainingSize, TimeStamp.UtcNow);
             }
             if (debug) log.Debug("Converting physical fill to FIX: " + fill);
             SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
-            var orderStatus = fill.CumulativeSize == fill.TotalSize ? "2" : "1";
-            SendExecutionReport(order, orderStatus, "F", fill.Price, fill.TotalSize, fill.CumulativeSize, fill.Size, fill.RemainingSize, fill.UtcTime);
+            var orderStatus = fill.CumulativeSize == fill.CompleteSize ? "2" : "1";
+            var origOrder = ProviderSimulator.GetOrderById(order.BrokerOrder);
+            origOrder.CompleteSize = Math.Abs(fill.CompleteSize);
+            origOrder.CumulativeSize = Math.Abs(fill.CumulativeSize);
+            origOrder.RemainingSize = Math.Abs(fill.RemainingSize);
+            SendExecutionReport(order, orderStatus, "F", fill.Price, fill.CompleteSize, fill.CumulativeSize, fill.Size, fill.RemainingSize, fill.UtcTime);
         }
 
         private void OnRejectCancel(string symbol, string clientOrderId, string origClientOrderId, string error)
@@ -541,7 +554,7 @@ namespace TickZoom.Provider.LimeFIX
                     throw new LimeException("Unsupported order side: " + order.Side);
             }
             var mbtMsg = (FIXMessage4_2)FixFactory.Create();
-            mbtMsg.SetOrderQuantity(orderQty);
+            mbtMsg.SetOrderQuantity(Math.Abs(orderQty));
             mbtMsg.SetLastQuantity(Math.Abs(lastQty));
             if (lastQty != 0)
             {
