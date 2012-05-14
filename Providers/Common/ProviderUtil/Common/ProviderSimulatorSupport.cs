@@ -205,9 +205,11 @@ namespace TickZoom.Provider.FIX
             }
             if (symbolSyncTicks != null)
             {
-                symbolSyncTicks.ChangeOrder(order);
                 orders.Remove(order.OriginalOrder.BrokerOrder);
-                orders.Add(order.BrokerOrder, order);
+                if( symbolSyncTicks.ChangeOrder(order))
+                {
+                    orders.Add(order.BrokerOrder, order);
+                }
             }
         }
 
@@ -221,7 +223,13 @@ namespace TickZoom.Provider.FIX
             if (symbolSyncTicks != null)
             {
                 symbolSyncTicks.CancelOrder(order);
+                orders.Remove(order.OriginalOrder.BrokerOrder);
             }
+        }
+
+        public bool TryGetOrderById(long clientOrderId, out CreateOrChangeOrder order)
+        {
+            return orders.TryGetValue(clientOrderId, out order);
         }
 
         public CreateOrChangeOrder GetOrderById(long clientOrderId)
@@ -229,7 +237,7 @@ namespace TickZoom.Provider.FIX
             CreateOrChangeOrder order;
             if( !orders.TryGetValue(clientOrderId, out order))
             {
-                throw new ApplicationException("Cannot fine client order by id: " + clientOrderId);
+                throw new ApplicationException("Cannot find client order by id: " + clientOrderId);
             }
             return order;
         }
