@@ -481,10 +481,13 @@ namespace TickZoom.Provider.LimeFIX
             if (debug) log.Debug("Converting physical fill to FIX: " + fill);
             SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
             var orderStatus = fill.CumulativeSize == fill.CompleteSize ? "2" : "1";
-            var origOrder = ProviderSimulator.GetOrderById(order.BrokerOrder);
-            origOrder.CompleteSize = Math.Abs(fill.CompleteSize);
-            origOrder.CumulativeSize = Math.Abs(fill.CumulativeSize);
-            origOrder.RemainingSize = Math.Abs(fill.RemainingSize);
+            CreateOrChangeOrder origOrder;
+            if( ProviderSimulator.TryGetOrderById(order.BrokerOrder, out origOrder))
+            {
+                origOrder.CompleteSize = Math.Abs(fill.CompleteSize);
+                origOrder.CumulativeSize = Math.Abs(fill.CumulativeSize);
+                origOrder.RemainingSize = Math.Abs(fill.RemainingSize);
+            }
             SendExecutionReport(order, orderStatus, "F", fill.Price, fill.CompleteSize, fill.CumulativeSize, fill.Size, fill.RemainingSize, fill.UtcTime);
         }
 

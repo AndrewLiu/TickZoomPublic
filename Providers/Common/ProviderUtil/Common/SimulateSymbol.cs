@@ -11,7 +11,7 @@ namespace TickZoom.Provider.FIX
         SymbolInfo Symbol { get; }
         void CreateOrder(CreateOrChangeOrder order);
         void TryProcessAdjustments();
-        void ChangeOrder(CreateOrChangeOrder order);
+        bool ChangeOrder(CreateOrChangeOrder order);
         void CancelOrder(CreateOrChangeOrder order);
         CreateOrChangeOrder GetOrderById(long clientOrderId);
     }

@@ -247,9 +247,9 @@ namespace TickZoom.Provider.FIX
             FillSimulator.ProcessAdjustments();
         }
 
-        public void ChangeOrder(CreateOrChangeOrder order)
+        public bool ChangeOrder(CreateOrChangeOrder order)
         {
-            FillSimulator.OnChangeBrokerOrder(order);
+            return FillSimulator.OnChangeBrokerOrder(order);
         }
 
         public void CreateOrder(CreateOrChangeOrder order)
