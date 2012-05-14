@@ -888,6 +888,18 @@ namespace TickZoom.Provider.FIX
         private void HandleResend(int sequence, MessageFIXT1_1 messageFIX) {
             if (debug) log.Debug("Sequence is " + sequence + " but expected sequence is " + RemoteSequence + ". Buffering message.");
             resendQueue.Enqueue(messageFIX, TimeStamp.UtcNow.Internal);
+
+            if( resendQueue.Count > 0)
+            {
+                MessageFIXT1_1 tempMessage;
+                resendQueue.Peek(out tempMessage);
+                if (tempMessage.Sequence > remoteSequence)
+                {
+                    if (debug) log.Debug("Found sequence " + tempMessage.Sequence + " on the resend queue. Requesting resend from " + remoteSequence + " to " + (tempMessage.Sequence - 1));
+                    TryRequestResend(remoteSequence, tempMessage.Sequence - 1);
+                    return;
+                }
+            }
             TryRequestResend(remoteSequence,sequence - 1);
         }
 
