@@ -597,7 +597,7 @@ namespace TickZoom.Provider.MBTFIX
 			if( packetFIX.LastQuantity > 0) {
                 if (debug) log.Debug("TryHandlePiggyBackFill triggering fill because LastQuantity = " + packetFIX.LastQuantity);
                 SendFill(packetFIX);
-			}
+            }
 		}
 
         private void CancelRejected(MessageFIX4_4 packetFIX)
@@ -659,7 +659,7 @@ namespace TickZoom.Provider.MBTFIX
                     }
                 }
 			}
-		}
+        }
 
 		public void RejectOrder( MessageFIX4_4 packetFIX)
 		{

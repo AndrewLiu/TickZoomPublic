@@ -21,7 +21,8 @@ namespace TickZoom.Examples
         
         public override void OnInitialize()
         {
-            qtys = qtyb = Data.SymbolInfo.Level2LotSize*2;
+            Performance.Equity.GraphEquity = true;
+            qtys = qtyb = Data.SymbolInfo.Level2LotSize * 2;
         }
 
 
