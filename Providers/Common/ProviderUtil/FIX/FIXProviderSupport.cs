@@ -1606,9 +1606,13 @@ namespace TickZoom.Provider.FIX
         protected int SideToSign( string side) {
             switch( side) {
                 case "1": // Buy
+                case "3": // Buy Minus
                     return 1;
-                case "2": // Sell
-                case "5": // SellShort
+                case "2": // Sell 
+                case "4": // Sell Plus
+                case "5": // Sell Minus
+                case "6": // SellShort
+                case "9": // CrossShort
                     return -1;
                 default:
                     throw new ApplicationException("Unknown order side: " + side);

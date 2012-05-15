@@ -39,7 +39,7 @@ namespace TickZoom.Provider.LimeFIX
         private volatile bool trace;
         private volatile bool debug;
         private volatile bool verbose;
-        Dictionary<int, int> physicalToLogicalOrderMap = new Dictionary<int, int>();
+        private Dictionary<int, int> physicalToLogicalOrderMap = new Dictionary<int, int>();
         private string fixDestination = "LIME";
 
         public override void RefreshLogLevel()
