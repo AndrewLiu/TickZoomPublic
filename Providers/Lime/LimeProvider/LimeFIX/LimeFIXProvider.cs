@@ -485,7 +485,8 @@ namespace TickZoom.Provider.LimeFIX
                 default:
                     throw new ApplicationException("Unknown order status: '" + orderStatus + "'");
             }
-		}
+            if (debug) log.Debug("Resulting orders in snapshot: \n" + OrderStore.OrdersToString());
+        }
 
 		private void TryHandlePiggyBackFill(MessageFIX4_2 packetFIX) {
 			if( packetFIX.LastQuantity > 0) {
