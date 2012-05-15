@@ -123,5 +123,6 @@ namespace TickZoom.Api
 	    new OrderType Type { get; set; }
 	    int CompleteSize { get; set; }
 	    int CumulativeSize { get; set; }
+	    bool IsTouch { get; set; }
 	}
 }

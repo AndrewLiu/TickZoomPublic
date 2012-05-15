@@ -57,7 +57,6 @@ namespace TickZoom.Common
         public OrderFlags orderFlags;
         public int cancelCount;
         public int pendingCount;
-
     }
 
 	public class CreateOrChangeOrderDefault : CreateOrChangeOrder
@@ -438,12 +437,28 @@ namespace TickZoom.Common
                 }
                 else
                 {
-                    binary.orderFlags &= ~OrderFlags.IsSynthetic;
+                    binary.orderFlags ^= OrderFlags.IsSynthetic;
                 }
             }
         }
 
-                 
+
+        public bool IsTouch
+        {
+            get { return (binary.orderFlags & OrderFlags.IsTouch) > 0; }
+            set
+            {
+                if (value)
+                {
+                    binary.orderFlags |= OrderFlags.IsTouch;
+                }
+                else
+                {
+                    binary.orderFlags ^= OrderFlags.IsTouch;
+                }
+            }
+        }
+
         public bool OffsetTooLateToChange
         {
             get { return (binary.orderFlags & OrderFlags.OffsetTooLateToChange) > 0; }
@@ -465,7 +480,8 @@ namespace TickZoom.Common
             get { return binary.cumulativeSize; }
             set { binary.cumulativeSize = value; }
         }
-        public int CancelCount
+
+	    public int CancelCount
         {
             get { return binary.cancelCount; }
             set { binary.cancelCount = value; }

@@ -286,6 +286,7 @@ namespace TickZoom.Common
                     // then any additional physical orders for that stop must be market orders.
                     createOrChange.Type = OrderType.Market;
                     createOrChange.IsSynthetic = false;
+                    createOrChange.IsTouch = true;
                 }
                 if (debug) log.Debug("Change Broker Order: " + createOrChange);
                 TryAddPhysicalOrder(createOrChange);
@@ -341,6 +342,7 @@ namespace TickZoom.Common
                 // then any additional physical orders for that stop must be market orders.
                 physical.Type = OrderType.Market;
                 physical.IsSynthetic = false;
+                physical.IsTouch = true;
                 physical.UtcCreateTime = logical.UtcTouchTime;
             }
             TryAddPhysicalOrder(physical);

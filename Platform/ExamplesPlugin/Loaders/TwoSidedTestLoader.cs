@@ -30,7 +30,7 @@ namespace TickZoom.Examples
             marketSimulator.OnLoad(properties);
             var portfolio = new Portfolio();
             portfolio.AddDependency(clientSimulator.TopModel);
-            portfolio.AddDependency(marketSimulator.TopModel);
+            portfolio.AddDependency(marketSimulator.TopModel); 
             TopModel = portfolio;
         }
     }

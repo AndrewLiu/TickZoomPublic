@@ -71,6 +71,7 @@ namespace TickZoom.Interceptors
         private ActiveList<CreateOrChangeOrder> increaseOrders = new ActiveList<CreateOrChangeOrder>();
         private ActiveList<CreateOrChangeOrder> decreaseOrders = new ActiveList<CreateOrChangeOrder>();
         private ActiveList<CreateOrChangeOrder> marketOrders = new ActiveList<CreateOrChangeOrder>();
+        private ActiveList<CreateOrChangeOrder> touchOrders = new ActiveList<CreateOrChangeOrder>();
         private NodePool<CreateOrChangeOrder> nodePool = new NodePool<CreateOrChangeOrder>();
         private object orderMapLocker = new object();
         private bool isOpenTick = false;
@@ -137,6 +138,7 @@ namespace TickZoom.Interceptors
             activeOrders.AddLast(increaseOrders);
             activeOrders.AddLast(decreaseOrders);
             activeOrders.AddLast(marketOrders);
+            activeOrders.AddLast(touchOrders);
             return activeOrders;
         }
 
@@ -289,42 +291,6 @@ namespace TickZoom.Interceptors
             return createOrChangeOrder;
         }
 
-        public bool HasBrokerOrder(CreateOrChangeOrder order)
-        {
-            var list = increaseOrders;
-            var buyStop = order.Side == OrderSide.Buy && order.Type == OrderType.Stop;
-            var sellLimit = order.Side != OrderSide.Buy && order.Type == OrderType.Limit;
-            switch (order.Type)
-            {
-                case OrderType.Limit:
-                case OrderType.Stop:
-                    if( buyStop || sellLimit)
-                    {
-                        list = increaseOrders;
-                    }
-                    else
-                    {
-                        list = decreaseOrders;
-                    }
-                    break;
-                case OrderType.Market:
-                    list = marketOrders;
-                    break;
-                default:
-                    throw new ApplicationException("Unexpected order type: " + order.Type);
-            }
-            for (var current = list.First; current != null; current = current.Next)
-            {
-                var queueOrder = current.Value;
-                if (order.LogicalSerialNumber == queueOrder.LogicalSerialNumber)
-                {
-                    if (debug) log.Debug("Create ignored because order was already on active order queue.");
-                    return true;
-                }
-            }
-            return false;
-        }
-
         public bool OnCreateBrokerOrder(CreateOrChangeOrder other)
         {
             var order = other.Clone();
@@ -468,7 +434,15 @@ namespace TickZoom.Interceptors
             {
                 throw new ApplicationException("Please set the Symbol property for the " + GetType().Name + ".");
             }
-            if (trace) log.Trace("Orders: Market " + marketOrders.Count + ", Increase " + increaseOrders.Count + ", Decrease " + decreaseOrders.Count);
+            if (trace) log.Trace("Orders: Touch " + touchOrders.Count + ", Market " + marketOrders.Count + ", Increase " + increaseOrders.Count + ", Decrease " + decreaseOrders.Count);
+            if (touchOrderCount > 0)
+            {
+                for (var node = touchOrders.First; node != null; node = node.Next)
+                {
+                    var order = node.Value;
+                    OnProcessOrder(order, tick);
+                }
+            }
             if (marketOrderCount > 0)
             {
                 for (var node = marketOrders.First; node != null; node = node.Next)
@@ -544,12 +518,14 @@ namespace TickZoom.Interceptors
         private int decreaseOrderCount;
         private int increaseOrderCount;
         private int marketOrderCount;
+        private int touchOrderCount;
 
         private void UpdateCounts()
         {
             decreaseOrderCount = decreaseOrders.Count;
             increaseOrderCount = increaseOrders.Count;
             marketOrderCount = marketOrders.Count;
+            touchOrderCount = touchOrders.Count;
         }
 
         public int OrderCount
@@ -575,7 +551,14 @@ namespace TickZoom.Interceptors
                     }
                     break;
                 case OrderType.Market:
-                    Adjust(marketOrders, order);
+                    if( order.IsTouch)
+                    {
+                        Adjust(touchOrders, order);
+                    }
+                    else
+                    {
+                        Adjust(marketOrders, order);
+                    }
                     break;
                 default:
                     throw new ApplicationException("Unexpected order type: " + order.Type);
