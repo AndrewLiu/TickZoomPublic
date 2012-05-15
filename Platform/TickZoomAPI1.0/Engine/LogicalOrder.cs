@@ -34,6 +34,7 @@ namespace TickZoom.Api
         None = 0x00,
         OffsetTooLateToChange = 0x01,
         IsSynthetic = 0x02,
+        IsTouch = 0x04,
     }
 
     public enum OrderStatus
