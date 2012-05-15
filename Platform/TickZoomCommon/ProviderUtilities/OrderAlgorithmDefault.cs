@@ -1447,7 +1447,7 @@ namespace TickZoom.Common
                 if (debug) log.Debug("Leaving symbol position at desired " + desiredPosition + ", since this appears to be an adjustment market order: " + order);
                 if (debug) log.Debug("Skipping logical fill for an adjustment market order.");
                 if (debug) log.Debug("Performing extra compare.");
-                IsPositionSynced = false; // Force a check for position synchronized.
+                isPositionSynced = false; // Force a check for position synchronized.
                 PerformCompareProtected();
                 TryRemovePhysicalFill(physical);
                 return;
