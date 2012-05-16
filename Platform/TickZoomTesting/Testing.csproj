@@ -109,7 +109,6 @@
     <Compile Include="Provider\MockContext.cs" />
     <Compile Include="Provider\OrderAlgorithmTest.cs" />
     <Compile Include="Startup\ChartThread.cs" />
-    <Compile Include="Startup\DictionaryTest.cs" />
     <Compile Include="Startup\TestSimpleLoader.cs" />
     <Compile Include="Startup\TestSimpleStrategy.cs" />
     <Compile Include="Startup\InstrumentImpl.cs" />

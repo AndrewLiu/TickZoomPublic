@@ -42,20 +42,24 @@ namespace TickZoom.Symbols
 	/// <summary>
 	/// Description of SymbolDictionary.
 	/// </summary>
-	public class SymbolDictionary : IEnumerable<SymbolProperties>
+	public class SymbolDictionary
 	{
 		private static readonly Log log = Factory.SysLog.GetLogger(typeof(SymbolDictionary));
 		private readonly bool trace = log.IsTraceEnabled;
 		private readonly bool debug = log.IsDebugEnabled;
 		private static object locker = new object();
-        List<SymbolProperties> symbols = new List<SymbolProperties>();
 		private List<SymbolCategory> categories = new List<SymbolCategory>();
+	    private SymbolLibrary library;
+        private Dictionary<string,SymbolProperties> symbols = new Dictionary<string, SymbolProperties>();
+	    private string filePath;
 		
-		public SymbolDictionary()
+		public SymbolDictionary(SymbolLibrary library, string filePath)
 		{
+		    this.library = library;
+		    this.filePath = filePath;
 		}
 
-		public static SymbolDictionary Create(string name, string defaultContents) {
+		public static SymbolDictionary Create(SymbolLibrary library, string name, string defaultContents) {
 			lock( locker) {
 				string storageFolder = Factory.Settings["AppDataFolder"];
 				string dictionaryPath = storageFolder + @"\Dictionary\"+name+".tzdict";
@@ -63,7 +67,7 @@ namespace TickZoom.Symbols
 				SymbolDictionary dictionary;
 				if( File.Exists(dictionaryPath) ) {
 					using( StreamReader streamReader = new StreamReader(new FileStream(dictionaryPath,FileMode.Open,FileAccess.Read,FileShare.Read))) {
-						dictionary = Create( streamReader);
+                        dictionary = Create(library, streamReader, dictionaryPath);
 					}
 					return dictionary;
 				} else {
@@ -74,15 +78,15 @@ namespace TickZoom.Symbols
 			            sw.Write( contents);
 			        }
 			        Thread.Sleep(1000);
-					dictionary = Create( new StreamReader(dictionaryPath));
+                    dictionary = Create(library, new StreamReader(dictionaryPath), dictionaryPath);
 				}
 				return dictionary;
 			}
 		}
 		
-		public static SymbolDictionary Create(TextReader projectXML) {
+		public static SymbolDictionary Create(SymbolLibrary library, TextReader projectXML, string filePath) {
 			lock( locker) {
-				var project = new SymbolDictionary();
+                var project = new SymbolDictionary(library,filePath);
 				project.Load(projectXML);
 				return project;
 			}
@@ -166,16 +170,22 @@ namespace TickZoom.Symbols
 			    		} else if( "symbol".Equals(reader.Name)) {
 			    			string name = reader.GetAttribute("name");
 			    			string universal = reader.GetAttribute("universal");
-			    			var symbol = new SymbolProperties();
+			    		    SymbolProperties symbol;
+                            if( symbols.TryGetValue(name, out symbol))
+                            {
+                                Error(reader,"Duplicate symbol: " + name);
+                            }
+		    		        symbol = new SymbolProperties();
+                            symbol.Symbol = name;
                             foreach( var kvp in category.Properties)
                             {
                                 var overrideProperty = kvp.Key;
                                 var overrideValue = kvp.Value;
                                 overrideProperty.SetValue(symbol, overrideValue, null);
                             }
-		    				symbol.Symbol = name;
 			    			HandleSymbol(symbol,reader);
-			    			symbols.Add(symbol);
+			    			library.AddSymbol(symbol);
+                            symbols.Add(name,symbol);
 			    		} else {
 			    			Error(reader,"unexpected tag " + reader.Name );
 			    		}
@@ -253,8 +263,9 @@ namespace TickZoom.Symbols
 		private void Error( XmlReader reader, string msg) {
 			IXmlLineInfo lineInfo = reader as IXmlLineInfo;
 			string lineStr = "";
-			if( lineInfo != null) {
-				lineStr += " on line " + lineInfo.LineNumber + " at position " + lineInfo.LinePosition;
+			if( lineInfo != null)
+			{
+			    lineStr += " on line " + lineInfo.LineNumber + " at position " + lineInfo.LinePosition + " in file " + filePath;
 			}
 			log.Debug(msg + lineStr);
 			throw new ApplicationException(msg + lineStr);
@@ -269,33 +280,6 @@ namespace TickZoom.Symbols
 			log.Warn(msg + lineStr);
 		}
 		
-		public SymbolProperties Get(string symbol) {
-			foreach( SymbolProperties properties in this) {
-				if( symbol == properties.ExpandedSymbol) {
-					return properties;
-				}
-			}
-			throw new ApplicationException("Symbol " + symbol + " was not found in the dictionary.");
-		}
-
-        public List<SymbolProperties> Symbols
-        {
-            get { return symbols; }
-        }
-
-        public IEnumerator<SymbolProperties> GetEnumerator()
-        {
-            foreach (SymbolProperties properties in symbols)
-            {
-                yield return properties;
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
         #region UNIVERSAL_DICTIONARY
 		public static string UniversalDictionary = @"<?xml version=""1.0"" encoding=""utf-16""?>
 <category name=""Universal"">
@@ -477,10 +461,6 @@ namespace TickZoom.Symbols
     <property name=""TimeAndSales"" value=""ActualTrades"" />
     <property name=""QuoteType"" value=""Level1"" />
     <category name=""Testing"">
-      <symbol name=""KC"">
-        <property name=""TimeZone"" value=""Eastern Standard Time"" />
-        <property name=""MinimumTick"" value=""0.05"" />
-      </symbol>
       <symbol name=""/ESZ9"">
         <property name=""Commission"" value=""CustomCommission"" />
         <property name=""Fees"" value=""CustomFees"" />
@@ -830,7 +810,7 @@ namespace TickZoom.Symbols
       <property name=""SessionEnd"" value=""15:15:00"" />
       <symbol name=""DJ"" />
     </category>
-    <category name=""Mini Dow variants"">
+    <!--category name=""Mini Dow variants"">
       <property name=""FullPointValue"" value=""5"" />
       <property name=""MinimumTick"" value=""1"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
@@ -838,7 +818,7 @@ namespace TickZoom.Symbols
       <property name=""SessionStart"" value=""15:30:00"" />
       <property name=""SessionEnd"" value=""15:15:00"" />
       <symbol name=""YM"" />
-    </category>
+    </category-->
     <category name=""CBT grain $50 variants"">
       <property name=""FullPointValue"" value=""50"" />
       <property name=""MinimumTick"" value=""0.25"" />

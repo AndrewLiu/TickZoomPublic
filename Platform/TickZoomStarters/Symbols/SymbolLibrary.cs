@@ -45,86 +45,69 @@ namespace TickZoom.Symbols
         long universalIdentifier = 1;
         public SymbolLibrary()
         {
-			var dictionary = SymbolDictionary.Create("universal",SymbolDictionary.UniversalDictionary);
-			symbolMap = new Dictionary<string, SymbolProperties>();
-			foreach( var properties in dictionary)
-			{
-			    AddSymbolProperies(properties);
-			}
-			dictionary = SymbolDictionary.Create("user",SymbolDictionary.UserDictionary);
-			foreach( var properties in dictionary) {
-                AddSymbolProperies(properties);
-            }
-			AddAbbreviations();
-			AdjustSessions();
-			CreateUniversalIds();
+            symbolMap = new Dictionary<string, SymbolProperties>();
+            universalMap = new Dictionary<long, SymbolProperties>();
+            SymbolDictionary.Create(this, "universal", SymbolDictionary.UniversalDictionary);
+            SymbolDictionary.Create(this, "user", SymbolDictionary.UserDictionary);
 		}
 
-        private void AddSymbolProperies(SymbolProperties properties)
+        public void AddSymbol(SymbolProperties properties)
         {
-            if( properties.Account == "default")
+            if (properties.Account == "default")
             {
                 symbolMap[properties.ExpandedSymbol] = properties;
                 properties.CommonSymbol = properties;
             }
             else
             {
-                var sourceSymbol = properties.Copy();
-                sourceSymbol.Account = "default";
-                symbolMap[sourceSymbol.ExpandedSymbol] = sourceSymbol;
+                if (ReferenceEquals(properties.CommonSymbol, properties) ||
+                    properties.CommonSymbol.ExpandedSymbol == properties.ExpandedSymbol)
+                {
+                    throw new ApplicationException("Symbol " + properties.ExpandedSymbol +
+                                                   " cannot have itself as the common symbol.");
+                }
                 symbolMap[properties.ExpandedSymbol] = properties;
-                properties.CommonSymbol = sourceSymbol;
             }
+            AddAbbreviation(properties);
+            AdjustSession(properties);
+            CreateUniversalId(properties);
         }
 		
-		private void CreateUniversalIds() {
-			universalMap = new Dictionary<long, SymbolProperties>();
-			foreach( var kvp in symbolMap) {
-				kvp.Value.BinaryIdentifier = universalIdentifier;
-				universalMap.Add(universalIdentifier,kvp.Value);
-				universalIdentifier ++;
-			}
+		private void CreateUniversalId(SymbolProperties properties) {
+			properties.BinaryIdentifier = universalIdentifier;
+            universalMap.Add(universalIdentifier, properties);
+			universalIdentifier ++;
 		}
 
-        private void AddAbbreviations()
+        private void AddAbbreviation(SymbolProperties properties)
         {
-			var tempSymbolMap = new Dictionary<string,SymbolProperties>();
-			foreach( var kvp in symbolMap) {
-				var properties = kvp.Value;
-				var symbolAccount = kvp.Key;
-                tempSymbolMap.Add(symbolAccount, properties);
-                var abbreviation = properties.ExpandedSymbol.StripInvalidPathChars();
-                if (!symbolMap.ContainsKey(abbreviation))
-                {
-					tempSymbolMap[abbreviation] = properties;
-				}
+            var abbreviation = properties.ExpandedSymbol.StripInvalidPathChars();
+            if (!symbolMap.ContainsKey(abbreviation))
+            {
+				symbolMap[abbreviation] = properties;
 			}
-			symbolMap = tempSymbolMap;
 		}
 		
-		private void AdjustSessions() {
-			foreach( var kvp in symbolMap) {
-				var symbolProperties = kvp.Value;
-				if( symbolProperties.TimeZone == null || symbolProperties.TimeZone.Length == 0) {
-					continue;
-				}
-				if( symbolProperties.DisplayTimeZone == "Local" ||
-				   symbolProperties.DisplayTimeZone == "UTC" ) {
-					// Convert session times from Exchange to UTC.
-					SymbolTimeZone timeZone = new SymbolTimeZone(symbolProperties);
-					timeZone.SetExchangeTimeZone();
-					int startOffset = (int) timeZone.UtcOffset(new TimeStamp());
-					int endOffset = (int) timeZone.UtcOffset(new TimeStamp());
-					Elapsed utcSessionStart = symbolProperties.SessionStart - new Elapsed(0,0,startOffset);
-					Elapsed utcSessionEnd = symbolProperties.SessionEnd - new Elapsed(0,0,endOffset);
-					// Convert UTCI session times to either Local or UTC as chosen
-					// by the DisplayTimeZone property.
-					timeZone = new SymbolTimeZone(symbolProperties);
-					startOffset = (int) timeZone.UtcOffset(new TimeStamp());
-					endOffset = (int) timeZone.UtcOffset(new TimeStamp());
-					symbolProperties.SessionStart = utcSessionStart + new Elapsed(0,0,startOffset);
-					symbolProperties.SessionEnd = utcSessionEnd + new Elapsed(0,0,endOffset);
-				}
+		private void AdjustSession(SymbolProperties symbolProperties) {
+			if( symbolProperties.TimeZone == null || symbolProperties.TimeZone.Length == 0)
+			{
+			    return;
+			}
+			if( symbolProperties.DisplayTimeZone == "Local" || symbolProperties.DisplayTimeZone == "UTC" ) {
+				// Convert session times from Exchange to UTC.
+				SymbolTimeZone timeZone = new SymbolTimeZone(symbolProperties);
+				timeZone.SetExchangeTimeZone();
+				int startOffset = (int) timeZone.UtcOffset(new TimeStamp());
+				int endOffset = (int) timeZone.UtcOffset(new TimeStamp());
+				Elapsed utcSessionStart = symbolProperties.SessionStart - new Elapsed(0,0,startOffset);
+				Elapsed utcSessionEnd = symbolProperties.SessionEnd - new Elapsed(0,0,endOffset);
+				// Convert UTCI session times to either Local or UTC as chosen
+				// by the DisplayTimeZone property.
+				timeZone = new SymbolTimeZone(symbolProperties);
+				startOffset = (int) timeZone.UtcOffset(new TimeStamp());
+				endOffset = (int) timeZone.UtcOffset(new TimeStamp());
+				symbolProperties.SessionStart = utcSessionStart + new Elapsed(0,0,startOffset);
+				symbolProperties.SessionEnd = utcSessionEnd + new Elapsed(0,0,endOffset);
 			}
 		}
 		
@@ -181,8 +164,9 @@ namespace TickZoom.Symbols
                 properties = properties.Copy();
                 properties.Account = account;
                 properties.CommonSymbol = sourceSymbol;
-                properties.BinaryIdentifier = ++universalIdentifier;
+                properties.BinaryIdentifier = universalIdentifier;
                 universalMap.Add(properties.BinaryIdentifier, properties);
+                ++universalIdentifier;
                 symbolMap[properties.ExpandedSymbol] = properties;
                 symbolMap[properties.ExpandedSymbol.StripInvalidPathChars()] = properties;
                 return true;
