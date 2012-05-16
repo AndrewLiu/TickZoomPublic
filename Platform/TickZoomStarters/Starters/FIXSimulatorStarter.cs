@@ -101,7 +101,7 @@ namespace TickZoom.Starters
             DeleteDirectory(historicalDirectory);
             Directory.CreateDirectory(realTimeDirectory);
             Directory.CreateDirectory(historicalDirectory);
-            foreach (var symbol in ProjectProperties.Starter.SymbolProperties)
+            foreach (var symbol in ProjectProperties.Starter.SymbolInfo)
             {
                 CopySymbol(historicalDirectory,realTimeDirectory,symbol.Symbol);
             }

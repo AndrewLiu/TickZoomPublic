@@ -49,9 +49,9 @@ namespace TickZoom.Examples
 		}
 		
 		public override void OnLoad(ProjectProperties properties) {
-			if( properties.Starter.SymbolProperties.Length > 1) {
+			if( properties.Starter.SymbolInfo.Length > 1) {
 				var portfolio = new Portfolio();
-				foreach( var symbol in properties.Starter.SymbolProperties) {
+				foreach( var symbol in properties.Starter.SymbolInfo) {
 					var strategy = new ExampleOrderStrategy();
 					strategy.Name = strategy.Name + "-" + symbol.ExpandedSymbol;
 					strategy.SymbolDefault = symbol.ExpandedSymbol;

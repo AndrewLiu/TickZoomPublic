@@ -33,12 +33,13 @@ namespace TickZoom.Api
 	/// </summary>
 	public interface StarterProperties
 	{
-		[Obsolete("In loaders, lease use SymbolProperties instead so you can override properties from the dictionary. The read only SymbolInfo is used everywhere else.",true)]
 		SymbolInfo[] SymbolInfo {
 			get;
 		}
-		
-		ISymbolProperties[] SymbolProperties {
+
+        [Obsolete("In loaders, lease use SymbolInfo instead since anything you override only operates in the platform. It's better to modify the symbol dictionary so other components have access.")]
+        ISymbolProperties[] SymbolProperties
+        {
 			get;
 		}
 		

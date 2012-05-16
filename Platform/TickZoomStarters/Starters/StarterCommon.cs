@@ -103,7 +103,7 @@ namespace TickZoom.Starters
 		public Agent[] SetupDataProviders() {
 			try {
 				List<Agent> senderList = new List<Agent>();
-                SymbolInfo[] symbols = ProjectProperties.Starter.SymbolProperties;
+                SymbolInfo[] symbols = ProjectProperties.Starter.SymbolInfo;
                 var provider = Factory.Parallel.SpawnProvider("ProviderCommon", "ClientManager", "Local");
                 for (int i = 0; i < symbols.Length; i++)
                 {
@@ -123,7 +123,7 @@ namespace TickZoom.Starters
 		    try
 		    {
                 engine = Factory.Engine.TickEngine("Starter");
-                if (ProjectProperties.Starter.SymbolProperties.Length == 0)
+                if (ProjectProperties.Starter.SymbolInfo.Length == 0)
                 {
                     throw new TickZoomException("Please enter at least one symbol.");
                 }
@@ -131,7 +131,7 @@ namespace TickZoom.Starters
                 // Chaining of models.
                 engine.Model = model;
                 engine.ChartProperties = ProjectProperties.Chart;
-                engine.SymbolInfo = ProjectProperties.Starter.SymbolProperties;
+                engine.SymbolInfo = ProjectProperties.Starter.SymbolInfo;
 
                 engine.IntervalDefault = ProjectProperties.Starter.IntervalDefault;
                 engine.EnableTickFilter = ProjectProperties.Engine.EnableTickFilter;
@@ -374,14 +374,14 @@ namespace TickZoom.Starters
 		}
 		
 		public TickEngine SetupEngine(bool quietMode, string name) {
-            if( ProjectProperties.Starter.SymbolProperties.Length == 0)
+            if( ProjectProperties.Starter.SymbolInfo.Length == 0)
             {
                 throw new TickZoomException("Please enter at least one symbol.");
             }
 		    TickEngine engine = Factory.Engine.TickEngine(name);
 			ProjectProperties.Engine.CopyProperties(engine);
 			engine.ChartProperties = ProjectProperties.Chart;
-			engine.SymbolInfo = ProjectProperties.Starter.SymbolProperties;
+			engine.SymbolInfo = ProjectProperties.Starter.SymbolInfo;
 			
 			engine.IntervalDefault = ProjectProperties.Starter.IntervalDefault;
 			engine.EnableTickFilter = ProjectProperties.Engine.EnableTickFilter;

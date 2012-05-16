@@ -41,11 +41,11 @@ namespace TickZoom.Examples
 		}
 		
 		public override void OnLoad(ProjectProperties properties) {
-            if (properties.Starter.SymbolProperties.Length > 1)
+            if (properties.Starter.SymbolInfo.Length > 1)
             {
                 var portfolio = new Portfolio();
                 portfolio.Name = "Portfolio-Client";
-                foreach (ISymbolProperties symbol in properties.Starter.SymbolProperties)
+                foreach (ISymbolProperties symbol in properties.Starter.SymbolInfo)
                 {
                     if (symbol.Account == "default")
                     {

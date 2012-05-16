@@ -51,7 +51,7 @@ namespace TickZoom.Examples
 		
 		public override void OnLoad(ProjectProperties project) {
 			var strategies = new List<Strategy>();
-			foreach( var symbol in project.Starter.SymbolProperties) {
+			foreach( var symbol in project.Starter.SymbolInfo) {
 				var strategy = new ExampleReversalStrategy();
 				strategies.Add(strategy);
 			}

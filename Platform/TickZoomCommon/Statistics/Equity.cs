@@ -95,7 +95,7 @@ namespace TickZoom.Statistics
 			dailyBinary = new TransactionPairsBinary(model.Context.TradeData);
 			portfolio = model as PortfolioInterface;
 			if( portfolio != null && portfolio.PortfolioType == PortfolioType.MultiSymbol) {
-				isMultiSymbolPortfolio = true; // portfolio.PortfolioType == PortfolioType.MultiSymbol;
+				isMultiSymbolPortfolio = true;
 			}
 			model.AddInterceptor( EventType.OpenInterval, this);
 			model.AddInterceptor( EventType.Close, this);
@@ -187,8 +187,7 @@ namespace TickZoom.Statistics
 			}
 			return true;
 		}
-		
-		TimeStamp dbgTime = new TimeStamp("2008-01-02 02:58:00");
+
 		public bool OnIntervalClose()
 		{
 			if( graphEquity) {

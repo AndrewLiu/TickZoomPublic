@@ -1352,7 +1352,7 @@ namespace Loaders
 
         public IEnumerable<SymbolInfo> GetSymbols() {
             var starter = SetupDesignStarter();
-            foreach (var symbol in starter.ProjectProperties.Starter.SymbolProperties)
+            foreach (var symbol in starter.ProjectProperties.Starter.SymbolInfo)
             {
                 yield return symbol;
             }

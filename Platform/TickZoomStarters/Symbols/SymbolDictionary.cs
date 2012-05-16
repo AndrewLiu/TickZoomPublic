@@ -50,7 +50,6 @@ namespace TickZoom.Symbols
 		private static object locker = new object();
 		private List<SymbolCategory> categories = new List<SymbolCategory>();
 	    private SymbolLibrary library;
-        private Dictionary<string,SymbolProperties> symbols = new Dictionary<string, SymbolProperties>();
 	    private string filePath;
 		
 		public SymbolDictionary(SymbolLibrary library, string filePath)
@@ -169,14 +168,19 @@ namespace TickZoom.Symbols
 			    			category.Categories.Add(subCategory);
 			    		} else if( "symbol".Equals(reader.Name)) {
 			    			string name = reader.GetAttribute("name");
-			    			string universal = reader.GetAttribute("universal");
 			    		    SymbolProperties symbol;
-                            if( symbols.TryGetValue(name, out symbol))
+                            if (library.TryGetSymbolProperties(name, out symbol))
                             {
-                                Error(reader,"Duplicate symbol: " + name);
+                                Error( reader, "Duplicate entry with same symbol, account, and source " + symbol.ExpandedSymbol);
                             }
-		    		        symbol = new SymbolProperties();
-                            symbol.Symbol = name;
+                            else
+                            {
+                                var baseSymbol = library.GetBaseSymbol(name);
+                                var account = library.GetSymbolAccount(name);
+                                symbol = new SymbolProperties();
+                                symbol.Symbol = baseSymbol;
+                                symbol.Account = account;
+                            }
                             foreach( var kvp in category.Properties)
                             {
                                 var overrideProperty = kvp.Key;
@@ -184,8 +188,21 @@ namespace TickZoom.Symbols
                                 overrideProperty.SetValue(symbol, overrideValue, null);
                             }
 			    			HandleSymbol(symbol,reader);
-			    			library.AddSymbol(symbol);
-                            symbols.Add(name,symbol);
+                            var defaultSymbol = symbol.Symbol + Symbol.AccountSeparator + "default";
+                            if( symbol.Account == "default")
+                            {
+                                symbol.CommonSymbol = symbol;
+                            }
+                            else
+                            {
+                                SymbolProperties commonSymbol;
+                                if (!library.GetSymbolProperties(defaultSymbol, out commonSymbol))
+                                {
+                                    Error(reader, "symbol " + symbol.ExpandedSymbol + " requires a default symbol " + symbol.Symbol + " to be defined first.");
+                                }
+                                symbol.CommonSymbol = commonSymbol;
+                            }
+                            library.AddSymbol(symbol);
 			    		} else {
 			    			Error(reader,"unexpected tag " + reader.Name );
 			    		}
@@ -931,6 +948,14 @@ namespace TickZoom.Symbols
       <symbol name=""XB"" />
       <symbol name=""HU"" />
     </category>
+  </category>
+  <category name=""Market Account"">
+      <property name=""DisableRealtimeSimulation"" value=""true"" />
+      <property name=""OffsetTooLateToChange"" value=""false"" />
+      <symbol name=""SPY!market""/>
+      <symbol name=""BAC!market""/>
+      <symbol name=""INTC!market""/>
+      <symbol name=""FITB!market""/>
   </category>
 </category>";
 #endregion

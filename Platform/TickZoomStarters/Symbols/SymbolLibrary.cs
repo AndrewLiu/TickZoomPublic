@@ -55,18 +55,16 @@ namespace TickZoom.Symbols
         {
             if (properties.Account == "default")
             {
-                symbolMap[properties.ExpandedSymbol] = properties;
+                symbolMap.Add(properties.ExpandedSymbol,properties);
                 properties.CommonSymbol = properties;
             }
             else
             {
-                if (ReferenceEquals(properties.CommonSymbol, properties) ||
-                    properties.CommonSymbol.ExpandedSymbol == properties.ExpandedSymbol)
+                if (ReferenceEquals(properties.CommonSymbol, properties) || properties.CommonSymbol.ExpandedSymbol == properties.ExpandedSymbol)
                 {
-                    throw new ApplicationException("Symbol " + properties.ExpandedSymbol +
-                                                   " cannot have itself as the common symbol.");
+                    throw new ApplicationException("Symbol " + properties.ExpandedSymbol + " cannot have itself as the common symbol.");
                 }
-                symbolMap[properties.ExpandedSymbol] = properties;
+                symbolMap.Add(properties.ExpandedSymbol, properties);
             }
             AddAbbreviation(properties);
             AdjustSession(properties);
@@ -114,7 +112,8 @@ namespace TickZoom.Symbols
 		public bool GetSymbolProperties(string symbolArgumentAccount, out SymbolProperties properties) {
 			return symbolMap.TryGetValue(symbolArgumentAccount,out properties);
 		}
-		private string GetDictionarySymbol(string symbol) {
+
+		public string GetBaseSymbol(string symbol) {
 			var parts = symbol.Split( '.','@','!');
 			if( parts.Length > 1) {
 				symbol = parts[0].Trim();
@@ -122,7 +121,7 @@ namespace TickZoom.Symbols
 			return symbol;
 		}
 
-        private string GetDynamicAccount(string symbol)
+        public string GetSymbolAccount(string symbol)
         {
             var parts = symbol.Split('!');
             if (parts.Length > 2)
@@ -141,36 +140,22 @@ namespace TickZoom.Symbols
             SymbolProperties properties;
             if( !TryGetSymbolProperties(symbolArgument, out properties))
             {
-                throw new ApplicationException("Sorry, symbol " + symbolArgument + " was not found with default account in any symbol dictionary.");
+                throw new ApplicationException("Sorry, symbol " + symbolArgument + " was not found in any symbol dictionary. Please heck for typos or else add it to the dictionary.");
             }
             return properties;
         }
 
 	    public bool TryGetSymbolProperties(string symbolArgument, out SymbolProperties properties)
         {
-            var brokerSymbol = GetDictionarySymbol(symbolArgument);
-            var defaultSymbol = brokerSymbol + Symbol.AccountSeparator + "default";
+            var brokerSymbol = GetBaseSymbol(symbolArgument);
 
-            var account = GetDynamicAccount(symbolArgument);
+            var account = GetSymbolAccount(symbolArgument);
 
             var expandedSymbol = brokerSymbol + Symbol.AccountSeparator + account;
             if (GetSymbolProperties(expandedSymbol, out properties))
             {
                 return true;
 			}
-            if (GetSymbolProperties(defaultSymbol, out properties))
-            {
-                var sourceSymbol = properties;
-                properties = properties.Copy();
-                properties.Account = account;
-                properties.CommonSymbol = sourceSymbol;
-                properties.BinaryIdentifier = universalIdentifier;
-                universalMap.Add(properties.BinaryIdentifier, properties);
-                ++universalIdentifier;
-                symbolMap[properties.ExpandedSymbol] = properties;
-                symbolMap[properties.ExpandedSymbol.StripInvalidPathChars()] = properties;
-                return true;
-            }
 	        return false;
         }
 

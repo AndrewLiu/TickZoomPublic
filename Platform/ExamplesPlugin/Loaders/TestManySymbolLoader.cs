@@ -19,7 +19,7 @@ namespace TickZoom.Examples
         public override void OnLoad(ProjectProperties properties)
         {
             var portfolio = new Portfolio();
-            foreach( ISymbolProperties symbol in properties.Starter.SymbolProperties) {
+            foreach( ISymbolProperties symbol in properties.Starter.SymbolInfo) {
                 var strategy = new ExampleOrderStrategy();
                 strategy.Name = strategy.Name + "-" + symbol.ExpandedSymbol;
                 switch( symbol.ExpandedSymbol)
