@@ -155,16 +155,25 @@ namespace TickZoom.Symbols
 
         public SymbolProperties GetSymbolProperties(string symbolArgument)
         {
+            SymbolProperties properties;
+            if( !TryGetSymbolProperties(symbolArgument, out properties))
+            {
+                throw new ApplicationException("Sorry, symbol " + symbolArgument + " was not found with default account in any symbol dictionary.");
+            }
+            return properties;
+        }
+
+	    public bool TryGetSymbolProperties(string symbolArgument, out SymbolProperties properties)
+        {
             var brokerSymbol = GetDictionarySymbol(symbolArgument);
             var defaultSymbol = brokerSymbol + Symbol.AccountSeparator + "default";
 
             var account = GetDynamicAccount(symbolArgument);
 
-			SymbolProperties properties;
             var expandedSymbol = brokerSymbol + Symbol.AccountSeparator + account;
             if (GetSymbolProperties(expandedSymbol, out properties))
             {
-                return properties;
+                return true;
 			}
             if (GetSymbolProperties(defaultSymbol, out properties))
             {
@@ -176,12 +185,13 @@ namespace TickZoom.Symbols
                 universalMap.Add(properties.BinaryIdentifier, properties);
                 symbolMap[properties.ExpandedSymbol] = properties;
                 symbolMap[properties.ExpandedSymbol.StripInvalidPathChars()] = properties;
-                return properties;
+                return true;
             }
-            throw new ApplicationException("Sorry, symbol " + symbolArgument + " was not found with default account in any symbol dictionary.");
+	        return false;
         }
-		
-		public SymbolInfo LookupSymbol(string symbol) {
+
+        public SymbolInfo LookupSymbol(string symbol)
+        {
 			return GetSymbolProperties(symbol);
 		}
 	

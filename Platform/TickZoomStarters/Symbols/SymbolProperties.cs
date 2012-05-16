@@ -25,9 +25,11 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Design;
 using System.IO;
+using System.Linq.Expressions;
 using System.Runtime.Serialization.Formatters.Binary;
 
 using TickZoom.Api;
@@ -114,8 +116,9 @@ namespace TickZoom.Symbols
 			get { return simulateTicks; }
 			set { simulateTicks = value; }
 		}
-		
-		public Elapsed SessionEnd {
+
+        public Elapsed SessionEnd
+        {
 			get { return sessionEnd; }
 			set { sessionEnd = value; }
 		}
