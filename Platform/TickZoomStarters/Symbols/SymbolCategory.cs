@@ -26,6 +26,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using TickZoom.Common;
 using TickZoom.Api;
 
@@ -34,21 +35,22 @@ namespace TickZoom.Symbols
 	/// <summary>
 	/// Description of SymbolCategory.
 	/// </summary>
-	public class SymbolCategory : IEnumerable<SymbolProperties>
+	public class SymbolCategory
 	{
 		string name;
-		SymbolProperties @default;
-		List<SymbolCategory> categories = new List<SymbolCategory>();
-		List<SymbolProperties> symbols = new List<SymbolProperties>();
+        private Dictionary<PropertyInfo, object> properties = new Dictionary<PropertyInfo, object>();
+        List<SymbolCategory> categories = new List<SymbolCategory>();
 		
-		public SymbolCategory(SymbolProperties symbolProperties)
+		public SymbolCategory(Dictionary<PropertyInfo,object> properties)
 		{
-			@default = symbolProperties;
+			foreach( var kvp in properties)
+			{
+			    Set(kvp.Key,kvp.Value);
+			}
 		}
 		
 		public SymbolCategory()
 		{
-			@default = new SymbolProperties();
 		}
 		
 		public string Name {
@@ -60,30 +62,14 @@ namespace TickZoom.Symbols
 			get { return categories; }
 		}
 		
-		public List<SymbolProperties> Symbols {
-			get { return symbols; }
-		}
-		
-		public SymbolProperties Default {
-			get { return @default; }
-			set { @default = value; }
-		}
-		
-		public IEnumerator<SymbolProperties> GetEnumerator()
-		{
-			foreach( SymbolProperties properties in symbols) {
-				yield return properties;
-			}
-			foreach( SymbolCategory category in categories) {
-				foreach( SymbolProperties properties in category ) {
-					yield return properties;
-				}
-			}
-		}
-		
-		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
+	    public Dictionary<PropertyInfo, object> Properties
+	    {
+	        get { return properties; }
+	    }
+
+	    public void Set(PropertyInfo property, object value)
+	    {
+	        Properties[property] = value;
+	    }
 	}
 }

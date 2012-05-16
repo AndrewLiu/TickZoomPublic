@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -47,12 +48,11 @@ namespace TickZoom.Symbols
 		private readonly bool trace = log.IsTraceEnabled;
 		private readonly bool debug = log.IsDebugEnabled;
 		private static object locker = new object();
-		private SymbolProperties @default;
+        List<SymbolProperties> symbols = new List<SymbolProperties>();
 		private List<SymbolCategory> categories = new List<SymbolCategory>();
 		
 		public SymbolDictionary()
 		{
-			@default = new SymbolProperties();
 		}
 
 		public static SymbolDictionary Create(string name, string defaultContents) {
@@ -157,19 +157,25 @@ namespace TickZoom.Symbols
 			    		if( "property".Equals(reader.Name) ) {
 			    			string name = reader.GetAttribute("name");
 			    			string value = reader.GetAttribute("value");
-			    			HandleProperty(reader,category.Default, reader.GetAttribute("name"), reader.GetAttribute("value"));
+			    			HandleOverrideProperty(reader,category, reader.GetAttribute("name"), reader.GetAttribute("value"));
 			    			if( trace) log.Trace("Property " + name + " = " + value);
 			    		} else if( "category".Equals(reader.Name)) {
-			    			SymbolCategory subCategory = new SymbolCategory(category.Default.Copy());
+			    			SymbolCategory subCategory = new SymbolCategory(category.Properties);
 			    			HandleCategory(subCategory,reader);
 			    			category.Categories.Add(subCategory);
 			    		} else if( "symbol".Equals(reader.Name)) {
 			    			string name = reader.GetAttribute("name");
 			    			string universal = reader.GetAttribute("universal");
-			    			var symbol = category.Default.Copy();
+			    			var symbol = new SymbolProperties();
+                            foreach( var kvp in category.Properties)
+                            {
+                                var overrideProperty = kvp.Key;
+                                var overrideValue = kvp.Value;
+                                overrideProperty.SetValue(symbol, overrideValue, null);
+                            }
 		    				symbol.Symbol = name;
 			    			HandleSymbol(symbol,reader);
-			    			category.Symbols.Add(symbol);
+			    			symbols.Add(symbol);
 			    		} else {
 			    			Error(reader,"unexpected tag " + reader.Name );
 			    		}
@@ -216,8 +222,23 @@ namespace TickZoom.Symbols
 			}
 			Error(reader,"Unexpected end of file");
 		}
-		
-		private void HandleProperty( XmlReader reader, object obj, string name, string str) {
+
+        private void HandleOverrideProperty(XmlReader reader, SymbolCategory category, string name, string str)
+        {
+            var property = typeof(SymbolProperties).GetProperty(name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            if (property == null)
+            {
+                Warning(reader, typeof(SymbolProperties).GetType() + " does not have the property: " + name);
+                return;
+            }
+            var propertyType = property.PropertyType;
+            var value = Converters.Convert(propertyType, str);
+            if (trace) log.Trace("Property " + property.Name + " = " + value);
+            category.Set(property, value);
+        }
+
+        private void HandleProperty(XmlReader reader, object obj, string name, string str)
+        {
 			var property = obj.GetType().GetProperty(name,BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 			if( property == null) {
 				Warning(reader,obj.GetType() + " does not have the property: " + name);
@@ -256,22 +277,26 @@ namespace TickZoom.Symbols
 			}
 			throw new ApplicationException("Symbol " + symbol + " was not found in the dictionary.");
 		}
-		
-		
-		public IEnumerator<SymbolProperties> GetEnumerator()
-		{
-			foreach( SymbolCategory category in categories) {
-				foreach( SymbolProperties properties in category) {
-					yield return properties;
-				}
-			}
-		}
-		
-		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
-#region UNIVERSAL_DICTIONARY
+
+        public List<SymbolProperties> Symbols
+        {
+            get { return symbols; }
+        }
+
+        public IEnumerator<SymbolProperties> GetEnumerator()
+        {
+            foreach (SymbolProperties properties in symbols)
+            {
+                yield return properties;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        #region UNIVERSAL_DICTIONARY
 		public static string UniversalDictionary = @"<?xml version=""1.0"" encoding=""utf-16""?>
 <category name=""Universal"">
   <category name=""Synthetic"">
