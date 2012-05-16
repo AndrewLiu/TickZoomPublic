@@ -546,7 +546,9 @@ namespace TickZoom.Provider.FIX
                             }
                             if (!packetFIX.IsResetSeqNum && packetFIX.Sequence < RemoteSequence)
                             {
-                                throw new InvalidOperationException("Login sequence number was " + packetFIX.Sequence + " less than expected " + RemoteSequence + ".");
+                                var loginReject = "MsgSeqNum too low expecting " + RemoteSequence + " but was " + packetFIX.Sequence;
+                                SendLoginReject(loginReject);
+                                return true;
                             }
                             HandleFIXLogin(packetFIX);
                             if (packetFIX.Sequence > RemoteSequence)
@@ -630,6 +632,15 @@ namespace TickZoom.Provider.FIX
             SendMessage(mbtMsg);
             if (trace) log.Trace("Sending system offline simulation: " + mbtMsg);
             //resetSequenceNumbersNextDisconnect = true;
+        }
+
+        private void SendLoginReject(string message)
+        {
+            var mbtMsg = FixFactory.Create();
+            mbtMsg.AddHeader("5");
+            mbtMsg.SetText(message);
+            SendMessage(mbtMsg);
+            if (trace) log.Trace("Sent login reject " + mbtMsg);
         }
 
         private void ServerSyncComplete()
