@@ -22,9 +22,8 @@ namespace TickZoom.Examples
         public override void OnLoad(ProjectProperties properties)
         {
             var strategies = new List<Strategy>();
-            foreach (var symbol in properties.Starter.SymbolProperties)
+            foreach (var symbol in properties.Starter.SymbolInfo)
             {
-                symbol.LimitOrderQuoteSimulation = LimitOrderQuoteSimulation.OppositeQuoteTouch;
                 var strategy = new SimplexStrategy();
                 strategy.SymbolDefault = symbol.ExpandedSymbol;
                 strategy.IsActive = true;

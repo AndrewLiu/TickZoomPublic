@@ -52,7 +52,7 @@ namespace Loaders
 		public override void OnLoad(ProjectProperties properties) {
 			properties.Engine.RealtimeOutput = false;
 			Portfolio portfolio = CreatePortfolio("Portfolio","EntirePortfolio");
-			foreach( var symbol in properties.Starter.SymbolProperties) {
+			foreach( var symbol in properties.Starter.SymbolInfo) {
 				string name = "ExampleOrderStrategy+" + symbol.ExpandedSymbol;
 				ExampleOrderStrategy strategy = (ExampleOrderStrategy) CreateStrategy("ExampleOrderStrategy",name);
 				strategy.Multiplier = 10D;

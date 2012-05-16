@@ -49,7 +49,7 @@ namespace TickZoom.Examples
 		
 		public override void OnLoad(ProjectProperties project) {
 			var strategies = new List<Strategy>();
-			foreach( var symbol in project.Starter.SymbolProperties) {
+			foreach( var symbol in project.Starter.SymbolInfo) {
 				var barLogic = new PointFigureBars(symbol,50,4);
 				project.Starter.IntervalDefault = barLogic;
 				var strategy = new ExampleReversalStrategy();

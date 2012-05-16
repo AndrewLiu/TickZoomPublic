@@ -17,7 +17,7 @@ namespace TickZoom.Examples
         }
 	
         public override void OnLoad(ProjectProperties properties) {
-            foreach( ISymbolProperties symbol in properties.Starter.SymbolProperties) {
+            foreach( ISymbolProperties symbol in properties.Starter.SymbolInfo) {
                 string name = symbol.ExpandedSymbol;				
                 Strategy strategy = CreateStrategy("ExampleReversalStrategy","ExampleReversal-"+name);
                 strategy.SymbolDefault = name;

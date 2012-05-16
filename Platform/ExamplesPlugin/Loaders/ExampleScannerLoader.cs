@@ -50,14 +50,14 @@ namespace TickZoom.Examples
 		public override void OnLoad(ProjectProperties properties) {
 			// Loop through and setup a default strategy to handle orders
 			// for each symbol.
-			for( int i=0; i<properties.Starter.SymbolProperties.Length; i++) {
-				string symbol = properties.Starter.SymbolProperties[i].ExpandedSymbol;
+			for( int i=0; i<properties.Starter.SymbolInfo.Length; i++) {
+				string symbol = properties.Starter.SymbolInfo[i].ExpandedSymbol;
 				ModelInterface market = CreateStrategy("StrategyCommon",symbol+"Strategy");
 				market.SymbolDefault = symbol;
 				AddDependency("ExampleScannerStrategy",symbol+"Strategy");
 			}
 			TopModel = GetPortfolio("ExampleScannerStrategy");
-			TopModel.SymbolDefault = properties.Starter.SymbolProperties[0].ExpandedSymbol;
+			TopModel.SymbolDefault = properties.Starter.SymbolInfo[0].ExpandedSymbol;
 		}
 		
 	}

@@ -708,9 +708,6 @@ namespace TickZoom.Interceptors
         private void CreatePhysicalFillHelper(int totalSize, double price, TimeStamp time, TimeStamp utcTime, CreateOrChangeOrder order)
         {
             if (debug) log.Debug("Filling order: " + order);
-			if( Math.Abs(totalSize) != order.RemainingSize) {
-                 int x = 0;
-            }
             var remainingSize = totalSize;
             var split = 1;
             var numberFills = split;

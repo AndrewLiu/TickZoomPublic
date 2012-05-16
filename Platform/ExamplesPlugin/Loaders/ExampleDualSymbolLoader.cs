@@ -51,14 +51,14 @@ namespace TickZoom.Examples
 		}
 		
 		public override void OnLoad(ProjectProperties properties) {
-			if( properties.Starter.SymbolProperties.Length > 0) {
+			if( properties.Starter.SymbolInfo.Length > 0) {
 				ModelInterface fullTicks = CreateStrategy("ExampleOrderStrategy","FullTicksData");
-				fullTicks.SymbolDefault = properties.Starter.SymbolProperties[0].ExpandedSymbol;
+				fullTicks.SymbolDefault = properties.Starter.SymbolInfo[0].ExpandedSymbol;
 				AddDependency("Portfolio","FullTicksData");
 			}
-			if( properties.Starter.SymbolProperties.Length > 1) {
+			if( properties.Starter.SymbolInfo.Length > 1) {
 				ModelInterface fourTicks = CreateStrategy("ExampleOrderStrategy","FourTicksData");
-				fourTicks.SymbolDefault = properties.Starter.SymbolProperties[1].ExpandedSymbol;
+				fourTicks.SymbolDefault = properties.Starter.SymbolInfo[1].ExpandedSymbol;
 				AddDependency("Portfolio","FourTicksData");
 			}
 			Portfolio portfolio = GetPortfolio("Portfolio");

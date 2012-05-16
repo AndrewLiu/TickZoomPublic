@@ -219,11 +219,8 @@ namespace TickZoom.Common
             sb.Append(binary.logicalOrderId);
             sb.Append("-");
             sb.Append(binary.logicalSerialNumber);
-            if (binary.brokerOrder != null)
-            {
-                sb.Append(" broker: ");
-                sb.Append(binary.brokerOrder);
-            }
+            sb.Append(" broker: ");
+            sb.Append(binary.brokerOrder);
             if (binary.originalOrder != null)
             {
                 sb.Append(" original: ");

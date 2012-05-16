@@ -45,7 +45,7 @@ namespace TickZoom.Examples
         public override void OnInitialize(ProjectProperties properties)
         {
             // Add market symbols.
-            foreach (ISymbolProperties symbol in properties.Starter.SymbolProperties)
+            foreach (ISymbolProperties symbol in properties.Starter.SymbolInfo)
             {
                 if (symbol.Account != "market")
                 {
@@ -53,7 +53,7 @@ namespace TickZoom.Examples
                 }
             }
             // Setup market symbols.
-            foreach (ISymbolProperties symbol in properties.Starter.SymbolProperties)
+            foreach (ISymbolProperties symbol in properties.Starter.SymbolInfo)
             {
                 if (symbol.Account == "market")
                 {
@@ -67,7 +67,7 @@ namespace TickZoom.Examples
         {
             var portfolio = new Portfolio();
             portfolio.Name = "Portfolio-Market";
-            foreach (ISymbolProperties symbol in properties.Starter.SymbolProperties)
+            foreach (ISymbolProperties symbol in properties.Starter.SymbolInfo)
             {
                 portfolio.SymbolDefault = symbol.ExpandedSymbol;
                 if( symbol.Account == "market")

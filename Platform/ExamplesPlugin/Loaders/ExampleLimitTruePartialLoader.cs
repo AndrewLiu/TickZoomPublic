@@ -2,23 +2,26 @@
 
 namespace TickZoom.Examples
 {
-    public class ExampleMixedTruePartial : ExampleMixedLoader
+    public class ExampleLimitTruePartialLoader : ExampleLimitOrderLoader
     {
-        public ExampleMixedTruePartial()
+        public ExampleLimitTruePartialLoader()
         {
             category = "Test";
-            name = "True Partial: Multi-Symbol, Multi-Strategy";
+            name = "True Partial LimitOrders";
             IsVisibleInGUI = false;
         }
-        public override void OnLoad(ProjectProperties properties)
-        {
+
+        public override void OnInitialize(ProjectProperties properties) {
+        }
+		
+        public override void OnLoad(ProjectProperties properties) {
 #pragma warning disable 612,618
             foreach (var symbol in properties.Starter.SymbolProperties)
 #pragma warning restore 612,618
             {
                 symbol.PartialFillSimulation = PartialFillSimulation.PartialFillsIncomplete;
             }
-            base.OnLoad(properties);
+            TopModel = GetStrategy("ExampleOrderStrategy");
         }
     }
 }

@@ -40,7 +40,7 @@ namespace TickZoom.Examples
 		}
 		
 		public override void OnInitialize(ProjectProperties properties) {
-			if( properties.Starter.SymbolProperties.Length < 2) {
+			if( properties.Starter.SymbolInfo.Length < 2) {
 				throw new ApplicationException( "This loader requires at least 2 symbols.");
 			}
 		}
@@ -49,7 +49,7 @@ namespace TickZoom.Examples
 			// This portfolio has one strategy on symbol A
 			// and 2 strategies on symbol B to demonstrate
 			// portfolio "self-organization".
-			string symbol = properties.Starter.SymbolProperties[0].ExpandedSymbol;
+			string symbol = properties.Starter.SymbolInfo[0].ExpandedSymbol;
 			Strategy strategy = CreateStrategy("ExampleOrderStrategy","ExampleOrder-"+symbol) as Strategy;
 			strategy.SymbolDefault = symbol;
 			strategy.Performance.Equity.GraphEquity = false;
@@ -60,7 +60,7 @@ namespace TickZoom.Examples
 		    strategy.AddDependency(indicator);
 	    	AddDependency( "Portfolio", "ExampleOrder-"+symbol);
 
-			symbol = properties.Starter.SymbolProperties[1].ExpandedSymbol;
+			symbol = properties.Starter.SymbolInfo[1].ExpandedSymbol;
 			strategy = CreateStrategy("ExampleOrderStrategy","ExampleOrder-"+symbol) as Strategy;
 			strategy.SymbolDefault = symbol;
 			strategy.Performance.Equity.GraphEquity = false;
@@ -81,8 +81,8 @@ namespace TickZoom.Examples
             strategy.AddDependency(indicator);
             AddDependency("Portfolio", "ExampleReversal-" + symbol);
 	    	
-	    	for( int i=2; i<properties.Starter.SymbolProperties.Length; i++) {
-				symbol = properties.Starter.SymbolProperties[i].ExpandedSymbol;
+	    	for( int i=2; i<properties.Starter.SymbolInfo.Length; i++) {
+				symbol = properties.Starter.SymbolInfo[i].ExpandedSymbol;
 				strategy = CreateStrategy("ExampleOrderStrategy","ExampleOrder-"+symbol) as Strategy;
 				strategy.SymbolDefault = symbol;
 				strategy.Performance.Equity.GraphEquity = false;

@@ -22,7 +22,7 @@ namespace TickZoom.Examples
         public override void OnLoad(ProjectProperties properties)
         {
             var strategies = new List<Strategy>();
-            foreach (var symbol in properties.Starter.SymbolProperties)
+            foreach (var symbol in properties.Starter.SymbolInfo)
             {
                 var strategy = new OtherStrategy();
                 strategy.SymbolDefault = symbol.ExpandedSymbol;
