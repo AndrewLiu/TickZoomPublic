@@ -341,20 +341,30 @@ namespace TickZoom.Symbols
       <symbol name=""COIN"" />
       <symbol name=""BAC"" />
       <symbol name=""Design"" />
-      <symbol name=""FullTick"" />
       <symbol name=""Daily4Ticks"" />
       <symbol name=""Daily4SimZB"" />
       <symbol name=""USD_JPY_Back"" />
       <symbol name=""MockFull"" />
       <symbol name=""Mock4Ticks"" />
-      <symbol name=""Mock4Sim"" />
-      <symbol name=""Daily4Sim"">
-        <property name=""DisplayTimeZone"" value=""Local"" />
-      </symbol>
       <symbol name=""Daily4Test"" />
       <symbol name=""TXF"" />
-      <symbol name=""spyTestBars"" />
       <symbol name=""ErrorTest"" />
+    </category>
+  </category>
+  <category name=""StockTests"">
+    <property name=""DisplayTimeZone"" value=""Exchange"" />
+    <property name=""FullPointValue"" value=""1"" />
+    <property name=""MinimumTick"" value=""0.01"" />
+    <category name=""Testing"">
+      <property name=""TimeZone"" value=""UTC-4"" />
+      <symbol name=""FullTick"" />
+      <symbol name=""Daily4Sim"" />
+      <symbol name=""Mock4Sim"" >
+        <property name=""UseSyntheticLimits"" value=""true"" />
+        <property name=""UseSyntheticStops"" value=""true"" />
+        <property name=""UseSyntheticMarkets"" value=""true"" />
+      </symbol>
+      <symbol name=""spyTestBars"" />
     </category>
   </category>
   <category name=""Forex"">
@@ -928,23 +938,6 @@ namespace TickZoom.Symbols
 #region USER_DICTIONARY
 		public static string UserDictionary = @"<?xml version=""1.0"" encoding=""utf-16""?>
 <category name=""MB Trading"">
-  <category name=""Stock"">
-    <property name=""DisplayTimeZone"" value=""Exchange"" />
-    <property name=""FullPointValue"" value=""1"" />
-    <property name=""MinimumTick"" value=""0.01"" />
-    <category name=""Testing"">
-      <property name=""TimeZone"" value=""UTC-4"" />
-      <symbol name=""FullTick"" />
-      <symbol name=""Daily4Sim"" />
-      <symbol name=""Mock4Sim"" >
-        <property name=""UseSyntheticLimits"" value=""true"" />
-        <property name=""UseSyntheticStops"" value=""true"" />
-        <property name=""UseSyntheticMarkets"" value=""true"" />
-      </symbol>
-      <symbol name=""TXF"" />
-      <symbol name=""spyTestBars"" />
-    </category>
-  </category>
 </category>";
 #endregion
 	}
