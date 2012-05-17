@@ -177,31 +177,32 @@ namespace TickZoom.Symbols
                             {
                                 var baseSymbol = library.GetBaseSymbol(name);
                                 var account = library.GetSymbolAccount(name);
-                                symbol = new SymbolProperties();
+                                if (account == "default")
+                                {
+                                    symbol = new SymbolProperties();
+                                    symbol.CommonSymbol = symbol;
+                                }
+                                else
+                                {
+                                    var defaultSymbol = baseSymbol + Symbol.AccountSeparator + "default";
+                                    SymbolProperties commonSymbol;
+                                    if (!library.GetSymbolProperties(defaultSymbol, out commonSymbol))
+                                    {
+                                        Error(reader, "symbol " + symbol.ExpandedSymbol + " requires a default symbol " + symbol.Symbol + " to be defined first.");
+                                    }
+                                    symbol = commonSymbol.Copy();
+                                    symbol.CommonSymbol = commonSymbol;
+                                }
                                 symbol.Symbol = baseSymbol;
                                 symbol.Account = account;
                             }
-                            foreach( var kvp in category.Properties)
+                            foreach (var kvp in category.Properties)
                             {
                                 var overrideProperty = kvp.Key;
                                 var overrideValue = kvp.Value;
                                 overrideProperty.SetValue(symbol, overrideValue, null);
                             }
 			    			HandleSymbol(symbol,reader);
-                            var defaultSymbol = symbol.Symbol + Symbol.AccountSeparator + "default";
-                            if( symbol.Account == "default")
-                            {
-                                symbol.CommonSymbol = symbol;
-                            }
-                            else
-                            {
-                                SymbolProperties commonSymbol;
-                                if (!library.GetSymbolProperties(defaultSymbol, out commonSymbol))
-                                {
-                                    Error(reader, "symbol " + symbol.ExpandedSymbol + " requires a default symbol " + symbol.Symbol + " to be defined first.");
-                                }
-                                symbol.CommonSymbol = commonSymbol;
-                            }
                             library.AddSymbol(symbol);
 			    		} else {
 			    			Error(reader,"unexpected tag " + reader.Name );
