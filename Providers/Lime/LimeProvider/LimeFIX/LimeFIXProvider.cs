@@ -158,7 +158,8 @@ namespace TickZoom.Provider.LimeFIX
                     if (match.Success && int.TryParse(match.Groups[1].Value, out newSequenceNumber) && newSequenceNumber >= OrderStore.LocalSequence)
                     {
                         log.Error(message42.Text);
-                        OrderStore.SetSequences(OrderStore.RemoteSequence, newSequenceNumber);
+                        var remoteSequence = OrderStore.RemoteSequence == 0 ? message.Sequence + 1 : OrderStore.RemoteSequence;
+                        OrderStore.SetSequences(remoteSequence,newSequenceNumber);
                         Socket.Dispose();
                         RetryStart = 2;
                         fastRetry = true;
