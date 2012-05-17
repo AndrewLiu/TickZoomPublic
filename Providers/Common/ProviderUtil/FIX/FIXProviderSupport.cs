@@ -849,10 +849,7 @@ namespace TickZoom.Provider.FIX
             }
             else if (ConnectionStatus == Status.PendingLogin && messageFIX.MessageType == "5")
             {
-                RemoteSequence = messageFIX.Sequence + 1;
-                if (debug) log.Debug("Incrementing remote sequence to " + RemoteSequence);
                 HandleRejectedLogin(messageFIX);
-                orderStore.UpdateRemoteSequence(remoteSequence);
                 return true;
             }
             else if (ConnectionStatus == Status.PendingLogin && messageFIX.MessageType != "5")
