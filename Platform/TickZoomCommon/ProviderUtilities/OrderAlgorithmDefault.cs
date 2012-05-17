@@ -1439,10 +1439,10 @@ namespace TickZoom.Common
 		    }
             else
             {
-                if (debug) log.Debug("Physical order partially filled: " + order);
                 order.CompleteSize = Math.Abs(physical.CompleteSize);
                 order.CumulativeSize = Math.Abs(physical.CumulativeSize);
                 order.RemainingSize = Math.Abs(physical.RemainingSize);
+                if (debug) log.Debug("Physical order partially filled: " + order);
             }
 
             if( adjustment) {
@@ -2090,6 +2090,7 @@ namespace TickZoom.Common
         // This is a callback to confirm order was properly placed.
         public void ConfirmChange(long brokerOrder, bool isRealTime)
         {
+            if (debug) log.Debug("ConfirmChange(" + (isRealTime ? "RealTime" : "Recovery") + ") " + brokerOrder);
             CreateOrChangeOrder order;
             if (!physicalOrderCache.TryGetOrderById(brokerOrder, out order))
             {
@@ -2098,8 +2099,13 @@ namespace TickZoom.Common
             }
             ++confirmedOrderCount;
             order.OrderState = OrderState.Active;
-            if (debug) log.Debug("ConfirmChange(" + (isRealTime ? "RealTime" : "Recovery") + ") " + order);
+            if( order.OriginalOrder != null)
+            {
+                order.CumulativeSize = order.OriginalOrder.CumulativeSize;
+            }
+            order.RemainingSize = order.CompleteSize - order.CumulativeSize;
             physicalOrderCache.PurgeOriginalOrder(order);
+            if (debug) log.Debug("Changed " + order);
             if (isRealTime)
             {
                 PerformCompareProtected();
