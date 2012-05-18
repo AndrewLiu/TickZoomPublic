@@ -204,6 +204,7 @@ namespace TickZoom.Provider.LimeFIX
 #endif
             ProviderSimulator.ChangeOrder(order);
             ProcessChangeOrder(order);
+            order.OriginalOrder = null; // Original is now gone.
         }
 
         private void ProcessChangeOrder(CreateOrChangeOrder order)

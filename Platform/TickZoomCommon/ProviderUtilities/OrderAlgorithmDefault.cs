@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -2207,7 +2208,10 @@ namespace TickZoom.Common
             var cancelOrder = origOrder.ReplacedBy;
             ++confirmedOrderCount;
             if (debug) log.Debug("ConfirmCancel(" + (isRealTime ? "RealTime" : "Recovery") + ") " + originalOrderId);
-            physicalOrderCache.RemoveOrder(cancelOrder.BrokerOrder);
+            if( cancelOrder != null)
+            {
+                physicalOrderCache.RemoveOrder(cancelOrder.BrokerOrder);
+            }
             physicalOrderCache.RemoveOrder(origOrder.BrokerOrder);
             if (isRealTime)
             {

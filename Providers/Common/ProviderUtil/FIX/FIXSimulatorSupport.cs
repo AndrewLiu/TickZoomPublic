@@ -743,7 +743,7 @@ namespace TickZoom.Provider.FIX
         {
             if( isConnectionLost)
             {
-                if (debug) log.Debug("Ignoring message: " + packetFIX);
+                if (debug) log.Debug("Connection Ignoring message: " + packetFIX);
                 RemoveTickSync(packetFIX);
                 return true;
             }

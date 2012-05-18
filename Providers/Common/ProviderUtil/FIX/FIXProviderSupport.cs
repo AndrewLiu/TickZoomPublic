@@ -502,13 +502,13 @@ namespace TickZoom.Provider.FIX
                             var result = TryProcessMessage();
                             if (!result.IsIdle)
                             {
-                                transaction.Dispose();
+                                orderStore.TrySnapshot();
                             }
                             return result;
                         }
                         finally
                         {
-                            orderStore.TrySnapshot();
+                            transaction.Dispose();
                         }
                     case SocketState.Disconnected:
                     case SocketState.Closed:
