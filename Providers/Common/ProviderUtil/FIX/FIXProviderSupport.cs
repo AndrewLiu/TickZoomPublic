@@ -551,7 +551,7 @@ namespace TickZoom.Provider.FIX
                     orderAlgorithm.OrderAlgorithm.ConfirmChange(order.BrokerOrder, IsRecovered);
                     break;
                 case OrderAction.Cancel:
-                    orderAlgorithm.OrderAlgorithm.ConfirmCancel(order.BrokerOrder, IsRecovered);
+                    orderAlgorithm.OrderAlgorithm.ConfirmCancel(order.OriginalOrder.BrokerOrder, IsRecovered);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

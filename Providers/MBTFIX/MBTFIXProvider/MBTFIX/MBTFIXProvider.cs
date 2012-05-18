@@ -496,16 +496,8 @@ namespace TickZoom.Provider.MBTFIX
                         log.Info("Order Canceled but OrderAlgorithm not found for " + symbolInfo + ". Ignoring.");
                         break;
                     }
-                    if (clientOrderId != 0)
-                    {
-                        algorithm.OrderAlgorithm.ConfirmCancel(clientOrderId, IsRecovered);
-                        TrySendStartBroker(symbolInfo, "sync on confirm cancel");
-                    }
-                    else if (originalClientOrderId != 0)
-                    {
-                        algorithm.OrderAlgorithm.ConfirmCancel(originalClientOrderId, IsRecovered);
-                        TrySendStartBroker(symbolInfo, "sync on confirm cancel orig order");
-                    }
+                    algorithm.OrderAlgorithm.ConfirmCancel(originalClientOrderId, IsRecovered);
+                    TrySendStartBroker(symbolInfo, "sync on confirm cancel orig order");
                     OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
                     break;
                 case "6": // Pending Cancel

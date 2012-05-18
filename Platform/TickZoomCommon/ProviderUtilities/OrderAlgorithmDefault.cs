@@ -2196,51 +2196,26 @@ namespace TickZoom.Common
             }
         }
 
-        public void ConfirmCancel(long brokerOrderId, bool isRealTime)
+        public void ConfirmCancel(long originalOrderId, bool isRealTime)
         {
-            CreateOrChangeOrder brokerOrder;
-            if (!physicalOrderCache.TryGetOrderById(brokerOrderId, out brokerOrder))
+            CreateOrChangeOrder origOrder;
+            if (!physicalOrderCache.TryGetOrderById(originalOrderId, out origOrder))
             {
-                log.Warn("ConfirmCancel: Cannot find physical order for id " + brokerOrder);
+                log.Warn("ConfirmCancel: Cannot find physical order for id " + originalOrderId);
                 return;
             }
-            if (brokerOrder.Action != OrderAction.Cancel)
-            {
-                var tempOrder = brokerOrder.ReplacedBy;
-                if( tempOrder != null && tempOrder.Action == OrderAction.Cancel)
-                {
-                    brokerOrder = tempOrder;
-                }
-            }
-            var origOrder = brokerOrder.OriginalOrder;
+            var cancelOrder = origOrder.ReplacedBy;
             ++confirmedOrderCount;
-            if (debug) log.Debug("ConfirmCancel(" + (isRealTime ? "RealTime" : "Recovery") + ") " + brokerOrder);
-            physicalOrderCache.RemoveOrder(brokerOrder.BrokerOrder);
-            if (origOrder != null)
-            {
-                physicalOrderCache.RemoveOrder(origOrder.BrokerOrder);
-            }
+            if (debug) log.Debug("ConfirmCancel(" + (isRealTime ? "RealTime" : "Recovery") + ") " + originalOrderId);
+            physicalOrderCache.RemoveOrder(cancelOrder.BrokerOrder);
+            physicalOrderCache.RemoveOrder(origOrder.BrokerOrder);
             if (isRealTime)
             {
 			    PerformCompareProtected();
             }
             if (DoSyncTicks)
             {
-                if( origOrder == null)
-                {
-                    log.Error("Original order is null: " + brokerOrder);
-                }
-                else
-                {
-                    if (origOrder.ReplacedBy != null)
-                    {
-                        tickSync.RemovePhysicalOrder(origOrder.ReplacedBy);
-                    }
-                    else
-                    {
-                        tickSync.RemovePhysicalOrder(origOrder);
-                    }
-                }
+                tickSync.RemovePhysicalOrder(origOrder);
             }
         }
 		
