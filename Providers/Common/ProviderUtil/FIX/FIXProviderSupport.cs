@@ -484,9 +484,6 @@ namespace TickZoom.Provider.FIX
 
             if (socket == null) return Yield.DidWork.Repeat;
 
-            var transaction = OrderStore.BeginTransaction();
-            try
-            {
                 if (socket.State != lastSocketState)
                 {
                     if (debug) log.Debug("SocketState changed to " + socket.State);
@@ -499,7 +496,20 @@ namespace TickZoom.Provider.FIX
                     case SocketState.PendingConnect:
                         return Yield.NoWork.Repeat;
                     case SocketState.Connected:
-                        return TryProcessMessage();
+                        var transaction = OrderStore.BeginTransaction();
+                        try
+                        {
+                            var result = TryProcessMessage();
+                            if (!result.IsIdle)
+                            {
+                                transaction.Dispose();
+                            }
+                            return result;
+                        }
+                        finally
+                        {
+                            orderStore.TrySnapshot();
+                        }
                     case SocketState.Disconnected:
                     case SocketState.Closed:
                         return TrySetupRetry();
@@ -511,12 +521,6 @@ namespace TickZoom.Provider.FIX
                         log.Error(textMessage);
                         throw new ApplicationException(textMessage);
                 }
-            }
-            finally
-            {
-                transaction.Dispose();
-                orderStore.TrySnapshot();
-            }
 		}
 
         private void SyntheticReject(CreateOrChangeOrder order)
