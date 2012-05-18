@@ -190,10 +190,7 @@ namespace TickZoom.Common
 
         private void TryStartSnapshot()
         {
-            if (updateCount > 100)
-            {
-                StartSnapShot();
-            }
+            StartSnapShot();
         }
 
         public void RequestSnapshot()

@@ -49,6 +49,7 @@ namespace TickZoom.Symbols
 		private readonly bool debug = log.IsDebugEnabled;
 		private static object locker = new object();
 		private List<SymbolCategory> categories = new List<SymbolCategory>();
+        private Dictionary<string,SymbolProperties> symbols = new Dictionary<string,SymbolProperties>();
 	    private SymbolLibrary library;
 	    private string filePath;
 		
@@ -169,14 +170,15 @@ namespace TickZoom.Symbols
 			    		} else if( "symbol".Equals(reader.Name)) {
 			    			string name = reader.GetAttribute("name");
 			    		    SymbolProperties symbol;
-                            if (library.TryGetSymbolProperties(name, out symbol))
+                            if( symbols.TryGetValue(name, out symbol))
                             {
-                                Error( reader, "Duplicate entry with same symbol, account, and source " + symbol.ExpandedSymbol);
+                                Error(reader, "A symbol with it's account and source may only be defined once within the same dictionary file: " + symbol.ExpandedSymbol);
                             }
                             else
                             {
                                 var baseSymbol = library.GetBaseSymbol(name);
                                 var account = library.GetSymbolAccount(name);
+                                var expandedSymbol = baseSymbol + Symbol.AccountSeparator + account;
                                 if (account == "default")
                                 {
                                     symbol = new SymbolProperties();
@@ -188,7 +190,7 @@ namespace TickZoom.Symbols
                                     SymbolProperties commonSymbol;
                                     if (!library.GetSymbolProperties(defaultSymbol, out commonSymbol))
                                     {
-                                        Error(reader, "symbol " + symbol.ExpandedSymbol + " requires a default symbol " + symbol.Symbol + " to be defined first.");
+                                        Error(reader, "symbol " + expandedSymbol + " requires a default symbol " + baseSymbol + " or " + defaultSymbol + " to be already defined.");
                                     }
                                     symbol = commonSymbol.Copy();
                                     symbol.CommonSymbol = commonSymbol;
@@ -204,6 +206,7 @@ namespace TickZoom.Symbols
                             }
 			    			HandleSymbol(symbol,reader);
                             library.AddSymbol(symbol);
+                            symbols.Add(symbol.ExpandedSymbol,symbol);
 			    		} else {
 			    			Error(reader,"unexpected tag " + reader.Name );
 			    		}
@@ -358,6 +361,10 @@ namespace TickZoom.Symbols
       <symbol name=""FITB"" />
       <symbol name=""COIN"" />
       <symbol name=""BAC"" />
+      <symbol name=""JPM"" />
+      <symbol name=""XLF"" />
+      <symbol name=""PFE"" />
+      <symbol name=""T"" />
       <symbol name=""Design"" />
       <symbol name=""Daily4Ticks"" />
       <symbol name=""Daily4SimZB"" />
@@ -963,7 +970,18 @@ namespace TickZoom.Symbols
 
 #region USER_DICTIONARY
 		public static string UserDictionary = @"<?xml version=""1.0"" encoding=""utf-16""?>
-<category name=""MB Trading"">
+<category name=""User Dictionary"">
+  <category name=""Market Account"">
+      <property name=""DisableRealtimeSimulation"" value=""true"" />
+      <property name=""OffsetTooLateToChange"" value=""false"" />
+      <symbol name=""MSFT!market""/>
+      <symbol name=""T!market""/>
+      <symbol name=""CSCO!market""/>
+      <symbol name=""PFE!market""/>
+      <symbol name=""GOOG!market""/>
+      <symbol name=""XLF!market""/>
+      <symbol name=""JPM!market""/>
+  </category>
 </category>";
 #endregion
 	}
