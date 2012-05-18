@@ -105,18 +105,30 @@ namespace TickZoom.Common
 		public void SendQuote() {
 			if( isQuoteInitialized || VerifyQuote()) {
 				if( isRunning) {
-					if( Symbol.QuoteType != QuoteType.Level1) {
+                    if (Symbol.QuoteType != QuoteType.None && !SyncTicks.Enabled)
+                    {
+                        if (!errorWrongLevel1Type)
+                        {
+                            log.Warn("Received " + Symbol.QuoteType + " quote but quotes not supported in Lime quotes provider.");
+                            errorWrongLevel1Type = true;
+                        }
+                    }
+					else  if( Symbol.QuoteType != QuoteType.Level1)
+                    {
 						if( !errorWrongLevel1Type) {
 							log.Warn( "Received " + QuoteType.Level1 + " quote but " + Symbol + " is configured for QuoteType = " + Symbol.QuoteType + " in the symbol dictionary.");
 							errorWrongLevel1Type = true;
 						}
-					} else if( Bid == 0D ) {
+					}
+                    else if( Bid == 0D ) {
 						log.Error("Found quote bid was set to " + Bid + " so skipping this tick.");
 						return;
-					} else if( Ask == 0D ) {
+					}
+                    else if( Ask == 0D ) {
 						log.Error("Found quote ask was set to " + Ask + " so skipping this tick.");
 						return;
-					} else {
+					}
+                    else {
 						tickIO.Initialize();
 						tickIO.SetSymbol(Symbol.BinaryIdentifier);
 						tickIO.SetTime(Time);
