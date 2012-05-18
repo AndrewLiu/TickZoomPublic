@@ -25,14 +25,10 @@
 #endregion
 
 
-using System;
-using NUnit.Framework;
-using TickZoom;
 using TickZoom.Api;
 using TickZoom.Common;
-using TickZoom.Examples;
 
-namespace Loaders
+namespace TickZoom.Examples
 {
 	public class TestDataOnlyLoader : ModelLoaderCommon
 	{

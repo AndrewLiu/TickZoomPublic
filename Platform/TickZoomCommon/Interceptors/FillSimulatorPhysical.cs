@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using TickZoom.Api;
 using TickZoom.Common;
 
@@ -164,7 +165,8 @@ namespace TickZoom.Interceptors
                     return true;
                 }
             }
-            if( CreateBrokerOrder(order))
+            order.OriginalOrder = null; // Original order was canceled.
+            if (CreateBrokerOrder(order))
             {
                 if (confirmOrders != null) confirmOrders.ConfirmChange(order.BrokerOrder, true);
                 UpdateCounts();
@@ -243,10 +245,10 @@ namespace TickZoom.Interceptors
                 var triggerId = triggers.AddTrigger(order.LogicalSerialNumber, TriggerData.Price, operation, order.Price, TriggerCallback);
                 serialTriggerMap[order.LogicalSerialNumber] = triggerId;
             }
-
             SortAdjust(order);
             IsChanged = true;
             OrderChanged();
+            LogOpenOrders();
             return true;
         }
 
@@ -501,17 +503,35 @@ namespace TickZoom.Interceptors
 
         private void LogOpenOrders()
         {
-            if (trace)
+            if (debug)
             {
-                log.Trace("Found " + orderMap.Count + " open orders for " + symbol + ":");
+                var sb = new StringBuilder();
+                sb.AppendLine("Found " + orderMap.Count + " open orders for " + symbol + ":");
                 lock (orderMapLocker)
                 {
                     foreach (var kvp in orderMap)
                     {
                         var order = kvp.Value;
-                        log.Trace(order.ToString());
+                        sb.AppendLine(order.ToString());
                     }
+                    LogOrderList(touchOrders, "Touch orders", sb);
+                    LogOrderList(marketOrders, "Market orders", sb);
+                    LogOrderList(increaseOrders, "Increase orders", sb);
+                    LogOrderList(decreaseOrders, "Decrease orders", sb);
                 }
+                log.Debug( sb.ToString());
+            }
+        }
+
+        private void LogOrderList(ActiveList<CreateOrChangeOrder> list, string name, StringBuilder sb)
+        {
+            if( list.Count > 0)
+            {
+                sb.AppendLine("   " + name + " " + list.Count);
+            }
+            for( var current = list.First; current != null; current = current.Next)
+            {
+                sb.AppendLine("    " + current.Value);
             }
         }
 

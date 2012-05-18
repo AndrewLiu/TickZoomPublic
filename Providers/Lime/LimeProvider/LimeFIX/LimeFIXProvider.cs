@@ -391,7 +391,14 @@ namespace TickZoom.Provider.LimeFIX
                         log.Info("Order Canceled but OrderAlgorithm not found for " + symbolInfo + ". Ignoring.");
                         break;
                     }
-                    algorithm.OrderAlgorithm.ConfirmCancel(originalClientOrderId, IsRecovered);
+                    if( originalClientOrderId > 0)
+                    {
+                        algorithm.OrderAlgorithm.ConfirmCancel(originalClientOrderId, IsRecovered);
+                    }
+                    else
+                    {
+                        algorithm.OrderAlgorithm.ConfirmCancel(clientOrderId, IsRecovered);
+                    }
                     TrySendStartBroker(symbolInfo, "sync on confirm cancel orig order");
                     OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
                     break;
