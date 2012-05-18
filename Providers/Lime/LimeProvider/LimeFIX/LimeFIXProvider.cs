@@ -306,7 +306,7 @@ namespace TickZoom.Provider.LimeFIX
 		    var clientOrderId = 0L;
 		    long.TryParse(packetFIX.ClientOrderId, out clientOrderId);
             var originalClientOrderId = 0L;
-		    long.TryParse(packetFIX.ClientOrderId, out originalClientOrderId);
+		    long.TryParse(packetFIX.OriginalClientOrderId, out originalClientOrderId);
             if (packetFIX.Text == "END")
             {
                 throw new ApplicationException("Unexpected END in FIX Text field. Never sent a 35=AF message.");
@@ -391,16 +391,8 @@ namespace TickZoom.Provider.LimeFIX
                         log.Info("Order Canceled but OrderAlgorithm not found for " + symbolInfo + ". Ignoring.");
                         break;
                     }
-                    if (clientOrderId != 0)
-                    {
-                        algorithm.OrderAlgorithm.ConfirmCancel(clientOrderId, IsRecovered);
-                        TrySendStartBroker(symbolInfo, "sync on confirm cancel");
-                    }
-                    else if (originalClientOrderId != 0)
-                    {
-                        algorithm.OrderAlgorithm.ConfirmCancel(originalClientOrderId, IsRecovered);
-                        TrySendStartBroker(symbolInfo, "sync on confirm cancel orig order");
-                    }
+                    algorithm.OrderAlgorithm.ConfirmCancel(originalClientOrderId, IsRecovered);
+                    TrySendStartBroker(symbolInfo, "sync on confirm cancel orig order");
                     OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
                     break;
                 case "6": // Pending Cancel
@@ -415,7 +407,7 @@ namespace TickZoom.Provider.LimeFIX
                             log.Debug("Pending cancel of multifunction order, so removing " + packetFIX.ClientOrderId + " and " + packetFIX.OriginalClientOrderId);
                         }
                         if( clientOrderId != 0L) OrderStore.RemoveOrder(clientOrderId);
-                        if (originalClientOrderId != 0L) OrderStore.RemoveOrder(originalClientOrderId);
+                        //if (originalClientOrderId != 0L) OrderStore.RemoveOrder(originalClientOrderId);
                         break;
                     }
                     OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
@@ -456,12 +448,12 @@ namespace TickZoom.Provider.LimeFIX
                         }
                         else
                         {
-                            algorithm.OrderAlgorithm.ConfirmCreate(originalClientOrderId, IsRecovered);
+                            algorithm.OrderAlgorithm.ConfirmCreate(clientOrderId, IsRecovered);
                         }
                     }
                     else
                     {
-                        algorithm.OrderAlgorithm.ConfirmActive(originalClientOrderId, IsRecovered);
+                        algorithm.OrderAlgorithm.ConfirmActive(clientOrderId, IsRecovered);
                     }
                     TrySendStartBroker(symbolInfo, "sync on confirm cancel orig order");
                     OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);

@@ -326,7 +326,7 @@ namespace TickZoom.Interceptors
                 return true;
             }
             origOrder.ReplacedBy = order;
-            if (confirmOrders != null) confirmOrders.ConfirmCancel(order.BrokerOrder, true);
+            if (confirmOrders != null) confirmOrders.ConfirmCancel(order.OriginalOrder.BrokerOrder, true);
             UpdateCounts();
             return true;
         }
