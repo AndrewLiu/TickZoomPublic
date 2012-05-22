@@ -368,7 +368,8 @@ namespace TickZoom.Provider.FIX
 		}
 		
 		private void SetupRetry() {
-			OnRetry();
+            orderStore.ForceSnapshot();
+            OnRetry();
 			RegenerateSocket();
 		}
 		
@@ -573,7 +574,7 @@ namespace TickZoom.Provider.FIX
                     return TryProcessMessage();
                 case Status.Connected:
                 case Status.Disconnected:
-                            case Status.New:
+                case Status.New:
                     ConnectionStatus = Status.PendingRetry;
                     RetryDelay += retryIncrease;
                     RetryDelay = Math.Min(RetryDelay, retryMaximum);
@@ -1293,7 +1294,8 @@ namespace TickZoom.Provider.FIX
 				Factory.Parallel.Yield();
 			}
 	        lastMessageTime = Factory.Parallel.UtcNow;
-	    }
+            orderStore.IncrementUpdateCount();
+        }
 
         protected virtual void TryEndRecovery()
         {
