@@ -55,7 +55,7 @@ namespace TickZoom.Symbols
         {
             if (properties.Account == "default")
             {
-                symbolMap.Add(properties.ExpandedSymbol,properties);
+                symbolMap[properties.ExpandedSymbol] = properties;
                 properties.CommonSymbol = properties;
             }
             else
