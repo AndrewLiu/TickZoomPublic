@@ -167,7 +167,7 @@ namespace Loaders
 
 		    list.Add(next = new AutoTestSettings
 		                        {
-                Mode = AutoTestMode.None,
+                Mode = AutoTestMode.Historical,
                 Name = "TwoSidedLimitOrderTest",
                 Loader = new TwoSidedTestLoader(),
                 Symbols = primarySymbol,

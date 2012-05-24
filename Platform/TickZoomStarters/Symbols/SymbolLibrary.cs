@@ -114,19 +114,35 @@ namespace TickZoom.Symbols
 		}
 
 		public string GetBaseSymbol(string symbol) {
-			var parts = symbol.Split( '.','@','!');
+			var parts = symbol.Split( '.','!');
 			if( parts.Length > 1) {
 				symbol = parts[0].Trim();
 			}
 			return symbol;
 		}
 
+        public string GetSymbolSource(string symbol)
+        {
+            var parts = symbol.Split('!');
+            var result = "default";
+            if (parts.Length > 2)
+            {
+                throw new FormatException(symbol + " has more than one '!' symbol.");
+            }
+            parts = parts[0].Split('.');
+            if( parts.Length > 1)
+            {
+                result = string.Join(".", parts, 1, parts.Length - 1);
+            }
+            return result;
+        }
+
         public string GetSymbolAccount(string symbol)
         {
             var parts = symbol.Split('!');
             if (parts.Length > 2)
             {
-                throw new FormatException(symbol + " has more than one '@' symbol.");
+                throw new FormatException(symbol + " has more than one '!' symbol.");
             }
             else if( parts.Length == 2)
             {
@@ -148,15 +164,26 @@ namespace TickZoom.Symbols
 	    public bool TryGetSymbolProperties(string symbolArgument, out SymbolProperties properties)
         {
             var brokerSymbol = GetBaseSymbol(symbolArgument);
-
+	        var source = GetSymbolSource(symbolArgument);
             var account = GetSymbolAccount(symbolArgument);
 
-            var expandedSymbol = brokerSymbol + Symbol.AccountSeparator + account;
+            var expandedSymbol = brokerSymbol + Symbol.SourceSeparator + source + Symbol.AccountSeparator + account;
             if (GetSymbolProperties(expandedSymbol, out properties))
             {
                 return true;
 			}
-	        return false;
+            expandedSymbol = brokerSymbol + Symbol.AccountSeparator + account;
+            if (GetSymbolProperties(expandedSymbol, out properties))
+            {
+                if( source != "default")
+                {
+                    properties = properties.Copy();
+                    properties.DataSource = source;
+                    AddSymbol(properties);
+                }
+                return true;
+            }
+            return false;
         }
 
         public SymbolInfo LookupSymbol(string symbol)

@@ -78,9 +78,6 @@ namespace TickZoom.Properties
                 if (!string.IsNullOrEmpty(tempExpandedSymbol))
                 {
 					var symbol = library.GetSymbolProperties(tempExpandedSymbol).Copy();
-                    var expandedSymbolParts = tempExpandedSymbol.Split(Symbol.AccountSeparator);
-                    var tempSymbolFile = expandedSymbolParts[0];
-                    symbol.SymbolFile = tempSymbolFile;
 					symbol.ChartGroup = i+1;
 					log.Info(symbol + " set to chart group " + symbol.ChartGroup);
 					symbolInfo.Add(symbol);
