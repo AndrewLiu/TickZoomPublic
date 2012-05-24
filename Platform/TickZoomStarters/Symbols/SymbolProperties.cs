@@ -77,7 +77,6 @@ namespace TickZoom.Symbols
 	    private LimitOrderTradeSimulation _limitOrderTradeSimulation = LimitOrderTradeSimulation.TradeTouch;
 	    private OptionChain optionChain = OptionChain.None;
 	    private TimeInForce timeInForce;
-	    private string symbolFile;
         private bool _disableRealtimeSimulation = false;
 	    private string account = "default";
 	    private string expandedSymbol;
@@ -174,7 +173,6 @@ namespace TickZoom.Symbols
             }
 	        symbolWithSource = expandedSymbol;
             expandedSymbol += Api.Symbol.AccountSeparator + account.ToLower();
-            symbolWithSource = symbol;
         }
 
 	    public string ExpandedSymbol
@@ -337,18 +335,6 @@ namespace TickZoom.Symbols
 	        set { timeInForce = value; }
 	    }
 
-	    public string SymbolFile
-	    {
-	        get {
-                if( symbolFile == null)
-                {
-                    return symbol;
-                }
-                return symbolFile;
-            }
-	        set { symbolFile = value; }
-	    }
-
 	    public PartialFillSimulation PartialFillSimulation
 	    {
 	        get { return partialFillSimulation; }
@@ -382,7 +368,14 @@ namespace TickZoom.Symbols
 	    public string DataSource
 	    {
 	        get { return dataSource; }
-	        set { dataSource = value; }
+	        set
+	        {
+	            if( dataSource != value)
+	            {
+                    dataSource = value;
+                    UpdateSymbols();
+                }
+            }
 	}
 
 	    public string SymbolWithSource

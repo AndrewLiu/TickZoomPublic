@@ -45,11 +45,6 @@ namespace TickZoom.Api
 			get;
 		}
 
-        // 
-        // Complete symbol file requested by the user.
-        // 
-	    string SymbolFile { get; }
-	
 		/// <summary>
 		/// The binary identifier is a unique number assigned to every symbol
 		/// each time the system starts. Therefore this number can change any time

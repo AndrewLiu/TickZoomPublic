@@ -206,7 +206,14 @@ namespace TickZoom.Symbols
                             }
 			    			HandleSymbol(symbol,reader);
                             library.AddSymbol(symbol);
-                            symbols.Add(symbol.ExpandedSymbol,symbol);
+                            try
+                            {
+                                symbols.Add(symbol.ExpandedSymbol, symbol);
+                            }
+                            catch( ArgumentException ex)
+                            {
+                                Error(reader, "Duplicate symbol in the same dictionary file: " + symbol.ExpandedSymbol);
+                            }
 			    		} else {
 			    			Error(reader,"unexpected tag " + reader.Name );
 			    		}
