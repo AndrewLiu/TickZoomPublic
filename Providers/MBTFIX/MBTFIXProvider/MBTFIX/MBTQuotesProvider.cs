@@ -394,7 +394,7 @@ namespace TickZoom.Provider.MBTQuotes
             if (tradeType != null)
 			{
 			    Message message = Socket.MessageFactory.Create();
-				string textMessage = "S|1003="+symbol.Symbol+";2000="+tradeType+"\n";
+				string textMessage = "S|1003="+symbol.BaseSymbol+";2000="+tradeType+"\n";
 				if( debug) log.Debug("Symbol request: " + textMessage);
 				message.DataOut.Write(textMessage.ToCharArray());
 				while( !Socket.TrySendMessage(message)) {
@@ -406,7 +406,7 @@ namespace TickZoom.Provider.MBTQuotes
 			if( quoteType != null)
 			{
 			    Message message = Socket.MessageFactory.Create();
-				string textMessage = "S|1003="+symbol.Symbol+";2000="+quoteType+"\n";
+				string textMessage = "S|1003="+symbol.BaseSymbol+";2000="+quoteType+"\n";
 				if( debug) log.Debug("Symbol request: " + textMessage);
 				message.DataOut.Write(textMessage.ToCharArray());
 				while( !Socket.TrySendMessage(message)) {
@@ -418,7 +418,7 @@ namespace TickZoom.Provider.MBTQuotes
             if (optionChain != null)
             {
                 Message message = Socket.MessageFactory.Create();
-                string textMessage = "S|1003=" + symbol.Symbol + ";2000=" + optionChain+ "\n";
+                string textMessage = "S|1003=" + symbol.BaseSymbol + ";2000=" + optionChain+ "\n";
                 if (debug) log.Debug("Symbol request: " + textMessage);
                 message.DataOut.Write(textMessage.ToCharArray());
                 while (!Socket.TrySendMessage(message))

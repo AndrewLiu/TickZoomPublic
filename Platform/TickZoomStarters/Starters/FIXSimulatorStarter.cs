@@ -103,7 +103,7 @@ namespace TickZoom.Starters
             Directory.CreateDirectory(historicalDirectory);
             foreach (var symbol in ProjectProperties.Starter.SymbolInfo)
             {
-                CopySymbol(historicalDirectory,realTimeDirectory,symbol.Symbol);
+                CopySymbol(historicalDirectory,realTimeDirectory,symbol.BaseSymbol);
             }
         }
 

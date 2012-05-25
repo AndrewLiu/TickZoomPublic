@@ -103,7 +103,7 @@ namespace TickZoom.TZData
                     }
                 }
                 lastTick.Copy(tickIO);
-                Output(reader.Symbol.Symbol + ": " + count + " ticks.");
+                Output(reader.Symbol.BaseSymbol + ": " + count + " ticks.");
                 Output("From " + firstTick.Time + " to " + lastTick.Time);
                 Output(dups + " duplicates elimated.");
             }

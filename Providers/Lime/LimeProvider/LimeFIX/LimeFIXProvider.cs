@@ -610,7 +610,7 @@ namespace TickZoom.Provider.LimeFIX
                     fixMsg.SetDestination(order.Symbol.Destination);
                 }
             }
-            fixMsg.SetSymbol(order.Symbol.Symbol);
+            fixMsg.SetSymbol(order.Symbol.BaseSymbol);
             fixMsg.SetSide(order.Side == OrderSide.Buy ? 1 : 5);
 			switch( order.Type) {
                 case OrderType.Limit:

@@ -102,7 +102,7 @@ namespace TickZoom.Provider.FIX
         public void AddSymbol(string expandedSymbol)
         {
             var symbolInfo = Factory.Symbol.LookupSymbol(expandedSymbol);
-            var symbol = symbolInfo.Symbol;
+            var symbol = symbolInfo.BaseSymbol;
             using (symbolHandlersLocker.Using())
             {
                 if (!symbolHandlers.ContainsKey(symbolInfo.BinaryIdentifier))

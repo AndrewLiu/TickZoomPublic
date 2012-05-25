@@ -46,7 +46,7 @@ namespace TickZoom.Symbols
 		private Elapsed sessionEnd = new Elapsed( 16, 30, 0);
 	    private PartialFillSimulation partialFillSimulation = PartialFillSimulation.PartialFillsTillComplete;
 		private bool simulateTicks;
-		private string symbol;
+		private string _baseSymbol;
 		private double minimumTick;
 		private double fullPointValue;
 		private int level2LotSize = 1;
@@ -71,7 +71,7 @@ namespace TickZoom.Symbols
 		private double maxValidPrice = double.MaxValue;
         private int minimumTickPrecision;
         private string symbolWithSource;
-	    private string dataSource = "default";
+	    private string _source = "default";
 	    private FIXSimulationType fixSimulationType;
         private LimitOrderQuoteSimulation _limitOrderQuoteSimulation = LimitOrderQuoteSimulation.OppositeQuoteTouch;
 	    private LimitOrderTradeSimulation _limitOrderTradeSimulation = LimitOrderTradeSimulation.TradeTouch;
@@ -107,7 +107,7 @@ namespace TickZoom.Symbols
 	    
 		public override string ToString()
 		{
-            return symbol == null ? "empty" : ExpandedSymbol;
+            return _baseSymbol == null ? "empty" : ExpandedSymbol;
 		}
 		
 		[Obsolete("Please create your data with the IsSimulateTicks flag set to true instead of this property.",true)]
@@ -151,14 +151,14 @@ namespace TickZoom.Symbols
 			set { fullPointValue = value; }
 		}
 	
-        public string Symbol
+        public string BaseSymbol
         {
-            get { return symbol; }
+            get { return _baseSymbol; }
             set
             {
-                if( symbol != value)
+                if( _baseSymbol != value)
                 {
-                    symbol = value;
+                    _baseSymbol = value;
                     UpdateSymbols();
                 }
             }
@@ -166,10 +166,10 @@ namespace TickZoom.Symbols
 
 	    private void UpdateSymbols()
 	    {
-	        expandedSymbol = symbol;
-            if( dataSource != "default")
+	        expandedSymbol = _baseSymbol;
+            if( _source != "default")
             {
-                expandedSymbol += Api.Symbol.SourceSeparator + dataSource.ToLower();
+                expandedSymbol += Api.Symbol.SourceSeparator + _source.ToLower();
             }
 	        symbolWithSource = expandedSymbol;
             expandedSymbol += Api.Symbol.AccountSeparator + account.ToLower();
@@ -365,14 +365,14 @@ namespace TickZoom.Symbols
 	        set { offsetTooLateToChange = value; }
 	    }
 
-	    public string DataSource
+	    public string Source
 	    {
-	        get { return dataSource; }
+	        get { return _source; }
 	        set
 	        {
-	            if( dataSource != value)
+	            if( _source != value)
 	            {
-                    dataSource = value;
+                    _source = value;
                     UpdateSymbols();
                 }
             }
