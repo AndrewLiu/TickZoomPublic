@@ -195,7 +195,7 @@ namespace TickZoom.Symbols
                                     symbol = commonSymbol.Copy();
                                     symbol.CommonSymbol = commonSymbol;
                                 }
-                                symbol.Symbol = baseSymbol;
+                                symbol.BaseSymbol = baseSymbol;
                                 symbol.Account = account;
                             }
                             foreach (var kvp in category.Properties)

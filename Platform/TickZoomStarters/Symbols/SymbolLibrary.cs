@@ -156,7 +156,7 @@ namespace TickZoom.Symbols
             SymbolProperties properties;
             if( !TryGetSymbolProperties(symbolArgument, out properties))
             {
-                throw new ApplicationException("Sorry, symbol " + symbolArgument + " was not found in any symbol dictionary. Please heck for typos or else add it to the dictionary.");
+                throw new ApplicationException("Sorry, symbol " + symbolArgument + " was not found in any symbol dictionary. Please check for typos or else add it to the dictionary.");
             }
             return properties;
         }
@@ -178,7 +178,7 @@ namespace TickZoom.Symbols
                 if( source != "default")
                 {
                     properties = properties.Copy();
-                    properties.DataSource = source;
+                    properties.Source = source;
                     AddSymbol(properties);
                 }
                 return true;

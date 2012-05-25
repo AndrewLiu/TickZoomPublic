@@ -323,7 +323,7 @@ namespace TickZoom.Api
         /// <summary>
         /// The data provider recognized symbol.
         /// </summary>
-	    string Symbol { get; }
+	    string BaseSymbol { get; }
 
         /// <summary>
         /// For internal use. Gives the symbol info object that has a default (or neutral) account.
@@ -339,6 +339,6 @@ namespace TickZoom.Api
 	    bool OffsetTooLateToChange { get; }
 
 	    string SymbolWithSource { get; }
-	    string DataSource { get; set; }
+	    string Source { get; set; }
 	}
 }

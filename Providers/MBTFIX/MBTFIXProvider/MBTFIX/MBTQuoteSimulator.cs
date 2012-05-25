@@ -213,7 +213,7 @@ namespace TickZoom.Provider.MBTFIX
                 position += snippet.Length;
 
                 // Symbol
-                var value = symbol.Symbol.ToCharArray();
+                var value = symbol.BaseSymbol.ToCharArray();
                 for (var i = 0; i < value.Length; i++)
                 {
                     buffer[position] = (byte)value[i];
@@ -319,7 +319,7 @@ namespace TickZoom.Provider.MBTFIX
                 Array.Copy(snippet, 0, buffer, position, snippet.Length);
                 position += snippet.Length;
 
-                var value = symbol.Symbol.ToCharArray();
+                var value = symbol.BaseSymbol.ToCharArray();
                 for (var i = 0; i < value.Length; i++)
                 {
                     buffer[position] = (byte)value[i];

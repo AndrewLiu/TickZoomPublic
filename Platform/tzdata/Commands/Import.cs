@@ -195,7 +195,7 @@ namespace TickZoom.TZData
 			    tickWriter = Factory.TickUtil.TickFile();
 				string folder = "DataCache";
                 tickWriter.EraseFileToStart = true;
-                tickWriter.Initialize(folder, symbol.Symbol, TickFileMode.Write);
+                tickWriter.Initialize(folder, symbol.BaseSymbol, TickFileMode.Write);
             }
 			
 			// Console.WriteLine(tickIO);
