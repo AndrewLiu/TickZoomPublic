@@ -39,9 +39,9 @@ namespace TickZoom.Common
 	public class Strategy : Model, StrategyInterface
 	{
 		PositionInterface position;
-		private readonly Log instanceLog;
-		private readonly bool debug;
-		private readonly bool trace;
+		private Log instanceLog;
+		private bool debug;
+		private bool trace;
 		private Result result;
         private OrderManager orderManager;
 		private Dictionary<int,LogicalOrder> ordersHash = new Dictionary<int,LogicalOrder>();
@@ -67,14 +67,7 @@ namespace TickZoom.Common
 		
 		public Strategy()
 		{
-		    var logName = this.GetType().FullName;
-            if( this.GetType().Name != Name)
-            {
-                logName += "." + Name;
-            }
-			instanceLog = Factory.SysLog.GetLogger(logName);
-			debug = instanceLog.IsDebugEnabled;
-			trace = instanceLog.IsTraceEnabled;
+		    SetupLog();
 			position = new PositionCommon(this);
 			if( trace) instanceLog.Trace("Constructor");
 			Chain.Dependencies.Clear();
@@ -117,6 +110,25 @@ namespace TickZoom.Common
 			postFillManager.DoStrategyOrders = false;
 			postFillManager.DoExitStrategyOrders = true;
 		}
+
+        private void SetupLog()
+        {
+            var logName = GetType().Namespace;
+            if (GetType().Name != Name)
+            {
+                if( Name.Contains(GetType().Name))
+                {
+                    logName += "." + Name;
+                }
+                else
+                {
+                    logName += "." + GetType().Name + "." + Name;
+                }
+            }
+            instanceLog = Factory.SysLog.GetLogger(logName);
+            debug = instanceLog.IsDebugEnabled;
+            trace = instanceLog.IsTraceEnabled;
+        }
 		
 		public override void OnConfigure()
 		{
@@ -257,7 +269,14 @@ namespace TickZoom.Common
 		[Browsable(false)]
 		public override string Name {
 			get { return base.Name; }
-			set { base.Name = value; }
+			set
+			{
+			    if( base.Name != value)
+			    {
+                    base.Name = value;
+                    SetupLog();
+                }
+            }
 		}
 
 		public OrderHandlers Orders {

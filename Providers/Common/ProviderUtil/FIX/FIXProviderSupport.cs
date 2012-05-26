@@ -1761,14 +1761,19 @@ namespace TickZoom.Provider.FIX
             long.TryParse(clientOrderIdStr, out clientOrderId);
             var originalClientOrderId = 0L;
             long.TryParse(clientOrderIdStr, out originalClientOrderId);
-            var symbol = Factory.Symbol.LookupSymbol(symbolStr);
+            SymbolInfo symbolInfo;
+            if (!Factory.Symbol.TryLookupSymbol(symbolStr, out symbolInfo))
+            {
+                log.Warn("Unable to find " + symbolStr + " for order reject.");
+                return;
+            }
             SymbolAlgorithm algorithm;
-            if (algorithms.TryGetAlgorithm(symbol, out algorithm))
+            if (algorithms.TryGetAlgorithm(symbolInfo, out algorithm))
             {
                 var orderAlgo = algorithm.OrderAlgorithm;
                 if (IsRecovered && orderAlgo.RejectRepeatCounter > 0 && orderAlgo.IsBrokerOnline)
                 {
-                    var message = "Order Rejected on "+ symbol + ": " + text + "\n" + packetFix;
+                    var message = "Order Rejected on " + symbolInfo + ": " + text + "\n" + packetFix;
                     if( Factory.IsAutomatedTest)
                     {
                         log.Notice(message);
@@ -1783,12 +1788,12 @@ namespace TickZoom.Provider.FIX
                 algorithm.OrderAlgorithm.RejectOrder(clientOrderId, IsRecovered, retryImmediately);
                 if( !retryImmediately)
                 {
-                    TrySendEndBroker(symbol);
+                    TrySendEndBroker(symbolInfo);
                 }
             }
             else
             {
-                log.Info("RejectOrder but OrderAlgorithm not found for " + symbol + ". Ignoring.");
+                log.Info("RejectOrder but OrderAlgorithm not found for " + symbolInfo + ". Ignoring.");
             }
         }
 

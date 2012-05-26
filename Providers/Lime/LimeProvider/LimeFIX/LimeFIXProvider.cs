@@ -312,8 +312,13 @@ namespace TickZoom.Provider.LimeFIX
                 throw new ApplicationException("Unexpected END in FIX Text field. Never sent a 35=AF message.");
             }
             SymbolAlgorithm algorithm = null;
-		    SymbolInfo symbolInfo = packetFIX.Symbol != null ? Factory.Symbol.LookupSymbol(packetFIX.Symbol) : null;
-            if( symbolInfo != null)
+            SymbolInfo symbolInfo;
+            if (!Factory.Symbol.TryLookupSymbol(packetFIX.Symbol, out symbolInfo))
+            {
+                log.Warn("Unable to find " + packetFIX.Symbol + " for execution report.");
+                return;
+            }
+            if (symbolInfo != null)
             {
                 algorithms.TryGetAlgorithm(symbolInfo, out algorithm);
             }
@@ -508,7 +513,12 @@ namespace TickZoom.Provider.LimeFIX
             var originalClientOrderId = 0L;
             long.TryParse(packetFIX.ClientOrderId, out originalClientOrderId);
             if (debug) log.Debug("SendFill( " + packetFIX.ClientOrderId + ")");
-            var symbolInfo = Factory.Symbol.LookupSymbol(packetFIX.Symbol);
+            SymbolInfo symbolInfo;
+            if (!Factory.Symbol.TryLookupSymbol(packetFIX.Symbol, out symbolInfo))
+            {
+                log.Warn("Unable to find " + packetFIX.Symbol + " for fill.");
+                return;
+            }
             var timeZone = new SymbolTimeZone(symbolInfo);
             SymbolAlgorithm algorithm;
             if (!algorithms.TryGetAlgorithm(symbolInfo, out algorithm))
@@ -577,7 +587,7 @@ namespace TickZoom.Provider.LimeFIX
                 throw new ApplicationException("Order was greater than MaxOrderSize of " + order.Symbol.MaxPositionSize + " for:\n" + order);
             }
 
-            var orderHandler = algorithms.GetAlgorithm(order.Symbol);
+            var orderHandler = algorithms.CreateAlgorithm(order.Symbol);
             var orderSize = order.Side == OrderSide.Sell ? -order.RemainingSize : order.RemainingSize;
             if (Math.Abs(orderHandler.OrderAlgorithm.ActualPosition + orderSize) > order.Symbol.MaxPositionSize)
             {

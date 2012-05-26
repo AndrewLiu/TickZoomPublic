@@ -20,9 +20,10 @@ namespace TickZoom.Examples
             minimumTick = multiplier * Data.SymbolInfo.MinimumTick;
         }
 
+        private double midPoint;
         public override bool OnProcessTick(Tick tick)
         {
-            var midPoint = 0D;
+            Log.Debug("OnProcessTick: " + tick);
             if (tick.IsQuote)
             {
                 midPoint = (tick.Ask + tick.Bid) / 2;
@@ -31,9 +32,15 @@ namespace TickZoom.Examples
             {
                 midPoint = tick.Price;
             }
+            SetupBidAsk();
+            return true;
+        }
+
+        private void SetupBidAsk()
+        {
             var bid = midPoint - Data.SymbolInfo.MinimumTick * tickOffset;
             var ask = midPoint + Data.SymbolInfo.MinimumTick * tickOffset;
-            if (Position.IsFlat) 
+            if (Position.IsFlat)
             {
                 Orders.Change.ActiveNow.BuyLimit(bid, tradeSize);
                 Orders.Change.ActiveNow.SellLimit(ask, tradeSize);
@@ -43,7 +50,21 @@ namespace TickZoom.Examples
                 Orders.Change.ActiveNow.BuyLimit(bid, tradeSize);
                 Orders.Change.ActiveNow.SellLimit(ask, tradeSize);
             }
-            return true;
+        }
+
+        public override void OnEnterTrade()
+        {
+            SetupBidAsk();
+        }
+
+        public override void OnExitTrade()
+        {
+            SetupBidAsk();
+        }
+
+        public override void OnChangeTrade()
+        {
+            SetupBidAsk();
         }
 
         public override bool OnWriteReport(string folder)

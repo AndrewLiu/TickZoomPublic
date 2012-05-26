@@ -408,6 +408,7 @@ namespace TickZoom.Provider.FIX
                 case Status.PendingRecovery:
                 case Status.Recovered:
                     return TryProcessMessage();
+                case Status.New:
                 case Status.Disconnected:
 	                retryTimeout = Factory.Parallel.TickCount + retryDelay * 1000;
 	                ConnectionStatus = Status.PendingRetry;

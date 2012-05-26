@@ -375,27 +375,12 @@ namespace TickZoom.Provider.MBTFIX
             {
                 var position = packetFIX.LongQuantity + packetFIX.ShortQuantity;
                 SymbolInfo symbolInfo;
-                try
-                {
-                    symbolInfo = Factory.Symbol.LookupSymbol(packetFIX.Symbol);
-                }
-                catch (ApplicationException ex)
-                {
-                    log.Error("Error looking up " + packetFIX.Symbol + ": " + ex.Message);
-                    return;
-                }
-                SymbolInfo symbol;
-                try
-                {
-                    symbol = Factory.Symbol.LookupSymbol(packetFIX.Symbol);
-                }
-                catch
-                {
-                    log.Info("PositionUpdate. But " + packetFIX.Symbol + " was not found in symbol dictionary.");
+                if( !Factory.Symbol.TryLookupSymbol(packetFIX.Symbol, out symbolInfo)) {
+                    log.Warn("Unable to find " + packetFIX.Symbol + " for position update.");
                     return;
                 }
                 SymbolAlgorithm algorithm;
-                if( algorithms.TryGetAlgorithm(symbol, out algorithm))
+                if( algorithms.TryGetAlgorithm(symbolInfo, out algorithm))
                 {
                     if (debug) log.Debug("PositionUpdate for " + symbolInfo + ": MBT actual =" + position + ", TZ actual=" + algorithm.OrderAlgorithm.ActualPosition);
                 }
@@ -417,7 +402,12 @@ namespace TickZoom.Provider.MBTFIX
                 throw new ApplicationException("Unexpected END in FIX Text field. Never sent a 35=AF message.");
             }
             SymbolAlgorithm algorithm = null;
-		    SymbolInfo symbolInfo = packetFIX.Symbol != null ? Factory.Symbol.LookupSymbol(packetFIX.Symbol) : null;
+            SymbolInfo symbolInfo;
+            if (!Factory.Symbol.TryLookupSymbol(packetFIX.Symbol, out symbolInfo))
+            {
+                log.Warn("Unable to find " + packetFIX.Symbol + " for execution report.");
+                return;
+            }
             if( symbolInfo != null)
             {
                 algorithms.TryGetAlgorithm(symbolInfo, out algorithm);
@@ -613,8 +603,13 @@ namespace TickZoom.Provider.MBTFIX
             var originalClientOrderId = 0L;
             long.TryParse(packetFIX.ClientOrderId, out originalClientOrderId);
             if (debug) log.Debug("SendFill( " + packetFIX.ClientOrderId + ")");
-			var symbolInfo = Factory.Symbol.LookupSymbol(packetFIX.Symbol);
-			var timeZone = new SymbolTimeZone(symbolInfo);
+            SymbolInfo symbolInfo;
+            if (!Factory.Symbol.TryLookupSymbol(packetFIX.Symbol, out symbolInfo))
+            {
+                log.Warn("Unable to find " + packetFIX.Symbol + " for fill.");
+                return;
+            }
+            var timeZone = new SymbolTimeZone(symbolInfo);
             SymbolAlgorithm algorithm;
             if (!algorithms.TryGetAlgorithm(symbolInfo, out algorithm))
             {

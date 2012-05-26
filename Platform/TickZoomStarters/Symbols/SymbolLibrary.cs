@@ -163,7 +163,12 @@ namespace TickZoom.Symbols
 
 	    public bool TryGetSymbolProperties(string symbolArgument, out SymbolProperties properties)
         {
-            var brokerSymbol = GetBaseSymbol(symbolArgument);
+            if( string.IsNullOrEmpty(symbolArgument))
+            {
+                properties = null;
+                return false;
+            }
+	        var brokerSymbol = GetBaseSymbol(symbolArgument);
 	        var source = GetSymbolSource(symbolArgument);
             var account = GetSymbolAccount(symbolArgument);
 
@@ -190,8 +195,17 @@ namespace TickZoom.Symbols
         {
 			return GetSymbolProperties(symbol);
 		}
-	
-		public SymbolInfo LookupSymbol(long universalIdentifier) {
+
+        public bool TryLookupSymbol(string symbol, out SymbolInfo symbolInfo)
+        {
+            SymbolProperties properties;
+            var result = TryGetSymbolProperties(symbol, out properties);
+            symbolInfo = properties;
+            return result;
+        }
+
+        public SymbolInfo LookupSymbol(long universalIdentifier)
+        {
 			SymbolProperties symbolProperties;
 			if( universalMap.TryGetValue(universalIdentifier,out symbolProperties)) {
 				return symbolProperties;
@@ -199,5 +213,13 @@ namespace TickZoom.Symbols
 				throw new ApplicationException( "Sorry, universal id " + universalIdentifier + " was not found in any symbol dictionary.");
 			}
 		}
-	}
+
+        public bool TryLookupSymbol(long universalIdentifier, out SymbolInfo symbolInfo)
+        {
+            SymbolProperties symbolProperties;
+            var result = universalMap.TryGetValue(universalIdentifier, out symbolProperties);
+            symbolInfo = symbolProperties;
+            return result;
+        }
+    }
 }
