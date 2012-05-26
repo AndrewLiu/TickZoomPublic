@@ -73,6 +73,7 @@ namespace TickZoom.Examples
                 if( symbol.Account == "market")
                 {
                     var strategy = new MarketSimulatorStrategy();
+                    strategy.Name += "." + symbol.ExpandedSymbol;
                     strategy.SymbolDefault = symbol.ExpandedSymbol;
                     strategy.Performance.Equity.GraphEquity = false;
                     portfolio.AddDependency(strategy);
