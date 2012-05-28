@@ -170,7 +170,8 @@ namespace TickZoom.Provider.LimeQuotes
         static readonly string BATS = "BATS"; // Citirus Demo server
         private unsafe void RequestStartSymbol(SymbolInfo symbol, Agent symbolAgent)
         {
-            StartSymbolHandler(symbol, symbolAgent);
+            var handler = StartSymbolHandler(symbol, symbolAgent);
+            handler.DisableQuotes = true;
             if (symbol.OptionChain != OptionChain.None)
             {
                 //TODO: Implement options

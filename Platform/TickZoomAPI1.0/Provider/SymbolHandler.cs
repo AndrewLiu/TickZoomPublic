@@ -80,6 +80,7 @@ namespace TickZoom.Api
 	    OptionType OptionType { get; set; }
 	    long TickCount { get; }
 	    SymbolInfo Symbol { get; }
+	    bool DisableQuotes { get; set; }
 	    void SyntheticOrder(EventItem eventItem);
 	    void SyntheticClear();
 	}
