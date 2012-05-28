@@ -101,11 +101,12 @@ namespace TickZoom.Common
 	        syntheticReceiver.SendEvent(new EventItem(EventType.SyntheticFill, fill));
 	    }
 
+	    private bool disableQuotes;
 	    bool errorWrongLevel1Type = false;
 		public void SendQuote() {
 			if( isQuoteInitialized || VerifyQuote()) {
 				if( isRunning) {
-                    if (Symbol.QuoteType != QuoteType.None && !SyncTicks.Enabled)
+                    if (DisableQuotes && Symbol.QuoteType != QuoteType.None && !SyncTicks.Enabled)
                     {
                         if (!errorWrongLevel1Type)
                         {
@@ -113,7 +114,7 @@ namespace TickZoom.Common
                             errorWrongLevel1Type = true;
                         }
                     }
-					else  if( Symbol.QuoteType != QuoteType.Level1)
+                    else if( Symbol.QuoteType != QuoteType.Level1)
                     {
 						if( !errorWrongLevel1Type) {
 							log.Warn( "Received " + QuoteType.Level1 + " quote but " + Symbol + " is configured for QuoteType = " + Symbol.QuoteType + " in the symbol dictionary.");
@@ -387,6 +388,12 @@ namespace TickZoom.Common
 	    public SymbolInfo Symbol
 	    {
 	        get { return symbol; }
+	    }
+
+	    public bool DisableQuotes
+	    {
+	        get { return disableQuotes; }
+	        set { disableQuotes = value; }
 	    }
 
 	    public void SyntheticOrder(EventItem eventItem)

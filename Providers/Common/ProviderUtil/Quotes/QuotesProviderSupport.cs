@@ -808,7 +808,7 @@ namespace TickZoom.Provider.FIX
 			get { return useLocalTickTime; }
 		}
 
-	    protected void StartSymbolHandler(SymbolInfo symbol, Agent agent) {
+	    protected SymbolHandler StartSymbolHandler(SymbolInfo symbol, Agent agent) {
 	        lock( symbolHandlersLocker) {
 	            SymbolHandler symbolHandler;
 	            if( symbolHandlers.TryGetValue(symbol.BinaryIdentifier,out symbolHandler)) {
@@ -818,6 +818,7 @@ namespace TickZoom.Provider.FIX
 	                symbolHandlers.Add(symbol.BinaryIdentifier,symbolHandler);
 	                symbolHandler.Start();
 	            }
+	            return symbolHandler;
 	        }
 	    }
 
