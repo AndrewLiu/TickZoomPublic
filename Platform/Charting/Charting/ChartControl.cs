@@ -83,7 +83,7 @@ namespace TickZoom.Charting
 		private Execute execute;
         private Color simulatedPaneColor = Color.Yellow;
         private Color normalPaneColor = PaneBase.Default.FillColor;
-        
+	    private Form form;
 	    public ChartControl(Execute execute)
 		{
 			//
@@ -95,7 +95,8 @@ namespace TickZoom.Charting
 		    stockPointList = new StockPointList();
 		    lineList = new List<PointPairList>();
 		    indicators = new List<IndicatorInterface>();
-		    try {
+            try
+            {
 				log = Factory.SysLog.GetLogger(typeof(ChartControl));
 		        log.Register(this);
 				debug = log.IsDebugEnabled;
@@ -103,7 +104,9 @@ namespace TickZoom.Charting
                 Interval intervalChartDisplay = new IntervalImpl(BarUnit.Day, 1);
                 Interval intervalChartBar = new IntervalImpl(BarUnit.Day, 1);
                 Interval intervalChartUpdate = new IntervalImpl(BarUnit.Day, 1);
-		    } catch( Exception) {
+            }
+            catch (Exception)
+            {
 				// This exception means we're running inside the form designer.
 				// TODO: find a better way to determine if running in form designer mode.
 		    }
@@ -530,12 +533,19 @@ namespace TickZoom.Charting
             }
 
             var id = objectId++;
+		    var symbolString = symbol.ExpandedSymbol;
             execute.OnUIThread(() =>
-		                           {
-		                               graphObjs.Add(id, arrow);
-		                               priceGraphPane.GraphObjList.Add(arrow);
-		                               AudioNotify(Audio.TradeChime);
+                                   {
+                                       graphObjs.Add(id, arrow);
+                                       priceGraphPane.GraphObjList.Add(arrow);
+                                       AudioNotify(Audio.TradeChime);
+                                       //if (form == null)
+                                       //{
+                                       //    form = FindForm();
+                                       //}
+                                       //form.Text = symbolString + " " + resultingPosition;
 		                           });
+            
 			return objectId;
 		}
 		
@@ -1132,8 +1142,11 @@ namespace TickZoom.Charting
 				setLayout();
 				// Calculate the Axis Scale Ranges
 				dataGraph.AxisChange();
-   			    var form = FindForm();
-   			    form.Text = symbol.ExpandedSymbol;
+                if (form == null)
+                {
+                    form = FindForm();
+                }
+                form.Text = symbol.ExpandedSymbol;
 				isDrawn = true;		
    			} catch (Exception ex) {
    				log.Error("ERROR: DrawChart ", ex);

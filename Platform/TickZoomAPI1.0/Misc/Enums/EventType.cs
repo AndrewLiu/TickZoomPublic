@@ -81,7 +81,8 @@ namespace TickZoom.Api
 	    RequestPosition,
         PositionChange,
 		LogicalFill,
-	    LogicalTouch,
+        NotifyTrade,
+        LogicalTouch,
         Error,
         
         // Never use an event id higher than this.

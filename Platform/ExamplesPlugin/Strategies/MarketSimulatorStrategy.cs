@@ -23,7 +23,6 @@ namespace TickZoom.Examples
         private double midPoint;
         public override bool OnProcessTick(Tick tick)
         {
-            Log.Debug("OnProcessTick: " + tick);
             if (tick.IsQuote)
             {
                 midPoint = (tick.Ask + tick.Bid) / 2;
