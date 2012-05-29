@@ -77,7 +77,8 @@ namespace TickZoom.Common
 			RequestEvent( EventType.OpenInterval);
 			RequestEvent( EventType.CloseInterval);
 			RequestEvent( EventType.LogicalFill);
-			RequestEvent( EventType.EndHistorical);
+            RequestEvent( EventType.NotifyTrade);
+            RequestEvent(EventType.EndHistorical);
             RequestEvent( EventType.SynchronizePortfolio);
         }
 

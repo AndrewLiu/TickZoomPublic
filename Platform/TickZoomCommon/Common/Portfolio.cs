@@ -144,7 +144,8 @@ namespace TickZoom.Common
 			if( portfolioType == PortfolioType.SingleSymbol) {
 				strategy.OnActiveChange += HandleActiveChange;
 				strategy.AddEventListener(EventType.LogicalFill,this);
-			}
+                strategy.AddEventListener(EventType.NotifyTrade,this);
+            }
 			var watcher = new StrategyWatcher(strategy);
 			watchers.Add( strategy, watcher);
 			if( strategy.IsActive) {

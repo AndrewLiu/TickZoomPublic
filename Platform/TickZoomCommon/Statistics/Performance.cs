@@ -95,7 +95,8 @@ namespace TickZoom.Statistics
 			if( EventType.Initialize == eventType) {
 				model.AddInterceptor( EventType.Close, this);
 				model.AddInterceptor( EventType.LogicalFill, this);
-				model.AddInterceptor( EventType.Tick, this);
+                model.AddInterceptor( EventType.NotifyTrade, this);
+                model.AddInterceptor( EventType.Tick, this);
 				OnInitialize();
 			}
 			if( EventType.Close == eventType) {
@@ -108,7 +109,11 @@ namespace TickZoom.Statistics
 			if( EventType.LogicalFill == eventType ) {
 				OnProcessFill((LogicalFill) eventDetail);
 			}
-		}
+            if (EventType.NotifyTrade == eventType)
+            {
+                NotifyTrade();
+            }
+        }
 		
 		public void OnInitialize()
 		{ 
@@ -209,15 +214,15 @@ namespace TickZoom.Statistics
 				if( !strategy.TryGetOrderById( fill.OrderId, out filledOrder)) {
 					throw new ApplicationException("A fill for order id: " + fill.OrderId + " was incorrectly routed to: " + strategy.Name);
 				}
-				strategy.OnEnterTrade(pair,fill,filledOrder);
+			    notifyTradeInfo = new NotifyTradeInfo {Type = NotifyTradeType.Enter, Pair = pair, Fill = fill, Order = filledOrder};
 			}
 		}
 
 		private void ChangeComboSize(LogicalFill fill) {
-			TransactionPairBinary combo = comboTradesBinary.Tail;
-			combo.ChangeSize(fill.Position,fill.Price);
-			comboTradesBinary.Tail = combo;
-            if (debug) log.Debug("Change Trade: " + combo);
+			TransactionPairBinary pair = comboTradesBinary.Tail;
+			pair.ChangeSize(fill.Position,fill.Price);
+			comboTradesBinary.Tail = pair;
+            if (debug) log.Debug("Change Trade: " + pair);
             if (model is Strategy)
             {
 				Strategy strategy = (Strategy) model;
@@ -225,50 +230,96 @@ namespace TickZoom.Statistics
 				if( !strategy.TryGetOrderById( fill.OrderId, out filledOrder)) {
 					throw new ApplicationException("A fill for order id: " + fill.OrderId + " was incorrectly routed to: " + strategy.Name);
 				}
-				strategy.OnChangeTrade(combo,fill,filledOrder);
+			    notifyTradeInfo = new NotifyTradeInfo {Type = NotifyTradeType.Change, Pair = pair, Fill = fill, Order = filledOrder};
 			}
 		}
 		
 		public void ExitComboTrade(LogicalFill fill) {
-			TransactionPairBinary comboTrade = comboTradesBinary.Tail;
-			comboTrade.Exit( fill.Price, fill.Time, fill.PostedTime, model.Chart.ChartBars.BarCount, fill.OrderId, fill.OrderSerialNumber);
-			comboTradesBinary.Tail = comboTrade;
-            if( debug) log.Debug("Exit Trade: " + comboTrade);
+			TransactionPairBinary pair = comboTradesBinary.Tail;
+			pair.Exit( fill.Price, fill.Time, fill.PostedTime, model.Chart.ChartBars.BarCount, fill.OrderId, fill.OrderSerialNumber);
+			comboTradesBinary.Tail = pair;
+            if( debug) log.Debug("Exit Trade: " + pair);
             var profitLoss2 = profitLoss as ProfitLoss2;
 		    double pnl = 0D;
             if( profitLoss2 == null)
             {
-                pnl = profitLoss.CalculateProfit(comboTrade.Direction, comboTrade.AverageEntryPrice, comboTrade.ExitPrice);
+                pnl = profitLoss.CalculateProfit(pair.Direction, pair.AverageEntryPrice, pair.ExitPrice);
             }
             else
             {
                 double costs;
-                profitLoss2.CalculateProfit(comboTrade, out pnl, out costs);
+                profitLoss2.CalculateProfit(pair, out pnl, out costs);
                 pnl = pnl - costs;
             }
 			pnl = Math.Round(pnl,2);
 			Equity.OnChangeClosedEquity( pnl);
 			if( trace) {
-				log.Trace( "Exit Trade: " + comboTrade);
+				log.Trace( "Exit Trade: " + pair);
 			}
-			if( tradeDebug && !model.QuietMode) tradeLog.Debug( model.Name + "," + Equity.ClosedEquity + "," + pnl + "," + comboTrade);
+			if( tradeDebug && !model.QuietMode) tradeLog.Debug( model.Name + "," + Equity.ClosedEquity + "," + pnl + "," + pair);
 			if( model is Strategy) {
-				Strategy strategy = (Strategy) model;
+				var strategy = (Strategy) model;
 				LogicalOrder filledOrder;
 				if( !strategy.TryGetOrderById( fill.OrderId, out filledOrder)) {
 					throw new ApplicationException("A fill for order id: " + fill.OrderId + " was incorrectly routed to: " + strategy.Name);
 				}
-				if( model is Portfolio) {
-					var portfolio = (Portfolio) model;
-					portfolio.OnExitTrade();
-				}
-				strategy.OnExitTrade(comboTrade, fill,filledOrder);
-			}
-			if( model is Portfolio) {
-				var portfolio = (Portfolio) model;
-				portfolio.OnExitTrade();
+			    notifyTradeInfo = new NotifyTradeInfo {Type = NotifyTradeType.Exit, Pair = pair, Fill = fill, Order = filledOrder};
 			}
 		}
+
+        private enum NotifyTradeType
+        {
+            Enter,
+            Exit,
+            Change
+        }
+        private struct NotifyTradeInfo
+        {
+            public NotifyTradeType Type;
+            public TransactionPairBinary Pair;
+            public LogicalFill Fill;
+            public LogicalOrder Order;
+
+        }
+
+	    private NotifyTradeInfo notifyTradeInfo;
+
+        private void NotifyTrade()
+        {
+            var strategy = model as Strategy;
+            if( strategy != null)
+            {
+                switch (notifyTradeInfo.Type)
+                {
+                    case NotifyTradeType.Enter:
+                        strategy.OnEnterTrade(notifyTradeInfo.Pair, notifyTradeInfo.Fill, notifyTradeInfo.Order);
+                        break;
+                    case NotifyTradeType.Exit:
+                        strategy.OnExitTrade(notifyTradeInfo.Pair, notifyTradeInfo.Fill, notifyTradeInfo.Order);
+                        break;
+                    case NotifyTradeType.Change:
+                        strategy.OnChangeTrade(notifyTradeInfo.Pair, notifyTradeInfo.Fill, notifyTradeInfo.Order);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException("Unknown notify trade type: " + notifyTradeInfo.Type);
+                }
+            }
+            var portfolio = model as Portfolio;
+            if( portfolio != null)
+            {
+                switch (notifyTradeInfo.Type)
+                {
+                    case NotifyTradeType.Enter:
+                    case NotifyTradeType.Change:
+                        break;
+                    case NotifyTradeType.Exit:
+                        portfolio.OnExitTrade();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException("Unknown notify trade type: " + notifyTradeInfo.Type);
+                }
+            }
+        }
 		
 		public bool OnIntervalClose()
 		{
