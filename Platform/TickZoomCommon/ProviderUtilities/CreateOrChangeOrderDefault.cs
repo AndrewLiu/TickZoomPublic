@@ -434,7 +434,7 @@ namespace TickZoom.Common
                 }
                 else
                 {
-                    binary.orderFlags ^= OrderFlags.IsSynthetic;
+                    binary.orderFlags &= ~OrderFlags.IsSynthetic;
                 }
             }
         }
@@ -451,7 +451,7 @@ namespace TickZoom.Common
                 }
                 else
                 {
-                    binary.orderFlags ^= OrderFlags.IsTouch;
+                    binary.orderFlags &= ~OrderFlags.IsTouch;
                 }
             }
         }

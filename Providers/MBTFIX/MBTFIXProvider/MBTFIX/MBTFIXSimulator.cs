@@ -165,6 +165,7 @@ namespace TickZoom.Provider.MBTFIX
 #endif
             ProviderSimulator.ChangeOrder(order);
             ProcessChangeOrder(order);
+		    order.OriginalOrder = null; // Original now gone.
 		}
 
         private void ProcessChangeOrder(CreateOrChangeOrder order)
@@ -249,8 +250,7 @@ namespace TickZoom.Provider.MBTFIX
                 OnRejectCancel(packet.Symbol, packet.ClientOrderId, packet.OriginalClientOrderId, "No such order");
                 return;
             }
-            var cancelOrder = ConstructCancelOrder(packet, packet.ClientOrderId);
-            cancelOrder.OriginalOrder = origOrder;
+            var cancelOrder = ConstructCancelOrder(packet, packet.ClientOrderId, origOrder);
             ProviderSimulator.CancelOrder(cancelOrder);
             ProcessCancelOrder(cancelOrder);
             ProviderSimulator.TryProcessAdustments(cancelOrder);
@@ -374,7 +374,7 @@ namespace TickZoom.Provider.MBTFIX
 			return physicalOrder;
 		}
 
-        private CreateOrChangeOrder ConstructCancelOrder(MessageFIX4_4 packet, string clientOrderId)
+        private CreateOrChangeOrder ConstructCancelOrder(MessageFIX4_4 packet, string clientOrderId, CreateOrChangeOrder origOrder)
         {
             if (string.IsNullOrEmpty(clientOrderId))
             {
@@ -397,6 +397,7 @@ namespace TickZoom.Provider.MBTFIX
             var physicalOrder = Factory.Utility.PhysicalOrder(
                 OrderAction.Cancel, OrderState.Active, symbol, side, type, OrderFlags.None,
                 0D, 0, logicalId, 0, clientId, null, utcCreateTime);
+            physicalOrder.OriginalOrder = origOrder;
             if (debug) log.Debug("Received physical Order: " + physicalOrder);
             return physicalOrder;
         }

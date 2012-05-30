@@ -396,7 +396,7 @@ namespace TickZoom.Provider.MBTFIX
 		    var clientOrderId = 0L;
 		    long.TryParse(packetFIX.ClientOrderId, out clientOrderId);
             var originalClientOrderId = 0L;
-		    long.TryParse(packetFIX.ClientOrderId, out originalClientOrderId);
+		    long.TryParse(packetFIX.OriginalClientOrderId, out originalClientOrderId);
             if (packetFIX.Text == "END")
             {
                 throw new ApplicationException("Unexpected END in FIX Text field. Never sent a 35=AF message.");
@@ -486,7 +486,14 @@ namespace TickZoom.Provider.MBTFIX
                         log.Info("Order Canceled but OrderAlgorithm not found for " + symbolInfo + ". Ignoring.");
                         break;
                     }
-                    algorithm.OrderAlgorithm.ConfirmCancel(originalClientOrderId, IsRecovered);
+                    if (originalClientOrderId > 0)
+                    {
+                        algorithm.OrderAlgorithm.ConfirmCancel(originalClientOrderId, IsRecovered);
+                    }
+                    else
+                    {
+                        algorithm.OrderAlgorithm.ConfirmCancel(clientOrderId, IsRecovered);
+                    }
                     TrySendStartBroker(symbolInfo, "sync on confirm cancel orig order");
                     OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
                     break;
@@ -543,12 +550,12 @@ namespace TickZoom.Provider.MBTFIX
                         }
                         else
                         {
-                            algorithm.OrderAlgorithm.ConfirmCreate(originalClientOrderId, IsRecovered);
+                            algorithm.OrderAlgorithm.ConfirmCreate(clientOrderId, IsRecovered);
                         }
                     }
                     else
                     {
-                        algorithm.OrderAlgorithm.ConfirmActive(originalClientOrderId, IsRecovered);
+                        algorithm.OrderAlgorithm.ConfirmActive(clientOrderId, IsRecovered);
                     }
                     TrySendStartBroker(symbolInfo, "sync on confirm cancel orig order");
                     OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
