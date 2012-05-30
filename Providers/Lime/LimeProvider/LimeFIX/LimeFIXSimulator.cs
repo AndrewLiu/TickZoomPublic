@@ -301,7 +301,12 @@ namespace TickZoom.Provider.LimeFIX
         private void ProcessCancelOrder(CreateOrChangeOrder cancelOrder)
         {
             var origOrder = cancelOrder.OriginalOrder;
-            var randomOrder = random.Next(0, 10) < 5 ? cancelOrder : origOrder;
+            var useCancelOrder = random.Next(0, 10) < 5;
+            if( !useCancelOrder)
+            {
+                int x = 0;
+            }
+            var randomOrder = useCancelOrder ? cancelOrder : origOrder;
             SendExecutionReport(randomOrder, "6", 0.0, 0, 0, 0, (int)origOrder.RemainingSize, TimeStamp.UtcNow);
             SendPositionUpdate(cancelOrder.Symbol, ProviderSimulator.GetPosition(cancelOrder.Symbol));
             SendExecutionReport(randomOrder, "4", 0.0, 0, 0, 0, (int)origOrder.RemainingSize, TimeStamp.UtcNow);
@@ -436,8 +441,8 @@ namespace TickZoom.Provider.LimeFIX
             var physicalOrder = Factory.Utility.PhysicalOrder(
                 OrderAction.Cancel, OrderState.Active, symbol, side, type, OrderFlags.None,
                 0D, 0, logicalId, 0, clientId, null, utcCreateTime);
-            if (debug) log.Debug("Received physical Order: " + physicalOrder);
             physicalOrder.OriginalOrder = origOrder;
+            if (debug) log.Debug("Received physical Order: " + physicalOrder);
             return physicalOrder;
         }
 
