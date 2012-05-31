@@ -34,6 +34,29 @@ using TickZoom.Api;
 
 namespace TickZoom.Provider.FIX
 {
+    public enum Status
+    {
+        None,
+        New,
+        Connected,
+        PendingLogin,
+        PendingServerResend,
+        PendingRecovery,
+        Recovered,
+        Disconnected,
+        PendingRetry,
+        PendingLogOut,
+    }
+
+    public abstract class FIXTConnection
+    {
+        private Socket socket;
+        public FIXTConnection( Socket socket)
+        {
+            this.socket = socket;
+        }
+    }
+
     public abstract class FIXProviderSupport : AgentPerformer, PhysicalOrderHandler, LogAware
     {
         private PhysicalOrderStore orderStore;
@@ -56,26 +79,16 @@ namespace TickZoom.Provider.FIX
         }
 
         protected SymbolReceivers symbolReceivers = new SymbolReceivers();
-		private Socket socket;
 		private Task socketTask;
 		private string failedFile;
 		protected Agent ClientAgent;
-		private long retryDelay = 30; // seconds
-		private long retryStart = 30; // seconds
-        protected bool fastRetry = false;  
-		private long retryIncrease = 5;
-		private long retryMaximum = 30;
-		private volatile Status connectionStatus = Status.None;
-        private volatile Status bestConnectionStatus = Status.None;
         private string addrStr;
 		private ushort port;
 		private string userName;
 		private	string password;
 		private	string accountNumber;
         private string destination;
-        public abstract void OnRetry();
         private string providerName;
-        private TrueTimer retryTimer;
         private TrueTimer heartbeatTimer;
 		private long heartbeatDelay;
 		private bool logRecovery = true;
@@ -87,6 +100,8 @@ namespace TickZoom.Provider.FIX
         private int remoteSequence = 1;
         private SocketState lastSocketState = SocketState.New;
         private FastQueue<MessageFIXT1_1> resendQueue;
+        private volatile Status connectionStatus = Status.None;
+        private volatile Status bestConnectionStatus = Status.None;
         protected string name;
         private Agent agent;
         public Agent Agent
@@ -109,6 +124,8 @@ namespace TickZoom.Provider.FIX
                 }
             }
         }
+
+        protected SocketReconnect SocketReconnect;
 
 		public FIXProviderSupport(string name)
 		{
@@ -137,7 +154,7 @@ namespace TickZoom.Provider.FIX
             }
             else
             {
-                RegenerateSocket();
+                SocketReconnect.Regenerate();
             }
         }
 
@@ -145,7 +162,6 @@ namespace TickZoom.Provider.FIX
         {
             socketTask = task;
             socketTask.Scheduler = Scheduler.EarliestTime;
-            retryTimer = Factory.Parallel.CreateTimer("Retry", socketTask, RetryTimerEvent);
             heartbeatTimer = Factory.Parallel.CreateTimer("Heartbeat", socketTask, HeartBeatTimerEvent);
             resendQueue = Factory.Parallel.FastQueue<MessageFIXT1_1>(providerName + "." + name + ".Resend");
             orderStore = Factory.Utility.PhyscalOrderStore(providerName + "." + name);
@@ -166,93 +182,14 @@ namespace TickZoom.Provider.FIX
                 log.Error("Please correct the username or password error described in " + failedFile + ". Then delete the file before retrying, please.");
                 return;
             }
-
             LoadProperties(configFile);
+
+            SocketReconnect = new SocketReconnect(providerName, name, task, addrStr, port, CreateMessageFactory(), OnConnect, OnDisconnect);
         }
 
         protected abstract MessageFactory CreateMessageFactory();
 
-		protected void RegenerateSocket() {
-			Socket old = socket;
-			if( socket != null && socket.State != SocketState.Closed) {
-				socket.Dispose();
-                // Wait for graceful socket shutdown.
-			    return;
-			}
-            socket = Factory.Provider.Socket(this.GetType().Name + "Socket", AddrStr, port);
-            socket.ReceiveQueue.ConnectInbound(socketTask);
-            socket.SendQueue.ConnectOutbound(socketTask);
-            socket.OnConnect = OnConnect;
-			socket.MessageFactory = CreateMessageFactory();
-			if( debug) log.Debug("Created new " + socket);
-			ConnectionStatus = Status.New;
-			if( trace) {
-				string message = "Generated socket: " + socket;
-				if( old != null) {
-					message += " to replace: " + old;
-				}
-				log.Trace(message);
-			}
-            if (SyncTicks.Enabled)
-            {
-                HeartbeatDelay = 10;
-                if (HeartbeatDelay > 40)
-                {
-                    log.Error("Heartbeat delay is " + HeartbeatDelay);
-                }
-                RetryDelay = 1;
-                RetryStart = 1;
-            }
-            else
-            {
-                HeartbeatDelay = 40;
-                RetryDelay = 30;
-            }
-            // Initiate socket connection.
-            while (true)
-            {
-                try
-                {
-                    socket.Connect();
-                    if (debug) log.Debug("Requested Connect for " + socket);
-                    var startTime = Factory.Parallel.UtcNow;
-                    var fastRetryDelay = 1;
-                    var retryDelay = fastRetry ? fastRetryDelay : RetryDelay;
-                    if( SyncTicks.Enabled)
-                    {
-                        startTime.AddMilliseconds(retryDelay*100);
-                    }
-                    else
-                    {
-                        startTime.AddSeconds(retryDelay);
-                    }
-                    retryTimer.Start(startTime);
-                    if (fastRetry) log.InfoFormat("Quick retry requested.  Connection will retry in {0} seconds", fastRetryDelay);
-                    else
-                    log.Info("Connection will timeout and retry in " + RetryDelay + " seconds.");
-                    fastRetry = false;
-                    return;
-                }
-                catch (SocketErrorException ex)
-                {
-                    log.Error("Non fatal error while trying to connect: " + ex.Message);
-                }
-            }
-        }
 
-		public enum Status {
-            None,
-			New,
-			Connected,
-			PendingLogin,
-		    PendingServerResend,
-            PendingRecovery,
-			Recovered,
-            Disconnected,
-			PendingRetry,
-		    PendingLogOut,
-		}
-		
 		public void WriteFailedLoginFile(string packetString) {
 			string message = "Login failed for user name: " + userName + " and password: " + new string('*',password.Length);
 			string fileMessage = "Resolve the problem and then delete this file before you retry.";
@@ -269,74 +206,10 @@ namespace TickZoom.Provider.FIX
 			log.Error(message + " " + logMessage + "\n" + packetString);
 		}
 		
-		private void OnDisconnect( Socket socket) {
-			if( !this.socket.Equals(socket)) {
-				log.Info("OnDisconnect( " + this.socket + " != " + socket + " ) - Ignored.");
-				return;
-			}
-			log.Info("OnDisconnect( " + socket + " ) status " + ConnectionStatus);
-            if (isDisposed)
-            {
-                isFinalized = true;
-                return;
-            }
-            OnDisconnect();
-            switch (ConnectionStatus)
-            {
-                case Status.Connected:
-                case Status.Disconnected:
-                case Status.New:
-                case Status.PendingRecovery:
-                case Status.Recovered:
-                case Status.PendingLogin:
-                case Status.PendingServerResend:
-                case Status.PendingRetry:
-                    orderStore.ForceSnapshot();
-                    ConnectionStatus = Status.Disconnected;
-                    var startTime = TimeStamp.UtcNow;
-                    startTime.AddSeconds(RetryDelay);
-                    retryTimer.Start(startTime);
-                    break;
-                case Status.PendingLogOut:
-                    ConnectionStatus = Status.Disconnected;
-                    Dispose();
-                    break;
-                default:
-                    log.Warn("Unexpected connection status when socket disconnected: " + ConnectionStatus + ". Shutting down the provider.");
-                    Dispose();
-                    break;
-            }
-        }
-
-        private void OnConnect(Socket socket)
-        {
-            if (!this.socket.Equals(socket))
-            {
-                log.Info("OnConnect( " + this.socket + " != " + socket + " ) - Ignored.");
-                return;
-            }
-            log.Info("OnConnect( " + socket + " ) ");
-            retryTimer.Cancel();
-            ConnectionStatus = Status.Connected;
-            IsResendComplete = true;
-            using (OrderStore.BeginTransaction())
-            {
-                if (OnLogin())
-                {
-                    ConnectionStatus = Status.PendingLogin;
-                    IncreaseHeartbeatTimeout();
-                }
-                else
-                {
-                    RegenerateSocket();
-                }
-            }
-        }
-
         public bool IsInterrupted
         {
 			get {
-				return isDisposed || socket.State != SocketState.Connected;
+				return isDisposed || SocketReconnect.State != SocketState.Connected;
 			}
 		}
 
@@ -367,12 +240,6 @@ namespace TickZoom.Provider.FIX
 			}
 		}
 		
-		private void SetupRetry() {
-            orderStore.ForceSnapshot();
-            OnRetry();
-			RegenerateSocket();
-		}
-		
 		public bool IsRecovery {
 			get {
 				return ConnectionStatus == Status.PendingRecovery;
@@ -382,15 +249,6 @@ namespace TickZoom.Provider.FIX
         private bool SnapshotBusy
         {
             get { return orderStore.IsBusy; }
-        }
-
-        private Yield RetryTimerEvent()
-        {
-            log.Info("Connection Timeout");
-            RetryDelay += retryIncrease;
-            RetryDelay = Math.Min(RetryDelay, retryMaximum);
-            SetupRetry();
-            return Yield.DidWork.Repeat;
         }
 
         private int frozenHeartbeatCounter;
@@ -409,12 +267,14 @@ namespace TickZoom.Provider.FIX
                 }
                 else
                 {
-                    SetupRetry();
+                    orderStore.ForceSnapshot();
+                    SocketReconnect.Regenerate();
                 }
             }
             else
             {
-                SetupRetry();
+                orderStore.ForceSnapshot();
+                SocketReconnect.Regenerate();
             }
             IncreaseHeartbeatTimeout();
             return Yield.DidWork.Repeat;
@@ -483,45 +343,45 @@ namespace TickZoom.Provider.FIX
 
             if (SnapshotBusy) return Yield.DidWork.Repeat;
 
-            if (socket == null) return Yield.DidWork.Repeat;
+            if (SocketReconnect == null) return Yield.DidWork.Repeat;
 
-                if (socket.State != lastSocketState)
-                {
-                    if (debug) log.Debug("SocketState changed to " + socket.State);
-                    lastSocketState = socket.State;
-                }
-                switch (socket.State)
-                {
-                    case SocketState.New:
-                        return Yield.NoWork.Repeat;
-                    case SocketState.PendingConnect:
-                        return Yield.NoWork.Repeat;
-                    case SocketState.Connected:
-                        var transaction = OrderStore.BeginTransaction();
-                        try
+            if (SocketReconnect.State != lastSocketState)
+            {
+                if (debug) log.Debug("SocketState changed to " + SocketReconnect.State);
+                lastSocketState = SocketReconnect.State;
+            }
+            switch (SocketReconnect.State)
+            {
+                case SocketState.New:
+                    return Yield.NoWork.Repeat;
+                case SocketState.PendingConnect:
+                    return Yield.NoWork.Repeat;
+                case SocketState.Connected:
+                    var transaction = OrderStore.BeginTransaction();
+                    try
+                    {
+                        var result = TryProcessMessage();
+                        if (!result.IsIdle)
                         {
-                            var result = TryProcessMessage();
-                            if (!result.IsIdle)
-                            {
-                                orderStore.TrySnapshot();
-                            }
-                            return result;
+                            orderStore.TrySnapshot();
                         }
-                        finally
-                        {
-                            transaction.Dispose();
-                        }
-                    case SocketState.Disconnected:
-                    case SocketState.Closed:
-                        return TrySetupRetry();
-                    case SocketState.ShuttingDown:
-                    case SocketState.Closing:
-                        return Yield.NoWork.Repeat;
-                    default:
-                        string textMessage = "Unknown socket state: " + socket.State;
-                        log.Error(textMessage);
-                        throw new ApplicationException(textMessage);
-                }
+                        return result;
+                    }
+                    finally
+                    {
+                        transaction.Dispose();
+                    }
+                case SocketState.Disconnected:
+                case SocketState.Closed:
+                    return TrySetupRetry();
+                case SocketState.ShuttingDown:
+                case SocketState.Closing:
+                    return Yield.NoWork.Repeat;
+                default:
+                    string textMessage = "Unknown socket state: " + SocketReconnect.State;
+                    log.Error(textMessage);
+                    throw new ApplicationException(textMessage);
+            }
 		}
 
         private void SyntheticReject(CreateOrChangeOrder order)
@@ -576,8 +436,7 @@ namespace TickZoom.Provider.FIX
                 case Status.Disconnected:
                 case Status.New:
                     ConnectionStatus = Status.PendingRetry;
-                    RetryDelay += retryIncrease;
-                    RetryDelay = Math.Min(RetryDelay, retryMaximum);
+                    SocketReconnect.IncreaseRetry();
                     return Yield.NoWork.Repeat;
                 case Status.PendingRetry:
                     return Yield.NoWork.Repeat;
@@ -603,11 +462,7 @@ namespace TickZoom.Provider.FIX
                 case Status.PendingServerResend:
                 case Status.PendingRecovery:
                 case Status.Recovered:
-                    if (RetryDelay != RetryStart)
-                    {
-                        RetryDelay = RetryStart;
-                        log.Info("(retryDelay reset to " + RetryDelay + " seconds.)");
-                    }
+                    SocketReconnect.ResetRetry();
 
                     MessageFIXT1_1 messageFIX = null;
 
@@ -642,7 +497,7 @@ namespace TickZoom.Provider.FIX
                     if (messageFIX == null)
                     {
                         Message message = null;
-                        if (Socket.TryGetMessage(out message))
+                        if (SocketReconnect.TryGetMessage(out message))
                         {
                             var disconnect = message as DisconnectMessage;
                             if (disconnect == null)
@@ -651,7 +506,7 @@ namespace TickZoom.Provider.FIX
                             }
                             else
                             {
-                                OnDisconnect(disconnect.Socket);
+                                SocketReconnect.OnDisconnect(disconnect.Socket);
                             }
                         }
                     }
@@ -754,7 +609,7 @@ namespace TickZoom.Provider.FIX
                         }
                         if (releaseFlag)
                         {
-                            Socket.MessageFactory.Release(messageFIX);
+                            SocketReconnect.Release(messageFIX);
                         }
                         orderStore.IncrementUpdateCount();
                         IncreaseHeartbeatTimeout();
@@ -774,7 +629,7 @@ namespace TickZoom.Provider.FIX
         protected abstract bool CheckForServerSync(MessageFIXT1_1 messageFix);
 
         protected virtual void HandleUnexpectedLogout(MessageFIXT1_1 message) {
-            socket.Dispose();
+            SocketReconnect.Socket.Dispose();
         }
 
         protected virtual bool HandleLogon(MessageFIXT1_1 message)
@@ -1237,17 +1092,13 @@ namespace TickZoom.Provider.FIX
 		            	socketTask.Stop();
                         socketTask.Join();
 	            	}
-                    if (socket != null)
+                    if (SocketReconnect != null)
                     {
-                        socket.Dispose();
+                        SocketReconnect.Dispose();
                     }
                     if( heartbeatTimer != null)
                     {
                         heartbeatTimer.Dispose();
-                    }
-                    if (retryTimer != null)
-                    {
-                        retryTimer.Dispose();
                     }
                     if (orderStore != null)
                     {
@@ -1276,7 +1127,7 @@ namespace TickZoom.Provider.FIX
 				log.Debug("Send FIX message: \n" + view);
 			}
 
-	        var packet = Socket.MessageFactory.Create();
+	        var packet = SocketReconnect.CreateMessage();
 	        packet.SendUtcTime = fixMsg.SendTime.Internal;
 			packet.DataOut.Write(fixString.ToCharArray());
             if( fixMsg.Type == "D")
@@ -1286,7 +1137,7 @@ namespace TickZoom.Provider.FIX
                 log.Info("Latency round trip time " + elapsed + " from " + fixMsg.SendTime + " to " + current);
             }
 			var end = Factory.Parallel.TickCount + (long)heartbeatDelay * 1000L;
-			while( !Socket.TrySendMessage(packet)) {
+			while( !SocketReconnect.TrySendMessage(packet)) {
 				if( IsInterrupted) return;
 				if( Factory.Parallel.TickCount > end) {
 					throw new ApplicationException("Timeout while sending message.");
@@ -1340,11 +1191,6 @@ namespace TickZoom.Provider.FIX
             }
         }
 
-        public Socket Socket
-        {
-			get { return socket; }
-		}
-		
 		public string AddrStr {
 			get { return addrStr; }
 			set { addrStr = value; }
@@ -1368,16 +1214,6 @@ namespace TickZoom.Provider.FIX
 		public string ProviderName {
 			get { return providerName; }
 			set { providerName = value; }
-		}
-		
-		public long RetryIncrease {
-			get { return retryIncrease; }
-			set { retryIncrease = value; }
-		}
-		
-		public long RetryMaximum {
-			get { return retryMaximum; }
-			set { retryMaximum = value; }
 		}
 		
 		public long HeartbeatDelay {
@@ -1433,34 +1269,9 @@ namespace TickZoom.Provider.FIX
 	        }
 	    }
 
-        public long RetryDelay
-        {
-            get { return retryDelay; }
-            set { retryDelay = value; }
-        }
-
-        public Status ConnectionStatus
-        {
-            get { return connectionStatus; }
-            set
-            {
-                if( connectionStatus != value)
-                {
-                    if (debug) log.Debug("ConnectionStatus changed from " + connectionStatus + " to " + value);
-                    connectionStatus = value;
-                }
-            }
-        }
-
         public bool IsFinalized
         {
             get { return isFinalized; }
-        }
-
-        public long RetryStart
-        {
-            get { return retryStart; }
-            set { retryStart = value; }
         }
 
         public bool IsChanged
@@ -1652,7 +1463,39 @@ namespace TickZoom.Provider.FIX
 
         protected abstract void HandleRejectedLogin(MessageFIXT1_1 message);
 
-        public virtual void OnDisconnect() {
+        private void OnConnect()
+        {
+            log.Info("OnConnect() ");
+            ConnectionStatus = Status.Connected;
+            if (SyncTicks.Enabled)
+            {
+                HeartbeatDelay = 10;
+                if (HeartbeatDelay > 40)
+                {
+                    log.Error("Heartbeat delay is " + HeartbeatDelay);
+                }
+            }
+            else
+            {
+                HeartbeatDelay = 40;
+            }
+            IsResendComplete = true;
+            using (OrderStore.BeginTransaction())
+            {
+                if (OnLogin())
+                {
+                    ConnectionStatus = Status.PendingLogin;
+                    IncreaseHeartbeatTimeout();
+                }
+                else
+                {
+                    SocketReconnect.Regenerate();
+                }
+            }
+        }
+
+        public virtual void OnDisconnect()
+        {
             HeartbeatDelay = int.MaxValue;
             if( ConnectionStatus == Status.PendingLogOut)
             {
@@ -1672,6 +1515,29 @@ namespace TickZoom.Provider.FIX
                 }
                 log.Info("Logging out -- Sending EndBroker event.");
                 TrySendEndBroker();
+            }
+            switch (ConnectionStatus)
+            {
+                case Status.Connected:
+                case Status.Disconnected:
+                case Status.New:
+                case Status.PendingRecovery:
+                case Status.Recovered:
+                case Status.PendingLogin:
+                case Status.PendingServerResend:
+                case Status.PendingRetry:
+                    orderStore.ForceSnapshot();
+                    ConnectionStatus = Status.Disconnected;
+                    SocketReconnect.Regenerate();
+                    break;
+                case Status.PendingLogOut:
+                    ConnectionStatus = Status.Disconnected;
+                    Dispose();
+                    break;
+                default:
+                    log.Warn("Unexpected connection status when socket disconnected: " + ConnectionStatus + ". Shutting down the provider.");
+                    Dispose();
+                    break;
             }
         }
 
@@ -1968,5 +1834,18 @@ namespace TickZoom.Provider.FIX
         {
             HandleBusinessReject(false, packetFIX);
         }
+        public Status ConnectionStatus
+        {
+            get { return connectionStatus; }
+            set
+            {
+                if (connectionStatus != value)
+                {
+                    if (debug) log.Debug("ConnectionStatus changed from " + connectionStatus + " to " + value);
+                    connectionStatus = value;
+                }
+            }
+        }
+
     }
 }

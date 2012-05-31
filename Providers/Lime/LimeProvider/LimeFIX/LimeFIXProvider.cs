@@ -87,9 +87,6 @@ namespace TickZoom.Provider.LimeFIX
             base.PositionChange(positionChange);
         }
 
-		public override void OnRetry() {
-		}
-
         protected override MessageFactory CreateMessageFactory()
         {
             return new MessageFactoryFix42();
@@ -160,9 +157,7 @@ namespace TickZoom.Provider.LimeFIX
                         log.Error(message42.Text);
                         var remoteSequence = OrderStore.RemoteSequence == 0 ? message.Sequence + 1 : OrderStore.RemoteSequence;
                         OrderStore.SetSequences(remoteSequence,newSequenceNumber);
-                        Socket.Dispose();
-                        RetryStart = 2;
-                        fastRetry = true;
+                        SocketReconnect.FastRetry();
                     }
                 }
             }
@@ -215,7 +210,7 @@ namespace TickZoom.Provider.LimeFIX
             }
             else
             {
-                RegenerateSocket();
+                SocketReconnect.Regenerate();
                 return false;
             }
         }
@@ -313,7 +308,7 @@ namespace TickZoom.Provider.LimeFIX
             }
             SymbolAlgorithm algorithm = null;
             SymbolInfo symbolInfo;
-            if (!Factory.Symbol.TryLookupSymbol(packetFIX.Symbol, out symbolInfo))
+            if (!Factory.Symbol.TryLookupSymbol(packetFIX.Symbol.Replace("_TZ",""), out symbolInfo))
             {
                 log.Warn("Unable to find " + packetFIX.Symbol + " for execution report.");
                 return;
@@ -514,7 +509,7 @@ namespace TickZoom.Provider.LimeFIX
             long.TryParse(packetFIX.ClientOrderId, out originalClientOrderId);
             if (debug) log.Debug("SendFill( " + packetFIX.ClientOrderId + ")");
             SymbolInfo symbolInfo;
-            if (!Factory.Symbol.TryLookupSymbol(packetFIX.Symbol, out symbolInfo))
+            if (!Factory.Symbol.TryLookupSymbol(packetFIX.Symbol.Replace("_TZ",""), out symbolInfo))
             {
                 log.Warn("Unable to find " + packetFIX.Symbol + " for fill.");
                 return;
@@ -620,7 +615,7 @@ namespace TickZoom.Provider.LimeFIX
                     fixMsg.SetDestination(order.Symbol.Destination);
                 }
             }
-            fixMsg.SetSymbol(order.Symbol.BaseSymbol);
+            fixMsg.SetSymbol(order.Symbol.BaseSymbol+"_TZ");
             fixMsg.SetSide(order.Side == OrderSide.Buy ? 1 : 5);
 			switch( order.Type) {
                 case OrderType.Limit:

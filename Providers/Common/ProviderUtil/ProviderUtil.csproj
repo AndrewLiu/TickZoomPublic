@@ -97,6 +97,7 @@
     <Compile Include="FIX\FIXSimulatorSupport.cs" />
     <Compile Include="FIX\MessageFactoryFix42.cs" />
     <Compile Include="FIX\PacketFIX4_2.cs" />
+    <Compile Include="FIX\SocketReconnect.cs" />
     <Compile Include="FIX\SymbolAlgorithm.cs" />
     <Compile Include="FIX\SymbolAlgorithms.cs" />
     <Compile Include="FIX\SymbolReceiver.cs" />

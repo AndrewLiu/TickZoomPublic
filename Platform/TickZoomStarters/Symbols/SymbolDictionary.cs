@@ -350,7 +350,7 @@ namespace TickZoom.Symbols
         <property name=""QuoteType"" value=""None"" />
       </symbol>
       <symbol name=""MSFT"">
-        <property name=""TimeAndSales"" value=""None"" />
+        <property name=""TimeAndSales"" value=""ActualTrades"" />
         <property name=""QuoteType"" value=""Level2"" />
       </symbol>
       <symbol name=""IBM"">
@@ -360,7 +360,7 @@ namespace TickZoom.Symbols
         <property name=""QuoteType"" value=""Level1"" />
       </symbol>
       <symbol name=""GOOG"">
-        <property name=""TimeAndSales"" value=""None"" />
+        <property name=""TimeAndSales"" value=""ActualTrades"" />
         <property name=""QuoteType"" value=""Level1"" />
       </symbol>
       <symbol name=""GE"" />
