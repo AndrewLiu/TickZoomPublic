@@ -54,7 +54,7 @@ namespace TickZoom.Starters
             var stopwatch = new Stopwatch();
 		    stopwatch.Start();
             var elapsed = stopwatch.Elapsed;
-#if !USE_MBT
+#if USE_MBT
             executionProviders.Add("mbt", "MBTFIXProvider/Simulate");
             dataProviders.Add("mbtdata", "MBTFIXProvider/Simulate");
             var fixAssembly = "MBTFIXProvider";
