@@ -87,7 +87,9 @@ namespace TickZoom.Provider.FIX
 		private string userName;
 		private	string password;
 		private	string accountNumber;
+        private bool disableChangeOrders;
         private string destination;
+        private string symbolSuffix;
         private string providerName;
         private TrueTimer heartbeatTimer;
 		private long heartbeatDelay;
@@ -923,73 +925,21 @@ namespace TickZoom.Provider.FIX
         private void LoadProperties(string configFilePath) {
 	        log.Notice("Using section " + configSection + " in file: " + configFilePath);
 	        var configFile = new ConfigFile(configFilePath);
-        	configFile.AssureValue("EquityDemo/UseLocalFillTime","true");
-            configFile.AssureValue("EquityDemo/ServerAddress", "127.0.0.1");
-            configFile.AssureValue("EquityDemo/ServerPort", "5679");
-        	configFile.AssureValue("EquityDemo/UserName","CHANGEME");
-        	configFile.AssureValue("EquityDemo/Password","CHANGEME");
-        	configFile.AssureValue("EquityDemo/AccountNumber","CHANGEME");
-            configFile.AssureValue("EquityDemo/SessionIncludes", "*");
-            configFile.AssureValue("EquityDemo/SessionExcludes", "");
-            configFile.AssureValue("EquityDemo/Destination", "7");
-            configFile.AssureValue("ForexDemo/UseLocalFillTime", "true");
-        	configFile.AssureValue("ForexDemo/ServerAddress","127.0.0.1");
-        	configFile.AssureValue("ForexDemo/ServerPort","5679");
-        	configFile.AssureValue("ForexDemo/UserName","CHANGEME");
-        	configFile.AssureValue("ForexDemo/Password","CHANGEME");
-        	configFile.AssureValue("ForexDemo/AccountNumber","CHANGEME");
-            configFile.AssureValue("ForexDemo/SessionIncludes", "*");
-            configFile.AssureValue("ForexDemo/SessionExcludes", "");
-            configFile.AssureValue("EquityLive/UseLocalFillTime", "true");
-        	configFile.AssureValue("EquityLive/ServerAddress","127.0.0.1");
-        	configFile.AssureValue("EquityLive/ServerPort","5680");
-        	configFile.AssureValue("EquityLive/UserName","CHANGEME");
-        	configFile.AssureValue("EquityLive/Password","CHANGEME");
-        	configFile.AssureValue("EquityLive/AccountNumber","CHANGEME");
-            configFile.AssureValue("EquityLive/SessionIncludes", "*");
-            configFile.AssureValue("EquityLive/SessionExcludes", "");
-            configFile.AssureValue("EquityLive/Destination", "7");
-            configFile.AssureValue("ForexLive/UseLocalFillTime", "true");
-        	configFile.AssureValue("ForexLive/ServerAddress","127.0.0.1");
-        	configFile.AssureValue("ForexLive/ServerPort","5680");
-        	configFile.AssureValue("ForexLive/UserName","CHANGEME");
-        	configFile.AssureValue("ForexLive/Password","CHANGEME");
-        	configFile.AssureValue("ForexLive/AccountNumber","CHANGEME");
-            configFile.AssureValue("ForexLive/SessionIncludes", "*");
-            configFile.AssureValue("ForexLive/SessionExcludes", "");
-            configFile.AssureValue("Simulate/UseLocalFillTime", "false");
-            configFile.AssureValue("Simulate/ServerAddress", "127.0.0.1");
-            configFile.AssureValue("Simulate/ServerPort", "6489");
-            configFile.AssureValue("Simulate/UserName", "Simulate1");
-            configFile.AssureValue("Simulate/Password", "only4sim");
-            configFile.AssureValue("Simulate/AccountNumber", "11111111");
-            configFile.AssureValue("Simulate/SessionIncludes", "*");
-            configFile.AssureValue("Simulate/SessionExcludes", "");
-            configFile.AssureValue("SimulateMarket/UseLocalFillTime", "false");
-            configFile.AssureValue("SimulateMarket/ServerAddress", "127.0.0.1");
-            configFile.AssureValue("SimulateMarket/ServerPort", "6489");
-            configFile.AssureValue("SimulateMarket/UserName", "Simulate2");
-            configFile.AssureValue("SimulateMarket/Password", "only4sim");
-            configFile.AssureValue("SimulateMarket/AccountNumber", "11111111");
-            configFile.AssureValue("SimulateMarket/SessionIncludes", "*");
-            configFile.AssureValue("SimulateMarket/SessionExcludes", "");
-            configFile.AssureValue("ClientTest/UseLocalFillTime", "false");
-            configFile.AssureValue("ClientTest/ServerAddress", "127.0.0.1");
-            configFile.AssureValue("ClientTest/ServerPort", "6489");
-            configFile.AssureValue("ClientTest/UserName", "Simulate1");
-            configFile.AssureValue("ClientTest/Password", "only4sim");
-            configFile.AssureValue("ClientTest/AccountNumber", "11111111");
-            configFile.AssureValue("ClientTest/SessionIncludes", "*");
-            configFile.AssureValue("ClientTest/SessionExcludes", "");
-            configFile.AssureValue("MarketTest/UseLocalFillTime", "false");
-            configFile.AssureValue("MarketTest/ServerAddress", "127.0.0.1");
-            configFile.AssureValue("MarketTest/ServerPort", "6489");
-            configFile.AssureValue("MarketTest/UserName", "Simulate1");
-            configFile.AssureValue("MarketTest/Password", "only4sim");
-            configFile.AssureValue("MarketTest/AccountNumber", "11111111");
-            configFile.AssureValue("MarketTest/SessionIncludes", "*");
-            configFile.AssureValue("MarketTest/SessionExcludes", "");
-			ParseProperties(configFile);
+            foreach( var section in new[] { "EquityDemo", "ForexDemo" , "EquityLive", "ForexLive", "ClientTest", "MarketTest"})
+            {
+                configFile.AssureValue(section + "/UseLocalFillTime", "true");
+                configFile.AssureValue(section + "/ServerAddress", "127.0.0.1");
+                configFile.AssureValue(section + "/ServerPort", "5679");
+                configFile.AssureValue(section + "/UserName", "CHANGEME");
+                configFile.AssureValue(section + "/Password", "CHANGEME");
+                configFile.AssureValue(section + "/AccountNumber", "CHANGEME");
+                configFile.AssureValue(section + "/SessionIncludes", "*");
+                configFile.AssureValue(section + "/SessionExcludes", "");
+                configFile.AssureValue(section + "/Destination", "7");
+                configFile.AssureValue(section + "/DisableChangeOrders", "false");
+                configFile.AssureValue(section + "/SymbolSuffix", "");
+            }
+            ParseProperties(configFile);
 		}
 
         private void ParseProperties(ConfigFile configFile)
@@ -1008,6 +958,8 @@ namespace TickZoom.Provider.FIX
 			password = GetField("Password",configFile, true);
 			accountNumber = GetField("AccountNumber",configFile, true);
             destination = GetField("Destination", configFile, false);
+            var disableChangeString = GetField("DisableChangeOrders", configFile, false);
+            disableChangeOrders = string.IsNullOrEmpty(disableChangeString) ? false : disableChangeString.ToLower() == "true";
             var includeString = GetField("SessionIncludes", configFile, false);
             var excludeString = GetField("SessionExcludes", configFile, false);
             sessionMatcher = new IncludeExcludeMatcher(includeString, excludeString);
@@ -1847,5 +1799,14 @@ namespace TickZoom.Provider.FIX
             }
         }
 
+        public bool DisableChangeOrders
+        {
+            get { return disableChangeOrders; }
+        }
+
+        public string SymbolSuffix
+        {
+            get { return symbolSuffix; }
+        }
     }
 }

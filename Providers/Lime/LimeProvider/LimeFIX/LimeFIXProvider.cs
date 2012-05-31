@@ -269,9 +269,7 @@ namespace TickZoom.Provider.LimeFIX
 
         protected override void TryEndRecovery()
         {
-            if (debug) log.Debug("TryEndRecovery Status " + ConnectionStatus +
-                ", Session Status Online " + isOrderServerOnline +
-                ", Resend Complete " + IsResendComplete);
+            if (debug) log.Debug("TryEndRecovery Status " + ConnectionStatus + ", Session Status Online " + isOrderServerOnline + ", Resend Complete " + IsResendComplete);
             switch (ConnectionStatus)
             {
                 case Status.Recovered:
@@ -308,7 +306,8 @@ namespace TickZoom.Provider.LimeFIX
             }
             SymbolAlgorithm algorithm = null;
             SymbolInfo symbolInfo;
-            if (!Factory.Symbol.TryLookupSymbol(packetFIX.Symbol.Replace("_TZ",""), out symbolInfo))
+            var symbolString = string.IsNullOrEmpty(SymbolSuffix) ? packetFIX.Symbol : packetFIX.Symbol.Replace(SymbolSuffix, "");
+            if (!Factory.Symbol.TryLookupSymbol(symbolString, out symbolInfo))
             {
                 log.Warn("Unable to find " + packetFIX.Symbol + " for execution report.");
                 return;
@@ -509,7 +508,8 @@ namespace TickZoom.Provider.LimeFIX
             long.TryParse(packetFIX.ClientOrderId, out originalClientOrderId);
             if (debug) log.Debug("SendFill( " + packetFIX.ClientOrderId + ")");
             SymbolInfo symbolInfo;
-            if (!Factory.Symbol.TryLookupSymbol(packetFIX.Symbol.Replace("_TZ",""), out symbolInfo))
+            var symbolString = string.IsNullOrEmpty(SymbolSuffix) ? packetFIX.Symbol : packetFIX.Symbol.Replace(SymbolSuffix, "");
+            if (!Factory.Symbol.TryLookupSymbol(symbolString, out symbolInfo))
             {
                 log.Warn("Unable to find " + packetFIX.Symbol + " for fill.");
                 return;
@@ -615,7 +615,7 @@ namespace TickZoom.Provider.LimeFIX
                     fixMsg.SetDestination(order.Symbol.Destination);
                 }
             }
-            fixMsg.SetSymbol(order.Symbol.BaseSymbol+"_TZ");
+            fixMsg.SetSymbol(order.Symbol.BaseSymbol+SymbolSuffix);
             fixMsg.SetSide(order.Side == OrderSide.Buy ? 1 : 5);
 			switch( order.Type) {
                 case OrderType.Limit:
