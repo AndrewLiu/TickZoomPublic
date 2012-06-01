@@ -185,7 +185,7 @@ namespace TickZoom.Provider.FIX
                 return;
             }
             LoadProperties(configFile);
-
+            algorithms.DisableChangeOrders = disableChangeOrders;
             SocketReconnect = new SocketReconnect(providerName, name, task, addrStr, port, CreateMessageFactory(), OnConnect, OnDisconnect);
         }
 
@@ -925,7 +925,14 @@ namespace TickZoom.Provider.FIX
         private void LoadProperties(string configFilePath) {
 	        log.Notice("Using section " + configSection + " in file: " + configFilePath);
 	        var configFile = new ConfigFile(configFilePath);
-            foreach( var section in new[] { "EquityDemo", "ForexDemo" , "EquityLive", "ForexLive", "ClientTest", "MarketTest"})
+            var sections = new[] { "EquityDemo", "ForexDemo", "EquityLive", "ForexLive", "ClientTest", "MarketTest", "Simulate" };
+            SetupDefaultProperties( sections, configFile);
+            ParseProperties(configFile);
+		}
+
+        public virtual void SetupDefaultProperties(string[] sections, ConfigFile configFile)
+        {
+            foreach( var section in sections)
             {
                 configFile.AssureValue(section + "/UseLocalFillTime", "true");
                 configFile.AssureValue(section + "/ServerAddress", "127.0.0.1");
@@ -939,8 +946,16 @@ namespace TickZoom.Provider.FIX
                 configFile.AssureValue(section + "/DisableChangeOrders", "false");
                 configFile.AssureValue(section + "/SymbolSuffix", "");
             }
-            ParseProperties(configFile);
-		}
+            configFile.AssureValue("EquityLive/ServerPort","5680");
+            configFile.AssureValue("ForexLive/ServerPort","5680");
+            configFile.AssureValue("Simulate/UseLocalFillTime", "false");
+            configFile.AssureValue("Simulate/ServerAddress", "127.0.0.1");
+            configFile.AssureValue("Simulate/ServerPort", "6489");
+            configFile.AssureValue("Simulate/UserName", "Simulate1");
+            configFile.AssureValue("Simulate/Password", "only4sim");
+            configFile.AssureValue("Simulate/AccountNumber", "11111111");
+            configFile.AssureValue("Simulate/DisableChangeOrders", "false");
+        }
 
         private void ParseProperties(ConfigFile configFile)
         {

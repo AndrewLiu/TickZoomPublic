@@ -9,9 +9,16 @@ namespace TickZoom.Provider.FIX
         private readonly object algorithmsLocker = new object();
         private Dictionary<long, SymbolAlgorithm> algorithms = new Dictionary<long, SymbolAlgorithm>();
         private FIXProviderSupport providerSupport;
+        private bool disableChangeOrders;
         public SymbolAlgorithms(FIXProviderSupport providerSupport)
         {
             this.providerSupport = providerSupport;
+        }
+
+        public bool DisableChangeOrders
+        {
+            get { return disableChangeOrders; }
+            set { disableChangeOrders = value; }
         }
 
         private SymbolInfo GetSource( SymbolInfo symbol)
@@ -42,6 +49,7 @@ namespace TickZoom.Provider.FIX
                     var orderCache = Factory.Engine.LogicalOrderCache(symbol, false);
                     var syntheticRouter = new SyntheticOrderRouter(GetSource(symbol), providerSupport.Agent, providerSupport.Receiver);
                     var algorithm = Factory.Utility.OrderAlgorithm(providerSupport.ProviderName, symbol, providerSupport, syntheticRouter, orderCache, providerSupport.OrderStore);
+                    algorithm.DisableChangeOrders = disableChangeOrders;
                     algorithm.EnableSyncTicks = SyncTicks.Enabled;
                     symbolAlgorithm = new SymbolAlgorithm { OrderAlgorithm = algorithm, Synthetics = syntheticRouter };
                     algorithms.Add(GetSource(symbol).BinaryIdentifier, symbolAlgorithm);

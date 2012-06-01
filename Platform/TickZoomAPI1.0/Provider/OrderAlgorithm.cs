@@ -63,6 +63,7 @@ namespace TickZoom.Api
         int RejectRepeatCounter { get; set;  }
 	    Action<SymbolInfo, LogicalTouch> OnProcessTouch { get; set; }
 	    SymbolInfo Symbol { get; }
+	    bool DisableChangeOrders { get; set; }
 	    void SyntheticFill(PhysicalFill fill);
 	    void Clear();
 	}
