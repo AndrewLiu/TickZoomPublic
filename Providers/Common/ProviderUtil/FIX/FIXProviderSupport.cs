@@ -389,7 +389,7 @@ namespace TickZoom.Provider.FIX
         private void SyntheticReject(CreateOrChangeOrder order)
         {
             if (debug) log.Debug("SyntheticReject: " + order);
-            var orderAlgorithm = algorithms.GetAlgorithm(order.Symbol);
+            var orderAlgorithm = algorithms.CreateAlgorithm(order.Symbol);
             var algorithm = orderAlgorithm.OrderAlgorithm;
             var retryImmediately = algorithm.RejectRepeatCounter == 0;
             algorithm.RejectOrder(order.BrokerOrder, IsRecovered, true);
@@ -402,13 +402,13 @@ namespace TickZoom.Provider.FIX
         private void SyntheticFill(PhysicalFill fill)
         {
             if( debug) log.Debug("SyntheticFill: " + fill);
-            var orderAlgorithm = algorithms.GetAlgorithm(fill.Symbol);
+            var orderAlgorithm = algorithms.CreateAlgorithm(fill.Symbol);
             orderAlgorithm.OrderAlgorithm.SyntheticFill(fill);
         }
 
         private void SyntheticConfirmation(CreateOrChangeOrder order)
         {
-            var orderAlgorithm = algorithms.GetAlgorithm(order.Symbol);
+            var orderAlgorithm = algorithms.CreateAlgorithm(order.Symbol);
             switch( order.Action)
             {
                 case OrderAction.Create:
@@ -974,6 +974,7 @@ namespace TickZoom.Provider.FIX
 			accountNumber = GetField("AccountNumber",configFile, true);
             destination = GetField("Destination", configFile, false);
             var disableChangeString = GetField("DisableChangeOrders", configFile, false);
+            symbolSuffix = GetField("SymbolSuffix", configFile, false);
             disableChangeOrders = string.IsNullOrEmpty(disableChangeString) ? false : disableChangeString.ToLower() == "true";
             var includeString = GetField("SessionIncludes", configFile, false);
             var excludeString = GetField("SessionExcludes", configFile, false);
@@ -1260,16 +1261,8 @@ namespace TickZoom.Provider.FIX
         protected void TrySend(EventType type, SymbolInfo symbol, Agent agent)
         {
             if( debug) log.Debug("Sending " + type + " for " + symbol + " ...");
-            SymbolAlgorithm algorithm;
-            if (algorithms.TryGetAlgorithm(symbol, out algorithm))
-            {
-                var item = new EventItem(symbol, type);
-                agent.SendEvent(item);
-            }
-            else
-            {
-                log.Info("TrySend " + type + " for " + symbol + " but OrderAlgorithm not found for " + symbol + ". Ignoring.");
-            }
+            var item = new EventItem(symbol, type);
+            agent.SendEvent(item);
         }
 
         protected void TryRequestPosition(SymbolInfo symbol)
@@ -1280,7 +1273,7 @@ namespace TickZoom.Provider.FIX
                 if (debug) log.Debug("Attempted RequestPosition but IsRecovered is " + IsRecovered);
                 return;
             }
-            var symbolAlgorithm = algorithms.GetAlgorithm(symbol);
+            var symbolAlgorithm = algorithms.CreateAlgorithm(symbol);
             if (symbolAlgorithm.OrderAlgorithm.IsBrokerOnline)
             {
                 if (debug) log.Debug("Attempted RequestPosition but isBrokerStarted is " + symbolAlgorithm.OrderAlgorithm.IsBrokerOnline);
@@ -1301,7 +1294,7 @@ namespace TickZoom.Provider.FIX
                 if (debug) log.Debug("Attempted StartBroker but IsRecovered is " + IsRecovered);
                 return;
             }
-            var algorithm = algorithms.GetAlgorithm(symbol);
+            var algorithm = algorithms.CreateAlgorithm(symbol);
 
             if (algorithm.OrderAlgorithm.RejectRepeatCounter > 0) return;
 
@@ -1338,7 +1331,7 @@ namespace TickZoom.Provider.FIX
         protected void TrySendEndBroker( SymbolInfo symbol)
         {
             var symbolReceiver = symbolReceivers.GetSymbolRequest(symbol);
-            var algorithm = algorithms.GetAlgorithm(symbol);
+            var algorithm = algorithms.CreateAlgorithm(symbol);
             if (!algorithm.OrderAlgorithm.IsBrokerOnline)
             {
                 if (debug) log.Debug("Tried to send EndBroker for " + symbol + " but broker status is already offline.");
@@ -1377,7 +1370,7 @@ namespace TickZoom.Provider.FIX
         public virtual void PositionChange(PositionChangeDetail positionChange)
         {
             if( debug) log.Debug( "PositionChange " + positionChange);
-            var algorithm = algorithms.GetAlgorithm(positionChange.Symbol);
+            var algorithm = algorithms.CreateAlgorithm(positionChange.Symbol);
             if( algorithm.OrderAlgorithm.PositionChange(positionChange, IsRecovered))
             {
                 TrySendStartBroker(positionChange.Symbol, "position change sync");
@@ -1520,7 +1513,7 @@ namespace TickZoom.Provider.FIX
         public virtual void ProcessFill(SymbolInfo symbol, LogicalFillBinary fill)
         {
             var symbolReceiver = symbolReceivers.GetSymbolRequest(symbol);
-            var symbolAlgorithm = algorithms.GetAlgorithm(symbol);
+            var symbolAlgorithm = algorithms.CreateAlgorithm(symbol);
             if( !symbolAlgorithm.OrderAlgorithm.IsBrokerOnline)
             {
                 if (debug) log.Debug("Broker offline but sending fill anyway for " + symbol + " to receiver: " + fill);
@@ -1533,7 +1526,7 @@ namespace TickZoom.Provider.FIX
         public virtual void ProcessTouch(SymbolInfo symbol, LogicalTouch touch)
         {
             var symbolReceiver = symbolReceivers.GetSymbolRequest(symbol);
-            var symbolAlgorithm = algorithms.GetAlgorithm(symbol);
+            var symbolAlgorithm = algorithms.CreateAlgorithm(symbol);
             if (!symbolAlgorithm.OrderAlgorithm.IsBrokerOnline)
             {
                 if (debug) log.Debug("Broker offline so not sending logical touch for " + symbol + ": " + touch);
@@ -1560,26 +1553,19 @@ namespace TickZoom.Provider.FIX
             if (OrderStore.TryGetOrderById(clientOrderId, out order))
             {
                 var symbol = order.Symbol;
-                SymbolAlgorithm algorithm;
-                if (algorithms.TryGetAlgorithm(symbol, out algorithm))
+                var algorithm = algorithms.CreateAlgorithm(symbol);
+                var orderAlgo = algorithm.OrderAlgorithm;
+                if (IsRecovered && orderAlgo.RejectRepeatCounter > 0 && orderAlgo.IsBrokerOnline)
                 {
-                    var orderAlgo = algorithm.OrderAlgorithm;
-                    if (IsRecovered && orderAlgo.RejectRepeatCounter > 0 && orderAlgo.IsBrokerOnline)
-                    {
-                        var message = "Cancel Rejected on " + symbol + ": " + text + "\n" + packetFIX;
-                        log.Error(message);
-                    }
-
-                    var retryImmediately = algorithm.OrderAlgorithm.RejectRepeatCounter == 0;
-                    algorithm.OrderAlgorithm.RejectOrder(clientOrderId, IsRecovered, retryImmediately);
-                    if (!retryImmediately)
-                    {
-                        TrySendEndBroker(symbol);
-                    }
+                    var message = "Cancel Rejected on " + symbol + ": " + text + "\n" + packetFIX;
+                    log.Error(message);
                 }
-                else
+
+                var retryImmediately = algorithm.OrderAlgorithm.RejectRepeatCounter == 0;
+                algorithm.OrderAlgorithm.RejectOrder(clientOrderId, IsRecovered, retryImmediately);
+                if (!retryImmediately)
                 {
-                    log.Info("Cancel rejected but OrderAlgorithm not found for " + symbol + ". Ignoring.");
+                    TrySendEndBroker(symbol);
                 }
             }
             else
@@ -1600,33 +1586,26 @@ namespace TickZoom.Provider.FIX
                 log.Warn("Unable to find " + symbolStr + " for order reject.");
                 return;
             }
-            SymbolAlgorithm algorithm;
-            if (algorithms.TryGetAlgorithm(symbolInfo, out algorithm))
+            var algorithm = algorithms.CreateAlgorithm(symbolInfo);
+            var orderAlgo = algorithm.OrderAlgorithm;
+            if (IsRecovered && orderAlgo.RejectRepeatCounter > 0 && orderAlgo.IsBrokerOnline)
             {
-                var orderAlgo = algorithm.OrderAlgorithm;
-                if (IsRecovered && orderAlgo.RejectRepeatCounter > 0 && orderAlgo.IsBrokerOnline)
+                var message = "Order Rejected on " + symbolInfo + ": " + text + "\n" + packetFix;
+                if( Factory.IsAutomatedTest)
                 {
-                    var message = "Order Rejected on " + symbolInfo + ": " + text + "\n" + packetFix;
-                    if( Factory.IsAutomatedTest)
-                    {
-                        log.Notice(message);
-                    }
-                    else
-                    {
-                        log.Error(message);
-                    }
+                    log.Notice(message);
                 }
-
-                var retryImmediately = algorithm.OrderAlgorithm.RejectRepeatCounter == 0;
-                algorithm.OrderAlgorithm.RejectOrder(clientOrderId, IsRecovered, retryImmediately);
-                if( !retryImmediately)
+                else
                 {
-                    TrySendEndBroker(symbolInfo);
+                    log.Error(message);
                 }
             }
-            else
+
+            var retryImmediately = algorithm.OrderAlgorithm.RejectRepeatCounter == 0;
+            algorithm.OrderAlgorithm.RejectOrder(clientOrderId, IsRecovered, retryImmediately);
+            if( !retryImmediately)
             {
-                log.Info("RejectOrder but OrderAlgorithm not found for " + symbolInfo + ". Ignoring.");
+                TrySendEndBroker(symbolInfo);
             }
         }
 
@@ -1644,26 +1623,19 @@ namespace TickZoom.Provider.FIX
                 if (OrderStore.TryGetOrderById(clientOrderId, out order))
                 {
                     var symbol = order.Symbol;
-                    SymbolAlgorithm algorithm;
-                    if (algorithms.TryGetAlgorithm(symbol, out algorithm))
+                    var algorithm = algorithms.CreateAlgorithm(symbol);
+                    var orderAlgo = algorithm.OrderAlgorithm;
+                    if (IsRecovered && orderAlgo.RejectRepeatCounter > 0 && orderAlgo.IsBrokerOnline)
                     {
-                        var orderAlgo = algorithm.OrderAlgorithm;
-                        if (IsRecovered && orderAlgo.RejectRepeatCounter > 0 && orderAlgo.IsBrokerOnline)
-                        {
-                            var message = "Business reject on " + symbol + ": " + packetFIX.Text + "\n" + packetFIX;
-                            log.Error(message);
-                        }
-
-                        var retryImmediately = algorithm.OrderAlgorithm.RejectRepeatCounter == 0;
-                        algorithm.OrderAlgorithm.RejectOrder(clientOrderId, IsRecovered, retryImmediately);
-                        if (!retryImmediately)
-                        {
-                            TrySendEndBroker(symbol);
-                        }
+                        var message = "Business reject on " + symbol + ": " + packetFIX.Text + "\n" + packetFIX;
+                        log.Error(message);
                     }
-                    else
+
+                    var retryImmediately = algorithm.OrderAlgorithm.RejectRepeatCounter == 0;
+                    algorithm.OrderAlgorithm.RejectOrder(clientOrderId, IsRecovered, retryImmediately);
+                    if (!retryImmediately)
                     {
-                        log.Info("Cancel rejected but OrderAlgorithm not found for " + symbol + ". Ignoring.");
+                        TrySendEndBroker(symbol);
                     }
                 }
                 else
