@@ -553,6 +553,16 @@ namespace TickZoom.Provider.LimeFIX
             }
         }
 
+        public override void SetupDefaultProperties(string[] sections, ConfigFile configFile)
+        {
+            foreach (var section in sections)
+            {
+                configFile.AssureValue(section + "/DisableChangeOrders", "true");
+            }
+            configFile.AssureValue("Simulate/DisableChangeOrders", "true");
+            base.SetupDefaultProperties(sections, configFile);
+        }
+
         public void RejectOrder(MessageFIX4_2 packetFIX)
         {
             HandleOrderReject(packetFIX.ClientOrderId, packetFIX.Symbol, packetFIX.Text, packetFIX);
