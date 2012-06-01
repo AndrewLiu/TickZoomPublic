@@ -44,7 +44,8 @@ namespace TickZoom.Provider.FIX
             SymbolAlgorithm symbolAlgorithm;
             lock (algorithmsLocker)
             {
-                if (!algorithms.TryGetValue(GetSource(symbol).BinaryIdentifier, out symbolAlgorithm))
+                var source = GetSource(symbol);
+                if (!algorithms.TryGetValue(source.BinaryIdentifier, out symbolAlgorithm))
                 {
                     var orderCache = Factory.Engine.LogicalOrderCache(symbol, false);
                     var syntheticRouter = new SyntheticOrderRouter(GetSource(symbol), providerSupport.Agent, providerSupport.Receiver);
@@ -60,12 +61,13 @@ namespace TickZoom.Provider.FIX
             return symbolAlgorithm;
         }
 
-        public SymbolAlgorithm GetAlgorithm(SymbolInfo symbol)
+        private SymbolAlgorithm GetAlgorithm(SymbolInfo symbol)
         {
             SymbolAlgorithm symbolAlgorithm;
             lock (algorithmsLocker)
             {
-                if (!algorithms.TryGetValue(GetSource(symbol).BinaryIdentifier, out symbolAlgorithm))
+                var source = GetSource(symbol);
+                if (!algorithms.TryGetValue(source.BinaryIdentifier, out symbolAlgorithm))
                 {
                     throw new ApplicationException("OrderAlgorirhm was not found for " + symbol);
                 }
@@ -73,7 +75,7 @@ namespace TickZoom.Provider.FIX
             return symbolAlgorithm;
         }
 
-        public bool TryGetAlgorithm(SymbolInfo symbol, out SymbolAlgorithm algorithm)
+        private bool TryGetAlgorithm(SymbolInfo symbol, out SymbolAlgorithm algorithm)
         {
             lock (algorithmsLocker)
             {

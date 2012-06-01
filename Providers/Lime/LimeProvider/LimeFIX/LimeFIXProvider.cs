@@ -314,7 +314,7 @@ namespace TickZoom.Provider.LimeFIX
             }
             if (symbolInfo != null)
             {
-                algorithms.TryGetAlgorithm(symbolInfo, out algorithm);
+                algorithm = algorithms.CreateAlgorithm(symbolInfo);
             }
 
             string orderStatus = packetFIX.OrderStatus;
@@ -515,12 +515,7 @@ namespace TickZoom.Provider.LimeFIX
                 return;
             }
             var timeZone = new SymbolTimeZone(symbolInfo);
-            SymbolAlgorithm algorithm;
-            if (!algorithms.TryGetAlgorithm(symbolInfo, out algorithm))
-            {
-                log.Info("Fill received but OrderAlgorithm not found for " + symbolInfo + ". Ignoring.");
-                return;
-            }
+            var algorithm = algorithms.CreateAlgorithm(symbolInfo);
             var fillPosition = packetFIX.LastQuantity * SideToSign(packetFIX.Side);
             if (symbolReceivers.GetSymbolStatus(symbolInfo))
             {

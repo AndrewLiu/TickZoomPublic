@@ -376,15 +376,8 @@ namespace TickZoom.Provider.MBTFIX
                     log.Warn("Unable to find " + packetFIX.Symbol + " for position update.");
                     return;
                 }
-                SymbolAlgorithm algorithm;
-                if( algorithms.TryGetAlgorithm(symbolInfo, out algorithm))
-                {
-                    if (debug) log.Debug("PositionUpdate for " + symbolInfo + ": MBT actual =" + position + ", TZ actual=" + algorithm.OrderAlgorithm.ActualPosition);
-                }
-                else
-                {
-                    log.Info("PositionUpdate for " + symbolInfo + ": MBT actual =" + position + " but symbol was not requested. Ignoring.");
-                }
+                var algorithm = algorithms.CreateAlgorithm(symbolInfo);
+                if (debug) log.Debug("PositionUpdate for " + symbolInfo + ": MBT actual =" + position + ", TZ actual=" + algorithm.OrderAlgorithm.ActualPosition);
             }
 		}
 
@@ -407,7 +400,7 @@ namespace TickZoom.Provider.MBTFIX
             }
             if( symbolInfo != null)
             {
-                algorithms.TryGetAlgorithm(symbolInfo, out algorithm);
+                algorithm = algorithms.CreateAlgorithm(symbolInfo);
             }
 
             string orderStatus = packetFIX.OrderStatus;
@@ -614,12 +607,7 @@ namespace TickZoom.Provider.MBTFIX
                 return;
             }
             var timeZone = new SymbolTimeZone(symbolInfo);
-            SymbolAlgorithm algorithm;
-            if (!algorithms.TryGetAlgorithm(symbolInfo, out algorithm))
-            {
-                log.Info("Fill received but OrderAlgorithm not found for " + symbolInfo + ". Ignoring.");
-                return;
-            }
+            var algorithm = algorithms.CreateAlgorithm(symbolInfo);
             var fillPosition = packetFIX.LastQuantity * SideToSign(packetFIX.Side);
             if (symbolReceivers.GetSymbolStatus(symbolInfo))
             {
@@ -690,7 +678,7 @@ namespace TickZoom.Provider.MBTFIX
                 throw new ApplicationException("Order was greater than MaxOrderSize of " + order.Symbol.MaxPositionSize + " for:\n" + order);
             }
 
-            var orderHandler = algorithms.GetAlgorithm(order.Symbol);
+            var orderHandler = algorithms.CreateAlgorithm(order.Symbol);
 		    var orderSize = order.Side == OrderSide.Buy ? order.RemainingSize : -order.RemainingSize;
             if (Math.Abs(orderHandler.OrderAlgorithm.ActualPosition + orderSize) > order.Symbol.MaxPositionSize)
             {
