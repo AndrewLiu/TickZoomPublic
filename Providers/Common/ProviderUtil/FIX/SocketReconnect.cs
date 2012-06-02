@@ -51,11 +51,26 @@ namespace TickZoom.Provider.FIX
         {
             if (debug) log.Debug("Regenerate.");
             Socket old = socket;
-            if (socket != null && socket.State != SocketState.Closed)
+            if (socket != null)
             {
                 socket.Dispose();
-                // Wait for graceful socket shutdown.
-                return;
+                switch (socket.State)
+                {
+                    case SocketState.Connected:
+                    case SocketState.Bound:
+                    case SocketState.Listening:
+                    case SocketState.ShuttingDown:
+                    case SocketState.Disconnected:
+                    case SocketState.New:
+                    case SocketState.PendingConnect:
+                        if (debug) log.Debug("Wait for graceful socket shutdown because socket state: " + socket.State);
+                        return;
+                    case SocketState.Closing:
+                    case SocketState.Closed:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException("Unexpected socket state: " + socket.State);
+                }
             }
             socket = Factory.Provider.Socket(this.GetType().Name + "Socket", address, port);
             socket.ReceiveQueue.ConnectInbound(task);
