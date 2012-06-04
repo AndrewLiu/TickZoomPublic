@@ -1581,7 +1581,8 @@ namespace TickZoom.Provider.FIX
             var originalClientOrderId = 0L;
             long.TryParse(clientOrderIdStr, out originalClientOrderId);
             SymbolInfo symbolInfo;
-            if (!Factory.Symbol.TryLookupSymbol(symbolStr, out symbolInfo))
+            var symbolString = string.IsNullOrEmpty(SymbolSuffix) ? symbolStr : symbolStr.Replace(SymbolSuffix, "");
+            if (!Factory.Symbol.TryLookupSymbol(symbolString, out symbolInfo))
             {
                 log.Warn("Unable to find " + symbolStr + " for order reject.");
                 return;
