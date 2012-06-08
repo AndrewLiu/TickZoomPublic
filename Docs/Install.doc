@@ -51,7 +51,8 @@ a secure user key is required. You may request a 2 week FREE demo at http://www.
 
    -# Download this file.
 \htmlonly
-<a href="http://c0020426.cdn1.cloudfiles.rackspacecloud.com/TickZoom-Public-$(VERSION).zip"> http://c0020426.cdn1.cloudfiles.rackspacecloud.com/TickZoom-Public-$(VERSION).zip</a>
+<a href="TickZoom-Public-$(VERSION).zip">
+http://files.tickzoom.com/zip/TickZoom-Public-$(VERSION).zip</a>
 \endhtmlonly
    -# Create a folder for the source whereever you like. Suggested folder name: TickZoomSource
    -# When you unzip the file into that folder, it will create sub-folders called, Public, Tools, and User.
