@@ -56,12 +56,12 @@ namespace TickZoom.Starters
             var elapsed = stopwatch.Elapsed;
 #if USE_MBT
             executionProviders.Add("mbt", "MBTFIXProvider/Simulate");
-            dataProviders.Add("mbtdata", "MBTFIXProvider/Simulate");
+            dataProviders.Add("mbt", "MBTFIXProvider/Simulate");
             var fixAssembly = "MBTFIXProvider";
             var fixSimulator = "ProviderSimulator";
 #else
             executionProviders.Add("lime", "LimeProvider/Simulate");
-            dataProviders.Add("limedata", "LimeProvider/Simulate");
+            dataProviders.Add("lime", "LimeProvider/Simulate");
             var fixAssembly = "LimeProvider";
             var fixSimulator = "ProviderSimulator";
 #endif
@@ -169,18 +169,18 @@ namespace TickZoom.Starters
                 }
 
                 warehouseConfig.SetValue("ActiveAccounts", activeAccounts);
-                warehouseConfig.SetValue("DataSources", dataSources);
+                warehouseConfig.SetValue("ActiveSources", dataSources);
                 foreach( var kvp in executionProviders)
                 {
                     var account = kvp.Key;
                     var executionProvider = kvp.Value;
-                    warehouseConfig.SetValue(account+"/ExecutionProvider", executionProvider);
+                    warehouseConfig.SetValue("accounts/" + account+"/ExecutionProvider", executionProvider);
                 }
                 foreach (var kvp in dataProviders)
                 {
                     var source = kvp.Key;
                     var dataProvider = kvp.Value;
-                    warehouseConfig.SetValue(source + "/DataProvider", dataProvider);
+                    warehouseConfig.SetValue("sources/" + source + "/DataProvider", dataProvider);
             }
             }
             catch (Exception ex)
