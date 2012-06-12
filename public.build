@@ -28,7 +28,11 @@
     <call target="compile.platform" />
   </target>
   
-  <target name="test" depends="test.platform"/>
+  <target name="test">
+    <call target="test.historical" />
+    <call target="test.simulatefix" />
+    <call target="test.negativefix" />
+  </target> 
   
   <target name="compile.mbtfix">
     <loadtasks assembly="${nant.contrib}" />
@@ -72,7 +76,35 @@
     
     <exec program="cmd.exe" workingdir="SODA\src" commandline='/c releasebuild.bat'/>
   </target>    
+ 
+  <target name="test.historical">
+    <loadtasks assembly="${nant.contrib}" />
+    <exec program="${tools.nunit}"
+          workingdir="${target.assemblies}\${config.platform}" 
+      commandline="ExamplesTest.exe /Exclude:SimulateFIX,NegativeFIX /labels"/>
+  </target>    
+
+  <target name="test.simulatefix">
+    <loadtasks assembly="${nant.contrib}" />
+    <exec program="${tools.nunit}"
+          workingdir="${target.assemblies}\${config.platform}" 
+          commandline='ExamplesTest.exe /Include:SimulateFIX /labels '/>
+  </target>    
   
+  <target name="test.negativefix">
+    <loadtasks assembly="${nant.contrib}" />
+    <exec program="${tools.nunit}"
+          workingdir="${target.assemblies}\${config.platform}" 
+          commandline='ExamplesTest.exe /Include:NegativeFIX /labels '/>
+  </target>    
+  
+  <target name="test.client">
+    <loadtasks assembly="${nant.contrib}" />
+    <exec program="${tools.nunit}"
+          workingdir="${target.assemblies}\${config.platform}" 
+          commandline='ExamplesTest.exe /Include:ClientEnvironment /labels '/>
+  </target>    
+
   <target name="test.platform">
     <loadtasks assembly="${nant.contrib}" />
   
@@ -83,10 +115,8 @@
     <echo message="tools.nunit=${tools.nunit}"/>
     <echo message="workingdir=${target.assemblies}\${config.platform}"/>
     
-    <exec program="${tools.nunit}" workingdir="${target.assemblies}\${config.platform}" 
-          commandline='ExamplesTest.exe ${test.include} /labels '/>
-          
-    <exec program="${tools.nunit}" workingdir="${target.assemblies}\${config.platform}" 
+    <exec program="${tools.nunit}"
+          workingdir="${target.assemblies}\${config.platform}" 
 	  commandline='TickZoomTesting.exe ${test.include} /labels '/>
   </target>
   

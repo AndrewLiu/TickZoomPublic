@@ -255,7 +255,6 @@ namespace Loaders
                 ShowCharts = showCharts,
                 EndTime = new TimeStamp(2009, 6, 10),
                 IntervalDefault = Intervals.Minute1,
-                Categories = { "Failed" },
                 PartialFillSimulation = PartialFillSimulation.PartialFillsIncomplete
             });
 
@@ -269,8 +268,8 @@ namespace Loaders
 				ShowCharts = showCharts,
 				EndTime = new TimeStamp( 2009, 6, 10),
 				IntervalDefault = Intervals.Minute1,
-				Categories = { "Failed" },
-			});
+                Categories = { "ClientEnvironment" },
+            });
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.CancelBlackHole] = 0;
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.ReceiveDisconnect] = 0;
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.ServerOfflineReject] = 0;
@@ -288,7 +287,6 @@ namespace Loaders
                 StartTime = new TimeStamp(2009, 6, 20),
                 EndTime = TimeStamp.MaxValue,
                 IntervalDefault = Intervals.Minute1,
-                Categories = { "Failed" },
             });
 
             list.Add(next = new AutoTestSettings
@@ -303,7 +301,6 @@ namespace Loaders
                 ShowCharts = showCharts,
                 EndTime = new TimeStamp(2009, 6, 10),
                 IntervalDefault = Intervals.Minute1,
-                Categories = { "Failed" },
             });
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.ReceiveDisconnect] = 0;
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.SendServerOffline] = 0;
@@ -322,7 +319,6 @@ namespace Loaders
                 ShowCharts = showCharts,
                 EndTime = new TimeStamp(2009, 6, 10),
                 IntervalDefault = Intervals.Minute1,
-                Categories = { "Failed" },
             });
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.CancelBlackHole] = 0;
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.BlackHole] = 0;
@@ -342,7 +338,6 @@ namespace Loaders
                 ShowCharts = showCharts,
                 EndTime = new TimeStamp(2009, 6, 10),
                 IntervalDefault = Intervals.Minute1,
-                Categories = { "Failed" },
                 PartialFillSimulation = PartialFillSimulation.PartialFillsIncomplete
             });
 
@@ -473,7 +468,6 @@ namespace Loaders
 				ShowCharts = showCharts,
 				EndTime = new TimeStamp( 2010,3,3), 
 				IntervalDefault = Intervals.Hour1,
-				Categories = { "MultiSymbolOrders" },
 			});
 
             list.Add(next = new AutoTestSettings

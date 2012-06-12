@@ -161,7 +161,7 @@ namespace Loaders
                 case AutoTestMode.Historical:
                     config.StarterName = "HistoricalStarter";
                     break;
-                case AutoTestMode.TestNegativeFIX:
+                case AutoTestMode.NegativeFIX:
                     config.StarterName = "FIXSimulatorStarter";
                     config.SimulatorProperties.EnableNegativeTests = true;
                     break;
