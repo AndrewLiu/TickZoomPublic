@@ -88,7 +88,6 @@
     <Compile Include="Aspects\AsyncHandler.cs" />
     <Compile Include="Aspects\DiagramAttribute.cs" />
     <Compile Include="Aspects\DiagramHelper.cs" />
-    <Compile Include="Aspects\DiagramInstance.cs" />
     <Compile Include="Aspects\DiagramObject.cs" />
     <Compile Include="Classes\BootStrapLoader.cs" />
     <Compile Include="Classes\ChainImpl.cs" />

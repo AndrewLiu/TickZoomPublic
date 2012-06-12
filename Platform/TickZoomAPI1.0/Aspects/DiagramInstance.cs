@@ -24,29 +24,34 @@
  */
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+#region Using directives
+
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
+using System.Runtime.InteropServices;
 
-namespace TickZoom.Api
-{
+#endregion
 
-	
-	public class DiagramInstance {
-		public string Name;
-		public string FullName;
-		public readonly Log Logger;
-		public readonly bool Debug;
-		public bool Trace;
-		public DiagramInstance(string displayName, string fullName) {
-			this.Name = displayName;
-			this.FullName = fullName;
-			Logger = Factory.SysLog.GetLogger("Diagram."+fullName);
-			Debug = Logger.IsDebugEnabled;
-			Trace = Logger.IsTraceEnabled;
-		}
-	}
-}
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+[assembly: AssemblyTitle("ProviderService")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("ProviderService")]
+[assembly: AssemblyCopyright("")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+
+// This sets the default COM visibility of types in the assembly to invisible.
+// If you need to expose a type to COM, use [ComVisible(true)] on that type.
+[assembly: ComVisible(false)]
+
+// The assembly version has following format :
+//
+// Major.Minor.Build.Revision
+//
+// You can specify all the values or you can use the default the Revision and 
+// Build Numbers by using the '*' as shown below:
+[assembly: AssemblyVersion("1.4.12.12939")]
