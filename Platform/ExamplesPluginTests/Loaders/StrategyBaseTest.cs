@@ -317,6 +317,7 @@ namespace Loaders
             var providersFolder = Path.Combine(appDataFolder,"Providers");
             var providerServiceFolder = Path.Combine(providersFolder, "ProviderService");
             var warehouseTestConfig = Path.Combine(providerServiceFolder, "WarehouseTest.config");
+
             var mbtfixFolder = Path.Combine(providersFolder, fileName);
             var databaseFolder = Path.Combine(appDataFolder, "Database");
             Directory.CreateDirectory(databaseFolder);
