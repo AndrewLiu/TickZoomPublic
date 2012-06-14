@@ -114,7 +114,7 @@ namespace Other
                 config.DefaultPeriod = 10;
                 config.DefaultBarUnit = BarUnit.Tick.ToString();
                 config.ModelLoader = "Example: Reversal Multi-Symbol";
-                config.StarterName = "FIXSimulatorStarter";
+                config.StarterName = "LimeSimulatorStarter";
                 config.Start();
                 config.WaitComplete(120, () => { return config.CommandWorker.IsBusy; });
                 config.Stop();
@@ -142,7 +142,7 @@ namespace Other
                 config.DefaultPeriod = 10;
 				config.DefaultBarUnit = BarUnit.Tick.ToString();
 				config.ModelLoader = "Example: Reversal Multi-Symbol";
-                config.StarterName = "FIXSimulatorStarter";
+                config.StarterName = "LimeSimulatorStarter";
 				config.Start();
 				config.WaitComplete(120, () => { return config.CommandWorker.IsBusy; } );
                 Thread.Sleep(5000);

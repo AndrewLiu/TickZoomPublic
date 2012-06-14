@@ -32,12 +32,17 @@ namespace Loaders
 {
 	[Flags]
 	public enum AutoTestMode {
-		None = 0x0,
-		Historical = 0x1,
-		SimulateFIX = 0x2,
-        NegativeFIX = 0x4,
-        FIXPlayBack = 0x8,
-		Design = 0x16,
+		None = 0,
+		Historical = 1,
+		SimulateMBT = 2,
+        SimulateLime = 4,
+        NegativeMBT = 8,
+        NegativeLime = 16,
+        FIXPlayBack = 32,
+		Design = 64,
+        SimulateFIX = SimulateMBT | SimulateLime,
+        NegativeFIX = NegativeMBT | NegativeLime,
         Default = Historical | SimulateFIX | NegativeFIX,
+
 	}
 }

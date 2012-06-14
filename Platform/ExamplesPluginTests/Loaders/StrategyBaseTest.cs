@@ -161,13 +161,20 @@ namespace Loaders
                 case AutoTestMode.Historical:
                     config.StarterName = "HistoricalStarter";
                     break;
-                case AutoTestMode.NegativeFIX:
-                    config.StarterName = "FIXSimulatorStarter";
+                case AutoTestMode.NegativeMBT:
+                    config.StarterName = "MBTSimulatorStarter";
                     config.SimulatorProperties.EnableNegativeTests = true;
                     break;
-                case AutoTestMode.SimulateFIX:
-                    config.StarterName = "FIXSimulatorStarter";
-                    break;			
+                case AutoTestMode.NegativeLime:
+                    config.StarterName = "LimeSimulatorStarter";
+                    config.SimulatorProperties.EnableNegativeTests = true;
+                    break;
+                case AutoTestMode.SimulateMBT:
+                    config.StarterName = "MBTSimulatorStarter";
+                    break;
+                case AutoTestMode.SimulateLime:
+                    config.StarterName = "LimeSimulatorStarter";
+                    break;
                 case AutoTestMode.FIXPlayBack:
                     config.StarterName = "FIXPlayBackStarter";
                     if( relativeEndTime != default(Elapsed)) {
