@@ -1,6 +1,6 @@
 //============================================================================
 //PieItem Class
-//Copyright © 2005  Bob Kaye
+//Copyright ï¿½ 2005  Bob Kaye
 //
 //This library is free software; you can redistribute it and/or
 //modify it under the terms of the GNU Lesser General Public
