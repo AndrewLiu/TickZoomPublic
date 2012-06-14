@@ -35,13 +35,35 @@ using TickZoom.Api;
 
 namespace TickZoom.Starters
 {
-    public class FIXSimulatorStarter : RealTimeStarterBase
+    public class MBTSimulatorStarter : FIXSimulatorStarterx
     {
-        private static readonly Log log = Factory.SysLog.GetLogger(typeof (FIXSimulatorStarter));
-        private Dictionary<string,string> executionProviders = new Dictionary<string,string>();
-        private Dictionary<string, string> dataProviders = new Dictionary<string, string>();
+        public MBTSimulatorStarter()
+        {
+            executionProviders.Add("mbt", "MBTProvider/Simulate");
+            dataProviders.Add("mbt", "MBTProvider/Simulate");
+            providerSimulatorAssembly = "MBTProvider";
+        }
+    }
 
-        public FIXSimulatorStarter()
+    public class LimeSimulatorStarter : FIXSimulatorStarterx
+    {
+        public LimeSimulatorStarter()
+        {
+            executionProviders.Add("lime", "LimeProvider/Simulate");
+            dataProviders.Add("lime", "LimeProvider/Simulate");
+            providerSimulatorAssembly = "LimeProvider";
+        }
+        
+    }
+
+    public class FIXSimulatorStarterx : RealTimeStarterBase
+    {
+        private static readonly Log log = Factory.SysLog.GetLogger(typeof (FIXSimulatorStarterx));
+        protected Dictionary<string,string> executionProviders = new Dictionary<string,string>();
+        protected Dictionary<string, string> dataProviders = new Dictionary<string, string>();
+        protected string providerSimulatorAssembly;
+
+        public FIXSimulatorStarterx()
         {
 			SyncTicks.Enabled = true;
 			ConfigurationManager.AppSettings.Set("ProviderAddress","InProcess");
@@ -49,22 +71,10 @@ namespace TickZoom.Starters
 		
 		public override void Run(ModelLoaderInterface loader)
 		{
-            executionProviders.Clear();
-            dataProviders.Clear();
             var stopwatch = new Stopwatch();
 		    stopwatch.Start();
             var elapsed = stopwatch.Elapsed;
-#if USE_MBT
-            executionProviders.Add("mbt", "MBTFIXProvider/Simulate");
-            dataProviders.Add("mbt", "MBTFIXProvider/Simulate");
-            var fixAssembly = "MBTFIXProvider";
-            var fixSimulator = "ProviderSimulator";
-#else
-            executionProviders.Add("lime", "LimeProvider/Simulate");
-            dataProviders.Add("lime", "LimeProvider/Simulate");
-            var fixAssembly = "LimeProvider";
-            var fixSimulator = "ProviderSimulator";
-#endif
+
             SetupSymbolData();
             log.Debug("SetupSymbolData took " + elapsed.TotalSeconds + " seconds and " + elapsed.Milliseconds + " milliseconds");
             stopwatch.Reset();
@@ -78,7 +88,7 @@ namespace TickZoom.Starters
             SetupProviderServiceConfig();
             var providerManager = Factory.Parallel.SpawnProvider("ProviderCommon", "ProviderManager");
             providerManager.SendEvent(new EventItem(EventType.SetConfig, "WarehouseTest"));
-            using (Factory.Parallel.SpawnProvider(fixAssembly, fixSimulator, "Simulate", ProjectProperties))
+            using (Factory.Parallel.SpawnProvider(providerSimulatorAssembly, "ProviderSimulator", "Simulate", ProjectProperties))
             {
                 elapsed = stopwatch.Elapsed;
                 log.Debug("Startup took " + elapsed.TotalSeconds + " seconds and " + elapsed.Milliseconds + " milliseconds");

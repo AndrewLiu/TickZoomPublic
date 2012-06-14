@@ -84,18 +84,32 @@
       commandline="ExamplesTest.exe /Exclude:SimulateFIX,NegativeFIX /labels"/>
   </target>    
 
-  <target name="test.simulatefix">
+  <target name="test.simulate.mbt">
     <loadtasks assembly="${nant.contrib}" />
     <exec program="${tools.nunit}"
           workingdir="${target.assemblies}\${config.platform}" 
-          commandline='ExamplesTest.exe /Include:SimulateFIX /labels '/>
+          commandline='ExamplesTest.exe /Include:SimulateMBT /labels '/>
   </target>    
   
-  <target name="test.negativefix">
+  <target name="test.simulate.lime">
     <loadtasks assembly="${nant.contrib}" />
     <exec program="${tools.nunit}"
           workingdir="${target.assemblies}\${config.platform}" 
-          commandline='ExamplesTest.exe /Include:NegativeFIX /labels '/>
+          commandline='ExamplesTest.exe /Include:SimulateLime /labels '/>
+  </target>    
+  
+  <target name="test.negative.mbt">
+    <loadtasks assembly="${nant.contrib}" />
+    <exec program="${tools.nunit}"
+          workingdir="${target.assemblies}\${config.platform}" 
+          commandline='ExamplesTest.exe /Include:NegativeMBT /labels '/>
+  </target>    
+  
+  <target name="test.negative.lime">
+    <loadtasks assembly="${nant.contrib}" />
+    <exec program="${tools.nunit}"
+          workingdir="${target.assemblies}\${config.platform}" 
+          commandline='ExamplesTest.exe /Include:NegativeLime /labels '/>
   </target>    
   
   <target name="test.client">

@@ -26,6 +26,7 @@
 
 
 using System;
+using System.Linq;
 using NUnit.Core;
 using NUnit.Core.Builders;
 using NUnit.Core.Extensibility;
@@ -43,20 +44,16 @@ namespace Loaders
 			var autoTestFixture = (IAutoTestFixture) Reflect.Construct(type);
 			var mainSuite = new TestSuite("DynamicTest");
 			var modesToRun = autoTestFixture.GetModesToRun();
-			if( (modesToRun & AutoTestMode.Historical) == AutoTestMode.Historical) {
-				AddDynamicTestFixtures(mainSuite,autoTestFixture, AutoTestMode.Historical);
-			}
-			if( (modesToRun & AutoTestMode.SimulateFIX) == AutoTestMode.SimulateFIX) {
-				AddDynamicTestFixtures(mainSuite,autoTestFixture, AutoTestMode.SimulateFIX);
-			}
-            if ((modesToRun & AutoTestMode.NegativeFIX) == AutoTestMode.NegativeFIX)
+            var testModes = Enum.GetValues(typeof(AutoTestMode)).Cast<AutoTestMode>();
+            foreach( var testMode in testModes)
             {
-                AddDynamicTestFixtures(mainSuite, autoTestFixture, AutoTestMode.NegativeFIX);
+                bool singleBit = testMode > 0 && (testMode & (testMode - 1)) == 0;
+                if (!singleBit) continue;
+                if ((modesToRun & testMode) == testMode)
+                {
+                    AddDynamicTestFixtures(mainSuite, autoTestFixture, testMode);
+                }
             }
-            if ((modesToRun & AutoTestMode.FIXPlayBack) == AutoTestMode.FIXPlayBack)
-            {
-				AddDynamicTestFixtures(mainSuite,autoTestFixture, AutoTestMode.FIXPlayBack);
-			}
 			return mainSuite;
 		}
 		
@@ -70,7 +67,14 @@ namespace Loaders
 				foreach( var category in testSettings.Categories) {
 					fixture.Categories.Add( category);
 				}
-			    fixture.Categories.Add(Enum.GetName(typeof (AutoTestMode), autoTestMode));
+                var testModes = Enum.GetValues(typeof(AutoTestMode)).Cast<AutoTestMode>();
+                foreach (var testMode in testModes)
+                {
+                    if ((autoTestMode & testMode) > 0)
+                    {
+                        fixture.Categories.Add(testMode.ToString());
+                    }
+                }
         		fixture.TestName.Name = testSettings.Name;
 				suite.Add(fixture);
 				AddStrategyTestCases(fixture, testSettings);
@@ -127,29 +131,28 @@ namespace Loaders
 			if( Reflect.HasAttribute( type, typeof(AutoTestFixtureAttribute).FullName, false) 
 			   && Reflect.HasInterface( type, typeof(IAutoTestFixture).FullName) ) {
 				var autoTestFixture = (IAutoTestFixture) Reflect.Construct(type);
-				if( !result && CheckCanBuild(autoTestFixture, AutoTestMode.Historical)) {
-					result = true;
-				}
-				if( !result && CheckCanBuild(autoTestFixture, AutoTestMode.SimulateFIX)) {
-					result = true;
-				}
-                if (!result && CheckCanBuild(autoTestFixture, AutoTestMode.NegativeFIX))
+                var testModes = Enum.GetValues(typeof(AutoTestMode)).Cast<AutoTestMode>();
+                foreach (var testMode in testModes)
                 {
-                    result = true;
+                    bool singleBit = testMode > 0 && (testMode & (testMode - 1)) == 0;
+                    if (!singleBit) continue;
+                    if (CheckCanBuild(autoTestFixture, testMode))
+                    {
+                        result = true;
+                        break;
+                    }
                 }
-                if (!result && CheckCanBuild(autoTestFixture, AutoTestMode.FIXPlayBack))
-                {
-					result = true;
-				}
 			}
 			return result;
 		}		
 		
-		private bool CheckCanBuild(IAutoTestFixture autoTestFixture, AutoTestMode autoTestMode) {
+		private bool CheckCanBuild(IAutoTestFixture autoTestFixture, AutoTestMode testMode) {
 			var result = false;
+            bool singleBit = testMode > 0 && (testMode & (testMode - 1)) == 0;
+            if (!singleBit) return false;
 			foreach( var testSettings in autoTestFixture.GetAutoTestSettings() ) {
-				if( (testSettings.Mode & autoTestMode) != autoTestMode) continue;
-				testSettings.Mode = autoTestMode;
+				if( (testSettings.Mode & testMode) != testMode) continue;
+				testSettings.Mode = testMode;
 				var userFixtureType = typeof(StrategyBaseTest);
 				var strategyTest = (StrategyBaseTest) Reflect.Construct(userFixtureType, new object[] { "CheckCanBuild", testSettings } );
 				foreach( var modelName in strategyTest.GetModelNames()) {
