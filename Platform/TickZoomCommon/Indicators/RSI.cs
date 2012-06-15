@@ -85,13 +85,13 @@ namespace TickZoom.Common
 				if( change > 0) {
 					gain.Add( change);
 					loss.Add(0);
-					Log.Debug("gain.Add("+change+")");
-					Log.Debug("loss.Add(0)");
+					Log.DebugFormat("gain.Add("+change+")");
+					Log.DebugFormat("loss.Add(0)");
 				} else {
 					gain.Add(0);
 					loss.Add( -change);
-					Log.Debug("gain.Add(0)");
-					Log.Debug("loss.Add("+(-change)+")");
+					Log.DebugFormat("gain.Add(0)");
+					Log.DebugFormat("loss.Add("+(-change)+")");
 			}
 			} else {
 				gain.Add(0);

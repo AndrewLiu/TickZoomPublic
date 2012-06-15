@@ -120,7 +120,7 @@ namespace TickZoom.Examples
 		{
             var trades = Performance.ComboTrades;
             var trade = trades.Tail;
-            if (IsDebug) Log.Debug("OnEnterTrade() completed=" + trade.Completed + " " + Ticks[0]);
+            if (IsDebug) Log.DebugFormat("OnEnterTrade() completed=" + trade.Completed + " " + Ticks[0]);
             ask = Ticks[0].Ask + spread;
 			bid = Ticks[0].Bid - spread;
 		}
@@ -129,7 +129,7 @@ namespace TickZoom.Examples
 		{
             var trades = Performance.ComboTrades;
             var trade = trades.Tail;
-            if (IsDebug) Log.Debug("OnChangeTrade() completed=" + trade.Completed + " " + Ticks[0]);
+            if (IsDebug) Log.DebugFormat("OnChangeTrade() completed=" + trade.Completed + " " + Ticks[0]);
             ask = Ticks[0].Ask + spread;
 			bid = Ticks[0].Bid - spread;
 		    changeCount++;
@@ -138,7 +138,7 @@ namespace TickZoom.Examples
 		{
             var trades = Performance.ComboTrades;
 		    var trade = trades.Tail;
-            if (IsDebug) Log.Debug("OnExitTrade completed=" + trade.Completed + " " + Ticks[0]);
+            if (IsDebug) Log.DebugFormat("OnExitTrade completed=" + trade.Completed + " " + Ticks[0]);
 			ask = Ticks[0].Ask + spread;
 			bid = Ticks[0].Bid - spread;
 		    changeCount = 0;

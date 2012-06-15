@@ -173,7 +173,7 @@ namespace TickZoom.TickUtil
         private TickIO toWriterTickIO = Factory.TickUtil.TickIO();
         private unsafe void ToWriterVersion11(ref TickBinary binary, MemoryStream writer)
         {
-            if (verbose) log.Verbose("Before Cx " + lastBinary);
+            if (verbose) log.VerboseFormat("Before Cx " + lastBinary);
             //var tempBinary = lastBinary;
             var dataVersion = (byte)11;
             writer.SetLength(writer.Position + minTickSize);
@@ -196,7 +196,7 @@ namespace TickZoom.TickUtil
                     lastBinary = default(TickBinary);
                     WriteField2(BinaryField.Reset, &ptr, 1);
                     isCompressStarted = true;
-                    if (verbose) log.Verbose("Reset Dx " + lastBinary);
+                    if (verbose) log.VerboseFormat("Reset Dx " + lastBinary);
                 }
                 WriteField2(BinaryField.ContentMask, &ptr, binary.contentMask - lastBinary.contentMask);
                 lastBinary.contentMask = binary.contentMask;
@@ -252,7 +252,7 @@ namespace TickZoom.TickUtil
                 if (verbose)
                 {
                     toWriterTickIO.Inject(binary);
-                    log.Verbose("Cx tick: " + toWriterTickIO);
+                    log.VerboseFormat("Cx tick: " + toWriterTickIO);
                 }
                 //FromFileVersion11(ref tempBinary, fptr + 2, length-2);
             }
@@ -272,12 +272,12 @@ namespace TickZoom.TickUtil
                 if (pricePrecision == 0L)
                 {
                     SetPricePrecision(ref binary);
-                    if (debug) log.Debug("Writing decimal places use in price compression.");
+                    if (debug) log.DebugFormat("Writing decimal places use in price compression.");
                     WriteField(BinaryField.Precision, &ptr, pricePrecision);
                 }
                 if (!isCompressStarted)
                 {
-                    if (debug) log.Debug("Writing Reset token during tick compression.");
+                    if (debug) log.DebugFormat("Writing Reset token during tick compression.");
                     WriteField(BinaryField.Reset, &ptr, 1);
                     isCompressStarted = true;
                 }
@@ -347,12 +347,12 @@ namespace TickZoom.TickUtil
                 if (pricePrecision == 0L)
                 {
                     SetPricePrecision(ref binary);
-                    if (debug) log.Debug("Writing decimal places use in price compression.");
+                    if (debug) log.DebugFormat("Writing decimal places use in price compression.");
                     WriteField(BinaryField.Precision, &ptr, pricePrecision);
                 }
                 if (!isCompressStarted)
                 {
-                    if (debug) log.Debug("Writing Reset token during tick compression.");
+                    if (debug) log.DebugFormat("Writing Reset token during tick compression.");
                     WriteField(BinaryField.Reset, &ptr, 1);
                     var ts = new TimeStamp(binary.UtcTime);
                     isCompressStarted = true;
@@ -441,7 +441,7 @@ namespace TickZoom.TickUtil
                 checksum ^= next;
                 runningChecksum >>= 8;
             }
-            if (verbose) log.Verbose(direction + " " + binary + ", CheckSum " + checksum);
+            if (verbose) log.VerboseFormat(direction + " " + binary + ", CheckSum " + checksum);
             return checksum;
         }
 
@@ -569,7 +569,7 @@ namespace TickZoom.TickUtil
         private TickIO fromFileVerboseTickIO = Factory.TickUtil.TickIO();
         private unsafe int FromFileVersion11(ref TickBinary binary, byte* fptr, int length)
         {
-            if( verbose) log.Verbose("Before Dx " + binary);
+            if( verbose) log.VerboseFormat("Before Dx " + binary);
             if (pricePrecision == 0L)
             {
                 SetPricePrecision(ref binary);
@@ -583,7 +583,7 @@ namespace TickZoom.TickUtil
                 switch (field)
                 {
                     case BinaryField.Precision:
-                        if (debug) log.Debug("Processing decimal place precision during tick de-compression.");
+                        if (debug) log.DebugFormat("Processing decimal place precision during tick de-compression.");
                         pricePrecision = ReadField2(&ptr);
                         break;
                     case BinaryField.Reset:
@@ -592,7 +592,7 @@ namespace TickZoom.TickUtil
                         var symbol = binary.Symbol;
                         binary = default(TickBinary);
                         binary.Symbol = symbol;
-                        if (verbose) log.Verbose("Reset Dx " + binary);
+                        if (verbose) log.VerboseFormat("Reset Dx " + binary);
                         break;
                     case BinaryField.ContentMask:
                         binary.contentMask += (byte)ReadField2(&ptr);
@@ -643,7 +643,7 @@ namespace TickZoom.TickUtil
             if (verbose)
             {
                 fromFileVerboseTickIO.Inject(binary);
-                log.Verbose("Dx tick: " + fromFileVerboseTickIO);
+                log.VerboseFormat("Dx tick: " + fromFileVerboseTickIO);
             }
             var expectedChecksum = CalcChecksum(ref binary, "Dx");
             if (expectedChecksum != checksum)
@@ -679,11 +679,11 @@ namespace TickZoom.TickUtil
                 switch (field)
                 {
                     case BinaryField.Precision:
-                        if (debug) log.Debug("Processing decimal place precision during tick de-compression.");
+                        if (debug) log.DebugFormat("Processing decimal place precision during tick de-compression.");
                         pricePrecision = ReadField(&ptr);
                         break;
                     case BinaryField.Reset:
-                        if (debug) log.Debug("Processing Reset during tick de-compression.");
+                        if (debug) log.DebugFormat("Processing Reset during tick de-compression.");
                         ReadField(&ptr);
                         var symbol = binary.Symbol;
                         binary = default(TickBinary);
@@ -761,11 +761,11 @@ namespace TickZoom.TickUtil
                 switch (field)
                 {
                     case BinaryField.Precision:
-                        if (debug) log.Debug("Processing decimal place precision during tick de-compression.");
+                        if (debug) log.DebugFormat("Processing decimal place precision during tick de-compression.");
                         pricePrecision = ReadField(&ptr);
                         break;
                     case BinaryField.Reset:
-                        if (debug) log.Debug("Processing Reset during tick de-compression.");
+                        if (debug) log.DebugFormat("Processing Reset during tick de-compression.");
                         ReadField(&ptr);
                         var symbol = binary.Symbol;
                         binary = default(TickBinary);

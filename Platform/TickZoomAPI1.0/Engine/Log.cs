@@ -73,9 +73,9 @@ namespace TickZoom.Api
 		bool IsFatalEnabled { get; }
 		
 		/* Log a message object */
-        void Verbose(object message);
-        void Trace(object message);
-		void Debug(object message);
+        void VerboseFormat(string message);
+        void Trace(string message);
+		void DebugFormat(string message);
 		void Info(object message);
 		void Notice(object message);
 		void Warn(object message);
@@ -85,7 +85,7 @@ namespace TickZoom.Api
 		/* Log a message object and exception */
         void Verbose(object message, Exception t);
         void Trace(object message, Exception t);
-		void Debug(object message, Exception t);
+		void Debug(string message, Exception t);
 		void Info(object message, Exception t);
 		void Notice(object message, Exception t);
 		void Warn(object message, Exception t);

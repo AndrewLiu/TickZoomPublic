@@ -118,7 +118,7 @@ namespace TickZoom.Interceptors
             }
             var price = tick.IsQuote ? tick.Ask : tick.Price;
             fillCallback(order, price, tick);
-            if (debug) log.Debug("Filling " + order.Type + " at " + price + " using tick UTC time " + tick.UtcTime + "." + tick.UtcTime.Microsecond);
+            if (debug) log.DebugFormat("Filling " + order.Type + " at " + price + " using tick UTC time " + tick.UtcTime + "." + tick.UtcTime.Microsecond);
             return true;
         }
 
@@ -195,7 +195,7 @@ namespace TickZoom.Interceptors
             }
             if (result)
             {
-                if (debug) log.Debug("Filling " + order.Type + " with " + limitOrderQuoteSimulation + " at ask " + tick.Ask + " / bid " + tick.Bid + " at " + tick.Time);
+                if (debug) log.DebugFormat("Filling " + order.Type + " with " + limitOrderQuoteSimulation + " at ask " + tick.Ask + " / bid " + tick.Bid + " at " + tick.Time);
                 fillCallback(order, fillPrice, tick);
             }
             return result;
@@ -274,7 +274,7 @@ namespace TickZoom.Interceptors
             }
             if (result)
             {
-                if (debug) log.Debug("Filling " + order.Type + " with " + limitOrderQuoteSimulation + " at ask " + tick.Ask + " / bid " + tick.Bid + " at " + tick.Time);
+                if (debug) log.DebugFormat("Filling " + order.Type + " with " + limitOrderQuoteSimulation + " at ask " + tick.Ask + " / bid " + tick.Bid + " at " + tick.Time);
                 fillCallback(order, fillPrice, tick);
                 result = true;
             }
@@ -289,7 +289,7 @@ namespace TickZoom.Interceptors
             }
             double price = tick.IsQuote ? tick.Bid : tick.Price;
             fillCallback(order, price, tick);
-            if (debug) log.Debug("Filling " + order.Type + " at " + price + " using tick UTC time " + tick.UtcTime + "." + tick.UtcTime.Microsecond);
+            if (debug) log.DebugFormat("Filling " + order.Type + " at " + price + " using tick UTC time " + tick.UtcTime + "." + tick.UtcTime.Microsecond);
             return true;
         }
     }

@@ -120,7 +120,7 @@ namespace TickZoom.Logging
         
         public void WriteFile(string msg)
         {
-      		Debug(msg);
+      		DebugFormat(msg);
         }
         
         public bool HasLine {
@@ -254,17 +254,17 @@ namespace TickZoom.Logging
 			Notice(message,null);
 		}
 		
-		public void Verbose(object message)
+		public void VerboseFormat(string message)
       	{
 			Verbose(message,null);
 		}
 		
-		public void Trace(object message)
+		public void Trace(string message)
       	{
 			Trace(message,null);
 		}
 		
-		public void Debug(object message)
+		public void DebugFormat(string message)
       	{
 			Debug(message,null);
 		}
@@ -341,9 +341,9 @@ namespace TickZoom.Logging
 				MethodBase caller = trace.GetFrame(2).GetMethod();
 				Type callerObj = caller.DeclaringType;
 				if( callee.Name == ".ctor") {
-					Debug(GetTypeName(callerObj) + " (!) " + GetTypeName(calleeObj) );
+					DebugFormat(GetTypeName(callerObj) + " (!) " + GetTypeName(calleeObj) );
 				} else {
-					Debug(GetTypeName(callerObj) + " ==> " + GetTypeName(calleeObj) + " " + GetSignature(callee));
+					DebugFormat(GetTypeName(callerObj) + " ==> " + GetTypeName(calleeObj) + " " + GetSignature(callee));
 				}
 			}
 		}
@@ -357,8 +357,8 @@ namespace TickZoom.Logging
 				Delegate[] del = action.GetInvocationList();
 				MethodInfo callee = del[0].Method;
 				Type calleeObj = callee.DeclaringType;
-				Debug(GetTypeName(callerObj) + " >-- " + GetTypeName(calleeObj) + " " + GetSignature(callee));
-				Debug(GetTypeName(callerObj) + " --> " + GetTypeName(calleeObj) + " " + GetSignature(callee));
+				DebugFormat(GetTypeName(callerObj) + " >-- " + GetTypeName(calleeObj) + " " + GetSignature(callee));
+				DebugFormat(GetTypeName(callerObj) + " --> " + GetTypeName(calleeObj) + " " + GetSignature(callee));
 			}
 		}
 		
@@ -370,7 +370,7 @@ namespace TickZoom.Logging
 				Type calleeObj = callee.DeclaringType;
 				MethodBase caller = trace.GetFrame(2).GetMethod();
 				Type callerObj = caller.DeclaringType;
-				Debug(GetTypeName(callerObj) + " <== " + GetTypeName(calleeObj) + " " + GetSignature(callee));
+				DebugFormat(GetTypeName(callerObj) + " <== " + GetTypeName(calleeObj) + " " + GetSignature(callee));
 			}
 		}
 		
@@ -410,7 +410,7 @@ namespace TickZoom.Logging
 				return type.Name;
 			}
 		}
-		public void Debug(object message, Exception t)
+		public void Debug(string message, Exception t)
 		{
 			if (IsDebugEnabled)
 			{
@@ -529,19 +529,27 @@ namespace TickZoom.Logging
 		}
 		
 		public void VerboseFormat(string format, params object[] args)
-		{	
-			Verbose(string.Format(format,args));
+		{
+            if( IsVerboseEnabled)
+            {
+                VerboseFormat(string.Format(format, args));
+            }
 		}
 		
 		public void TraceFormat(string format, params object[] args)
 		{
-			
-			Trace(string.Format(format,args));
+			if( IsTraceEnabled)
+			{
+                Trace(string.Format(format, args));
+            }
 		}
 		
 		public void DebugFormat(string format, params object[] args)
 		{
-			LogWrapper.DebugFormat(format, args);
+            if( IsDebugEnabled)
+            {
+                LogWrapper.DebugFormat(format, args);
+            }
 		}
 		
 		public void InfoFormat(string format, params object[] args)
@@ -571,7 +579,7 @@ namespace TickZoom.Logging
 		
 		public void VerboseFormat(IFormatProvider provider, string format, params object[] args)
 		{
-			Verbose(string.Format(provider, format, args));
+			VerboseFormat(string.Format(provider, format, args));
 		}
 		
 		public void TraceFormat(IFormatProvider provider, string format, params object[] args)

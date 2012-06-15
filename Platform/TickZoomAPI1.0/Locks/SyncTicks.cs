@@ -137,7 +137,7 @@ namespace TickZoom.Api
             {
                 if ((*Directory.SyncTicksState).frozen != value)
                 {
-                    log.Debug("Frozen flag changed from " + (*Directory.SyncTicksState).frozen + " to " + value);
+                    log.DebugFormat("Frozen flag changed from " + (*Directory.SyncTicksState).frozen + " to " + value);
                     (*Directory.SyncTicksState).frozen = value;
                 }
             }

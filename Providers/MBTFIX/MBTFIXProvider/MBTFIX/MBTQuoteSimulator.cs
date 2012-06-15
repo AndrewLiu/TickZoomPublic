@@ -49,7 +49,7 @@ namespace TickZoom.Provider.MBTFIX
         {
             var writePacket = QuoteSocket.MessageFactory.Create();
             string textMessage = "G|100=DEMOXJSP;8055=demo01\n";
-            if (debug) log.Debug("Login response: " + textMessage);
+            if (debug) log.DebugFormat("Login response: " + textMessage);
             writePacket.DataOut.Write(textMessage.ToCharArray());
             QuotePacketQueue.Enqueue(writePacket, message.SendUtcTime);
         }

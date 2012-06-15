@@ -128,7 +128,7 @@ namespace TickZoom.Common
 				}
 			} while( portfolioType == PortfolioType.None);
 			
-			if( debug) log.Debug("Configuring Portfolio " + Name + " for sub strategies/portfolios..");
+			if( debug) log.DebugFormat("Configuring Portfolio " + Name + " for sub strategies/portfolios..");
 			
 			// Create strategy watchers
 			foreach( var strategy in strategies) {
@@ -203,7 +203,7 @@ namespace TickZoom.Common
 			for(int i=0; i<count; i++) {
 				var watcher = activeWatchers[i];
 				if( !watcher.IsActive) continue;
-				if( debug) log.Debug("Watcher " + watcher.Name + " position="+watcher.Position.Current);
+				if( debug) log.DebugFormat("Watcher " + watcher.Name + " position="+watcher.Position.Current);
 				internalSignal += watcher.Position.Current;
 				if (watcher.PositionChanged) {
 					totalPrice += watcher.Position.Price;
@@ -214,7 +214,7 @@ namespace TickZoom.Common
 			if (changeCount > 0) {
 				double averagePrice = (totalPrice / changeCount).Round();
 				Position.Change(internalSignal, averagePrice, Ticks[0].Time);
-				if( debug) log.Debug( "Resulting position=" + Position.Current);
+				if( debug) log.DebugFormat( "Resulting position=" + Position.Current);
 				Result.Position.Copy(Position);
 			}
 		}

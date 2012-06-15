@@ -158,7 +158,7 @@ namespace TickZoom.Provider.FIX
 		}
 		
 		private int FindSplitAt(MemoryStream buffer) {
-		    if( verbose) log.Verbose("Processing Keys: " + this);
+		    if( verbose) log.VerboseFormat("Processing Keys: " + this);
 		    var position = (int) buffer.Position;
 		    var handle = GCHandle.Alloc(buffer.GetBuffer(), GCHandleType.Pinned);
 		    var beg = ptr = (byte*) handle.AddrOfPinnedObject() + position;
@@ -167,12 +167,12 @@ namespace TickZoom.Provider.FIX
             {
 			    int key;
 			    while( ptr < end && GetKey( out key)) {
-                    if (verbose) log.Verbose("HandleKey(" + key + ")");
+                    if (verbose) log.VerboseFormat("HandleKey(" + key + ")");
 				    HandleKey(key);
 				    if( key == 10 ) {
 					    isComplete = true;
 				        position = (int) (ptr - beg);
-					    if( verbose) log.Verbose("Copying buffer at " + position);
+					    if( verbose) log.VerboseFormat("Copying buffer at " + position);
 					    return position;
 				    }
 			    }
@@ -214,7 +214,7 @@ namespace TickZoom.Provider.FIX
             {
                 data.Write(buffer.GetBuffer(), position, (int)copyTo);
                 buffer.Position += copyTo;
-                if( verbose) log.Verbose("Copied buffer: " + this);
+                if( verbose) log.VerboseFormat("Copied buffer: " + this);
                 return true;
             }
             LogMessage();
@@ -246,7 +246,7 @@ namespace TickZoom.Provider.FIX
             }
 	        ++ptr;
 	        if( negative) val *= -1;
-            if (verbose) log.Verbose("int = " + val);
+            if (verbose) log.VerboseFormat("int = " + val);
 	        return true;
 		}
 		
@@ -275,7 +275,7 @@ namespace TickZoom.Provider.FIX
 		        }
 		        ++ptr;
 		        result = val + (double) fract / divisor;
-                if (verbose) log.Verbose("double = " + result);
+                if (verbose) log.VerboseFormat("double = " + result);
 				return true;
 	        }
 		}
@@ -290,7 +290,7 @@ namespace TickZoom.Provider.FIX
 	        var length = (int) (ptr - (byte*) sptr);
 	        ++ptr;
             result = new string(sptr, 0, length);
-            if (verbose) log.Verbose("string = " + result);
+            if (verbose) log.VerboseFormat("string = " + result);
 			return true;
 		}
 	        
@@ -301,7 +301,7 @@ namespace TickZoom.Provider.FIX
 			}
 	        ++ptr;
 	        int length = (int) (ptr - bptr);
-			if( verbose) log.Verbose("skipping " + length + " bytes.");
+			if( verbose) log.VerboseFormat("skipping " + length + " bytes.");
 			return true;
 		}
 		
@@ -375,7 +375,7 @@ namespace TickZoom.Provider.FIX
                         }
                         catch( Exception)
                         {
-                            if( debug) log.Debug("Sending time accuracy problem: " + sendUtcTime + "  Ignoring by using current time instead.");
+                            if( debug) log.DebugFormat("Sending time accuracy problem: " + sendUtcTime + "  Ignoring by using current time instead.");
                             sendUtcTime = TickZoom.Api.TimeStamp.UtcNow.Internal;
                         }
 					}
@@ -396,7 +396,7 @@ namespace TickZoom.Provider.FIX
                         }
                         catch (Exception)
                         {
-                            if (debug) log.Debug("Transaction time accuracy problem: " + TransactTime + "  Ignoring by using current time instead.");
+                            if (debug) log.DebugFormat("Transaction time accuracy problem: " + TransactTime + "  Ignoring by using current time instead.");
                             transactTime = TickZoom.Api.TimeStamp.UtcNow.Internal;
                         }
                     }

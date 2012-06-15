@@ -46,7 +46,7 @@ namespace TickZoom.Provider.FIX
             quotePacketQueue.ConnectInbound(task);
             task.Start();
             ListenToQuotes();
-            if (debug) log.Debug("Starting FIX Simulator.");
+            if (debug) log.DebugFormat("Starting FIX Simulator.");
         }
 
         private enum State { Start, ProcessQuotes, WriteQuotes, Return };
@@ -178,7 +178,7 @@ namespace TickZoom.Provider.FIX
                     if (disconnect == null)
                     {
                         _quoteReadMessage = message;
-                        if (verbose) log.Verbose("Local Read: " + _quoteReadMessage);
+                        if (verbose) log.VerboseFormat("Local Read: " + _quoteReadMessage);
                         ParseQuotesMessage(_quoteReadMessage);
                         quoteSocket.MessageFactory.Release(_quoteReadMessage);
                         return true;
@@ -232,7 +232,7 @@ namespace TickZoom.Provider.FIX
                 isDisposed = true;
                 if (disposing)
                 {
-                    if (debug) log.Debug("Dispose()");
+                    if (debug) log.DebugFormat("Dispose()");
                     CloseSockets();
                     if (quoteListener != null)
                     {

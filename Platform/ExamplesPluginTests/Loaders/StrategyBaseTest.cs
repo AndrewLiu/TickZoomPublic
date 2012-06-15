@@ -1201,14 +1201,14 @@ namespace Loaders
    		
         public void HistoricalShowChart()
         {
-            log.Debug("HistoricalShowChart() start.");
+            log.DebugFormat("HistoricalShowChart() start.");
             if( ShowCharts) {
                 try {
                     for( int i=portfolioDocs.Count-1; i>=0; i--) {
                         portfolioDocs[i].ShowInvoke();
                     }
                 } catch( Exception ex) {
-                    log.Debug(ex.ToString());
+                    log.DebugFormat(ex.ToString());
                 }
             }
         }
@@ -1221,9 +1221,9 @@ namespace Loaders
                 }
                 portfolioDocs.Clear();
             } catch( Exception ex) {
-                log.Debug(ex.ToString());
+                log.DebugFormat(ex.ToString());
             }
-            log.Debug("HistoricalShowChart() finished.");
+            log.DebugFormat("HistoricalShowChart() finished.");
         }
 		
         public TickZoom.Api.Chart HistoricalCreateChart()
@@ -1302,7 +1302,7 @@ namespace Loaders
             for( i=0; i<strategyBars.Count; i++) {
                 j=chartBars.NPts-i-1;
                 if( j < 0 || j >= chartBars.NPts) {
-                    log.Debug("bar " + i + " is missing");
+                    log.DebugFormat("bar " + i + " is missing");
                 } else {
                     StockPt bar = (StockPt) chartBars[j];
                     string match = "NOT match";
@@ -1316,9 +1316,9 @@ namespace Loaders
                                 firstMisMatch = i;
                             }
                         }
-                    log.Debug( "bar: " + i + ", point: " + j + " " + match + " days:"+strategyBars.Open[i]+","+strategyBars.High[i]+","+strategyBars.Low[i]+","+strategyBars.Close[i]+" => "+
+                    log.DebugFormat( "bar: " + i + ", point: " + j + " " + match + " days:"+strategyBars.Open[i]+","+strategyBars.High[i]+","+strategyBars.Low[i]+","+strategyBars.Close[i]+" => "+
                                bar.Open+","+bar.High+","+bar.Low+","+bar.Close);
-                    log.Debug( "bar: " + i + ", point: " + j + " " + match + " days:"+strategyBars.Time[i]+" "+
+                    log.DebugFormat( "bar: " + i + ", point: " + j + " " + match + " days:"+strategyBars.Time[i]+" "+
                                new TimeStamp(bar.X));
                 }
             }

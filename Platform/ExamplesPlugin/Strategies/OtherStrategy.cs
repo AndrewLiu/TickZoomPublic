@@ -524,11 +524,11 @@ namespace TickZoom.Examples
         {
             if( IsDebug)
             {
-                Log.Debug(onChange + " fills");
+                Log.DebugFormat(onChange + " fills");
                 for (var current = fills.First; current != null; current = current.Next)
                 {
                     var fill = current.Value;
-                    Log.Debug("Fill: " + fill.Size + " at " + fill.Price + " " + fill.Time);
+                    Log.DebugFormat("Fill: " + fill.Size + " at " + fill.Price + " " + fill.Time);
                 }
             }
         }

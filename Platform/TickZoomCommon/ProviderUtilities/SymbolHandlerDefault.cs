@@ -92,7 +92,7 @@ namespace TickZoom.Common
 
 	    private void OnSyntheticReject(CreateOrChangeOrder order, string message)
 	    {
-            if( debug) log.Debug("Synthetic order rejected: " + message + " " + order);
+            if( debug) log.DebugFormat("Synthetic order rejected: " + message + " " + order);
             syntheticReceiver.SendEvent(new EventItem(EventType.SyntheticReject, order));
         }
 
@@ -420,7 +420,7 @@ namespace TickZoom.Common
 
 	    public void SyntheticClear()
 	    {
-            if (debug) log.Debug("Clearing synthetic fill simulator.");
+            if (debug) log.DebugFormat("Clearing synthetic fill simulator.");
             syntheticOrders = Factory.Utility.FillSimulator(providerName, symbol, false, false, null);
             syntheticOrders.EnableSyncTicks = SyncTicks.Enabled;
             syntheticOrders.OnPhysicalFill = OnPhysicalFill;

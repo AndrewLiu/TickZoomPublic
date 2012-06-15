@@ -112,7 +112,7 @@ namespace TickZoom.Common
                         var box = (TickBinaryBox)eventItem.EventDetail;
                         tickBinary = box.TickBinary;
                         box.Free();
-                        if( debug) log.Debug("Freed box id in verify " + box.Id + ", count " + tickPool.AllocatedCount);
+                        if( debug) log.DebugFormat("Freed box id in verify " + box.Id + ", count " + tickPool.AllocatedCount);
                         result = true;
                         filter.Pop();
                         break;
@@ -127,7 +127,7 @@ namespace TickZoom.Common
 		private bool actionAlreadyRun = false;
 		public long Verify(int expectedCount, Action<TickIO, TickIO, long> assertTick, int timeout, Action action)
 		{
-			if (debug) log.Debug("Verify");
+			if (debug) log.DebugFormat("Verify");
             long endTime = Factory.Parallel.TickCount + timeout * 1000;
 			count = 0;
 		    do
@@ -143,7 +143,7 @@ namespace TickZoom.Common
 		                tickIO.Inject(tickBinary);
 		                if (debug && countLog < 5)
 		                {
-		                    log.Debug("Received a tick " + tickIO + " UTC " + tickIO.UtcTime);
+		                    log.DebugFormat("Received a tick " + tickIO + " UTC " + tickIO.UtcTime);
 		                    countLog++;
 		                }
 		                else if (trace)
@@ -200,7 +200,7 @@ namespace TickZoom.Common
 		
 		public long Wait(int expectedTicks, int timeout)
 		{
-			if (debug) log.Debug("Wait");
+			if (debug) log.DebugFormat("Wait");
 			long startTime = Factory.Parallel.TickCount;
 		    lastTick = Factory.TickUtil.TickIO();
 			count = 0;
@@ -213,7 +213,7 @@ namespace TickZoom.Common
 						tickIO.Inject(tickBinary);
                         if (debug && count < 5)
                         {
-                            log.Debug("Received a tick " + tickIO + " UTC " + tickIO.UtcTime);
+                            log.DebugFormat("Received a tick " + tickIO + " UTC " + tickIO.UtcTime);
                             countLog++;
                         }
                         else if (trace)
@@ -244,7 +244,7 @@ namespace TickZoom.Common
 
         public bool VerifyState(SymbolState expectedSymbolState, int timeout)
         {
-            if (debug) log.Debug("VerifyState symbol " + expectedSymbolState + ", timeout " + timeout);
+            if (debug) log.DebugFormat("VerifyState symbol " + expectedSymbolState + ", timeout " + timeout);
             long startTime = Factory.TickCount;
             count = 0;
             while (Factory.TickCount - startTime < timeout * 1000)
@@ -258,7 +258,7 @@ namespace TickZoom.Common
                     if (TryDequeueTick(ref tickBinary))
                     {
                         tickIO.Inject(tickBinary);
-                        if (debug) log.Debug("Received tick " + tickIO);
+                        if (debug) log.DebugFormat("Received tick " + tickIO);
                         if (SyncTicks.Enabled && symbolState == SymbolState.RealTime)
                         {
                             tickSync.RemoveTick(ref tickBinary);
@@ -286,7 +286,7 @@ namespace TickZoom.Common
 
         public bool VerifyState(BrokerState expectedBrokerState, SymbolState expectedSymbolState, int timeout)
         {
-			if (debug) log.Debug("VerifyState broker " + expectedBrokerState + ", symbol " + expectedSymbolState + ", timeout " + timeout);
+			if (debug) log.DebugFormat("VerifyState broker " + expectedBrokerState + ", symbol " + expectedSymbolState + ", timeout " + timeout);
 			long startTime = Factory.TickCount;
 			count = 0;
 			TickBinary binary = new TickBinary();
@@ -317,7 +317,7 @@ namespace TickZoom.Common
 		
 		public long VerifyEvent(int expectedCount, Action<SymbolInfo,int,object> assertEvent, SymbolInfo symbol, int timeout)
 		{
-			if (debug) log.Debug("VerifyEvent");
+			if (debug) log.DebugFormat("VerifyEvent");
 			long startTime = Factory.TickCount;
 			count = 0;
 			while (Factory.TickCount - startTime < timeout * 1000) {
@@ -360,7 +360,7 @@ namespace TickZoom.Common
 		public int VerifyPosition(int expectedPosition, int timeout, Action action)
 		{
 			if (debug)
-				log.Debug("VerifyFeed");
+				log.DebugFormat("VerifyFeed");
 			log.Info("Sleeping " + pauseSeconds + " seconds to allow checking for over filling of orders.");
 			Thread.Sleep( pauseSeconds * 1000);
 			long startTime = Factory.TickCount;
@@ -507,7 +507,7 @@ namespace TickZoom.Common
                     count++;
                     if (debug && count <= 5)
                     {
-                        log.Debug("Received tick #" + count + " " + tickIO + " UTC " + tickIO.UtcTime);
+                        log.DebugFormat("Received tick #" + count + " " + tickIO + " UTC " + tickIO.UtcTime);
 						countLog++;
 					} else if( trace)
 					{
@@ -631,7 +631,7 @@ namespace TickZoom.Common
                     if (TryDequeueTick(ref tickBinary))
                     {
                         tickIO.Inject(tickBinary);
-                        if( debug) log.Debug("Clearing out tick #" + count + " " + tickIO + " UTC " + tickIO.UtcTime);
+                        if( debug) log.DebugFormat("Clearing out tick #" + count + " " + tickIO + " UTC " + tickIO.UtcTime);
                         if (SyncTicks.Enabled && symbolState == SymbolState.RealTime)
                         {
                             tickSync.RemoveTick(ref tickBinary);

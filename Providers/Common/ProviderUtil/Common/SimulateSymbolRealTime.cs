@@ -91,7 +91,7 @@ namespace TickZoom.Provider.FIX
             fillSimulator.PartialFillSimulation = partialFillSimulation;
             latency = new LatencyMetric("SimulateSymbolRealTime-" + symbolString.StripInvalidPathChars());
             diagnoseMetric = Diagnose.RegisterMetric("Simulator");
-            if (debug) log.Debug("Openning tick file for reading.");
+            if (debug) log.DebugFormat("Openning tick file for reading.");
             reader = Factory.TickUtil.TickFile();
             tickPool = Factory.Parallel.TickPool(symbol);
             try
@@ -228,7 +228,7 @@ namespace TickZoom.Provider.FIX
        		if( !isDisposed) {
 	            isDisposed = true;   
 	            if (disposing) {
-                    if (debug) log.Debug("Dispose()");
+                    if (debug) log.DebugFormat("Dispose()");
                     if (queueTask != null)
                     {
                         queueTask.Stop();
@@ -239,18 +239,18 @@ namespace TickZoom.Provider.FIX
 	            	}
                     if( fillSimulator != null)
                     {
-                        if (debug) log.Debug("Setting fillSimulator.IsOnline false");
+                        if (debug) log.DebugFormat("Setting fillSimulator.IsOnline false");
                         fillSimulator.IsOnline = false;
                     }
                     else
                     {
-                        if (debug) log.Debug("fillSimulator is null.");
+                        if (debug) log.DebugFormat("fillSimulator is null.");
                     }
                 }
     		}
             else
        		{
-                if (debug) log.Debug("isDisposed " + isDisposed);
+                if (debug) log.DebugFormat("isDisposed " + isDisposed);
             }
 	    }    
 	        

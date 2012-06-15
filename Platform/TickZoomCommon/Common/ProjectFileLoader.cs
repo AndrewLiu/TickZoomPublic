@@ -67,7 +67,7 @@ namespace TickZoom.Common
 		
 		private void LoadModel( ModelProperties properties) {
 			if( !QuietMode) {
-				log.Debug( properties.ModelType + " " + properties.Name + ", type = " + properties.Type);
+				log.DebugFormat( properties.ModelType + " " + properties.Name + ", type = " + properties.Type);
 			}
 			ModelInterface model = CreateModel( properties.Type, properties.Name);
 			model.OnProperties(properties);
@@ -100,7 +100,7 @@ namespace TickZoom.Common
 		
 		private void HandlePropertySet( ModelInterface model, ModelProperties properties) {
 			if( !QuietMode) {
-				log.Debug( properties.Name);
+				log.DebugFormat( properties.Name);
 				log.Indent();
 			}
 			

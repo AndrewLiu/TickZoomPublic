@@ -114,13 +114,13 @@ namespace TickZoom.Charting
 		
 		public void ChartLoad(object sender, EventArgs e)
 		{
-			if( debug) log.Debug("ChartLoad()");
+			if( debug) log.DebugFormat("ChartLoad()");
 			DrawObjects();
 		}
 		
 		public void ChartResize(object sender, EventArgs e)
 		{
-			if( debug) log.Debug("ChartResize()");
+			if( debug) log.DebugFormat("ChartResize()");
             if (isDynamicUpdate && isAutoScroll && !pauseScrolling)
             {
                 AutoZoom(dataGraph.GraphPane);
@@ -1099,7 +1099,7 @@ namespace TickZoom.Charting
 		}
 		
 		private void CreateObjects() {
-			if( debug) log.Debug("CreateObjects()");
+			if( debug) log.DebugFormat("CreateObjects()");
    			try {
 				// Setup the gradient fill...
 				// Use Red for negative days and black for positive days
@@ -1484,7 +1484,7 @@ namespace TickZoom.Charting
 	    private void refreshTick(object sender, EventArgs e)
 		{
 			try {
-                if (verbose) log.Verbose("refreshTick()");
+                if (verbose) log.VerboseFormat("refreshTick()");
 			    var form = FindForm();
                 if (form != null && form.Visible && form.WindowState != FormWindowState.Minimized)
                 {

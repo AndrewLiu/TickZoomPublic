@@ -308,7 +308,7 @@ namespace TickZoom.Provider.FIX
                 isDisposed = true;
                 if (disposing)
                 {
-                    if (debug) log.Debug("Dispose()");
+                    if (debug) log.DebugFormat("Dispose()");
                     if (queueTask != null)
                     {
                         queueTask.Stop();
@@ -324,18 +324,18 @@ namespace TickZoom.Provider.FIX
                     }
                     if (fillSimulator != null)
                     {
-                        if (debug) log.Debug("Setting fillSimulator.IsOnline false");
+                        if (debug) log.DebugFormat("Setting fillSimulator.IsOnline false");
                         fillSimulator.IsOnline = false;
                     }
                     else
                     {
-                        if (debug) log.Debug("fillSimulator is null.");
+                        if (debug) log.DebugFormat("fillSimulator is null.");
                     }
                 }
             }
             else
             {
-                if (debug) log.Debug("isDisposed " + isDisposed);
+                if (debug) log.DebugFormat("isDisposed " + isDisposed);
             }
         }
 

@@ -98,7 +98,7 @@ namespace TickZoom.TickUtil
                 //throw new ApplicationException("Requires either a file or folder to read data. Tried both " + folderOrfile + " and " + filePath);
             }
             CheckFileExtension();
-            if (debug) log.Debug("File Name = " + fileName);
+            if (debug) log.DebugFormat("File Name = " + fileName);
             try
             {
                 OpenFile();
@@ -131,7 +131,7 @@ namespace TickZoom.TickUtil
             InitLogging();
             Directory.CreateDirectory(Path.GetDirectoryName(fileName));
             CheckFileExtension();
-            if (debug) log.Debug("File Name = " + fileName);
+            if (debug) log.DebugFormat("File Name = " + fileName);
             try
             {
                 OpenFile();
@@ -218,13 +218,13 @@ namespace TickZoom.TickUtil
         private void OpenFileForAppending()
         {
             fs = new FileStream(fileName, FileMode.Append, FileAccess.Write, FileShare.Read, 1024, FileOptions.WriteThrough);
-            log.Debug("OpenFileForWriting()");
+            log.DebugFormat("OpenFileForWriting()");
         }
 
         private unsafe void CreateFileForWriting()
         {
             fs = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Read, 1024, FileOptions.WriteThrough);
-            log.Debug("OpenFileForWriting()");
+            log.DebugFormat("OpenFileForWriting()");
             fileHeader.blockHeader.version = 1;
             fileHeader.blockHeader.type = BlockType.FileHeader;
             fileHeader.blockSize =  1024 * 8;
@@ -247,7 +247,7 @@ namespace TickZoom.TickUtil
             }
             else
             {
-                log.Debug(logMsg);
+                log.DebugFormat(logMsg);
             }
         }
 
@@ -464,7 +464,7 @@ namespace TickZoom.TickUtil
 
                     if (!quietMode || debug)
                     {
-                        if (debug) log.Debug("Starting to read data.");
+                        if (debug) log.DebugFormat("Starting to read data.");
                     }
                     fileBlock = new FileBlock(fileHeader.blockSize);
                     readFileStopwatch = new Stopwatch();
@@ -727,7 +727,7 @@ namespace TickZoom.TickUtil
                 isDisposed = true;
                 lock (taskLocker)
                 {
-                    if (debug) log.Debug("Dispose()");
+                    if (debug) log.DebugFormat("Dispose()");
 
                     if( mode == TickFileMode.Write)
                     {
@@ -739,7 +739,7 @@ namespace TickZoom.TickUtil
                         CloseFileForReading();
                     }
 
-                    if (debug) log.Debug("Exiting Close()");
+                    if (debug) log.DebugFormat("Exiting Close()");
                     if( lastTimeWritten > 0)
                     {
                         log.Notice("Last tick written for " + symbol + ": " + new TimeStamp(lastTimeWritten));
@@ -756,7 +756,7 @@ namespace TickZoom.TickUtil
         {
             if (fs != null)
             {
-                if (debug) log.Debug("CloseFileForReading()");
+                if (debug) log.DebugFormat("CloseFileForReading()");
                 fs.Close();
                 fs = null;
                 log.Info("Closed file " + fileName);
@@ -767,7 +767,7 @@ namespace TickZoom.TickUtil
         {
             if (fs != null)
             {
-                if (debug) log.Debug("CloseFileForWriting() at with length " + fs.Length);
+                if (debug) log.DebugFormat("CloseFileForWriting() at with length " + fs.Length);
                 Flush();
                 fs.Flush();
                 if (!FlushFileBuffers(fs.SafeFileHandle))   // Flush OS file cache to disk.

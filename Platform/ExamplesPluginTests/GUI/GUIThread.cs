@@ -40,7 +40,7 @@ namespace MiscTest
 		public Type type;
 		public GUIThread(Type type) {
 			this.type = type;
-			log.Debug("Starting Chart Thread");
+			log.DebugFormat("Starting Chart Thread");
 			ThreadStart job = new ThreadStart(Run);
 			thread = new Thread(job);
 			thread.Name = "ChartTest";
@@ -48,12 +48,12 @@ namespace MiscTest
 			while( mainForm == null) {
 				Thread.Sleep(1);
 			}
-			log.Debug("Returning Chart Created by Thread");
+			log.DebugFormat("Returning Chart Created by Thread");
 		}
 		
 		private void Run() {
 			try {
-   				log.Debug("Chart Thread Started");
+   				log.DebugFormat("Chart Thread Started");
    				mainForm = (Form) Activator.CreateInstance(type);
    				mainForm.Show();
    				Thread.CurrentThread.IsBackground = true;

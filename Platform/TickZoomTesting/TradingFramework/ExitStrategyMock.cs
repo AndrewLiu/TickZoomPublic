@@ -64,7 +64,7 @@ namespace TickZoom.TradingFramework
 				TimeStamp time = signalChanges[i];
 				double signal = signalDirection[i];
 				// DO NOT COMMENT OUT
-				log.Debug( i + ": " + time + " Direction: " + signal);
+				log.DebugFormat( i + ": " + time + " Direction: " + signal);
 				// DO NOT COMMENT OUT
 			}
 		}

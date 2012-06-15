@@ -44,7 +44,7 @@ namespace TickZoom.Provider.FIX
             var handlers = new List<SimulateSymbol>();
             using (symbolHandlersLocker.Using())
             {
-                if (debug) log.Debug("Flushing all fill queues.");
+                if (debug) log.DebugFormat("Flushing all fill queues.");
                 foreach (var kvp in symbolHandlers)
                 {
                     handlers.Add(kvp.Value);
@@ -54,7 +54,7 @@ namespace TickZoom.Provider.FIX
             {
                 handler.FillSimulator.FlushFillQueue();
             }
-            if (debug) log.Debug("Current FIX Simulator orders.");
+            if (debug) log.DebugFormat("Current FIX Simulator orders.");
             foreach (var handler in handlers)
             {
                 handler.FillSimulator.LogActiveOrders();
@@ -275,7 +275,7 @@ namespace TickZoom.Provider.FIX
             filter = task.GetFilter();
             task.Scheduler = Scheduler.EarliestTime;
             task.Start();
-            if (debug) log.Debug("Starting Provider Simulator Support.");
+            if (debug) log.DebugFormat("Starting Provider Simulator Support.");
         }
 
         public Yield Invoke()
@@ -297,7 +297,7 @@ namespace TickZoom.Provider.FIX
                 isDisposed = true;
                 if (disposing)
                 {
-                    if (debug) log.Debug("Dispose()");
+                    if (debug) log.DebugFormat("Dispose()");
                     if( fixSimulator != null)
                     {
                         fixSimulator.Dispose();
@@ -306,16 +306,16 @@ namespace TickZoom.Provider.FIX
                     {
                         quotesSimulator.Dispose();
                     }
-                    if (debug) log.Debug("ShutdownHandlers()");
+                    if (debug) log.DebugFormat("ShutdownHandlers()");
                     if (symbolHandlers != null)
                     {
                         using (symbolHandlersLocker.Using())
                         {
-                            if (debug) log.Debug("There are " + symbolHandlers.Count + " symbolHandlers.");
+                            if (debug) log.DebugFormat("There are " + symbolHandlers.Count + " symbolHandlers.");
                             foreach (var kvp in symbolHandlers)
                             {
                                 var handler = kvp.Value;
-                                if (debug) log.Debug("Disposing symbol handler " + handler);
+                                if (debug) log.DebugFormat("Disposing symbol handler " + handler);
                                 handler.Agent.SendEvent(new EventItem(EventType.Shutdown));
                             }
                             symbolHandlers.Clear();
@@ -323,7 +323,7 @@ namespace TickZoom.Provider.FIX
                     }
                     else
                     {
-                        if (debug) log.Debug("symbolHandlers is null.");
+                        if (debug) log.DebugFormat("symbolHandlers is null.");
                     }
                     if (task != null)
                     {
