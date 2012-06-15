@@ -114,7 +114,7 @@ namespace TickZoom.Interceptors
 		    sellStopLossOrder.Type = OrderType.StopLoss;
 			sellStopLossOrder.Tag = "ExitStrategy" ;
 			Strategy.AddOrder(sellStopLossOrder);
-			if( IsTrace) Log.Trace(Strategy.FullName+".Initialize()");
+			if( IsTrace) Log.TraceFormat("{0}.Initialize()", Strategy.FullName);
 			Strategy.Drawing.Color = Color.Black;
         }
 
@@ -216,9 +216,9 @@ namespace TickZoom.Interceptors
 		
 		private void LogExit(string description) {
 			if( Strategy.Chart.IsDynamicUpdate) {
-				if( IsDebug) Log.DebugFormat(Strategy.Ticks[0].Time + ", Bar="+Strategy.Chart.ChartBars.CurrentBar+", " + description);
+				if( IsDebug) Log.DebugFormat("{0}, Bar={1}, {2}", Strategy.Ticks[0].Time, Strategy.Chart.ChartBars.CurrentBar, description);
 			} else if( !Strategy.IsOptimizeMode) {
-				if( IsDebug) Log.DebugFormat(Strategy.Ticks[0].Time + ", Bar="+Strategy.Chart.ChartBars.CurrentBar+", " + description);
+				if( IsDebug) Log.DebugFormat("{0}, Bar={1}, {2}", Strategy.Ticks[0].Time, Strategy.Chart.ChartBars.CurrentBar, description);
 			}
 		}
 
@@ -246,7 +246,7 @@ namespace TickZoom.Interceptors
 		public double TargetProfit
         {
             get { return targetProfit; }
-            set { if( IsTrace) Log.Trace(GetType().Name+".TargetProfit("+value+")");
+            set { if( IsTrace) Log.TraceFormat("{0}.TargetProfit({1})", GetType().Name, value);
             	  targetProfit = Math.Max(0, value); }
         }		
 		

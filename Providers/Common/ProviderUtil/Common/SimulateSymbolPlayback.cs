@@ -179,7 +179,7 @@ namespace TickZoom.Provider.FIX
             }
             isFirstTick = false;
             FillSimulator.StartTick(currentTick);
-            if (trace) log.Trace("Dequeue tick " + nextTick.UtcTime + "." + nextTick.UtcTime.Microsecond);
+            if (trace) log.TraceFormat("Dequeue tick {0}.{1}", nextTick.UtcTime, nextTick.UtcTime.Microsecond);
             return Yield.DidWork.Invoke(ProcessTick);
         }
 
@@ -204,7 +204,7 @@ namespace TickZoom.Provider.FIX
                     if (nextTick.UtcTime.Internal > currentTime.Internal + overlapp &&
                         tickTimer.Start(nextTick.UtcTime))
                     {
-                        if (trace) log.Trace("Set next timer for " + nextTick.UtcTime + "." + nextTick.UtcTime.Microsecond + " at " + currentTime + "." + currentTime.Microsecond);
+                        if (trace) log.TraceFormat("Set next timer for {0}.{1} at {2}.{3}", nextTick.UtcTime, nextTick.UtcTime.Microsecond, currentTime, currentTime.Microsecond);
                         tickStatus = TickStatus.Timer;
                     }
                     else
@@ -212,8 +212,7 @@ namespace TickZoom.Provider.FIX
                         if (nextTick.UtcTime.Internal < currentTime.Internal)
                         {
                             if (trace)
-                                log.Trace("Current time " + currentTime + " was less than tick time " +
-                                          nextTick.UtcTime + "." + nextTick.UtcTime.Microsecond);
+                                log.TraceFormat("Current time {0} was less than tick time {1}.{2}", currentTime, nextTick.UtcTime, nextTick.UtcTime.Microsecond);
                             result = Yield.DidWork.Invoke(SendPlayBackTick);
                         }
                     }
@@ -257,7 +256,7 @@ namespace TickZoom.Provider.FIX
                 quoteMessage = quoteSimulatorSupport.QuoteSocket.MessageFactory.Create();
             }
             onTick(quoteMessage, Symbol, nextTick);
-            if (trace) log.Trace("Added tick to packet: " + nextTick.UtcTime);
+            if (trace) log.TraceFormat("Added tick to packet: {0}", nextTick.UtcTime);
             quoteMessage.SendUtcTime = nextTick.UtcTime.Internal;
             return Yield.DidWork.Invoke(TryEnqueuePacket);
         }
@@ -270,7 +269,7 @@ namespace TickZoom.Provider.FIX
                 return Yield.NoWork.Return;
             }
             quoteSimulatorSupport.QuotePacketQueue.Enqueue(quoteMessage, quoteMessage.SendUtcTime);
-            if (trace) log.Trace("Enqueued tick packet: " + new TimeStamp(quoteMessage.SendUtcTime));
+            if (trace) log.TraceFormat("Enqueued tick packet: {0}", new TimeStamp(quoteMessage.SendUtcTime));
             quoteMessage = quoteSimulatorSupport.QuoteSocket.MessageFactory.Create();
             tickStatus = TickStatus.Sent;
             return Yield.DidWork.Return;
@@ -281,7 +280,7 @@ namespace TickZoom.Provider.FIX
             var result = Yield.DidWork.Repeat;
             if (tickStatus == TickStatus.Timer)
             {
-                if (trace) log.Trace("Sending tick from timer event: " + nextTick.UtcTime);
+                if (trace) log.TraceFormat("Sending tick from timer event: {0}", nextTick.UtcTime);
                 result = Yield.DidWork.Invoke(SendPlayBackTick);
             }
             return result;
@@ -335,7 +334,7 @@ namespace TickZoom.Provider.FIX
             }
             else
             {
-                if (debug) log.DebugFormat("isDisposed " + isDisposed);
+                if (debug) log.DebugFormat("isDisposed {0}", isDisposed);
             }
         }
 

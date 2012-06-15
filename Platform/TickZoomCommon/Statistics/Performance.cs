@@ -127,7 +127,7 @@ namespace TickZoom.Statistics
 
 		public bool OnProcessFill(LogicalFill fill)
 		{
-			if( debug) log.DebugFormat(model + ": OnProcessFill: " + fill);
+			if( debug) log.DebugFormat("{0}: OnProcessFill: {1}", model, fill);
 			if( fill.IsExitStrategy) {
 				if( debug) log.DebugFormat("Ignoring fill since it's a simulated fill meaning that the strategy already exited via a money management exit like stop loss or target profit, etc.");
 				return true;
@@ -136,10 +136,10 @@ namespace TickZoom.Statistics
 				var portfolio = (Portfolio) model;
 				var portfolioPosition = portfolio.Result.Position;
 				fill = new LogicalFillBinary( portfolioPosition.Current, fill.Recency, portfolioPosition.Price, fill.Time, fill.UtcTime, fill.OrderId, fill.OrderSerialNumber,fill.OrderPosition,false,false);
-				if( debug) log.DebugFormat("For portfolio, converted to fill: " + fill);
+				if( debug) log.DebugFormat("For portfolio, converted to fill: {0}", fill);
 			}
 			if( transactionDebug && !model.QuietMode && !(model is PortfolioInterface) ) {
-				transactionLog.DebugFormat( model.Name + "," + model.Data.SymbolInfo + "," + fill);
+				transactionLog.DebugFormat( "{0},{1},{2}", model.Name, model.Data.SymbolInfo, fill);
 			}
 			
 			if( fill.Position != position.Current) {
@@ -195,7 +195,7 @@ namespace TickZoom.Statistics
 			position.Change(model.Data.SymbolInfo,fill);
 			if( model is Strategy) {
 				Strategy strategy = (Strategy) model;
-				if( debug) log.DebugFormat( "Changing strategy result position to " + position.Current);
+				if( debug) log.DebugFormat( "Changing strategy result position to {0}", position.Current);
 				strategy.Result.Position.Copy(position);
 			}
 
@@ -206,7 +206,7 @@ namespace TickZoom.Statistics
 			TransactionPairBinary pair = TransactionPairBinary.Create();
 			pair.Enter(fill.Position, fill.Price, fill.Time, fill.PostedTime, model.Chart.ChartBars.BarCount, fill.OrderId, fill.OrderSerialNumber);
 			comboTradesBinary.Add(pair);
-            if (debug) log.DebugFormat("Enter Trade: " + pair);
+            if (debug) log.DebugFormat("Enter Trade: {0}", pair);
             if (model is Strategy)
             {
 				Strategy strategy = (Strategy) model;
@@ -222,7 +222,7 @@ namespace TickZoom.Statistics
 			TransactionPairBinary pair = comboTradesBinary.Tail;
 			pair.ChangeSize(fill.Position,fill.Price);
 			comboTradesBinary.Tail = pair;
-            if (debug) log.DebugFormat("Change Trade: " + pair);
+            if (debug) log.DebugFormat("Change Trade: {0}", pair);
             if (model is Strategy)
             {
 				Strategy strategy = (Strategy) model;
@@ -238,7 +238,7 @@ namespace TickZoom.Statistics
 			TransactionPairBinary pair = comboTradesBinary.Tail;
 			pair.Exit( fill.Price, fill.Time, fill.PostedTime, model.Chart.ChartBars.BarCount, fill.OrderId, fill.OrderSerialNumber);
 			comboTradesBinary.Tail = pair;
-            if( debug) log.DebugFormat("Exit Trade: " + pair);
+            if( debug) log.DebugFormat("Exit Trade: {0}", pair);
             var profitLoss2 = profitLoss as ProfitLoss2;
 		    double pnl = 0D;
             if( profitLoss2 == null)
@@ -254,9 +254,9 @@ namespace TickZoom.Statistics
 			pnl = Math.Round(pnl,2);
 			Equity.OnChangeClosedEquity( pnl);
 			if( trace) {
-				log.Trace( "Exit Trade: " + pair);
+				log.TraceFormat( "Exit Trade: {0}", pair);
 			}
-			if( tradeDebug && !model.QuietMode) tradeLog.DebugFormat( model.Name + "," + Equity.ClosedEquity + "," + pnl + "," + pair);
+			if( tradeDebug && !model.QuietMode) tradeLog.DebugFormat( "{0},{1},{2},{3}", model.Name, Equity.ClosedEquity, pnl, pair);
 			if( model is Strategy) {
 				var strategy = (Strategy) model;
 				LogicalOrder filledOrder;

@@ -131,7 +131,7 @@ namespace TickZoom.TickUtil
 
 		public void Stop(EventItem eventItem)
 		{
-			if (debug) log.DebugFormat("Stop(" + agent + ")");
+			if (debug) log.DebugFormat("Stop({0})", agent);
 			Dispose();
 		}
 
@@ -202,7 +202,7 @@ namespace TickZoom.TickUtil
                         ++loopCount;
                         if( !tickFile.TryReadTick(tickIO) )
                         {
-                            if (debug) log.DebugFormat("Finished reading to file length: " + tickFile.Length);
+                            if (debug) log.DebugFormat("Finished reading to file length: {0}", tickFile.Length);
                             return SendFinish();
                         }
 
@@ -213,14 +213,14 @@ namespace TickZoom.TickUtil
 							try {
 								progressCallback("Loading bytes...", tickFile.Position, tickFile.Length);
 							} catch (Exception ex) {
-								log.DebugFormat("Exception on progressCallback: " + ex.Message);
+								log.DebugFormat("Exception on progressCallback: {0}", ex.Message);
 							}
 							nextUpdate = Factory.TickCount + 2000;
 						}
 
 						if (MaxCount > 0 && Count > MaxCount) {
 							if (debug)
-								log.DebugFormat("Ending data read because count reached " + MaxCount + " ticks.");
+								log.DebugFormat("Ending data read because count reached {0} ticks.", MaxCount);
 						    return SendFinish();
 						}
 
@@ -232,9 +232,9 @@ namespace TickZoom.TickUtil
 						if (IsAtStart(tick)) {
 							count = Count + 1;
 							if (debug && Count < 10) {
-								log.DebugFormat("Read a tick " + tickIO);
+								log.DebugFormat("Read a tick {0}", tickIO);
 							} else if (trace) {
-								log.Trace("Read a tick " + tickIO);
+								log.TraceFormat("Read a tick {0}", tickIO);
 							}
                             tick.Symbol = tickFile.Symbol.BinaryIdentifier;
 
@@ -251,7 +251,7 @@ namespace TickZoom.TickUtil
 							}
 							
 							box = tickBoxPool.Create(tickPoolCallerId);
-						    if( trace) log.Trace("Allocated box id in reader " + box.Id + ", count " + tickBoxPool.AllocatedCount);
+						    if( trace) log.TraceFormat("Allocated box id in reader {0}, count {1}", box.Id, tickBoxPool.AllocatedCount);
 						    var tickId = box.TickBinary.Id;
 							box.TickBinary = tick;
 						    box.TickBinary.Id = tickId;
@@ -292,7 +292,7 @@ namespace TickZoom.TickUtil
 		{
             var item = new EventItem(tickFile.Symbol, EventType.EndHistorical);
             agent.SendEvent(item);
-            if (debug) log.DebugFormat("EndHistorical for " + tickFile.Symbol);
+            if (debug) log.DebugFormat("EndHistorical for {0}", tickFile.Symbol);
 			try {
 				if (isDataRead) {
                     LogInfo("Processing ended for " + tickFile.Symbol + " at " + tickIO.ToPosition());
@@ -302,7 +302,7 @@ namespace TickZoom.TickUtil
 				try {
 					progressCallback("Processing complete.", tickFile.Length, tickFile.Length);
 				} catch (Exception ex) {
-					log.DebugFormat("Exception on progressCallback: " + ex.Message);
+					log.DebugFormat("Exception on progressCallback: {0}", ex.Message);
 				}
 				if (debug)
 					log.DebugFormat("calling Agent.OnEvent(symbol,EventType.EndHistorical)");

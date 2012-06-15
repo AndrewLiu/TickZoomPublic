@@ -848,7 +848,7 @@ namespace TickZoom.Presentation
             UpdateStatus();
             var bw = sender as BackgroundWorker;
             var command = (CommandInterface) e.Argument;
-            if (log.IsTraceEnabled) log.Trace("Started background worker.");
+            if (log.IsTraceEnabled) log.TraceFormat("Started background worker.");
             if (Thread.CurrentThread.Name == null)
             {
                 Thread.CurrentThread.Name = "CommandWorker";

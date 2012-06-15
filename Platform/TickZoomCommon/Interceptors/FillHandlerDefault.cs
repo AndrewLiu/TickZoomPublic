@@ -71,22 +71,22 @@ namespace TickZoom.Interceptors
 		}
 	
 		public void ProcessFill(StrategyInterface strategyInterface, LogicalFill fill) {
-			if( trace) log.Trace( "ProcessFill: " + fill + " for strategy " + strategyInterface);
+			if( trace) log.TraceFormat( "ProcessFill: {0} for strategy {1}", fill, strategyInterface);
 			var strategy = (Strategy) strategyInterface;
 			int orderId = fill.OrderId;
 			LogicalOrder filledOrder = null;
 			if( strategyInterface.TryGetOrderById( fill.OrderId, out filledOrder)) {
-				if( trace) log.Trace( "Matched fill with orderId: " + orderId);
+				if( trace) log.TraceFormat( "Matched fill with orderId: {0}", orderId);
 				if( !doStrategyOrders && filledOrder.TradeDirection != TradeDirection.ExitStrategy ) {
-                    if (trace) log.Trace("Skipping fill, strategy order fills disabled.");
+                    if (trace) log.TraceFormat("Skipping fill, strategy order fills disabled.");
 					return;
 				}
 				if( !doExitStrategyOrders && filledOrder.TradeDirection == TradeDirection.ExitStrategy) {
-                    if (trace) log.Trace("Skipping fill, exit strategy orders fills disabled.");
+                    if (trace) log.TraceFormat("Skipping fill, exit strategy orders fills disabled.");
 					return;
 				}
 				TryDrawTrade(filledOrder, fill);
-                if (trace) log.Trace("Changed strategy position to " + fill.Position + " because of fill.");
+                if (trace) log.TraceFormat("Changed strategy position to {0} because of fill.", fill.Position);
 				changePosition(strategy.Data.SymbolInfo,fill);
 			} else {
 				throw new ApplicationException("A fill for order id: " + orderId + " was incorrectly routed to: " + strategyInterface.Name);

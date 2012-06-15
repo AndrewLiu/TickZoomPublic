@@ -226,7 +226,7 @@ namespace TickZoom
 			if( bars.Low[0] < fttLowestLow && bars.Low[0] < bars.Low[1] ) {
 				if( bars.Volume[0] > lowMaxVolume[0]) {
 					lowMaxVolume[0] = bars.Volume[0];
-					log.DebugFormat("Low Max Volume Set to " + lowMaxVolume[0]);
+					log.DebugFormat("Low Max Volume Set to {0}", lowMaxVolume[0]);
 				}
 				fttLowestLow = bars.Low[0];
 			}
@@ -465,9 +465,7 @@ namespace TickZoom
 		}
 		
 		public void LogShortTraverse() {
-			log.DebugFormat( "LogShortTraverse=" + (lowMaxVolume.Count>0 && IsDown && tick.Bid < fttLowestLow) +
-			                       ", volume=" + bars.Volume[0] +
-			                       ", low max volume=" +lowMaxVolume[0]);
+			log.DebugFormat( "LogShortTraverse={0}, volume={1}, low max volume={2}", (lowMaxVolume.Count>0 && IsDown && tick.Bid < fttLowestLow), bars.Volume[0], lowMaxVolume[0]);
 		}
 		
 		bool isLongFTT = false;

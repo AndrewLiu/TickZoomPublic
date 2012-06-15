@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using TickZoom.Api;
 using TickZoom.Provider.FIX;
@@ -49,7 +49,7 @@ namespace TickZoom.Provider.MBTFIX
         {
             var writePacket = QuoteSocket.MessageFactory.Create();
             string textMessage = "G|100=DEMOXJSP;8055=demo01\n";
-            if (debug) log.DebugFormat("Login response: " + textMessage);
+            if (debug) log.DebugFormat("Login response: {0}", textMessage);
             writePacket.DataOut.Write(textMessage.ToCharArray());
             QuotePacketQueue.Enqueue(writePacket, message.SendUtcTime);
         }
@@ -99,7 +99,7 @@ namespace TickZoom.Provider.MBTFIX
             writePacket.DataOut.Write(textMessage.ToCharArray());
             if (QuoteSocket.TrySendMessage(writePacket))
             {
-                if (trace) log.Trace("Local Write: " + writePacket);
+                if (trace) log.TraceFormat("Local Write: {0}", writePacket);
             }
         }
 
@@ -199,7 +199,7 @@ namespace TickZoom.Provider.MBTFIX
 
         protected override void TrySendTick(SymbolInfo symbol, TickIO tick)
         {
-            if (trace) log.Trace("TrySendTick( " + symbol + " " + tick + ")");
+            if (trace) log.TraceFormat("TrySendTick( {0} {1})", symbol, tick);
             var quoteMessage = QuoteSocket.MessageFactory.Create();
             var lastTick = lastTicks[symbol.BinaryIdentifier];
             var buffer = quoteMessage.Data.GetBuffer();
@@ -400,13 +400,13 @@ namespace TickZoom.Provider.MBTFIX
             if (trace)
             {
                 var message = Encoding.ASCII.GetString(buffer, 0, (int)position);
-                log.Trace("Tick message: " + message);
+                log.TraceFormat("Tick message: {0}", message);
             }
             quoteMessage.Data.Position = position;
             quoteMessage.Data.SetLength(position);
             lastTick.Inject(tick.Extract());
 
-            if (trace) log.Trace("Added tick to packet: " + tick.UtcTime);
+            if (trace) log.TraceFormat("Added tick to packet: {0}", tick.UtcTime);
             quoteMessage.SendUtcTime = tick.UtcTime.Internal;
 
             if (quoteMessage.Data.GetBuffer().Length == 0)
@@ -414,7 +414,7 @@ namespace TickZoom.Provider.MBTFIX
                 return;
             }
             QuotePacketQueue.Enqueue(quoteMessage, quoteMessage.SendUtcTime);
-            if (trace) log.Trace("Enqueued tick packet: " + new TimeStamp(quoteMessage.SendUtcTime));
+            if (trace) log.TraceFormat("Enqueued tick packet: {0}", new TimeStamp(quoteMessage.SendUtcTime));
         }
 
     }

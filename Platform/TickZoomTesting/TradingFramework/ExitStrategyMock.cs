@@ -53,7 +53,7 @@ namespace TickZoom.TradingFramework
 					Tick tick = Strategy.Data.Ticks[0];
 					signalChanges.Add(tick.Time);
                     signalDirection.Add(strategy.Position.Current);
-                    if (trace) log.Trace(signalChanges.Count + " " + strategy.Position.Current + " " + tick);
+                    if (trace) log.TraceFormat("{0} {1} {2}", signalChanges.Count, strategy.Position.Current, tick);
                     prevSignal = strategy.Position.Current;
 				}
 			}
@@ -64,7 +64,7 @@ namespace TickZoom.TradingFramework
 				TimeStamp time = signalChanges[i];
 				double signal = signalDirection[i];
 				// DO NOT COMMENT OUT
-				log.DebugFormat( i + ": " + time + " Direction: " + signal);
+				log.DebugFormat( "{0}: {1} Direction: {2}", i, time, signal);
 				// DO NOT COMMENT OUT
 			}
 		}

@@ -648,7 +648,7 @@ namespace TickZoom.Charting
 		}
 		private volatile bool isBusy = false;		
 		public void AddBar( Bars chartBars) {
-            if (trace) log.Trace("AddBar()");
+            if (trace) log.TraceFormat("AddBar()");
            if (!isBusy)
            {
                isBusy = true;
@@ -661,7 +661,7 @@ namespace TickZoom.Charting
 	    private volatile bool tickUpdate = false;
 		public void UpdateTick()
 		{
-		    if (trace) log.Trace("UpdateTick()");
+		    if (trace) log.TraceFormat("UpdateTick()");
 		    if (!isBusy)
 		    {
 		        isBusy = true;
@@ -672,7 +672,7 @@ namespace TickZoom.Charting
 		
         private volatile bool addBarOccurred = false;
 		private void AddBarPrivate() {
-            if (trace) log.Trace("AddBarPrivate()");
+            if (trace) log.TraceFormat("AddBarPrivate()");
             if (firstTime == TimeStamp.MinValue)
             {            	
     			firstTime = chartBars.Time[0];
@@ -957,7 +957,7 @@ namespace TickZoom.Charting
 					}
                     else
 					{
-                        if (trace) log.Trace("yMax is NAN from MoveByPixels with yScale " + yScale + ", yScale.Max " + yScale.Max + ", resetYScaleSpeed " + resetYScaleSpeed + ", resetYScale " + resetYScale);
+                        if (trace) log.TraceFormat("yMax is NAN from MoveByPixels with yScale {0}, yScale.Max {1}, resetYScaleSpeed {2}, resetYScale {3}", yScale, yScale.Max, resetYScaleSpeed, resetYScale);
                     }
                 }
 				reset = true;
@@ -983,7 +983,7 @@ namespace TickZoom.Charting
                     }
                     else
                     {
-                        if (trace) log.Trace("yMin is NAN from MoveByPixels with yScale " + yScale + ", yScale.Min " + yScale.Min + ", resetYScaleSpeed " + resetYScaleSpeed + ", resetYScale " + resetYScale);
+                        if (trace) log.TraceFormat("yMin is NAN from MoveByPixels with yScale {0}, yScale.Min {1}, resetYScaleSpeed {2}, resetYScale {3}", yScale, yScale.Min, resetYScaleSpeed, resetYScale);
                     }
                 }
 				reset = true;
@@ -1019,8 +1019,7 @@ namespace TickZoom.Charting
                         }
                         else
                         {
-                            if (trace) log.Trace("_min is NAN from MoveByPixels with xScale " + xScale + ", xScale.Min " +
-                                     xScale.Min + ", resetXScaleSpeed " + resetXScaleSpeed);
+                            if (trace) log.TraceFormat("_min is NAN from MoveByPixels with xScale {0}, xScale.Min {1}, resetXScaleSpeed {2}", xScale, xScale.Min, resetXScaleSpeed);
                         }
                     }
                     else
@@ -1036,8 +1035,7 @@ namespace TickZoom.Charting
                         }
                         else
                         {
-                            if (trace) log.Trace("_max is NAN from MoveByPixels with xScale " + xScale + ", xScale.Max " +
-                                     xScale.Max + ", resetXScaleSpeed " + resetXScaleSpeed);
+                            if (trace) log.TraceFormat("_max is NAN from MoveByPixels with xScale {0}, xScale.Max {1}, resetXScaleSpeed {2}", xScale, xScale.Max, resetXScaleSpeed);
                         }
                     }
                     else
@@ -1500,7 +1498,7 @@ namespace TickZoom.Charting
 					}
                     if (stockPointList.Count > 0 && (chartBars.BarCount - stockPointList.Count) < 5 && isDynamicUpdate)
                     {
-                        if (trace) log.Trace("dragging=" + isScrolling + ", AutoScroll = " + isAutoScroll);
+                        if (trace) log.TraceFormat("dragging={0}, AutoScroll = {1}", isScrolling, isAutoScroll);
                         bool resetAxis = false;
                         bool redraw = false;
                         timer.Interval = 200;
@@ -1521,12 +1519,12 @@ namespace TickZoom.Charting
                         }
                         if (resetAxis)
                         {
-                            if (trace) log.Trace("refreshing axis");
+                            if (trace) log.TraceFormat("refreshing axis");
                             dataGraph.AxisChange();
                         }
                         if (resetAxis || redraw)
                         {
-                            if (trace) log.Trace("redrawing");
+                            if (trace) log.TraceFormat("redrawing");
                             this.Refresh();
                         }
                     }

@@ -1302,7 +1302,7 @@ namespace Loaders
             for( i=0; i<strategyBars.Count; i++) {
                 j=chartBars.NPts-i-1;
                 if( j < 0 || j >= chartBars.NPts) {
-                    log.DebugFormat("bar " + i + " is missing");
+                    log.DebugFormat("bar {0} is missing", i);
                 } else {
                     StockPt bar = (StockPt) chartBars[j];
                     string match = "NOT match";
@@ -1316,10 +1316,8 @@ namespace Loaders
                                 firstMisMatch = i;
                             }
                         }
-                    log.DebugFormat( "bar: " + i + ", point: " + j + " " + match + " days:"+strategyBars.Open[i]+","+strategyBars.High[i]+","+strategyBars.Low[i]+","+strategyBars.Close[i]+" => "+
-                               bar.Open+","+bar.High+","+bar.Low+","+bar.Close);
-                    log.DebugFormat( "bar: " + i + ", point: " + j + " " + match + " days:"+strategyBars.Time[i]+" "+
-                               new TimeStamp(bar.X));
+                    log.DebugFormat( "bar: {0}, point: {1} {2} days:{3},{4},{5},{6} => {7},{8},{9},{10}", i, j, match, strategyBars.Open[i], strategyBars.High[i], strategyBars.Low[i], strategyBars.Close[i], bar.Open, bar.High, bar.Low, bar.Close);
+                    log.DebugFormat( "bar: {0}, point: {1} {2} days:{3} {4}", i, j, match, strategyBars.Time[i], new TimeStamp(bar.X));
                 }
             }
             if( firstMisMatch != int.MaxValue) {

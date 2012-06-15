@@ -106,7 +106,7 @@ namespace TickZoom.Examples
             bid = Math.Min(bid, BreakEven - 10*symbol.MinimumTick);
             offer = Math.Max(offer, bid + 5 * symbol.MinimumTick);
 
-            if (trace) log.Trace("Long: Beginning " + BeginningPrice + ", break even " + BreakEven + ", min price " + binary.MinPrice + ", bid " + bid + ", offer " + offer + ", position " + binary.CurrentPosition);
+            if (trace) log.TraceFormat("Long: Beginning {0}, break even {1}, min price {2}, bid {3}, offer {4}, position {5}", BeginningPrice, BreakEven, binary.MinPrice, bid, offer, binary.CurrentPosition);
             if (binary.CurrentPosition != 0)
             {
                 AssertGreaterOrEqual(BeginningPrice, BreakEven, "beginning >= break even");
@@ -181,7 +181,7 @@ namespace TickZoom.Examples
             offer = Math.Max(offer, BreakEven + 10*symbol.MinimumTick);
             bid = Math.Min(bid, offer - 5*symbol.MinimumTick);
 
-            if (trace) log.Trace("Short: Beginning " + BeginningPrice + ", break even " + BreakEven + ", max price " + binary.MaxPrice + ", bid " + bid + "/ offer " + offer + ", position " + binary.CurrentPosition + ", market bid " + marketBid + "/ offer " + marketOffer);
+            if (trace) log.TraceFormat("Short: Beginning {0}, break even {1}, max price {2}, bid {3}/ offer {4}, position {5}, market bid {6}/ offer {7}", BeginningPrice, BreakEven, binary.MaxPrice, bid, offer, binary.CurrentPosition, marketBid, marketOffer);
             if (binary.CurrentPosition != 0)
             {
                 AssertGreaterOrEqual(Round(offer), Round(BreakEven), "break even > bid");
@@ -271,7 +271,7 @@ namespace TickZoom.Examples
         {
             var newPosition = binary.CurrentPosition + positionChange;
             binary.Change(price, positionChange);
-            if (trace) log.Trace("Changed " + positionChange + " at " + price + ", position " + binary.CurrentPosition);
+            if (trace) log.TraceFormat("Changed {0} at {1}, position {2}", positionChange, price, binary.CurrentPosition);
             CalcBreakEven();
             TrackExcursions(price);
             TryChangeCounter(price, positionChange);

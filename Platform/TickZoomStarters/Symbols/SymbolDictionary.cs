@@ -151,7 +151,7 @@ namespace TickZoom.Symbols
 		private void HandleCategory(SymbolCategory category, XmlReader reader) {
 			string tagName = reader.Name;
 			category.Name = reader.GetAttribute("name");
-			if( trace) log.Trace("Handle category " + category.Name);
+			if( trace) log.TraceFormat("Handle category {0}", category.Name);
 			if( reader.IsEmptyElement) { return; }
 			log.Indent();
 			while( reader.Read()) {
@@ -162,7 +162,7 @@ namespace TickZoom.Symbols
 			    			string name = reader.GetAttribute("name");
 			    			string value = reader.GetAttribute("value");
 			    			HandleOverrideProperty(reader,category, reader.GetAttribute("name"), reader.GetAttribute("value"));
-			    			if( trace) log.Trace("Property " + name + " = " + value);
+			    			if( trace) log.TraceFormat("Property {0} = {1}", name, value);
 			    		} else if( "category".Equals(reader.Name)) {
 			    			SymbolCategory subCategory = new SymbolCategory(category.Properties);
 			    			HandleCategory(subCategory,reader);
@@ -235,7 +235,7 @@ namespace TickZoom.Symbols
 		
 		private void HandleSymbol(object obj, XmlReader reader) {
 			string tagName = reader.Name;
-			if( trace) log.Trace("Handle " + obj.GetType().Name);
+			if( trace) log.TraceFormat("Handle {0}", obj.GetType().Name);
 			if( reader.IsEmptyElement) { return; }			
 			log.Indent();
 			while( reader.Read()) {
@@ -271,7 +271,7 @@ namespace TickZoom.Symbols
             }
             var propertyType = property.PropertyType;
             var value = Converters.Convert(propertyType, str);
-            if (trace) log.Trace("Property " + property.Name + " = " + value);
+            if (trace) log.TraceFormat("Property {0} = {1}", property.Name, value);
             category.Set(property, value);
         }
 
@@ -285,7 +285,7 @@ namespace TickZoom.Symbols
 			Type propertyType = property.PropertyType;
 			object value = TickZoom.Api.Converters.Convert(propertyType,str);
 			property.SetValue(obj,value,null);
-			if( trace) log.Trace("Property " + property.Name + " = " + value);
+			if( trace) log.TraceFormat("Property {0} = {1}", property.Name, value);
 		}
 		
 		private void Error( XmlReader reader, string msg) {

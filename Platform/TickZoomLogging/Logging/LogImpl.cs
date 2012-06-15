@@ -254,21 +254,6 @@ namespace TickZoom.Logging
 			Notice(message,null);
 		}
 		
-		public void VerboseFormat(string message)
-      	{
-			Verbose(message,null);
-		}
-		
-		public void Trace(string message)
-      	{
-			Trace(message,null);
-		}
-		
-		public void DebugFormat(string message)
-      	{
-			Debug(message,null);
-		}
-		
 		public void Info(object message)
 		{
 			Info(message,null);
@@ -527,12 +512,13 @@ namespace TickZoom.Logging
 				LogWrapper.Logger.Log(loggingEvent);
 			}
 		}
-		
+
 		public void VerboseFormat(string format, params object[] args)
 		{
             if( IsVerboseEnabled)
             {
-                VerboseFormat(string.Format(format, args));
+                var resultString = string.Format(format, args);
+                Verbose(resultString,null);
             }
 		}
 		
@@ -540,7 +526,8 @@ namespace TickZoom.Logging
 		{
 			if( IsTraceEnabled)
 			{
-                Trace(string.Format(format, args));
+                var resultString = string.Format(format, args);
+                Trace(resultString,null);
             }
 		}
 		
@@ -548,7 +535,8 @@ namespace TickZoom.Logging
 		{
             if( IsDebugEnabled)
             {
-                LogWrapper.DebugFormat(format, args);
+                var resultString = string.Format(format, args);
+                Debug(resultString, null);
             }
 		}
 		
@@ -584,7 +572,7 @@ namespace TickZoom.Logging
 		
 		public void TraceFormat(IFormatProvider provider, string format, params object[] args)
 		{
-			Trace(string.Format(provider, format, args));
+			TraceFormat(string.Format(provider, format, args));
 		}
 		
 		public void DebugFormat(IFormatProvider provider, string format, params object[] args)

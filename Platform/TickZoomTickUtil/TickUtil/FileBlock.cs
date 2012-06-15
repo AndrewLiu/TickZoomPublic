@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using TickZoom.Api;
 
@@ -145,7 +145,7 @@ namespace TickZoom.TickUtil
             {
                 try
                 {
-                    if (debug) log.DebugFormat("Writing buffer size " + memory.Position);
+                    if (debug) log.DebugFormat("Writing buffer size {0}", memory.Position);
                     WriteHeader();
                     if (memory.Length < blockSize)
                     {
@@ -163,7 +163,7 @@ namespace TickZoom.TickUtil
                 catch (IOException e)
                 {
                     errorCount++;
-                    log.DebugFormat(e.Message + "\nPausing " + sleepSeconds + " seconds before retry.");
+                    log.DebugFormat("{0}\nPausing {1} seconds before retry.", e.Message, sleepSeconds);
                     Factory.Parallel.Sleep(3);
                 }
             } while (errorCount > 0);

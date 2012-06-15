@@ -171,7 +171,7 @@ namespace TickZoom.Provider.MBTFIX
 					log.Error("Error looking up " + packet.Symbol + ": " + ex.Message);
 					return;
 				}
-				if(debug) log.DebugFormat("PositionUpdate: " + symbolInfo + "=" + position);
+				if(debug) log.DebugFormat("PositionUpdate: {0}={1}", symbolInfo, position);
 				symbolPositionMap[symbolInfo.BinaryIdentifier] = position;
 			}
 		}
@@ -204,7 +204,7 @@ namespace TickZoom.Provider.MBTFIX
 			string errorMessage = fixMsg.ToString();
 			message.DataOut.Write(errorMessage.ToCharArray());
 			long end = Factory.Parallel.TickCount + 2000;
-			if( debug) log.DebugFormat("Writing Error Message: " + textMessage);
+			if( debug) log.DebugFormat("Writing Error Message: {0}", textMessage);
 			while( !context.LocalSocket.TrySendMessage(message)) {
 				if( Factory.Parallel.TickCount > end) {
 					throw new ApplicationException("Timeout while sending an order.");

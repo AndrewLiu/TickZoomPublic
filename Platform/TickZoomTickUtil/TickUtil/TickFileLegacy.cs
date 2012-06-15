@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -93,7 +93,7 @@ namespace TickZoom.TickUtil
                 //throw new ApplicationException("Requires either a file or folder to read data. Tried both " + folderOrfile + " and " + filePath);
             }
             CheckFileExtension();
-            if (debug) log.DebugFormat("File Name = " + fileName);
+            if (debug) log.DebugFormat("File Name = {0}", fileName);
             OpenFile();
             isInitialized = true;
         }
@@ -111,7 +111,7 @@ namespace TickZoom.TickUtil
             InitLogging();
             Directory.CreateDirectory(Path.GetDirectoryName(fileName));
             CheckFileExtension();
-            if (debug) log.DebugFormat("File Name = " + fileName);
+            if (debug) log.DebugFormat("File Name = {0}", fileName);
             OpenFile();
             isInitialized = true;
         }
@@ -201,7 +201,7 @@ namespace TickZoom.TickUtil
         {
             if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
             TryCompleteAsyncWrite();
-            if (trace) log.Trace("Writing to file buffer: " + tickIO);
+            if (trace) log.TraceFormat("Writing to file buffer: {0}", tickIO);
             tickIO.ToWriter(memory);
             if (memory.Position > 5000)
             {
@@ -435,7 +435,7 @@ namespace TickZoom.TickUtil
         public void Flush()
         {
             if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-            if (debug) log.DebugFormat("Before flush memory " + memory.Position);
+            if (debug) log.DebugFormat("Before flush memory {0}", memory.Position);
             while (memory.Position > 0 || streamsToWrite.Count > 0 || writeFileResult != null)
             {
                 if( memory.Position > 0)
@@ -453,7 +453,7 @@ namespace TickZoom.TickUtil
                     Thread.Sleep(100);
                 }
             }
-            if (debug) log.DebugFormat("After flush memory " + memory.Position);
+            if (debug) log.DebugFormat("After flush memory {0}", memory.Position);
         }
 
         private int origSleepSeconds = 3;
@@ -479,7 +479,7 @@ namespace TickZoom.TickUtil
                         {
                             streamsToWrite.Peek(out memory);
                         }
-                        if (trace) log.Trace("Writing buffer size: " + memory.Position);
+                        if (trace) log.TraceFormat("Writing buffer size: {0}", memory.Position);
                         fs.Write(memory.GetBuffer(), 0, (int)memory.Position);
                         fs.Flush();
                         memory.Position = 0;
@@ -498,7 +498,7 @@ namespace TickZoom.TickUtil
                     catch (IOException e)
                     {
                         errorCount++;
-                        log.DebugFormat(Symbol + ": " + e.Message + "\nPausing " + currentSleepSeconds + " seconds before retry.");
+                        log.DebugFormat("{0}: {1}\nPausing {2} seconds before retry.", Symbol, e.Message, currentSleepSeconds);
                         Factory.Parallel.Sleep(3000);
                     }
                 } while (errorCount > 0);
@@ -562,7 +562,7 @@ namespace TickZoom.TickUtil
         {
             if (fs != null)
             {
-                if (debug) log.DebugFormat("CloseFile() at with length " + fs.Length);
+                if (debug) log.DebugFormat("CloseFile() at with length {0}", fs.Length);
                 fs.Flush();
                 if (!FlushFileBuffers(fs.SafeFileHandle))   // Flush OS file cache to disk.
                 {

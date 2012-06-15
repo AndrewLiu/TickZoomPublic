@@ -1,4 +1,4 @@
-﻿using TickZoom.Api;
+using TickZoom.Api;
 
 namespace TickZoom.Provider.FIX
 {
@@ -53,7 +53,7 @@ namespace TickZoom.Provider.FIX
             {
                 if (value.CompareWildcard(mask, true))
                 {
-                    if (debug) log.DebugFormat(value + " matched include mask " + mask);
+                    if (debug) log.DebugFormat("{0} matched include mask {1}", value, mask);
                     result = true;
                     break;
                 }
@@ -63,7 +63,7 @@ namespace TickZoom.Provider.FIX
             {
                 if (value.CompareWildcard(mask, true))
                 {
-                    if (debug) log.DebugFormat("Excluding " + value + " because of mask " + mask);
+                    if (debug) log.DebugFormat("Excluding {0} because of mask {1}", value, mask);
                     result = false;
                     break;
                 }

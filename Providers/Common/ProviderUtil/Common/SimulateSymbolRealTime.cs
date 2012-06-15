@@ -173,7 +173,7 @@ namespace TickZoom.Provider.FIX
                 {
                     FillSimulator.ProcessOrders();
                 }
-                if (trace) log.Trace("Dequeue tick " + nextTick.UtcTime + "." + nextTick.UtcTime.Microsecond);
+                if (trace) log.TraceFormat("Dequeue tick {0}.{1}", nextTick.UtcTime, nextTick.UtcTime.Microsecond);
                 ProcessOnTickCallBack();
                 result = true;
             }
@@ -250,7 +250,7 @@ namespace TickZoom.Provider.FIX
     		}
             else
        		{
-                if (debug) log.DebugFormat("isDisposed " + isDisposed);
+                if (debug) log.DebugFormat("isDisposed {0}", isDisposed);
             }
 	    }    
 	        

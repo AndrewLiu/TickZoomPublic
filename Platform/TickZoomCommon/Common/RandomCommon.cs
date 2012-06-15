@@ -48,9 +48,9 @@ namespace TickZoom.Common
 		
 		public RandomCommon()
 		{
-			if( trace) log.Trace("new");
+			if( trace) log.TraceFormat("new");
 			randomEntries = new TimeStamp[20];
-			if( trace) log.Trace(Chain.ToString());
+			if( trace) log.TraceFormat(Chain.ToString());
 			RequestEvent(EventType.Tick);
 		}
 		

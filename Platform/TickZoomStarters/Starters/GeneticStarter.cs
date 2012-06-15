@@ -229,7 +229,7 @@ namespace TickZoom.Starters
 						topModels.Add(model);
 					} else {
 						tasksRemaining--;
-						log.DebugFormat("Saves processing on " + chromosome + "!");
+						log.DebugFormat("Saves processing on {0}!", chromosome);
 					}
 				}
 				
@@ -287,9 +287,9 @@ namespace TickZoom.Starters
 						chromo2 = Roulette();
 					} while( chromo2.Equals(chromo1));
 					
-					log.DebugFormat("Before: " + chromo1 + " - " + chromo2);
+					log.DebugFormat("Before: {0} - {1}", chromo1, chromo2);
 					chromo1.DoubleCrossOver(chromo2);
-					log.DebugFormat("After: " + chromo1 + " - " + chromo2);
+					log.DebugFormat("After: {0} - {1}", chromo1, chromo2);
 					
 					if( alreadyTried.Contains(chromo1)) {
 						chromo1 = alreadyTried[alreadyTried.IndexOf(chromo1)];

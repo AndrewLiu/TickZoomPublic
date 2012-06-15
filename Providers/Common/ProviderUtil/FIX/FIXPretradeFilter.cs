@@ -129,7 +129,7 @@ namespace TickZoom.Provider.FIX
 		
 		private Yield RemoteReadLoop() {
 			if( remoteSocket.TryGetMessage(out remoteMessage)) {
-				if( trace) log.Trace("Remote Read: " + remoteMessage);
+				if( trace) log.TraceFormat("Remote Read: {0}", remoteMessage);
 				try {
 					if( filter != null) filter.Remote( fixContext, remoteMessage);
 					return Yield.DidWork.Invoke( WriteToLocalMethod);
@@ -147,7 +147,7 @@ namespace TickZoom.Provider.FIX
 		private Yield Invoke() {
 			if( remoteSocket.State == SocketState.Connected) {
 				if( localSocket.TryGetMessage(out localMessage)) {
-					if( trace) log.Trace("Local Read: " + localMessage);
+					if( trace) log.TraceFormat("Local Read: {0}", localMessage);
 					try {
 						if( filter != null) filter.Local( fixContext, localMessage);
 						return Yield.DidWork.Invoke( WriteToRemoteMethod);
@@ -171,7 +171,7 @@ namespace TickZoom.Provider.FIX
 	
 		private Yield WriteToLocal() {
 			if( localSocket.TrySendMessage(remoteMessage)) {
-				if(trace) log.Trace("Local Write: " + remoteMessage);
+				if(trace) log.TraceFormat("Local Write: {0}", remoteMessage);
                 return Yield.DidWork.Return;
 			} else {
 				return Yield.NoWork.Repeat;
@@ -180,7 +180,7 @@ namespace TickZoom.Provider.FIX
 	
 		private Yield WriteToRemote() {
 			if( remoteSocket.TrySendMessage(localMessage)) {
-				if(trace) log.Trace("Remote Write: " + localMessage);
+				if(trace) log.TraceFormat("Remote Write: {0}", localMessage);
                 return Yield.DidWork.Return;
 			} else {
 				return Yield.NoWork.Repeat;

@@ -51,7 +51,7 @@ namespace TickZoom.Interceptors
 		
 		public void OnInitialize()
 		{
-			if( IsTrace) Log.Trace(Strategy.FullName+".Initialize()");
+			if( IsTrace) Log.TraceFormat("{0}.Initialize()", Strategy.FullName);
 			Strategy.Drawing.Color = Color.Black;
 			position = Strategy.Position;
         }
