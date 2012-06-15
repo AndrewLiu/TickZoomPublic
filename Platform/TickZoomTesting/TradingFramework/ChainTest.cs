@@ -50,17 +50,17 @@ namespace TickZoom.TradingFramework
 			Model formula = new Model();
 			formula.Name = "third";
 			chain = formula.Chain;
-			if( trace) log.Trace( formula.Chain.ToChainString());
+			if( trace) log.TraceFormat( formula.Chain.ToChainString());
 			
 			formula = new Model();
 			formula.Name = "second";
 			chain = chain.InsertBefore( formula.Chain);
-			if( trace) log.Trace( chain.ToChainString());
+			if( trace) log.TraceFormat( chain.ToChainString());
 			
 			formula = new Model();
 			formula.Name = "first";
 			chain.InsertBefore( formula.Chain);
-			if( trace) log.Trace( chain.ToChainString());
+			if( trace) log.TraceFormat( chain.ToChainString());
 		}
 		
 		[TearDown]

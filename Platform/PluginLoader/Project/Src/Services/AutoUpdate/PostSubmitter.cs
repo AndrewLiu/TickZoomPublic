@@ -172,7 +172,7 @@ namespace TickZoom.Update
 			{
 				EncodeAndAddItem(ref parameters,m_values.GetKey(i),m_values[i]);
 			}
-			log.DebugFormat("Post to " + m_url + " with parameters = " + System.Web.HttpUtility.UrlDecode(parameters.ToString()));
+			log.DebugFormat("Post to {0} with parameters = {1}", m_url, System.Web.HttpUtility.UrlDecode(parameters.ToString()));
 			string result=PostData(m_url,parameters.ToString());
 			return result;
 		}

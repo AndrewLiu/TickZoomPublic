@@ -92,7 +92,7 @@ namespace TickZoom.Common
 
 	    private void OnSyntheticReject(CreateOrChangeOrder order, string message)
 	    {
-            if( debug) log.DebugFormat("Synthetic order rejected: " + message + " " + order);
+            if( debug) log.DebugFormat("Synthetic order rejected: {0} {1}", message, order);
             syntheticReceiver.SendEvent(new EventItem(EventType.SyntheticReject, order));
         }
 
@@ -145,7 +145,7 @@ namespace TickZoom.Common
 					    agent.SendEvent(eventItem);
 					    Interlocked.Increment(ref tickCount);
                         if( Diagnose.TraceTicks) { Diagnose.AddTick(diagnoseMetric, ref box.TickBinary); }
-						if( trace) log.Trace("Sent quote for " + Symbol + ": " + tickIO);
+						if( trace) log.TraceFormat("Sent quote for {0}: {1}", Symbol, tickIO);
 					}
 				}
 			}
@@ -231,7 +231,7 @@ namespace TickZoom.Common
             agent.SendEvent(eventItem);
             Interlocked.Increment(ref tickCount);
             if (Diagnose.TraceTicks) { Diagnose.AddTick(diagnoseMetric, ref box.TickBinary); }
-            if (trace) log.Trace("Sent trade tick for " + Symbol + ": " + tickIO);
+            if (trace) log.TraceFormat("Sent trade tick for {0}: {1}", Symbol, tickIO);
         }
 
         bool errorWrongTimeAndSalesType = false;
@@ -297,7 +297,7 @@ namespace TickZoom.Common
                 agent.SendEvent(eventItem);
                 Interlocked.Increment(ref tickCount);
                 if (Diagnose.TraceTicks) { Diagnose.AddTick(diagnoseMetric, ref box.TickBinary); }
-                if (trace) log.Trace("Sent trade tick for " + Symbol + ": " + tickIO);
+                if (trace) log.TraceFormat("Sent trade tick for {0}: {1}", Symbol, tickIO);
 			}
 		}
         

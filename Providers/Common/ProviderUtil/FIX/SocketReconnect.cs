@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using TickZoom.Api;
 
@@ -63,7 +63,7 @@ namespace TickZoom.Provider.FIX
                     case SocketState.Disconnected:
                     case SocketState.New:
                     case SocketState.PendingConnect:
-                        if (debug) log.DebugFormat("Wait for graceful socket shutdown because socket state: " + socket.State);
+                        if (debug) log.DebugFormat("Wait for graceful socket shutdown because socket state: {0}", socket.State);
                         return;
                     case SocketState.Closing:
                     case SocketState.Closed:
@@ -77,7 +77,7 @@ namespace TickZoom.Provider.FIX
             socket.SendQueue.ConnectOutbound(task);
             socket.OnConnect = OnConnect;
             socket.MessageFactory = messageFactory;
-            if (debug) log.DebugFormat("Created new " + socket);
+            if (debug) log.DebugFormat("Created new {0}", socket);
             if (trace)
             {
                 string message = "Generated socket: " + socket;
@@ -85,7 +85,7 @@ namespace TickZoom.Provider.FIX
                 {
                     message += " to replace: " + old;
                 }
-                log.Trace(message);
+                log.TraceFormat(message);
             }
             if (SyncTicks.Enabled)
             {
@@ -102,7 +102,7 @@ namespace TickZoom.Provider.FIX
                 try
                 {
                     socket.Connect();
-                    if (debug) log.DebugFormat("Requested Connect for " + socket);
+                    if (debug) log.DebugFormat("Requested Connect for {0}", socket);
                     SetupRetry();
                     return;
                 }

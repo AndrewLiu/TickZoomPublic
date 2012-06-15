@@ -184,9 +184,9 @@ namespace TickZoom.TickUtil
 
         public void Flush()
         {
-            if( debug) log.DebugFormat("Before flush write queue " + writeQueue.Count);
+            if( debug) log.DebugFormat("Before flush write queue {0}", writeQueue.Count);
             tickFile.Flush();
-            if (debug) log.DebugFormat("After flush write queue " + writeQueue.Count);
+            if (debug) log.DebugFormat("After flush write queue {0}", writeQueue.Count);
         }
 
 		public void Add(TickIO tick) {
@@ -248,7 +248,7 @@ namespace TickZoom.TickUtil
 					if( writeQueue != null) {
                         try
                         {
-                            if (debug) log.DebugFormat("Sending event " + EventType.Terminate + " to tickwriter queue.");
+                            if (debug) log.DebugFormat("Sending event {0} to tickwriter queue.", EventType.Terminate);
                             while (!writeQueue.TryEnqueue(EventType.Terminate, symbol))
                             {
                                 Thread.Sleep(1);
@@ -278,7 +278,7 @@ namespace TickZoom.TickUtil
             Flush();
             var count = tickFile.WriteCounter;
             var append = Interlocked.Read(ref appendCounter);
-            if (debug) log.DebugFormat("Only " + count + " writes before closeFile but " + append + " appends.");
+            if (debug) log.DebugFormat("Only {0} writes before closeFile but {1} appends.", count, append);
             if (tickFile != null)
             {
                 tickFile.Dispose();

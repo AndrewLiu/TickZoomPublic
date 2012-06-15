@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using TickZoom.Api;
 
@@ -311,11 +311,11 @@ namespace TickZoom.Provider.FIX
                     {
                         using (symbolHandlersLocker.Using())
                         {
-                            if (debug) log.DebugFormat("There are " + symbolHandlers.Count + " symbolHandlers.");
+                            if (debug) log.DebugFormat("There are {0} symbolHandlers.", symbolHandlers.Count);
                             foreach (var kvp in symbolHandlers)
                             {
                                 var handler = kvp.Value;
-                                if (debug) log.DebugFormat("Disposing symbol handler " + handler);
+                                if (debug) log.DebugFormat("Disposing symbol handler {0}", handler);
                                 handler.Agent.SendEvent(new EventItem(EventType.Shutdown));
                             }
                             symbolHandlers.Clear();

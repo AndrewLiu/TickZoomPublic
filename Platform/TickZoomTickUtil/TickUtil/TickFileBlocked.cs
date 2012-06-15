@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -98,7 +98,7 @@ namespace TickZoom.TickUtil
                 //throw new ApplicationException("Requires either a file or folder to read data. Tried both " + folderOrfile + " and " + filePath);
             }
             CheckFileExtension();
-            if (debug) log.DebugFormat("File Name = " + fileName);
+            if (debug) log.DebugFormat("File Name = {0}", fileName);
             try
             {
                 OpenFile();
@@ -131,7 +131,7 @@ namespace TickZoom.TickUtil
             InitLogging();
             Directory.CreateDirectory(Path.GetDirectoryName(fileName));
             CheckFileExtension();
-            if (debug) log.DebugFormat("File Name = " + fileName);
+            if (debug) log.DebugFormat("File Name = {0}", fileName);
             try
             {
                 OpenFile();
@@ -324,7 +324,7 @@ namespace TickZoom.TickUtil
             }
             if (isLegacy) return legacy.TryWriteTick(tickIO);
             TryCompleteAsyncWrite();
-            if (trace) log.Trace("Writing to file buffer: " + tickIO);
+            if (trace) log.TraceFormat("Writing to file buffer: {0}", tickIO);
             if( !fileBlock.TryWriteTick(tickIO))
             {
                 MoveMemoryToQueue();
@@ -692,7 +692,7 @@ namespace TickZoom.TickUtil
                     {
                         streamsToWrite.Peek(out fileBlock);
                     }
-                    if (trace) log.Trace(streamsToWrite.Count + " blocks in queue.");
+                    if (trace) log.TraceFormat("{0} blocks in queue.", streamsToWrite.Count);
                     fileBlock.Write(fs);
                     lastTimeWritten = fileBlock.LastUtcTimeStamp;
                     using (memoryLocker.Using())
@@ -767,7 +767,7 @@ namespace TickZoom.TickUtil
         {
             if (fs != null)
             {
-                if (debug) log.DebugFormat("CloseFileForWriting() at with length " + fs.Length);
+                if (debug) log.DebugFormat("CloseFileForWriting() at with length {0}", fs.Length);
                 Flush();
                 fs.Flush();
                 if (!FlushFileBuffers(fs.SafeFileHandle))   // Flush OS file cache to disk.

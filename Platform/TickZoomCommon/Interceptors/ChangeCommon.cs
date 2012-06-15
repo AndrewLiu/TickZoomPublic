@@ -62,7 +62,7 @@ namespace TickZoom.Interceptors
 				if( Strategy.Chart.IsDynamicUpdate) {
 		        		if( IsNotice) Log.Notice("Bar="+Strategy.Chart.ChartBars.CurrentBar+", " + description);
 				} else {
-		        		if( IsDebug) Log.DebugFormat("Bar="+Strategy.Chart.ChartBars.CurrentBar+", " + description);
+		        		if( IsDebug) Log.DebugFormat("Bar={0}, {1}", Strategy.Chart.ChartBars.CurrentBar, description);
 				}
 			}
 		

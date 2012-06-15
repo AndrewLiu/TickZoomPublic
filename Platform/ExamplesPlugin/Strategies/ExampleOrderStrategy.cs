@@ -58,14 +58,14 @@ namespace TickZoom.Examples
 		public override bool OnIntervalClose()
 		{
 			// Example log message.
-			if( IsTrace) Log.Trace( "close: " + Ticks[0] + " " + Bars.Close[0] + " " + Bars.Time[0]);
+			if( IsTrace) Log.TraceFormat( "close: {0} {1} {2}", Ticks[0], Bars.Close[0], Bars.Time[0]);
             var trades = Performance.ComboTrades;
 		    var isFlat = Position.IsFlat && (trades.Count == 0 || trades.Tail.Completed);
 			
 			double close = Bars.Close[0];
-            if (IsDebug) Log.DebugFormat("isFlat " + isFlat + ", Position.IsFlat " + Position.IsFlat + ", trades.Count " + trades.Count + ", Completed " + (trades.Count == 0 || trades.Tail.Completed));
+            if (IsDebug) Log.DebugFormat("isFlat {0}, Position.IsFlat {1}, trades.Count {2}, Completed {3}", isFlat, Position.IsFlat, trades.Count, (trades.Count == 0 || trades.Tail.Completed));
             //if (IsDebug) Log.Debug("Close " + Bars.Close[0] + ", Open " + Bars.Open[0] + ", Close[1] " + Bars.Close[1]);
-            if (IsDebug) Log.DebugFormat("Close " + Bars.Close[0] + ", Open " + Bars.Open[0]);
+            if (IsDebug) Log.DebugFormat("Close {0}, Open {1}", Bars.Close[0], Bars.Open[0]);
             if (Bars.Close[0] < Bars.Open[0] && Bars.Open[0] < Bars.Close[1])
             {
                 if (isFlat)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace TickZoom.Api
 {
@@ -15,7 +15,7 @@ namespace TickZoom.Api
         {
             this._id = id;
             this._symbol = symbol;
-            if( trace) log.Trace("New StrategyPosition");
+            if( trace) log.TraceFormat("New StrategyPosition");
         }
 
         public long ExpectedPosition
@@ -35,7 +35,7 @@ namespace TickZoom.Api
 
         public void SetExpectedPosition(long position)
         {
-            if (trace) log.Trace("SetExpectedPosition() strategy " + Id + " for " + Symbol + " position change from " + this.position + " to " + position + ".");
+            if (trace) log.TraceFormat("SetExpectedPosition() strategy {0} for {1} position change from {2} to {3}.", Id, Symbol, this.position, position);
             this.position = position;
         }
 
@@ -43,12 +43,12 @@ namespace TickZoom.Api
         {
             if (position != this.position)
             {
-                if (debug) log.DebugFormat("Strategy " + _id + " for " + _symbol + " actual position changed from " + this.position + " to " + position + ".");
+                if (debug) log.DebugFormat("Strategy {0} for {1} actual position changed from {2} to {3}.", _id, _symbol, this.position, position);
                 this.position = position;
             }
             else
             {
-                if (trace) log.Trace("Unchanged strategy " + _id + " for " + _symbol + ". Actual position " + this.position + ".");
+                if (trace) log.TraceFormat("Unchanged strategy {0} for {1}. Actual position {2}.", _id, _symbol, this.position);
             }
         }
 

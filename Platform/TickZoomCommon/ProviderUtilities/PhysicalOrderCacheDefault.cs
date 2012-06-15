@@ -50,19 +50,19 @@ namespace TickZoom.Common
 
         public IEnumerable<CreateOrChangeOrder> GetActiveOrders(SymbolInfo symbol)
         {
-            if (debug) log.DebugFormat("GetActiveOrders( " + symbol + ")");
+            if (debug) log.DebugFormat("GetActiveOrders( {0})", symbol);
             AssertAtomic();
             var list = GetOrders((o) => o.Symbol.BinaryIdentifier == symbol.BinaryIdentifier);
             foreach (var order in list)
             {
                 if (order.OrderState != OrderState.Filled)
                 {
-                    if (debug) log.DebugFormat("Including order: " + order);
+                    if (debug) log.DebugFormat("Including order: {0}", order);
                     yield return order;
                 }
                 else
                 {
-                    if (debug) log.DebugFormat("Excluding order: " + order);
+                    if (debug) log.DebugFormat("Excluding order: {0}", order);
                 }
             }
         }
@@ -75,7 +75,7 @@ namespace TickZoom.Common
                 for (var node = strategyPositions.First; node != null; node = node.Next)
                 {
                     var sp = node.Value;
-                    log.Trace("Received strategy position. " + sp);
+                    log.TraceFormat("Received strategy position. {0}", sp);
                 }
             }
             for (var current = strategyPositions.First; current != null; current = current.Next)
@@ -96,7 +96,7 @@ namespace TickZoom.Common
         {
             using (positionsLocker.Using())
             {
-                if (debug) log.DebugFormat("SetActualPosition( " + symbol + " = " + position + ")");
+                if (debug) log.DebugFormat("SetActualPosition( {0} = {1})", symbol, position);
                 SymbolPosition symbolPosition;
                 if (!positions.TryGetValue(symbol.BinaryIdentifier, out symbolPosition))
                 {
@@ -207,7 +207,7 @@ namespace TickZoom.Common
         {
             if( order.OriginalOrder == null) return;
             var clientOrderId = order.OriginalOrder.BrokerOrder;
-            if (trace) log.Trace("PurgeOriginalOrder( " + clientOrderId + ")");
+            if (trace) log.TraceFormat("PurgeOriginalOrder( {0})", clientOrderId);
             AssertAtomic();
             RemoveOrderInternal(order.OriginalOrder.BrokerOrder);
             order.OriginalOrder = null;
@@ -215,7 +215,7 @@ namespace TickZoom.Common
 
         public CreateOrChangeOrder RemoveOrder(long clientOrderId)
         {
-            if (trace) log.Trace("RemoveOrder( " + clientOrderId + ")");
+            if (trace) log.TraceFormat("RemoveOrder( {0})", clientOrderId);
             AssertAtomic();
             var topOrder = RemoveOrderInternal(clientOrderId);
             if( topOrder != null && topOrder.OriginalOrder != null)
@@ -235,14 +235,14 @@ namespace TickZoom.Common
             if (ordersByBrokerId.TryGetValue(clientOrderId, out order))
             {
                 var result = ordersByBrokerId.Remove(clientOrderId);
-                if (result && trace) log.Trace("Removed order by broker id " + clientOrderId + ": " + order);
+                if (result && trace) log.TraceFormat("Removed order by broker id {0}: {1}", clientOrderId, order);
                 CreateOrChangeOrder orderBySerial;
                 if (ordersBySerial.TryGetValue(order.LogicalSerialNumber, out orderBySerial))
                 {
                     if (orderBySerial.BrokerOrder.Equals(clientOrderId))
                     {
                         var result2 = ordersBySerial.Remove(order.LogicalSerialNumber);
-                        if (result2 && trace) log.Trace("Removed order by logical serial " + order.LogicalSerialNumber + ": " + orderBySerial);
+                        if (result2 && trace) log.TraceFormat("Removed order by logical serial {0}: {1}", order.LogicalSerialNumber, orderBySerial);
                     }
                 }
                 ordersBySequence.Remove(order.Sequence);
@@ -274,7 +274,7 @@ namespace TickZoom.Common
             {
                 if (queueOrder.Action == OrderAction.Create && order.LogicalSerialNumber == queueOrder.LogicalSerialNumber)
                 {
-                    if (debug) log.DebugFormat("Create ignored because order was already on create order queue: " + queueOrder);
+                    if (debug) log.DebugFormat("Create ignored because order was already on create order queue: {0}", queueOrder);
                     return true;
                 }
             }
@@ -287,7 +287,7 @@ namespace TickZoom.Common
             {
                 if (clientId.OriginalOrder != null && order.OriginalOrder.BrokerOrder == clientId.OriginalOrder.BrokerOrder)
                 {
-                    if (debug) log.DebugFormat("Cancel or Changed ignored because previous order order working for: " + order);
+                    if (debug) log.DebugFormat("Cancel or Changed ignored because previous order order working for: {0}", order);
                     return true;
                 }
             }
@@ -297,7 +297,7 @@ namespace TickZoom.Common
         public void SetOrder(CreateOrChangeOrder order)
         {
             AssertAtomic();
-            if (trace) log.Trace("Assigning order " + order.BrokerOrder + " with " + order.LogicalSerialNumber);
+            if (trace) log.TraceFormat("Assigning order {0} with {1}", order.BrokerOrder, order.LogicalSerialNumber);
             ordersByBrokerId[order.BrokerOrder] = order;
             if (order.Sequence != 0)
             {

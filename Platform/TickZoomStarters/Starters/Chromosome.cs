@@ -61,7 +61,7 @@ namespace TickZoom.Starters
 
 		public double Fitness {
 			get { return fitness; }
-			set { log.DebugFormat("Fitness Assigned: " + value);
+			set { log.DebugFormat("Fitness Assigned: {0}", value);
 				  fitnessAssigned = true;
 				  fitness = value; }
 		}

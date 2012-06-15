@@ -89,7 +89,7 @@ namespace TickZoom.Api
 				       				log.Notice( "ERROR: In the config file, TickZoomProfiler is set to \"true\"");
 				       				log.Notice( "However, an error occurred while loading TickZoomProfiler engine.");
 				       				log.Notice( "Please check the TickZoom.log for further detail.");
-				       				log.DebugFormat( "TickZoomProfiler load ERROR: " + ex);
+				       				log.DebugFormat( "TickZoomProfiler load ERROR: {0}", ex);
 				       				throw;
 				       			}
 				       		}

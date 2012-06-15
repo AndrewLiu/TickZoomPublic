@@ -94,7 +94,7 @@ namespace TickZoom.Provider.MBTFIX
 			var mbtMsg = (FIXMessage4_4) FixFactory.Create();
 			mbtMsg.SetText("END");
 			mbtMsg.AddHeader("8");
-            if (debug) log.DebugFormat("Sending end of order list: " + mbtMsg);
+            if (debug) log.DebugFormat("Sending end of order list: {0}", mbtMsg);
             SendMessage(mbtMsg);
         }
 
@@ -103,7 +103,7 @@ namespace TickZoom.Provider.MBTFIX
 			var mbtMsg = (FIXMessage4_4) FixFactory.Create();
 			mbtMsg.SetText("DONE");
 			mbtMsg.AddHeader("AO");
-            if (debug) log.DebugFormat("Sending end of position list: " + mbtMsg);
+            if (debug) log.DebugFormat("Sending end of position list: {0}", mbtMsg);
             SendMessage(mbtMsg);
 		}
 		
@@ -119,21 +119,21 @@ namespace TickZoom.Provider.MBTFIX
             var simulator = simulators[SimulatorType.RejectSymbol];
             if (FixFactory != null && simulator.CheckFrequencyAndSymbol(symbol))
             {
-                if (debug) log.DebugFormat("Simulating create order reject of 35=" + packet.MessageType);
+                if (debug) log.DebugFormat("Simulating create order reject of 35={0}", packet.MessageType);
                 OnRejectOrder(order, "Testing reject of change order.");
                 return;
             }
             simulator = simulators[SimulatorType.ServerOfflineReject];
             if (FixFactory != null && simulator.CheckFrequency())
             {
-                if (debug) log.DebugFormat("Simulating order server offline business reject of 35=" + packet.MessageType);
+                if (debug) log.DebugFormat("Simulating order server offline business reject of 35={0}", packet.MessageType);
                 OnBusinessRejectOrder(packet.ClientOrderId, "Server offline for change order.");
                 ProviderSimulator.SwitchBrokerState("offline", false);
                 ProviderSimulator.SetOrderServerOffline();
                 return;
             }
             CreateOrChangeOrder origOrder = null;
-			if( debug) log.DebugFormat( "FIXChangeOrder() for " + packet.Symbol + ". Client id: " + packet.ClientOrderId + ". Original client id: " + packet.OriginalClientOrderId);
+			if( debug) log.DebugFormat( "FIXChangeOrder() for {0}. Client id: {1}. Original client id: {2}", packet.Symbol, packet.ClientOrderId, packet.OriginalClientOrderId);
 			try
 			{
 			    long origClientId;
@@ -144,7 +144,7 @@ namespace TickZoom.Provider.MBTFIX
                 }
                 origOrder = ProviderSimulator.GetOrderById(origClientId);
 			} catch( ApplicationException ex) {
-				if( debug) log.DebugFormat( symbol + ": Rejected " + packet.ClientOrderId + ". Cannot change order: " + packet.OriginalClientOrderId + ". Already filled or canceled.  Message: " + ex.Message);
+				if( debug) log.DebugFormat( "{0}: Rejected {1}. Cannot change order: {2}. Already filled or canceled.  Message: {3}", symbol, packet.ClientOrderId, packet.OriginalClientOrderId, ex.Message);
                 OnRejectOrder(order, symbol + ": Cannot change order. Probably already filled or canceled.");
 				return;
 			}
@@ -211,27 +211,27 @@ namespace TickZoom.Provider.MBTFIX
             var symbol = Factory.Symbol.LookupSymbol(packet.Symbol);
             if (!ProviderSimulator.IsOrderServerOnline)
             {
-                if (debug) log.DebugFormat(symbol + ": Cannot cancel order by client id: " + packet.OriginalClientOrderId + ". Order Server Offline.");
+                if (debug) log.DebugFormat("{0}: Cannot cancel order by client id: {1}. Order Server Offline.", symbol, packet.OriginalClientOrderId);
                 OnRejectCancel(packet.Symbol, packet.ClientOrderId, packet.OriginalClientOrderId, symbol + ": Order Server Offline");
                 return;
             }
             var simulator = simulators[SimulatorType.RejectSymbol];
             if (FixFactory != null && simulator.CheckFrequencyAndSymbol(symbol))
             {
-                if (debug) log.DebugFormat("Simulating cancel order reject of 35=" + packet.MessageType);
+                if (debug) log.DebugFormat("Simulating cancel order reject of 35={0}", packet.MessageType);
                 OnRejectCancel(packet.Symbol, packet.ClientOrderId, packet.OriginalClientOrderId, "Testing reject of cancel order.");
                 return;
             }
             simulator = simulators[SimulatorType.ServerOfflineReject];
             if (FixFactory != null && simulator.CheckFrequency())
             {
-                if (debug) log.DebugFormat("Simulating order server offline business reject of 35=" + packet.MessageType);
+                if (debug) log.DebugFormat("Simulating order server offline business reject of 35={0}", packet.MessageType);
                 OnBusinessRejectOrder(packet.ClientOrderId, "Server offline for cancel order.");
                 ProviderSimulator.SwitchBrokerState("offline", false);
                 ProviderSimulator.SetOrderServerOffline();
                 return;
             }
-            if (debug) log.DebugFormat("FIXCancelOrder() for " + packet.Symbol + ". Original client id: " + packet.OriginalClientOrderId);
+            if (debug) log.DebugFormat("FIXCancelOrder() for {0}. Original client id: {1}", packet.Symbol, packet.OriginalClientOrderId);
             CreateOrChangeOrder origOrder = null;
             try
             {
@@ -246,7 +246,7 @@ namespace TickZoom.Provider.MBTFIX
             }
             catch (ApplicationException)
             {
-                if (debug) log.DebugFormat(symbol + ": Cannot cancel order by client id: " + packet.OriginalClientOrderId + ". Probably already filled or canceled.");
+                if (debug) log.DebugFormat("{0}: Cannot cancel order by client id: {1}. Probably already filled or canceled.", symbol, packet.OriginalClientOrderId);
                 OnRejectCancel(packet.Symbol, packet.ClientOrderId, packet.OriginalClientOrderId, "No such order");
                 return;
             }
@@ -269,26 +269,26 @@ namespace TickZoom.Provider.MBTFIX
 
         private void FIXCreateOrder(MessageFIX4_4 packet)
         {
-            if (debug) log.DebugFormat("FIXCreateOrder() for " + packet.Symbol + ". Client id: " + packet.ClientOrderId);
+            if (debug) log.DebugFormat("FIXCreateOrder() for {0}. Client id: {1}", packet.Symbol, packet.ClientOrderId);
             var symbol = Factory.Symbol.LookupSymbol(packet.Symbol);
             var order = ConstructOrder(packet, packet.ClientOrderId);
             if (!ProviderSimulator.IsOrderServerOnline)
             {
-                if (debug) log.DebugFormat(symbol + ": Rejected " + packet.ClientOrderId + ". Order server offline.");
+                if (debug) log.DebugFormat("{0}: Rejected {1}. Order server offline.", symbol, packet.ClientOrderId);
                 OnRejectOrder(order, symbol + ": Order Server Offline.");
                 return;
             }
             var simulator = simulators[SimulatorType.RejectSymbol];
             if (FixFactory != null && simulator.CheckFrequencyAndSymbol(symbol))
             {
-                if (debug) log.DebugFormat("Simulating create order reject of 35=" + packet.MessageType);
+                if (debug) log.DebugFormat("Simulating create order reject of 35={0}", packet.MessageType);
                 OnRejectOrder(order, "Testing reject of create order");
                 return;
             }
             simulator = simulators[SimulatorType.ServerOfflineReject];
             if (FixFactory != null && simulator.CheckFrequency())
             {
-                if (debug) log.DebugFormat("Simulating order server offline business reject of 35=" + packet.MessageType);
+                if (debug) log.DebugFormat("Simulating order server offline business reject of 35={0}", packet.MessageType);
                 OnBusinessRejectOrder(packet.ClientOrderId, "Server offline for create order.");
                 ProviderSimulator.SwitchBrokerState("offline", false);
                 ProviderSimulator.SetOrderServerOffline();
@@ -370,7 +370,7 @@ namespace TickZoom.Provider.MBTFIX
 			var physicalOrder = Factory.Utility.PhysicalOrder(
 				OrderAction.Create, OrderState.Active, symbol, side, type, OrderFlags.None, 
 				packet.Price, packet.OrderQuantity, logicalId, 0, clientId, null, utcCreateTime);
-			if( debug) log.DebugFormat("Received physical Order: " + physicalOrder);
+			if( debug) log.DebugFormat("Received physical Order: {0}", physicalOrder);
 			return physicalOrder;
 		}
 
@@ -398,7 +398,7 @@ namespace TickZoom.Provider.MBTFIX
                 OrderAction.Cancel, OrderState.Active, symbol, side, type, OrderFlags.None,
                 0D, 0, logicalId, 0, clientId, null, utcCreateTime);
             physicalOrder.OriginalOrder = origOrder;
-            if (debug) log.DebugFormat("Received physical Order: " + physicalOrder);
+            if (debug) log.DebugFormat("Received physical Order: {0}", physicalOrder);
             return physicalOrder;
         }
 
@@ -422,7 +422,7 @@ namespace TickZoom.Provider.MBTFIX
             mbtMsg.SetSymbol(order.Symbol.BaseSymbol);
             mbtMsg.SetTransactTime(TimeStamp.UtcNow);
             mbtMsg.AddHeader("8");
-            if (trace) log.Trace("Sending reject order: " + mbtMsg);
+            if (trace) log.TraceFormat("Sending reject order: {0}", mbtMsg);
             SendMessage(mbtMsg);
         }
 
@@ -439,7 +439,7 @@ namespace TickZoom.Provider.MBTFIX
                                                                 order.BrokerOrder, null, TimeStamp.UtcNow);
                 SendExecutionReport(marketOrder, "0", 0.0, 0, 0, 0, (int)marketOrder.RemainingSize, TimeStamp.UtcNow);
             }
-            if (debug) log.DebugFormat("Converting physical fill to FIX: " + fill);
+            if (debug) log.DebugFormat("Converting physical fill to FIX: {0}", fill);
             SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
             var orderStatus = fill.CumulativeSize == fill.CompleteSize ? "2" : "1";
             SendExecutionReport(order, orderStatus, "F", fill.Price, fill.CompleteSize, fill.CumulativeSize, fill.Size, fill.RemainingSize, fill.UtcTime);
@@ -456,7 +456,7 @@ namespace TickZoom.Provider.MBTFIX
             //mbtMsg.SetSymbol(symbol);
             mbtMsg.SetTransactTime(TimeStamp.UtcNow);
             mbtMsg.AddHeader("9");
-            if (trace) log.Trace("Sending reject cancel." + mbtMsg);
+            if (trace) log.TraceFormat("Sending reject cancel.{0}", mbtMsg);
             SendMessage(mbtMsg);
         }
 
@@ -536,7 +536,7 @@ namespace TickZoom.Provider.MBTFIX
 			mbtMsg.SetLeavesQuantity( Math.Abs(leavesQty));
 			mbtMsg.AddHeader("8");
             SendMessage(mbtMsg);
-			if(trace) log.Trace("Sending execution report: " + mbtMsg);
+			if(trace) log.TraceFormat("Sending execution report: {0}", mbtMsg);
 		}
 
         protected override void ResendMessage(FIXTMessage1_1 textMessage)

@@ -125,7 +125,7 @@ namespace TickZoom.Properties
 		
 		private void HandleObject(object obj, XmlReader reader) {
 			string tagName = reader.Name;
-			log.DebugFormat("Handle " + obj.GetType().Name);
+			log.DebugFormat("Handle {0}", obj.GetType().Name);
 			if( reader.IsEmptyElement) { return; }			
 			log.Indent();
 			while( reader.Read()) {
@@ -167,7 +167,7 @@ namespace TickZoom.Properties
 			properties.ModelType = modelType;
 			properties.Name = reader.GetAttribute("name");
 			properties.Type = reader.GetAttribute("type");
-			log.DebugFormat("Handle " + properties.ModelType + " " + reader.GetAttribute("name"));
+			log.DebugFormat("Handle {0} {1}", properties.ModelType, reader.GetAttribute("name"));
 			if( reader.IsEmptyElement) { return; }
 			log.Indent();
 			while( reader.Read()) {
@@ -186,7 +186,7 @@ namespace TickZoom.Properties
 			    			} else {
 			    				properties.AddProperty(name,value);
 			    			}
-							log.DebugFormat("Property " + name + " = " + value);
+							log.DebugFormat("Property {0} = {1}", name, value);
 			    		} else if( "strategy".Equals(reader.Name)) {
 			    			ModelPropertiesCommon newProperties = new ModelPropertiesCommon();
 			    			String name = reader.GetAttribute("name");
@@ -226,7 +226,7 @@ namespace TickZoom.Properties
 				throw new ApplicationException( obj + " does not have the method: " + name);
 			}
 			method.Invoke(obj,new object[] { str } );
-			log.DebugFormat("Method " + method.Name + "(" + str + ")");
+			log.DebugFormat("Method {0}({1})", method.Name, str);
 		}
 		
 		private void HandleProperty( object obj, string name, string str) {
@@ -237,7 +237,7 @@ namespace TickZoom.Properties
 			Type propertyType = property.PropertyType;
 			object value = TickZoom.Api.Converters.Convert(propertyType,str);
 			property.SetValue(obj,value,null);
-			log.DebugFormat("Property " + property.Name + " = " + value);
+			log.DebugFormat("Property {0} = {1}", property.Name, value);
 		}
 		
 		public TickZoom.Api.StarterProperties Starter {

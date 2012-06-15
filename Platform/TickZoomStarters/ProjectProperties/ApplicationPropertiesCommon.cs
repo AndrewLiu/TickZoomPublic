@@ -131,7 +131,7 @@ namespace TickZoom.Properties
 		
 		private void HandleProperty( string name, string value) {
 			properties[name] = value;
-			log.DebugFormat("Property " + name + " = " + value);
+			log.DebugFormat("Property {0} = {1}", name, value);
 		}
 		
 		public Dictionary<string, string> Properties {

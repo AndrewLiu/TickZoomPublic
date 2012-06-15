@@ -147,7 +147,7 @@ namespace TickZoom.Provider.FIX
 
         public void Start(EventItem eventItem)
         {
-            if (debug) log.DebugFormat("Start() Agent: " + eventItem.Agent);
+            if (debug) log.DebugFormat("Start() Agent: {0}", eventItem.Agent);
             this.ClientAgent = (Agent) eventItem.Agent;
             log.Info(providerName + " Startup");
             if (CheckFailedLoginFile())
@@ -349,7 +349,7 @@ namespace TickZoom.Provider.FIX
 
             if (SocketReconnect.State != lastSocketState)
             {
-                if (debug) log.DebugFormat("SocketState changed to " + SocketReconnect.State);
+                if (debug) log.DebugFormat("SocketState changed to {0}", SocketReconnect.State);
                 lastSocketState = SocketReconnect.State;
             }
             switch (SocketReconnect.State)
@@ -388,7 +388,7 @@ namespace TickZoom.Provider.FIX
 
         private void SyntheticReject(CreateOrChangeOrder order)
         {
-            if (debug) log.DebugFormat("SyntheticReject: " + order);
+            if (debug) log.DebugFormat("SyntheticReject: {0}", order);
             var orderAlgorithm = algorithms.CreateAlgorithm(order.Symbol);
             var algorithm = orderAlgorithm.OrderAlgorithm;
             var retryImmediately = algorithm.RejectRepeatCounter == 0;
@@ -401,7 +401,7 @@ namespace TickZoom.Provider.FIX
 
         private void SyntheticFill(PhysicalFill fill)
         {
-            if( debug) log.DebugFormat("SyntheticFill: " + fill);
+            if( debug) log.DebugFormat("SyntheticFill: {0}", fill);
             var orderAlgorithm = algorithms.CreateAlgorithm(fill.Symbol);
             orderAlgorithm.OrderAlgorithm.SyntheticFill(fill);
         }
@@ -476,7 +476,7 @@ namespace TickZoom.Provider.FIX
                             resendQueue.Peek(out tempMessage);
                             if (tempMessage.Sequence > remoteSequence && IsResendComplete && connectionStatus != Status.PendingServerResend)
                             {
-                                if (debug) log.DebugFormat("Found sequence " + tempMessage.Sequence + " on the resend queue. Requesting resend from " + remoteSequence + " to " + (tempMessage.Sequence - 1));
+                                if (debug) log.DebugFormat("Found sequence {0} on the resend queue. Requesting resend from {1} to {2}", tempMessage.Sequence, remoteSequence, (tempMessage.Sequence - 1));
                                 TryRequestResend(remoteSequence, tempMessage.Sequence - 1);
                                 break;
                             }
@@ -516,13 +516,13 @@ namespace TickZoom.Provider.FIX
                     if (messageFIX != null)
                     {
                         if( fixDebug) LogMessage(messageFIX.ToString(), true);
-                        if (debug) log.DebugFormat("Received FIX Message: " + messageFIX);
+                        if (debug) log.DebugFormat("Received FIX Message: {0}", messageFIX);
                         if (messageFIX.MessageType == "A")
                         {
                             if (messageFIX.Sequence == 1 || messageFIX.Sequence < remoteSequence)
                             {
                                 remoteSequence = messageFIX.Sequence;
-                                if (debug) log.DebugFormat("FIX Server login message sequence was lower than expected. Resetting to " + remoteSequence);
+                                if (debug) log.DebugFormat("FIX Server login message sequence was lower than expected. Resetting to {0}", remoteSequence);
                                 orderStore.LastSequenceReset = new TimeStamp(messageFIX.SendUtcTime);
                             }
                             if (HandleLogon(messageFIX))
@@ -654,14 +654,14 @@ namespace TickZoom.Provider.FIX
             {
                 HandleResend(packetFIX.Sequence, packetFIX);
             }
-            if (debug) log.DebugFormat("Received gap fill. Setting next sequence = " + RemoteSequence);
+            if (debug) log.DebugFormat("Received gap fill. Setting next sequence = {0}", RemoteSequence);
         }
 
         private void HandleReject(MessageFIXT1_1 packetFIX)
         {
             if (packetFIX.Text.Contains("Sending Time Accuracy problem"))
             {
-                if (debug) log.DebugFormat("Found Sending Time Accuracy message request for message: " + packetFIX.ReferenceSequence );
+                if (debug) log.DebugFormat("Found Sending Time Accuracy message request for message: {0}", packetFIX.ReferenceSequence);
                 FIXTMessage1_1 textMessage;
                 if (!fixFactory.TryGetHistory(packetFIX.ReferenceSequence, out textMessage))
                 {
@@ -701,11 +701,11 @@ namespace TickZoom.Provider.FIX
                 if (messageFIX.Sequence == RemoteSequence)
                 {
                     RemoteSequence = messageFIX.Sequence + 1;
-                    if (debug) log.DebugFormat("Login sequence matched. Incrementing remote sequence to " + RemoteSequence);
+                    if (debug) log.DebugFormat("Login sequence matched. Incrementing remote sequence to {0}", RemoteSequence);
                 }
                 else
                 {
-                    if (debug) log.DebugFormat("Login remote sequence " + messageFIX.Sequence + " mismatch expected sequence " + RemoteSequence + ". Resend needed.");
+                    if (debug) log.DebugFormat("Login remote sequence {0} mismatch expected sequence {1}. Resend needed.", messageFIX.Sequence, RemoteSequence);
                 }
                 return false;
             }
@@ -728,7 +728,7 @@ namespace TickZoom.Provider.FIX
             }
             else if( messageFIX.Sequence < RemoteSequence)
             {
-                if (debug) log.DebugFormat("Already received sequence " + messageFIX.Sequence + ". Expecting " + RemoteSequence + " as next sequence. Ignoring. \n" + messageFIX);
+                if (debug) log.DebugFormat("Already received sequence {0}. Expecting {1} as next sequence. Ignoring. \n{2}", messageFIX.Sequence, RemoteSequence, messageFIX);
                 return true;
             }
             else
@@ -739,13 +739,13 @@ namespace TickZoom.Provider.FIX
                     TryEndRecovery();
                 }
                 RemoteSequence = messageFIX.Sequence + 1;
-                if( debug) log.DebugFormat("Incrementing remote sequence to " + RemoteSequence);
+                if( debug) log.DebugFormat("Incrementing remote sequence to {0}", RemoteSequence);
                 return false;
             }
         }
 
         private void HandleResend(int sequence, MessageFIXT1_1 messageFIX) {
-            if (debug) log.DebugFormat("Sequence is " + sequence + " but expected sequence is " + RemoteSequence + ". Buffering message.");
+            if (debug) log.DebugFormat("Sequence is {0} but expected sequence is {1}. Buffering message.", sequence, RemoteSequence);
             resendQueue.Enqueue(messageFIX, TimeStamp.UtcNow.Internal);
 
             if( resendQueue.Count > 0)
@@ -754,7 +754,7 @@ namespace TickZoom.Provider.FIX
                 resendQueue.Peek(out tempMessage);
                 if (tempMessage.Sequence > remoteSequence)
                 {
-                    if (debug) log.DebugFormat("Found sequence " + tempMessage.Sequence + " on the resend queue. Requesting resend from " + remoteSequence + " to " + (tempMessage.Sequence - 1));
+                    if (debug) log.DebugFormat("Found sequence {0} on the resend queue. Requesting resend from {1} to {2}", tempMessage.Sequence, remoteSequence, (tempMessage.Sequence - 1));
                     TryRequestResend(remoteSequence, tempMessage.Sequence - 1);
                     return;
                 }
@@ -775,12 +775,12 @@ namespace TickZoom.Provider.FIX
                     log.Notice("HandleResend status " + connectionStatus);
                     IsResendComplete = false;
                     expectedResendSequence = to;
-                    if (debug) log.DebugFormat("Expected resend sequence set to " + expectedResendSequence);
+                    if (debug) log.DebugFormat("Expected resend sequence set to {0}", expectedResendSequence);
                     var mbtMsg = fixFactory.Create();
                     mbtMsg.AddHeader("2");
                     mbtMsg.SetBeginSeqNum(from);
                     mbtMsg.SetEndSeqNum(to);
-                    if (verbose) log.VerboseFormat(" Sending resend request: " + mbtMsg);
+                    if (verbose) log.VerboseFormat(" Sending resend request: {0}", mbtMsg);
                     SendMessage(mbtMsg);
                 }
             }
@@ -789,7 +789,7 @@ namespace TickZoom.Provider.FIX
         private FIXTMessage1_1 GapFillMessage(int currentSequence, int newSequence)
         {
             var endText = newSequence == 0 ? "infinity" : newSequence.ToString();
-            if (debug) log.DebugFormat("Sending gap fill message " + currentSequence + " to " + endText);
+            if (debug) log.DebugFormat("Sending gap fill message {0} to {1}", currentSequence, endText);
             var message = fixFactory.Create(currentSequence);
             message.SetGapFill();
             message.SetNewSeqNum(newSequence);
@@ -813,7 +813,7 @@ namespace TickZoom.Provider.FIX
                 SendMessageInternal(textMessage);
                 return true;
             }
-            if (debug) log.DebugFormat("Found resend request for " + messageFIX.BegSeqNum + " to " + end + ": " + messageFIX);
+            if (debug) log.DebugFormat("Found resend request for {0} to {1}: {2}", messageFIX.BegSeqNum, end, messageFIX);
             if (messageFIX.BegSeqNum <= end)
             {
                 var previous = messageFIX.BegSeqNum;
@@ -1092,7 +1092,7 @@ namespace TickZoom.Provider.FIX
             else if (debug)
             {
 				string view = fixString.Replace(FIXTBuffer.EndFieldStr,"  ");
-				log.DebugFormat("Send FIX message: \n" + view);
+				log.DebugFormat("Send FIX message: \n{0}", view);
 			}
 
 	        var packet = SocketReconnect.CreateMessage();
@@ -1130,7 +1130,7 @@ namespace TickZoom.Provider.FIX
             }
             if(!isDisposed)
             {
-                if( debug) log.DebugFormat("LogOut() status " + ConnectionStatus);
+                if( debug) log.DebugFormat("LogOut() status {0}", ConnectionStatus);
                 switch( ConnectionStatus)
                 {
                     case Status.Connected:
@@ -1231,7 +1231,7 @@ namespace TickZoom.Provider.FIX
 	        {
 	            if( isResendComplete != value)
 	            {
-                    if (debug) log.DebugFormat("Resend Complete changed to " + value);
+                    if (debug) log.DebugFormat("Resend Complete changed to {0}", value);
 	                isResendComplete = value;
 	            }
 	        }
@@ -1260,7 +1260,7 @@ namespace TickZoom.Provider.FIX
 
         protected void TrySend(EventType type, SymbolInfo symbol, Agent agent)
         {
-            if( debug) log.DebugFormat("Sending " + type + " for " + symbol + " ...");
+            if( debug) log.DebugFormat("Sending {0} for {1} ...", type, symbol);
             var item = new EventItem(symbol, type);
             agent.SendEvent(item);
         }
@@ -1270,13 +1270,13 @@ namespace TickZoom.Provider.FIX
             var symbolReceiver = symbolReceivers.GetSymbolRequest(symbol);
             if (!IsRecovered)
             {
-                if (debug) log.DebugFormat("Attempted RequestPosition but IsRecovered is " + IsRecovered);
+                if (debug) log.DebugFormat("Attempted RequestPosition but IsRecovered is {0}", IsRecovered);
                 return;
             }
             var symbolAlgorithm = algorithms.CreateAlgorithm(symbol);
             if (symbolAlgorithm.OrderAlgorithm.IsBrokerOnline)
             {
-                if (debug) log.DebugFormat("Attempted RequestPosition but isBrokerStarted is " + symbolAlgorithm.OrderAlgorithm.IsBrokerOnline);
+                if (debug) log.DebugFormat("Attempted RequestPosition but isBrokerStarted is {0}", symbolAlgorithm.OrderAlgorithm.IsBrokerOnline);
                 return;
             }
             TrySend(EventType.RequestPosition, symbol, symbolReceiver.Agent);
@@ -1291,7 +1291,7 @@ namespace TickZoom.Provider.FIX
             }
             if( !IsRecovered)
             {
-                if (debug) log.DebugFormat("Attempted StartBroker but IsRecovered is " + IsRecovered);
+                if (debug) log.DebugFormat("Attempted StartBroker but IsRecovered is {0}", IsRecovered);
                 return;
             }
             var algorithm = algorithms.CreateAlgorithm(symbol);
@@ -1304,10 +1304,10 @@ namespace TickZoom.Provider.FIX
                 {
                     if (algorithm.OrderAlgorithm.IsBrokerOnline)
                     {
-                        if (debug) log.DebugFormat("Attempted StartBroker but isBrokerStarted is already " + algorithm.OrderAlgorithm.IsBrokerOnline);
+                        if (debug) log.DebugFormat("Attempted StartBroker but isBrokerStarted is already {0}", algorithm.OrderAlgorithm.IsBrokerOnline);
                         return;
                     }
-                    if (debug) log.DebugFormat("Sending StartBroker for " + symbol + ". Reason: " + message);
+                    if (debug) log.DebugFormat("Sending StartBroker for {0}. Reason: {1}", symbol, message);
                     TrySend(EventType.StartBroker, symbol, symbolReceiver.Agent);
                     algorithm.OrderAlgorithm.IsBrokerOnline = true;
                 }
@@ -1334,7 +1334,7 @@ namespace TickZoom.Provider.FIX
             var algorithm = algorithms.CreateAlgorithm(symbol);
             if (!algorithm.OrderAlgorithm.IsBrokerOnline)
             {
-                if (debug) log.DebugFormat("Tried to send EndBroker for " + symbol + " but broker status is already offline.");
+                if (debug) log.DebugFormat("Tried to send EndBroker for {0} but broker status is already offline.", symbol);
 
                 if( SyncTicks.Enabled)
                 {
@@ -1349,7 +1349,7 @@ namespace TickZoom.Provider.FIX
             var item = new EventItem(symbol, EventType.EndBroker);
             symbolReceiver.Agent.SendEvent(item);
             algorithm.OrderAlgorithm.IsBrokerOnline = false;
-            if (debug) log.DebugFormat("Sent EndBroker for " + symbol + ".");
+            if (debug) log.DebugFormat("Sent EndBroker for {0}.", symbol);
         }
 
         protected int GetOrderSide( OrderSide side) {
@@ -1369,7 +1369,7 @@ namespace TickZoom.Provider.FIX
 
         public virtual void PositionChange(PositionChangeDetail positionChange)
         {
-            if( debug) log.DebugFormat( "PositionChange " + positionChange);
+            if( debug) log.DebugFormat( "PositionChange {0}", positionChange);
             var algorithm = algorithms.CreateAlgorithm(positionChange.Symbol);
             if( algorithm.OrderAlgorithm.PositionChange(positionChange, IsRecovered))
             {
@@ -1516,9 +1516,9 @@ namespace TickZoom.Provider.FIX
             var symbolAlgorithm = algorithms.CreateAlgorithm(symbol);
             if( !symbolAlgorithm.OrderAlgorithm.IsBrokerOnline)
             {
-                if (debug) log.DebugFormat("Broker offline but sending fill anyway for " + symbol + " to receiver: " + fill);
+                if (debug) log.DebugFormat("Broker offline but sending fill anyway for {0} to receiver: {1}", symbol, fill);
             }
-            if (debug) log.DebugFormat("Sending fill event for " + symbol + " to receiver: " + fill);
+            if (debug) log.DebugFormat("Sending fill event for {0} to receiver: {1}", symbol, fill);
             var item = new EventItem(symbol, EventType.LogicalFill, fill);
             symbolReceiver.Agent.SendEvent(item);
         }
@@ -1529,7 +1529,7 @@ namespace TickZoom.Provider.FIX
             var symbolAlgorithm = algorithms.CreateAlgorithm(symbol);
             if (!symbolAlgorithm.OrderAlgorithm.IsBrokerOnline)
             {
-                if (debug) log.DebugFormat("Broker offline so not sending logical touch for " + symbol + ": " + touch);
+                if (debug) log.DebugFormat("Broker offline so not sending logical touch for {0}: {1}", symbol, touch);
                 if (SyncTicks.Enabled)
                 {
                     var tickSync = SyncTicks.GetTickSync(symbol.BinaryIdentifier);
@@ -1537,7 +1537,7 @@ namespace TickZoom.Provider.FIX
                 }
                 return;
             }
-            if (debug) log.DebugFormat("Sending logical touch for " + symbol + " to receiver for logical touch: " + touch);
+            if (debug) log.DebugFormat("Sending logical touch for {0} to receiver for logical touch: {1}", symbol, touch);
             var item = new EventItem(symbol, EventType.LogicalTouch, touch);
             symbolReceiver.Agent.SendEvent(item);
         }
@@ -1570,7 +1570,7 @@ namespace TickZoom.Provider.FIX
             }
             else
             {
-                if (debug) log.DebugFormat("Order not found for " + clientOrderId + ". Probably allready filled or canceled.");
+                if (debug) log.DebugFormat("Order not found for {0}. Probably allready filled or canceled.", clientOrderId);
             }
         }
 
@@ -1641,7 +1641,7 @@ namespace TickZoom.Provider.FIX
                 }
                 else
                 {
-                    if (debug) log.DebugFormat("Order not found for " + clientOrderId + ". Probably allready filled or canceled.");
+                    if (debug) log.DebugFormat("Order not found for {0}. Probably allready filled or canceled.", clientOrderId);
                 }
             }
             else if (!errorOkay)
@@ -1653,7 +1653,7 @@ namespace TickZoom.Provider.FIX
 
         protected virtual void SendHeartbeat()
         {
-            if (debug) log.DebugFormat("SendHeartBeat Status " + ConnectionStatus + ", Session Status Online " + isOrderServerOnline + ", Resend Complete " + IsResendComplete);
+            if (debug) log.DebugFormat("SendHeartBeat Status {0}, Session Status Online {1}, Resend Complete {2}", ConnectionStatus, isOrderServerOnline, IsResendComplete);
             if (!IsRecovered) TryEndRecovery();
             if (IsRecovered)
             {
@@ -1716,10 +1716,10 @@ namespace TickZoom.Provider.FIX
                             throw new ArgumentOutOfRangeException();
                     }
                 }
-                if (debug) log.DebugFormat("Recovered from snapshot Local Sequence " + OrderStore.LocalSequence + ", Remote Sequence " + OrderStore.RemoteSequence);
-                if (debug) log.DebugFormat("Recovered orders from snapshot: \n" + OrderStore.OrdersToString());
-                if (debug) log.DebugFormat("Recovered symbol positions from snapshot:\n" + OrderStore.SymbolPositionsToString());
-                if (debug) log.DebugFormat("Recovered strategy positions from snapshot:\n" + OrderStore.StrategyPositionsToString());
+                if (debug) log.DebugFormat("Recovered from snapshot Local Sequence {0}, Remote Sequence {1}", OrderStore.LocalSequence, OrderStore.RemoteSequence);
+                if (debug) log.DebugFormat("Recovered orders from snapshot: \n{0}", OrderStore.OrdersToString());
+                if (debug) log.DebugFormat("Recovered symbol positions from snapshot:\n{0}", OrderStore.SymbolPositionsToString());
+                if (debug) log.DebugFormat("Recovered strategy positions from snapshot:\n{0}", OrderStore.StrategyPositionsToString());
                 RemoteSequence = OrderStore.RemoteSequence;
                 SendLogin(OrderStore.LocalSequence,false);
                 OrderStore.RequestSnapshot();
@@ -1754,7 +1754,7 @@ namespace TickZoom.Provider.FIX
             }
             else
             {
-                if (debug) log.DebugFormat("Orders prior to sync:\n" + openOrders);
+                if (debug) log.DebugFormat("Orders prior to sync:\n{0}", openOrders);
             }
             MessageFIXT1_1.IsQuietRecovery = false;
             foreach (var algorithm in algorithms.GetAlgorithms())
@@ -1781,7 +1781,7 @@ namespace TickZoom.Provider.FIX
             {
                 if (connectionStatus != value)
                 {
-                    if (debug) log.DebugFormat("ConnectionStatus changed from " + connectionStatus + " to " + value);
+                    if (debug) log.DebugFormat("ConnectionStatus changed from {0} to {1}", connectionStatus, value);
                     connectionStatus = value;
                 }
             }

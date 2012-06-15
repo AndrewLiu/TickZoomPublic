@@ -88,7 +88,7 @@ namespace TickZoom.Common
 				for( int i = 0; i< signalChanges.Count; i++) {
 					Tick tick = signalChanges[i];
 					double signal = signalDirection[i];
-					log.DebugFormat( i + ": " + tick + " Direction: " + signal);
+					log.DebugFormat( "{0}: {1} Direction: {2}", i, tick, signal);
 				}
 			}
 		}
@@ -229,7 +229,7 @@ namespace TickZoom.Common
 			TransactionPairs daily = manager.Equity.Daily;
 			if( debug) {
 				for( int i = 0; i< daily.Count; i++) {
-					log.DebugFormat(i + ": " + daily[i]);
+					log.DebugFormat("{0}: {1}", i, daily[i]);
 				}
 			}
 			Assert.AreEqual(7,daily.Count,"Daily Count");

@@ -109,7 +109,7 @@ namespace TickZoom.Provider.FIX
             socketTask = task;
             socketTask.Scheduler = Scheduler.EarliestTime;
             taskTimer = Factory.Parallel.CreateTimer("Task", socketTask, TimerTask);
-            if (debug) log.DebugFormat("Created timer. (Default startTime: " + taskTimer.StartTime + ")");
+            if (debug) log.DebugFormat("Created timer. (Default startTime: {0})", taskTimer.StartTime);
             filter = socketTask.GetFilter();
             socketTask.Start();
             if (debug) log.DebugFormat("> Initialize.");
@@ -188,7 +188,7 @@ namespace TickZoom.Provider.FIX
 			log.Info("OnDisconnect( " + socket + " ) ");
 			ConnectionStatus = Status.Disconnected;
 		    debugDisconnect = true;
-            if (debug) log.DebugFormat("Socket state now: " + socket.State);
+            if (debug) log.DebugFormat("Socket state now: {0}", socket.State);
             if( isDisposed)
             {
                 Finish();
@@ -207,12 +207,12 @@ namespace TickZoom.Provider.FIX
             socket.MessageFactory = messageFactory;
             socket.ReceiveQueue.ConnectInbound(socketTask);
             socket.SendQueue.ConnectOutbound(socketTask);
-            if (debug) log.DebugFormat("Created new " + socket);
+            if (debug) log.DebugFormat("Created new {0}", socket);
             ConnectionStatus = Status.New;
             if (trace)
             {
                 string message = "Generated socket: " + socket;
-                log.Trace(message);
+                log.TraceFormat(message);
             }
             // Initiate socket connection.
             while (true)
@@ -277,7 +277,7 @@ namespace TickZoom.Provider.FIX
             TimeStamp currentTime = TimeStamp.UtcNow;
             currentTime.AddSeconds(timeSeconds);
             taskTimer.Start(currentTime);
-            if (debug) log.DebugFormat("Created timer. (Default startTime: " + taskTimer.StartTime + ")");
+            if (debug) log.DebugFormat("Created timer. (Default startTime: {0})", taskTimer.StartTime);
             return Invoke();
         }
 
@@ -335,12 +335,12 @@ namespace TickZoom.Provider.FIX
 
             if (debugDisconnect)
             {
-                if( debug) log.DebugFormat("Invoke() Current socket state: " + socket.State + ", " + socket);
+                if( debug) log.DebugFormat("Invoke() Current socket state: {0}, {1}", socket.State, socket);
                 debugDisconnect = false;
             }
             if( socket.State != lastSocketState)
             {
-                if( debug) log.DebugFormat("Socket state changed to: " + socket.State);
+                if( debug) log.DebugFormat("Socket state changed to: {0}", socket.State);
                 lastSocketState = socket.State;
             }
             if (ConnectionStatus != lastStatus)
@@ -412,7 +412,7 @@ namespace TickZoom.Provider.FIX
                 case Status.Disconnected:
 	                retryTimeout = Factory.Parallel.TickCount + retryDelay * 1000;
 	                ConnectionStatus = Status.PendingRetry;
-	                if( debug) log.DebugFormat("Retrying in " + retryDelay + " seconds.");
+	                if( debug) log.DebugFormat("Retrying in {0} seconds.", retryDelay);
 	                retryDelay += retryIncrease;
 	                retryDelay = retryDelay > retryMaximum ? retryMaximum : retryDelay;
 	                return Yield.NoWork.Repeat;
@@ -531,7 +531,7 @@ namespace TickZoom.Provider.FIX
             TimeStamp currentTime = TimeStamp.UtcNow;
             currentTime.AddSeconds(timeSeconds);
             taskTimer.Start(currentTime);
-            if (debug) log.DebugFormat("Created timer. (Default startTime: " + taskTimer.StartTime + ")");
+            if (debug) log.DebugFormat("Created timer. (Default startTime: {0})", taskTimer.StartTime);
 
             CreateNewSocket();
             retryTimeout = Factory.Parallel.TickCount + retryDelay * 1000;
@@ -798,7 +798,7 @@ namespace TickZoom.Provider.FIX
 		    {
 		        if( connectionStatus != value)
 		        {
-		            if( debug) log.DebugFormat("Connection status changed from " + connectionStatus + " to " + value);
+		            if( debug) log.DebugFormat("Connection status changed from {0} to {1}", connectionStatus, value);
 		            connectionStatus = value;
 		        }
 		    }

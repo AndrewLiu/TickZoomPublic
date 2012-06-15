@@ -133,7 +133,7 @@ namespace TickZoom.Provider.FIX
             }
             else
             {
-                if (trace) log.Trace("Locked tickSync for " + Symbol);
+                if (trace) log.TraceFormat("Locked tickSync for {0}", Symbol);
             }
             if( !endOfTickData)
             {
@@ -147,12 +147,12 @@ namespace TickZoom.Provider.FIX
         {
             if (tickSync.Completed || tickSync.SentProcessPhysicalOrders || tickSync.SentReprocessPhysicalOrders)
             {
-                if (verbose) log.VerboseFormat("TickSyncChangedEvent(" + symbol + ") resuming task.");
+                if (verbose) log.VerboseFormat("TickSyncChangedEvent({0}) resuming task.", symbol);
                 queueTask.Resume();
             }
             else
             {
-                if (verbose) log.VerboseFormat("TickSyncChangedEvent(" + symbol + ") not ready to resume task.");
+                if (verbose) log.VerboseFormat("TickSyncChangedEvent({0}) not ready to resume task.", symbol);
             }
         }
 
@@ -176,7 +176,7 @@ namespace TickZoom.Provider.FIX
             }
             else if (tickSync.OnlyProcessPhysicalOrders)
             {
-                if (trace) log.Trace("Process physical orders - " + tickSync);
+                if (trace) log.TraceFormat("Process physical orders - {0}", tickSync);
                 if (FillSimulator.IsChanged)
                 {
                     FillSimulator.ProcessOrders();
@@ -185,7 +185,7 @@ namespace TickZoom.Provider.FIX
             }
             else if (tickSync.OnlyReprocessPhysicalOrders || FillSimulator.IsChanged)
             {
-                if (trace) log.Trace("Reprocess physical orders - " + tickSync);
+                if (trace) log.TraceFormat("Reprocess physical orders - {0}", tickSync);
                 if( FillSimulator.IsChanged)
                 {
                     FillSimulator.ProcessOrders();
@@ -226,7 +226,7 @@ namespace TickZoom.Provider.FIX
             nextTick.Inject(temporaryTick.Extract());
             tickSync.AddTick(nextTick);
             FillSimulator.StartTick(nextTick);
-            if (trace) log.Trace("Dequeue tick " + nextTick.UtcTime + "." + nextTick.UtcTime.Microsecond);
+            if (trace) log.TraceFormat("Dequeue tick {0}.{1}", nextTick.UtcTime, nextTick.UtcTime.Microsecond);
 		    ProcessOnTickCallBack();
 		}
 		
@@ -302,7 +302,7 @@ namespace TickZoom.Provider.FIX
     		}
             else
        		{
-                if (debug) log.DebugFormat("isDisposed " + isDisposed);
+                if (debug) log.DebugFormat("isDisposed {0}", isDisposed);
             }
 	    }    
 	        

@@ -225,7 +225,7 @@ namespace TickZoom.Provider.LimeQuotes
 
         public void SetReadableBytes(int bytes)
         {
-            if (trace) log.Trace("SetReadableBytes(" + bytes + ")");
+            if (trace) log.TraceFormat("SetReadableBytes({0})", bytes);
             data.SetLength(data.Position + bytes);
         }
 
@@ -330,7 +330,7 @@ namespace TickZoom.Provider.LimeQuotes
             {
                 data.Position = 0;
                 var messageText = new string(dataIn.ReadChars(Remaining));
-                log.Trace("ParseData(): " + messageText);
+                log.TraceFormat("ParseData(): {0}", messageText);
             }
             _sendUtcTime = TimeStamp.UtcNow.Internal;
             data.Position = 2;

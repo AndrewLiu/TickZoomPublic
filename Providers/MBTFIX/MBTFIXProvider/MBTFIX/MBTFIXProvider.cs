@@ -82,7 +82,7 @@ namespace TickZoom.Provider.MBTFIX
             mbtMsg.AddHeader("g");
             if (debug)
             {
-                log.DebugFormat("Request Session Update: \n" + mbtMsg);
+                log.DebugFormat("Request Session Update: \n{0}", mbtMsg);
             }
             SendMessage(mbtMsg);
         }
@@ -110,7 +110,7 @@ namespace TickZoom.Provider.MBTFIX
             mbtMsg.AddHeader("A");
             if (debug)
             {
-                log.DebugFormat("Login message: \n" + mbtMsg);
+                log.DebugFormat("Login message: \n{0}", mbtMsg);
             }
             SendMessage(mbtMsg);
         }
@@ -227,7 +227,7 @@ namespace TickZoom.Provider.MBTFIX
                     }
                     else
                     {
-                        if( debug) log.DebugFormat("Ignoring execution report of sequence " + packetFIX.Sequence + " because transact time " + transactTime + " is earlier than last sequence reset " + OrderStore.LastSequenceReset);
+                        if( debug) log.DebugFormat("Ignoring execution report of sequence {0} because transact time {1} is earlier than last sequence reset {2}", packetFIX.Sequence, transactTime, OrderStore.LastSequenceReset);
                     }
 					break;
 				case "9":
@@ -270,9 +270,7 @@ namespace TickZoom.Provider.MBTFIX
 
         protected override void TryEndRecovery()
         {
-            if (debug) log.DebugFormat("TryEndRecovery Status " + ConnectionStatus +
-                ", Session Status Online " + isOrderServerOnline +
-                ", Resend Complete " + IsResendComplete);
+            if (debug) log.DebugFormat("TryEndRecovery Status {0}, Session Status Online {1}, Resend Complete {2}", ConnectionStatus, isOrderServerOnline, IsResendComplete);
             switch (ConnectionStatus)
             {
                 case Status.Recovered:
@@ -302,8 +300,7 @@ namespace TickZoom.Provider.MBTFIX
         private void SessionStatus(MessageFIX4_4 packetFIX)
         {
             var newIsSessionStatusOnline = false;
-            log.DebugFormat("Found session status for " + packetFIX.TradingSessionId + " or " + packetFIX.TradingSessionSubId +
-                      ": " + packetFIX.TradingSessionStatus);
+            log.DebugFormat("Found session status for {0} or {1}: {2}", packetFIX.TradingSessionId, packetFIX.TradingSessionSubId, packetFIX.TradingSessionStatus);
             var subId = string.IsNullOrEmpty(packetFIX.TradingSessionSubId)
                             ? packetFIX.TradingSessionId
                             : packetFIX.TradingSessionSubId;
@@ -331,7 +328,7 @@ namespace TickZoom.Provider.MBTFIX
                     newIsSessionStatusOnline = false;
                 }
             }
-            if( debug) log.DebugFormat("Order server connected (new " + newIsSessionStatusOnline + ", previous " + isOrderServerOnline);
+            if( debug) log.DebugFormat("Order server connected (new {0}, previous {1}", newIsSessionStatusOnline, isOrderServerOnline);
             if (newIsSessionStatusOnline != isOrderServerOnline)
             {
                 isOrderServerOnline = newIsSessionStatusOnline;
@@ -359,7 +356,7 @@ namespace TickZoom.Provider.MBTFIX
             else if( trace)
             {
                 var message = "Order server continues offline. Attempting to reconnect.";
-                log.Trace(message);
+                log.TraceFormat(message);
             }
 	    }
 
@@ -377,7 +374,7 @@ namespace TickZoom.Provider.MBTFIX
                     return;
                 }
                 var algorithm = algorithms.CreateAlgorithm(symbolInfo);
-                if (debug) log.DebugFormat("PositionUpdate for " + symbolInfo + ": MBT actual =" + position + ", TZ actual=" + algorithm.OrderAlgorithm.ActualPosition);
+                if (debug) log.DebugFormat("PositionUpdate for {0}: MBT actual ={1}, TZ actual={2}", symbolInfo, position, algorithm.OrderAlgorithm.ActualPosition);
             }
 		}
 
@@ -409,7 +406,7 @@ namespace TickZoom.Provider.MBTFIX
                 case "0": // New
                     if (debug && (LogRecovery || !IsRecovery))
                     {
-                        log.DebugFormat("ExecutionReport New: " + packetFIX);
+                        log.DebugFormat("ExecutionReport New: {0}", packetFIX);
                     }
                     if (algorithm == null)
                     {
@@ -422,7 +419,7 @@ namespace TickZoom.Provider.MBTFIX
                     {
                         if( order.Type == OrderType.Stop)
                         {
-                            if (debug) log.DebugFormat("New order message for Forex Stop: " + packetFIX);
+                            if (debug) log.DebugFormat("New order message for Forex Stop: {0}", packetFIX);
                             break;
                         }
                     }
@@ -433,7 +430,7 @@ namespace TickZoom.Provider.MBTFIX
                 case "1": // Partial
                     if (debug && (LogRecovery || !IsRecovery))
                     {
-                        log.DebugFormat("ExecutionReport Partial: " + packetFIX);
+                        log.DebugFormat("ExecutionReport Partial: {0}", packetFIX);
                     }
                     //UpdateOrder(packetFIX, OrderState.Active, null);
                     SendFill(packetFIX);
@@ -442,7 +439,7 @@ namespace TickZoom.Provider.MBTFIX
                 case "2":  // Filled 
                     if (debug && (LogRecovery || !IsRecovery))
                     {
-                        log.DebugFormat("ExecutionReport Filled: " + packetFIX);
+                        log.DebugFormat("ExecutionReport Filled: {0}", packetFIX);
                     }
                     if (packetFIX.CumulativeQuantity < packetFIX.LastQuantity)
                     {
@@ -455,7 +452,7 @@ namespace TickZoom.Provider.MBTFIX
                 case "5": // Replaced
                     if (debug && (LogRecovery || !IsRecovery))
                     {
-                        log.DebugFormat("ExecutionReport Replaced: " + packetFIX);
+                        log.DebugFormat("ExecutionReport Replaced: {0}", packetFIX);
                     }
                     if (algorithm == null)
                     {
@@ -469,7 +466,7 @@ namespace TickZoom.Provider.MBTFIX
                 case "4": // Canceled
                     if (debug && (LogRecovery || !IsRecovery))
                     {
-                        log.DebugFormat("ExecutionReport Canceled: " + packetFIX);
+                        log.DebugFormat("ExecutionReport Canceled: {0}", packetFIX);
                     }
                     if (algorithm == null)
                     {
@@ -490,13 +487,13 @@ namespace TickZoom.Provider.MBTFIX
                 case "6": // Pending Cancel
                     if (debug && (LogRecovery || !IsRecovery))
                     {
-                        log.DebugFormat("ExecutionReport Pending Cancel: " + packetFIX);
+                        log.DebugFormat("ExecutionReport Pending Cancel: {0}", packetFIX);
                     }
                     if (!string.IsNullOrEmpty(packetFIX.Text) && packetFIX.Text.Contains("multifunction order"))
                     {
                         if (debug && (LogRecovery || IsRecovered))
                         {
-                            log.DebugFormat("Pending cancel of multifunction order, so removing " + packetFIX.ClientOrderId + " and " + packetFIX.OriginalClientOrderId);
+                            log.DebugFormat("Pending cancel of multifunction order, so removing {0} and {1}", packetFIX.ClientOrderId, packetFIX.OriginalClientOrderId);
                         }
                         if( clientOrderId != 0L) OrderStore.RemoveOrder(clientOrderId);
                         if (originalClientOrderId != 0L) OrderStore.RemoveOrder(originalClientOrderId);
@@ -508,21 +505,21 @@ namespace TickZoom.Provider.MBTFIX
                 case "8": // Rejected
                     if (debug && (LogRecovery || !IsRecovery))
                     {
-                        log.DebugFormat("ExecutionReport Reject: " + packetFIX);
+                        log.DebugFormat("ExecutionReport Reject: {0}", packetFIX);
                     }
                     RejectOrder(packetFIX);
                     break;
                 case "9": // Suspended
                     if (debug && (LogRecovery || !IsRecovery))
                     {
-                        log.DebugFormat("ExecutionReport Suspended: " + packetFIX);
+                        log.DebugFormat("ExecutionReport Suspended: {0}", packetFIX);
                     }
                     RejectOrder(packetFIX);
                     break;
                 case "A": // PendingNew
                     if (debug && (LogRecovery || !IsRecovery))
                     {
-                        log.DebugFormat("ExecutionReport Pending New: " + packetFIX);
+                        log.DebugFormat("ExecutionReport Pending New: {0}", packetFIX);
                     }
                     if (algorithm == null)
                     {
@@ -553,7 +550,7 @@ namespace TickZoom.Provider.MBTFIX
                 case "E": // Pending Replace
                     if (debug && (LogRecovery || !IsRecovery))
                     {
-                        log.DebugFormat("ExecutionReport Pending Replace: " + packetFIX);
+                        log.DebugFormat("ExecutionReport Pending Replace: {0}", packetFIX);
                     }
                     OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
                     TryHandlePiggyBackFill(packetFIX);
@@ -561,7 +558,7 @@ namespace TickZoom.Provider.MBTFIX
                 case "R": // Resumed.
                     if (debug && (LogRecovery || !IsRecovery))
                     {
-                        log.DebugFormat("ExecutionReport Resumed: " + packetFIX);
+                        log.DebugFormat("ExecutionReport Resumed: {0}", packetFIX);
                     }
                     OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
                     //UpdateOrder(packetFIX, OrderState.Active, null);
@@ -574,14 +571,14 @@ namespace TickZoom.Provider.MBTFIX
 
 		private void TryHandlePiggyBackFill(MessageFIX4_4 packetFIX) {
 			if( packetFIX.LastQuantity > 0) {
-                if (debug) log.DebugFormat("TryHandlePiggyBackFill triggering fill because LastQuantity = " + packetFIX.LastQuantity);
+                if (debug) log.DebugFormat("TryHandlePiggyBackFill triggering fill because LastQuantity = {0}", packetFIX.LastQuantity);
                 SendFill(packetFIX);
             }
 		}
 
         private void CancelRejected(MessageFIX4_4 packetFIX)
         {
-            if (debug) log.DebugFormat("CancelRejected: " + packetFIX);
+            if (debug) log.DebugFormat("CancelRejected: {0}", packetFIX);
             if (packetFIX.Text.Contains("Order Server Offline") ||
                 packetFIX.Text.Contains("Trading temporarily unavailable") ||
                 packetFIX.Text.Contains("Order Server Not Available"))
@@ -599,7 +596,7 @@ namespace TickZoom.Provider.MBTFIX
             long.TryParse(packetFIX.ClientOrderId, out clientOrderId);
             var originalClientOrderId = 0L;
             long.TryParse(packetFIX.ClientOrderId, out originalClientOrderId);
-            if (debug) log.DebugFormat("SendFill( " + packetFIX.ClientOrderId + ")");
+            if (debug) log.DebugFormat("SendFill( {0})", packetFIX.ClientOrderId);
             SymbolInfo symbolInfo;
             if (!Factory.Symbol.TryLookupSymbol(packetFIX.Symbol, out symbolInfo))
             {
@@ -622,7 +619,7 @@ namespace TickZoom.Provider.MBTFIX
 				    var configTime = executionTime;
 				    configTime.AddSeconds( timeZone.UtcOffset(executionTime));
                     var fill = Factory.Utility.PhysicalFill(symbolInfo, fillPosition, packetFIX.LastPrice, configTime, executionTime, order.BrokerOrder, false, packetFIX.OrderQuantity, packetFIX.CumulativeQuantity, packetFIX.LeavesQuantity, IsRecovered, true);
-				    if( debug) log.DebugFormat( "Sending physical fill: " + fill);
+				    if( debug) log.DebugFormat( "Sending physical fill: {0}", fill);
                     algorithm.OrderAlgorithm.ProcessFill(fill);
                     algorithm.OrderAlgorithm.ProcessOrders();
                     TrySendStartBroker(symbolInfo, "position sync on fill");
@@ -657,7 +654,7 @@ namespace TickZoom.Provider.MBTFIX
         public override bool OnCreateBrokerOrder(CreateOrChangeOrder createOrChangeOrder)
 		{
             if (!IsRecovered) return false;
-			if( debug) log.DebugFormat( "OnCreateBrokerOrder " + createOrChangeOrder + ". Connection " + ConnectionStatus + ", IsOrderServerOnline " + isOrderServerOnline);
+			if( debug) log.DebugFormat( "OnCreateBrokerOrder {0}. Connection {1}, IsOrderServerOnline {2}", createOrChangeOrder, ConnectionStatus, isOrderServerOnline);
             if( createOrChangeOrder.Action != OrderAction.Create)
             {
                 throw new InvalidOperationException("Expected action Create but was " + createOrChangeOrder.Action);
@@ -685,7 +682,7 @@ namespace TickZoom.Provider.MBTFIX
                 throw new ApplicationException("Order was greater than MaxPositionSize of " + order.Symbol.MaxPositionSize + " for:\n" + order);
             }
 
-			if( debug) log.DebugFormat( "Adding Order to open order list: " + order);
+			if( debug) log.DebugFormat( "Adding Order to open order list: {0}", order);
 			if( order.Action == OrderAction.Change) {
                 var origBrokerOrder = order.OriginalOrder.BrokerOrder;
                 fixMsg.SetClientOrderId(order.BrokerOrder.ToString());
@@ -694,7 +691,7 @@ namespace TickZoom.Provider.MBTFIX
 				if( OrderStore.TryGetOrderById(origBrokerOrder, out origOrder))
 				{
                     origOrder.ReplacedBy = order;
-				    if (debug) log.DebugFormat("Setting replace property of " + origBrokerOrder + " to " + order.BrokerOrder);
+				    if (debug) log.DebugFormat("Setting replace property of {0} to {1}", origBrokerOrder, order.BrokerOrder);
                 }
 			} else {
 				fixMsg.SetClientOrderId(order.BrokerOrder.ToString());
@@ -758,9 +755,9 @@ namespace TickZoom.Provider.MBTFIX
 			fixMsg.SetUserName();
             if (order.Action == OrderAction.Change)
             {
-				if( verbose) log.VerboseFormat("Change order: \n" + fixMsg);
+				if( verbose) log.VerboseFormat("Change order: \n{0}", fixMsg);
 			} else {
-                if (verbose) log.VerboseFormat("Create new order: \n" + fixMsg);
+                if (verbose) log.VerboseFormat("Create new order: \n{0}", fixMsg);
 			}
             if( resend)
             {
@@ -773,12 +770,12 @@ namespace TickZoom.Provider.MBTFIX
         {
             if( order.Action == OrderAction.Cancel)
             {
-                if (debug) log.DebugFormat("Resending cancel order: " + order);
+                if (debug) log.DebugFormat("Resending cancel order: {0}", order);
                 SendCancelOrder(order, true);
             }
             else
             {
-                if (debug) log.DebugFormat("Resending order: " + order);
+                if (debug) log.DebugFormat("Resending order: {0}", order);
                 OnCreateOrChangeBrokerOrder(order, true);
             }
         }
@@ -786,7 +783,7 @@ namespace TickZoom.Provider.MBTFIX
 		public override bool OnCancelBrokerOrder(CreateOrChangeOrder order)
 		{
             if (!IsRecovered) return false;
-            if (debug) log.DebugFormat("OnCancelBrokerOrder " + order + ". Connection " + ConnectionStatus + ", IsOrderServerOnline " + isOrderServerOnline);
+            if (debug) log.DebugFormat("OnCancelBrokerOrder {0}. Connection {1}, IsOrderServerOnline {2}", order, ConnectionStatus, isOrderServerOnline);
             OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
             CreateOrChangeOrder createOrChangeOrder;
 			try {
@@ -836,7 +833,7 @@ namespace TickZoom.Provider.MBTFIX
 		public override bool OnChangeBrokerOrder(CreateOrChangeOrder createOrChangeOrder)
 		{
             if (!IsRecovered) return false;
-            if (debug) log.DebugFormat("OnChangeBrokerOrder( " + createOrChangeOrder + ". Connection " + ConnectionStatus + ", IsOrderServerOnline " + isOrderServerOnline);
+            if (debug) log.DebugFormat("OnChangeBrokerOrder( {0}. Connection {1}, IsOrderServerOnline {2}", createOrChangeOrder, ConnectionStatus, isOrderServerOnline);
             if (createOrChangeOrder.Action != OrderAction.Change)
             {
                 throw new InvalidOperationException("Expected action Change but was " + createOrChangeOrder.Action);

@@ -1,4 +1,4 @@
-﻿#region Copyright
+#region Copyright
 /*
  * Software: TickZoom Trading Platform
  * Copyright 2009 M. Wayne Walter
@@ -117,8 +117,8 @@ namespace TickZoom.Provider.LimeQuotes
             loginRequest->ver_major = LimeQuotesInterop.majorVersion;
             loginRequest->ver_minor = LimeQuotesInterop.minorVersion;
 
-            if (trace) log.Trace("Sending: " + UserName);
-            if (debug) log.DebugFormat("Sending: " + UserName);
+            if (trace) log.TraceFormat("Sending: {0}", UserName);
+            if (debug) log.DebugFormat("Sending: {0}", UserName);
 
             while (!Socket.TrySendMessage(message))
             {
@@ -237,7 +237,7 @@ namespace TickZoom.Provider.LimeQuotes
             message.BeforeRead();
             if (trace)
             {
-                log.Trace("Received tick: " + message.ToString());
+                log.TraceFormat("Received tick: {0}", message.ToString());
             }
             try
             {
@@ -515,7 +515,7 @@ namespace TickZoom.Provider.LimeQuotes
             {
                 foreach (var handler in symbolHandlers)
                 {
-                    log.DebugFormat(handler.Value.Symbol + " received " + handler.Value.TickCount + " ticks.");
+                    log.DebugFormat("{0} received {1} ticks.", handler.Value.Symbol, handler.Value.TickCount);
                 }
             }
             base.Dispose(disposing);
@@ -610,8 +610,8 @@ namespace TickZoom.Provider.LimeQuotes
 
                     break;
             }
-            log.Trace(logMessage);
-            log.Trace( "Message HexDump: " + Environment.NewLine + HexDump( message, length, 32 ) );
+            log.TraceFormat(logMessage);
+            log.TraceFormat( "Message HexDump: " + Environment.NewLine + HexDump( message, length, 32 ) );
         }
 
         //Source: http://www.codeproject.com/Articles/36747/Quick-and-Dirty-HexDump-of-a-Byte-Array

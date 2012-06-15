@@ -98,7 +98,7 @@ namespace TickZoom.Provider.LimeQuotes
 
         public void SetReadableBytes(int bytes)
         {
-            if (trace) log.Trace("SetReadableBytes(" + bytes + ")");
+            if (trace) log.TraceFormat("SetReadableBytes({0})", bytes);
             _Data.SetLength(_Data.Position + bytes);
         }
 
