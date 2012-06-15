@@ -90,7 +90,7 @@ namespace TickZoom.Properties
 		}
 		
 		private void HandleConfiguration(XmlReader reader) {
-			log.Debug("Handle Starter properties");
+			log.DebugFormat("Handle Starter properties");
 			log.Indent();
 			while( reader.Read()) {
 			    // Print out info on node  
@@ -125,13 +125,13 @@ namespace TickZoom.Properties
 			if( lineInfo != null) {
 				lineStr += " on line " + lineInfo.LineNumber + " at position " + lineInfo.LinePosition;
 			}
-			log.Debug(msg + lineStr);
+			log.DebugFormat(msg + lineStr);
 			throw new ApplicationException(msg + lineStr);
 		}
 		
 		private void HandleProperty( string name, string value) {
 			properties[name] = value;
-			log.Debug("Property " + name + " = " + value);
+			log.DebugFormat("Property " + name + " = " + value);
 		}
 		
 		public Dictionary<string, string> Properties {

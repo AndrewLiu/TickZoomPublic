@@ -43,7 +43,7 @@ namespace TickZoom.Api
         {
             if (position != this.position)
             {
-                if (debug) log.Debug("Strategy " + _id + " for " + _symbol + " actual position changed from " + this.position + " to " + position + ".");
+                if (debug) log.DebugFormat("Strategy " + _id + " for " + _symbol + " actual position changed from " + this.position + " to " + position + ".");
                 this.position = position;
             }
             else

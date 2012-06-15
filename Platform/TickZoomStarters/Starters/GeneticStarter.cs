@@ -191,7 +191,7 @@ namespace TickZoom.Starters
 				}
 				
 				Chromosome chromosome = new Chromosome( genome);
-				log.Debug( chromosome.ToString() );
+				log.DebugFormat( chromosome.ToString() );
 				generation.Add( chromosome);
 				alreadyTried.Add( chromosome);
 				for(int i = 0; i<indexes.Length; i++) {
@@ -229,7 +229,7 @@ namespace TickZoom.Starters
 						topModels.Add(model);
 					} else {
 						tasksRemaining--;
-						log.Debug("Saves processing on " + chromosome + "!");
+						log.DebugFormat("Saves processing on " + chromosome + "!");
 					}
 				}
 				
@@ -270,7 +270,7 @@ namespace TickZoom.Starters
 				log.Notice("After sorting generation...");
 				double maxFitness = 0;
 				for(int i=0; i<generation.Count; i++) {
-					log.Debug( generation[i].ToString() );
+					log.DebugFormat( generation[i].ToString() );
 					maxFitness = Math.Max(generation[i].Fitness,maxFitness);
 				}
 				// If none of the genes in the chromosome
@@ -287,9 +287,9 @@ namespace TickZoom.Starters
 						chromo2 = Roulette();
 					} while( chromo2.Equals(chromo1));
 					
-					log.Debug("Before: " + chromo1 + " - " + chromo2);
+					log.DebugFormat("Before: " + chromo1 + " - " + chromo2);
 					chromo1.DoubleCrossOver(chromo2);
-					log.Debug("After: " + chromo1 + " - " + chromo2);
+					log.DebugFormat("After: " + chromo1 + " - " + chromo2);
 					
 					if( alreadyTried.Contains(chromo1)) {
 						chromo1 = alreadyTried[alreadyTried.IndexOf(chromo1)];

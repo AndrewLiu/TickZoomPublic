@@ -127,16 +127,16 @@ namespace TickZoom.Common
 		#region General
         protected void DebugSummary()
         {
-        	Log.Debug( "DYNAMIC SUPPORT:    " + dynamicS[0] );
-            Log.Debug( "LOW:                " + Bars.Low[0]);
-            Log.Debug( "xLL:                " + Formula.Lowest(Bars.Low,lookbackPeriod));
+        	Log.DebugFormat( "DYNAMIC SUPPORT:    " + dynamicS[0] );
+            Log.DebugFormat( "LOW:                " + Bars.Low[0]);
+            Log.DebugFormat( "xLL:                " + Formula.Lowest(Bars.Low,lookbackPeriod));
 
-            Log.Debug( "DYNAMIC RESISTANCE: " + dynamicR[0] );
-            Log.Debug( "HIGH:               " + Bars.High[0]);
-            Log.Debug( "xHH:                " + Formula.Highest(Bars.High,lookbackPeriod));
+            Log.DebugFormat( "DYNAMIC RESISTANCE: " + dynamicR[0] );
+            Log.DebugFormat( "HIGH:               " + Bars.High[0]);
+            Log.DebugFormat( "xHH:                " + Formula.Highest(Bars.High,lookbackPeriod));
 
-            Log.Debug( Ticks[0].Time.ToString());
-            Log.Debug( "------- TRO_DYNAMIC_SR2 ---------");
+            Log.DebugFormat( Ticks[0].Time.ToString());
+            Log.DebugFormat( "------- TRO_DYNAMIC_SR2 ---------");
         }
         #endregion
     }

@@ -295,7 +295,7 @@ namespace TickZoom.Symbols
 			{
 			    lineStr += " on line " + lineInfo.LineNumber + " at position " + lineInfo.LinePosition + " in file " + filePath;
 			}
-			log.Debug(msg + lineStr);
+			log.DebugFormat(msg + lineStr);
 			throw new ApplicationException(msg + lineStr);
 		}
 		

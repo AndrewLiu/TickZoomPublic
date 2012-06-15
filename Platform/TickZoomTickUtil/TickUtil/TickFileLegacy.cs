@@ -93,7 +93,7 @@ namespace TickZoom.TickUtil
                 //throw new ApplicationException("Requires either a file or folder to read data. Tried both " + folderOrfile + " and " + filePath);
             }
             CheckFileExtension();
-            if (debug) log.Debug("File Name = " + fileName);
+            if (debug) log.DebugFormat("File Name = " + fileName);
             OpenFile();
             isInitialized = true;
         }
@@ -111,7 +111,7 @@ namespace TickZoom.TickUtil
             InitLogging();
             Directory.CreateDirectory(Path.GetDirectoryName(fileName));
             CheckFileExtension();
-            if (debug) log.Debug("File Name = " + fileName);
+            if (debug) log.DebugFormat("File Name = " + fileName);
             OpenFile();
             isInitialized = true;
         }
@@ -140,7 +140,7 @@ namespace TickZoom.TickUtil
                 log.Notice("TickWriter file was erased to begin writing.");
             }
             fs = new FileStream(fileName, FileMode.Append, FileAccess.Write, FileShare.Read, 1024, FileOptions.WriteThrough);
-            log.Debug("OpenFileForWriting()");
+            log.DebugFormat("OpenFileForWriting()");
             memory = new MemoryStream();
         }
 
@@ -152,7 +152,7 @@ namespace TickZoom.TickUtil
             }
             else
             {
-                log.Debug(logMsg);
+                log.DebugFormat(logMsg);
             }
         }
 
@@ -245,7 +245,7 @@ namespace TickZoom.TickUtil
 
                     if (!quietMode || debug)
                     {
-                        if (debug) log.Debug("Starting to read data.");
+                        if (debug) log.DebugFormat("Starting to read data.");
                     }
                     readFileStopwatch = new Stopwatch();
                     readFileStopwatch.Start();
@@ -435,7 +435,7 @@ namespace TickZoom.TickUtil
         public void Flush()
         {
             if (!isInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-            if (debug) log.Debug("Before flush memory " + memory.Position);
+            if (debug) log.DebugFormat("Before flush memory " + memory.Position);
             while (memory.Position > 0 || streamsToWrite.Count > 0 || writeFileResult != null)
             {
                 if( memory.Position > 0)
@@ -453,7 +453,7 @@ namespace TickZoom.TickUtil
                     Thread.Sleep(100);
                 }
             }
-            if (debug) log.Debug("After flush memory " + memory.Position);
+            if (debug) log.DebugFormat("After flush memory " + memory.Position);
         }
 
         private int origSleepSeconds = 3;
@@ -498,7 +498,7 @@ namespace TickZoom.TickUtil
                     catch (IOException e)
                     {
                         errorCount++;
-                        log.Debug(Symbol + ": " + e.Message + "\nPausing " + currentSleepSeconds + " seconds before retry.");
+                        log.DebugFormat(Symbol + ": " + e.Message + "\nPausing " + currentSleepSeconds + " seconds before retry.");
                         Factory.Parallel.Sleep(3000);
                     }
                 } while (errorCount > 0);
@@ -524,14 +524,14 @@ namespace TickZoom.TickUtil
                 isDisposed = true;
                 lock (taskLocker)
                 {
-                    if (debug) log.Debug("Dispose()");
+                    if (debug) log.DebugFormat("Dispose()");
                     if( bufferedStream != null)
                     {
                         bufferedStream.Flush();
                     }
                     if (dataIn != null)
                     {
-                        if (debug) log.Debug("Closing dataIn.");
+                        if (debug) log.DebugFormat("Closing dataIn.");
                         dataIn.Close();
                     }
 
@@ -549,7 +549,7 @@ namespace TickZoom.TickUtil
                         fs = null;
                         log.Info("Flushed and closed file " + fileName);
                     }
-                    if (debug) log.Debug("Exiting Close()");
+                    if (debug) log.DebugFormat("Exiting Close()");
                 }
             }
         }
@@ -562,7 +562,7 @@ namespace TickZoom.TickUtil
         {
             if (fs != null)
             {
-                if (debug) log.Debug("CloseFile() at with length " + fs.Length);
+                if (debug) log.DebugFormat("CloseFile() at with length " + fs.Length);
                 fs.Flush();
                 if (!FlushFileBuffers(fs.SafeFileHandle))   // Flush OS file cache to disk.
                 {

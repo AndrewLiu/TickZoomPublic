@@ -50,19 +50,19 @@ namespace TickZoom.Common
 
         public IEnumerable<CreateOrChangeOrder> GetActiveOrders(SymbolInfo symbol)
         {
-            if (debug) log.Debug("GetActiveOrders( " + symbol + ")");
+            if (debug) log.DebugFormat("GetActiveOrders( " + symbol + ")");
             AssertAtomic();
             var list = GetOrders((o) => o.Symbol.BinaryIdentifier == symbol.BinaryIdentifier);
             foreach (var order in list)
             {
                 if (order.OrderState != OrderState.Filled)
                 {
-                    if (debug) log.Debug("Including order: " + order);
+                    if (debug) log.DebugFormat("Including order: " + order);
                     yield return order;
                 }
                 else
                 {
-                    if (debug) log.Debug("Excluding order: " + order);
+                    if (debug) log.DebugFormat("Excluding order: " + order);
                 }
             }
         }
@@ -96,7 +96,7 @@ namespace TickZoom.Common
         {
             using (positionsLocker.Using())
             {
-                if (debug) log.Debug("SetActualPosition( " + symbol + " = " + position + ")");
+                if (debug) log.DebugFormat("SetActualPosition( " + symbol + " = " + position + ")");
                 SymbolPosition symbolPosition;
                 if (!positions.TryGetValue(symbol.BinaryIdentifier, out symbolPosition))
                 {
@@ -274,7 +274,7 @@ namespace TickZoom.Common
             {
                 if (queueOrder.Action == OrderAction.Create && order.LogicalSerialNumber == queueOrder.LogicalSerialNumber)
                 {
-                    if (debug) log.Debug("Create ignored because order was already on create order queue: " + queueOrder);
+                    if (debug) log.DebugFormat("Create ignored because order was already on create order queue: " + queueOrder);
                     return true;
                 }
             }
@@ -287,7 +287,7 @@ namespace TickZoom.Common
             {
                 if (clientId.OriginalOrder != null && order.OriginalOrder.BrokerOrder == clientId.OriginalOrder.BrokerOrder)
                 {
-                    if (debug) log.Debug("Cancel or Changed ignored because previous order order working for: " + order);
+                    if (debug) log.DebugFormat("Cancel or Changed ignored because previous order order working for: " + order);
                     return true;
                 }
             }
@@ -340,7 +340,7 @@ namespace TickZoom.Common
         public void ResetLastChange()
         {
             AssertAtomic();
-            if (debug) log.Debug("Resetting last change time for all physical orders.");
+            if (debug) log.DebugFormat("Resetting last change time for all physical orders.");
             foreach (var kvp in ordersByBrokerId)
             {
                 var order = kvp.Value;

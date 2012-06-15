@@ -28,7 +28,7 @@ namespace TickZoom.Common
                 var queueOrder = current.Value;
                 if (order.LogicalSerialNumber == queueOrder.LogicalSerialNumber)
                 {
-                    if (debug) log.Debug("Create ignored because order was already on create order queue: " + queueOrder);
+                    if (debug) log.DebugFormat("Create ignored because order was already on create order queue: " + queueOrder);
                     return true;
                 }
             }
@@ -42,7 +42,7 @@ namespace TickZoom.Common
                 var clientId = current.Value;
                 if (order.OriginalOrder.BrokerOrder == clientId.OriginalOrder.BrokerOrder)
                 {
-                    if (debug) log.Debug("Cancel or Changed ignored because pervious order order working for: " + order);
+                    if (debug) log.DebugFormat("Cancel or Changed ignored because pervious order order working for: " + order);
                     return true;
                 }
             }

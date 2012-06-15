@@ -49,7 +49,7 @@ namespace TickZoom.Interceptors
 		
 		public void OnInitialize()
 		{
-			if( IsDebug) Log.Debug("OnInitialize()");
+			if( IsDebug) Log.DebugFormat("OnInitialize()");
 			Strategy.Drawing.Color = Color.Black;
         }
 		
@@ -62,7 +62,7 @@ namespace TickZoom.Interceptors
 				if( Strategy.Chart.IsDynamicUpdate) {
 		        		if( IsNotice) Log.Notice("Bar="+Strategy.Chart.ChartBars.CurrentBar+", " + description);
 				} else {
-		        		if( IsDebug) Log.Debug("Bar="+Strategy.Chart.ChartBars.CurrentBar+", " + description);
+		        		if( IsDebug) Log.DebugFormat("Bar="+Strategy.Chart.ChartBars.CurrentBar+", " + description);
 				}
 			}
 		

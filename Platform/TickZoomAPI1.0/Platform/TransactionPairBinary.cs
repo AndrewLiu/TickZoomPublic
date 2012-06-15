@@ -99,11 +99,11 @@ namespace TickZoom.Api
                 if( currentPosition > 0)
                 {
                     var price = tick.IsQuote ? tick.Bid : tick.Price;
-                    if( verbose) log.Verbose("Setting using " + price + " of " + tick);
+                    if( verbose) log.VerboseFormat("Setting using " + price + " of " + tick);
                     UpdatePrice(price);
                 } else {
                     var price = tick.IsQuote ? tick.Ask : tick.Price;
-                    if( verbose) log.Verbose("Setting using " + price + " of " + tick);
+                    if( verbose) log.VerboseFormat("Setting using " + price + " of " + tick);
                     UpdatePrice(price);
                 }
                 exitTime = tick.Time.Internal;
@@ -114,11 +114,11 @@ namespace TickZoom.Api
         public void UpdatePrice(double price) {
             if (price > maxPrice)
             {
-                if( verbose) log.Verbose("UpdatePrice( max = " + price + ")");
+                if( verbose) log.VerboseFormat("UpdatePrice( max = " + price + ")");
                 maxPrice = price;
             }
             if( price < minPrice) {
-                if( verbose) log.Verbose("UpdatePrice( min = " + price + ")");
+                if( verbose) log.VerboseFormat("UpdatePrice( min = " + price + ")");
                 minPrice = price;
             }
             exitPrice = price;

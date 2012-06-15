@@ -1,4 +1,4 @@
-//============================================================================
+﻿//============================================================================
 //ZedGraph Class Library - A Flexible Line Graph/Bar Graph Library in C#
 //Copyright © 2004  John Champion
 //
@@ -825,7 +825,7 @@ namespace ZedGraph
 						_masterPane.DrawBackground( g );
 					}
 					catch( Exception ex) {
-						if( debug) log.Debug(ex.ToString());
+						if( debug) log.DebugFormat(ex.ToString());
 					}
 				}
 			}

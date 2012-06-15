@@ -76,7 +76,7 @@ namespace TickZoom.Starters
             var elapsed = stopwatch.Elapsed;
 
             SetupSymbolData();
-            log.Debug("SetupSymbolData took " + elapsed.TotalSeconds + " seconds and " + elapsed.Milliseconds + " milliseconds");
+            log.DebugFormat("SetupSymbolData took " + elapsed.TotalSeconds + " seconds and " + elapsed.Milliseconds + " milliseconds");
             stopwatch.Reset();
             stopwatch.Start();
 		    Factory.Provider.StartSockets();
@@ -91,7 +91,7 @@ namespace TickZoom.Starters
             using (Factory.Parallel.SpawnProvider(providerSimulatorAssembly, "ProviderSimulator", "Simulate", ProjectProperties))
             {
                 elapsed = stopwatch.Elapsed;
-                log.Debug("Startup took " + elapsed.TotalSeconds + " seconds and " + elapsed.Milliseconds + " milliseconds");
+                log.DebugFormat("Startup took " + elapsed.TotalSeconds + " seconds and " + elapsed.Milliseconds + " milliseconds");
                 base.Run(loader);
 			}
             Factory.Provider.ShutdownSockets();

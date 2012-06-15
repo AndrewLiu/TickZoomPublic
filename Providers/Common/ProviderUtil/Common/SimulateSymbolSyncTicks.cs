@@ -94,7 +94,7 @@ namespace TickZoom.Provider.FIX
             tickSync = SyncTicks.GetTickSync(Symbol.BinaryIdentifier);
             latency = new LatencyMetric("SimulateSymbolSyncTicks-" + symbolString.StripInvalidPathChars());
             diagnoseMetric = Diagnose.RegisterMetric("Simulator");
-            if (debug) log.Debug("Opening tick file for reading.");
+            if (debug) log.DebugFormat("Opening tick file for reading.");
             reader = Factory.TickUtil.TickFile();
             try
             {
@@ -147,12 +147,12 @@ namespace TickZoom.Provider.FIX
         {
             if (tickSync.Completed || tickSync.SentProcessPhysicalOrders || tickSync.SentReprocessPhysicalOrders)
             {
-                if (verbose) log.Verbose("TickSyncChangedEvent(" + symbol + ") resuming task.");
+                if (verbose) log.VerboseFormat("TickSyncChangedEvent(" + symbol + ") resuming task.");
                 queueTask.Resume();
             }
             else
             {
-                if (verbose) log.Verbose("TickSyncChangedEvent(" + symbol + ") not ready to resume task.");
+                if (verbose) log.VerboseFormat("TickSyncChangedEvent(" + symbol + ") not ready to resume task.");
             }
         }
 
@@ -171,7 +171,7 @@ namespace TickZoom.Provider.FIX
             }
             if (!endOfTickData && tickSync.Completed)
             {
-		    	if( verbose) log.Verbose("TryCompleteTick() Next Tick");
+		    	if( verbose) log.VerboseFormat("TryCompleteTick() Next Tick");
 		    	tickSync.Clear();
             }
             else if (tickSync.OnlyProcessPhysicalOrders)
@@ -209,7 +209,7 @@ namespace TickZoom.Provider.FIX
                 onEndTick(id);
                 endOfTickData = true;
                 queueTask.Resume();
-                if (debug) log.Debug("End Of Tick Data.");
+                if (debug) log.DebugFormat("End Of Tick Data.");
                 return;
             }
 			tickCounter++;
@@ -279,7 +279,7 @@ namespace TickZoom.Provider.FIX
        		if( !isDisposed) {
 	            isDisposed = true;   
 	            if (disposing) {
-                    if (debug) log.Debug("Dispose()");
+                    if (debug) log.DebugFormat("Dispose()");
                     if (queueTask != null)
                     {
                         queueTask.Stop();
@@ -290,19 +290,19 @@ namespace TickZoom.Provider.FIX
 	            	}
                     if( fillSimulator != null)
                     {
-                        if (debug) log.Debug("Setting fillSimulator.IsOnline false");
+                        if (debug) log.DebugFormat("Setting fillSimulator.IsOnline false");
                         fillSimulator.IsOnline = false;
                     }
                     else
                     {
-                        if (debug) log.Debug("fillSimulator is null.");
+                        if (debug) log.DebugFormat("fillSimulator is null.");
                     }
                     tickSync.ForceClear("DisposeSimulator");
                 }
     		}
             else
        		{
-                if (debug) log.Debug("isDisposed " + isDisposed);
+                if (debug) log.DebugFormat("isDisposed " + isDisposed);
             }
 	    }    
 	        

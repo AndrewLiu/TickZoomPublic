@@ -203,7 +203,7 @@ namespace TickZoom.Provider.FIX
        		if( !isDisposed) {
 	            isDisposed = true;   
 	            if (disposing) {
-	            	if( debug) log.Debug("Dispose()");
+	            	if( debug) log.DebugFormat("Dispose()");
 	            	if( localTask != null) {
 	            		localTask.Stop();
 	            	}

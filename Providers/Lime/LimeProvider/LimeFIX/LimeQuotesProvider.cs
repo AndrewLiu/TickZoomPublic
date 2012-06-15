@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 /*
  * Software: TickZoom Trading Platform
  * Copyright 2009 M. Wayne Walter
@@ -118,7 +118,7 @@ namespace TickZoom.Provider.LimeQuotes
             loginRequest->ver_minor = LimeQuotesInterop.minorVersion;
 
             if (trace) log.Trace("Sending: " + UserName);
-            if (debug) log.Debug("Sending: " + UserName);
+            if (debug) log.DebugFormat("Sending: " + UserName);
 
             while (!Socket.TrySendMessage(message))
             {
@@ -515,7 +515,7 @@ namespace TickZoom.Provider.LimeQuotes
             {
                 foreach (var handler in symbolHandlers)
                 {
-                    log.Debug(handler.Value.Symbol + " received " + handler.Value.TickCount + " ticks.");
+                    log.DebugFormat(handler.Value.Symbol + " received " + handler.Value.TickCount + " ticks.");
                 }
             }
             base.Dispose(disposing);

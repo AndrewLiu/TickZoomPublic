@@ -81,7 +81,7 @@ namespace TickZoom.Provider.MBTQuotes
 		    string hashPassword = Hash(Password);
 		    string login = "L|100=" + UserName + ";133=" + hashPassword + "\n";
 		    if (trace) log.Trace("Sending: " + login);
-		    if (debug) log.Debug("Sending: " + login);
+		    if (debug) log.DebugFormat("Sending: " + login);
 		    message.DataOut.Write(login.ToCharArray());
 		    while (!Socket.TrySendMessage(message))
 		    {
@@ -108,7 +108,7 @@ namespace TickZoom.Provider.MBTQuotes
 	            log.Info("MBT Quotes API Login response: " + loginResponse);
 	            return true;
 	        }
-			if( debug) log.Debug( "Invalid quotes login response ignored: " + loginResponse);
+			if( debug) log.DebugFormat( "Invalid quotes login response ignored: " + loginResponse);
 			return false;
         }
 		
@@ -395,7 +395,7 @@ namespace TickZoom.Provider.MBTQuotes
 			{
 			    Message message = Socket.MessageFactory.Create();
 				string textMessage = "S|1003="+symbol.BaseSymbol+";2000="+tradeType+"\n";
-				if( debug) log.Debug("Symbol request: " + textMessage);
+				if( debug) log.DebugFormat("Symbol request: " + textMessage);
 				message.DataOut.Write(textMessage.ToCharArray());
 				while( !Socket.TrySendMessage(message)) {
 					if( IsInterrupted) return;
@@ -407,7 +407,7 @@ namespace TickZoom.Provider.MBTQuotes
 			{
 			    Message message = Socket.MessageFactory.Create();
 				string textMessage = "S|1003="+symbol.BaseSymbol+";2000="+quoteType+"\n";
-				if( debug) log.Debug("Symbol request: " + textMessage);
+				if( debug) log.DebugFormat("Symbol request: " + textMessage);
 				message.DataOut.Write(textMessage.ToCharArray());
 				while( !Socket.TrySendMessage(message)) {
 					if( IsInterrupted) return;
@@ -419,7 +419,7 @@ namespace TickZoom.Provider.MBTQuotes
             {
                 Message message = Socket.MessageFactory.Create();
                 string textMessage = "S|1003=" + symbol.BaseSymbol + ";2000=" + optionChain+ "\n";
-                if (debug) log.Debug("Symbol request: " + textMessage);
+                if (debug) log.DebugFormat("Symbol request: " + textMessage);
                 message.DataOut.Write(textMessage.ToCharArray());
                 while (!Socket.TrySendMessage(message))
                 {
@@ -463,7 +463,7 @@ namespace TickZoom.Provider.MBTQuotes
             {
                 foreach (var handler in symbolHandlers)
                 {
-                    log.Debug(handler.Value.Symbol + " received " + handler.Value.TickCount + " ticks.");
+                    log.DebugFormat(handler.Value.Symbol + " received " + handler.Value.TickCount + " ticks.");
                 }
             }
             base.Dispose(disposing);

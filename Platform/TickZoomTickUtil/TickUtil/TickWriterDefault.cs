@@ -164,7 +164,7 @@ namespace TickZoom.TickUtil
 		    } catch (QueueException ex) {
 				if( ex.EntryType == EventType.Terminate) {
                     log.Notice("Last tick written: " + tickIO);
-                    if( debug) log.Debug("Exiting, queue terminated.");
+                    if( debug) log.DebugFormat("Exiting, queue terminated.");
 					Finish();
 					return Yield.Terminate;
 				} else {
@@ -184,9 +184,9 @@ namespace TickZoom.TickUtil
 
         public void Flush()
         {
-            if( debug) log.Debug("Before flush write queue " + writeQueue.Count);
+            if( debug) log.DebugFormat("Before flush write queue " + writeQueue.Count);
             tickFile.Flush();
-            if (debug) log.Debug("After flush write queue " + writeQueue.Count);
+            if (debug) log.DebugFormat("After flush write queue " + writeQueue.Count);
         }
 
 		public void Add(TickIO tick) {
@@ -243,12 +243,12 @@ namespace TickZoom.TickUtil
 				{
 				    return;
 				}
-				if( debug) log.Debug("Dispose()");
+				if( debug) log.DebugFormat("Dispose()");
 				if( appendTask != null) {
 					if( writeQueue != null) {
                         try
                         {
-                            if (debug) log.Debug("Sending event " + EventType.Terminate + " to tickwriter queue.");
+                            if (debug) log.DebugFormat("Sending event " + EventType.Terminate + " to tickwriter queue.");
                             while (!writeQueue.TryEnqueue(EventType.Terminate, symbol))
                             {
                                 Thread.Sleep(1);
@@ -274,11 +274,11 @@ namespace TickZoom.TickUtil
 
         private void Finish()
         {
-            if (debug) log.Debug("Finish()");
+            if (debug) log.DebugFormat("Finish()");
             Flush();
             var count = tickFile.WriteCounter;
             var append = Interlocked.Read(ref appendCounter);
-            if (debug) log.Debug("Only " + count + " writes before closeFile but " + append + " appends.");
+            if (debug) log.DebugFormat("Only " + count + " writes before closeFile but " + append + " appends.");
             if (tickFile != null)
             {
                 tickFile.Dispose();

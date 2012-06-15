@@ -112,14 +112,14 @@ namespace TickZoom.Utilities
 			// Google                            US38259P5089
 			ulong securityId = ISINToSecurityId("ZZZZZZZZZZZ9");
 			string binaryString = Convert.ToString((long)securityId,2);
-			log.Debug("Binary Max Security ID = " + binaryString);
+			log.DebugFormat("Binary Max Security ID = " + binaryString);
 			for( int i=0;i<9;i++) {
 				binaryString = Convert.ToString((long)AlphaNumToDigit((char)('0'+i)),2);
-				log.Debug("Security ID = " + binaryString);
+				log.DebugFormat("Security ID = " + binaryString);
 			}
 			for( int i=0;i<26;i++) {
 				binaryString = Convert.ToString((long)AlphaNumToDigit((char)('A'+i)),2);
-				log.Debug("Security ID = " + binaryString);
+				log.DebugFormat("Security ID = " + binaryString);
 			}
 			Assert.AreEqual( 686545307078492159, securityId);
 		}
@@ -140,20 +140,20 @@ namespace TickZoom.Utilities
 			ulong power=10;
 			for( int i=first; i>=2; i--) {
 				digit = AlphaNumToDigit( ISIN[i]);
-				log.Debug("Digit " + ISIN[i]+ " = " + digit);
+				log.DebugFormat("Digit " + ISIN[i]+ " = " + digit);
 				securityId += digit * power;
-				log.Debug("Security Id = " + securityId);
+				log.DebugFormat("Security Id = " + securityId);
 				power*=36;
 			}
 			digit = AlphaNumToDigit(ISIN[1])-10;
-			log.Debug("Country Code Char 2 " + ISIN[1] + " = " + digit);
+			log.DebugFormat("Country Code Char 2 " + ISIN[1] + " = " + digit);
 			securityId += digit * power;
-			log.Debug("Security Id = " + securityId);
+			log.DebugFormat("Security Id = " + securityId);
 			power*=26;
 			digit = AlphaNumToDigit(ISIN[0])-10;
-			log.Debug("Country Code Char 1 " + ISIN[0] + " = " + digit);
+			log.DebugFormat("Country Code Char 1 " + ISIN[0] + " = " + digit);
 			securityId += digit * power;
-			log.Debug("Security Id = " + securityId);
+			log.DebugFormat("Security Id = " + securityId);
 			return securityId;
 		}
 		
@@ -170,7 +170,7 @@ namespace TickZoom.Utilities
 			string retVal = "";
 			int digit;
 			char alphaNum;
-			log.Debug("SecurityIdToISIN");
+			log.DebugFormat("SecurityIdToISIN");
 			
 			// First get the check digit.
 			int checkDigit = (int) (securityId % 10);
@@ -180,26 +180,26 @@ namespace TickZoom.Utilities
 			
 			// Get the 9 alpa numeric digits.
 			for( int i=0; i<9; i++) {
-				log.Debug("Security Id = " + securityId);
+				log.DebugFormat("Security Id = " + securityId);
 				digit = (int) (securityId % 36);
 				alphaNum = DigitToAlphaNum(digit);
-				log.Debug("Digit " + alphaNum + " = " + digit);
+				log.DebugFormat("Digit " + alphaNum + " = " + digit);
 				retVal = alphaNum + retVal;
 				securityId /= 36;
 			}
 			
 			// Get the 2 letters for country code
-			log.Debug("Security Id = " + securityId);
+			log.DebugFormat("Security Id = " + securityId);
 			digit = (int) (securityId % 26);
 			alphaNum = (char) ('A'+digit);
-			log.Debug("Digit " + alphaNum + " = " + digit);
+			log.DebugFormat("Digit " + alphaNum + " = " + digit);
 			retVal = alphaNum + retVal;
 			securityId /= 26;
 			
-			log.Debug("Security Id = " + securityId);
+			log.DebugFormat("Security Id = " + securityId);
 			digit = (int) securityId;
 			alphaNum = (char) ('A'+digit);
-			log.Debug("Digit " + alphaNum + " = " + digit);
+			log.DebugFormat("Digit " + alphaNum + " = " + digit);
 			retVal = alphaNum + retVal;
 			
 			return retVal;

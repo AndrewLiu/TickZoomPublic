@@ -184,7 +184,7 @@ namespace TickZoom.Api
             if (value < 0)
             {
                 var temp = Interlocked.Increment(ref (*state).ticks);
-                if (debug) log.Debug("Tick counter was " + value + ". Incremented to " + temp);
+                if (debug) log.DebugFormat("Tick counter was " + value + ". Incremented to " + temp);
             }
             Changed();
         }
@@ -205,12 +205,12 @@ namespace TickZoom.Api
             if (valueCreated < 0)
             {
                 var temp = Interlocked.Increment(ref (*state).physicalFillsCreated);
-                if (debug) log.Debug("physicalFillsCreated counter was " + valueCreated + ". Incremented to " + temp);
+                if (debug) log.DebugFormat("physicalFillsCreated counter was " + valueCreated + ". Incremented to " + temp);
             }
             if (valueWaiting < 0)
             {
                 var temp = Interlocked.Increment(ref (*state).physicalFillsWaiting);
-                if (debug) log.Debug("physicalFillsWaiting counter was " + valueWaiting + ". Incremented to " + temp);
+                if (debug) log.DebugFormat("physicalFillsWaiting counter was " + valueWaiting + ". Incremented to " + temp);
             }
             Changed();
         }
@@ -222,7 +222,7 @@ namespace TickZoom.Api
             if (valueWaiting < 0)
             {
                 var temp = Interlocked.Increment(ref (*state).physicalFillsWaiting);
-                if (debug) log.Debug("physicalFillsWaiting counter was " + valueWaiting + ". Incremented to " + temp);
+                if (debug) log.DebugFormat("physicalFillsWaiting counter was " + valueWaiting + ". Incremented to " + temp);
             }
             Changed();
         }
@@ -241,7 +241,7 @@ namespace TickZoom.Api
             if (value < 0)
             {
                 var temp = Interlocked.Increment(ref (*state).orderChange);
-                if (debug) log.Debug("OrderChange counter was " + value + ". Incremented to " + temp);
+                if (debug) log.DebugFormat("OrderChange counter was " + value + ". Incremented to " + temp);
             }
             Changed();
         }
@@ -260,7 +260,7 @@ namespace TickZoom.Api
             if (value < 0)
             {
                 var temp = Interlocked.Increment(ref (*state).physicalOrders);
-                if (debug) log.Debug("PhysicalOrders counter was " + value + ". Incremented to " + temp);
+                if (debug) log.DebugFormat("PhysicalOrders counter was " + value + ". Incremented to " + temp);
             }
             Changed();
         }
@@ -272,7 +272,7 @@ namespace TickZoom.Api
             if (value < 0)
             {
                 var temp = Interlocked.Increment(ref (*state).physicalOrders);
-                if (debug) log.Debug("PhysicalOrders counter was " + value + ". Incremented to " + temp);
+                if (debug) log.DebugFormat("PhysicalOrders counter was " + value + ". Incremented to " + temp);
             }
             Changed();
         }
@@ -294,7 +294,7 @@ namespace TickZoom.Api
             if (value < 0)
             {
                 var temp = Interlocked.Increment(ref (*state).switchBrokerState);
-                if (debug) log.Debug("SwitchBrokerState counter was " + value + ". Incremented to " + temp);
+                if (debug) log.DebugFormat("SwitchBrokerState counter was " + value + ". Incremented to " + temp);
             }
             Changed();
         }
@@ -313,7 +313,7 @@ namespace TickZoom.Api
             if (value < 0)
             {
                 var temp = Interlocked.Increment(ref (*state).positionChange);
-                if (debug) log.Debug("PositionChange counter was " + value + ". Incremented to " + temp);
+                if (debug) log.DebugFormat("PositionChange counter was " + value + ". Incremented to " + temp);
             }
             Changed();
         }
@@ -332,7 +332,7 @@ namespace TickZoom.Api
             if (value < 0)
             {
                 var temp = Interlocked.Increment(ref (*state).waitingMatch);
-                if (debug) log.Debug("WaitingMatch counter was " + value + ". Incremented to " + temp);
+                if (debug) log.DebugFormat("WaitingMatch counter was " + value + ". Incremented to " + temp);
             }
             Changed();
         }
@@ -352,7 +352,7 @@ namespace TickZoom.Api
             if (value < 0)
             {
                 var temp = Interlocked.Increment(ref (*state).processPhysical);
-                if( debug) log.Debug("ProcessPhysical counter was " + value + ". Incremented to " + temp);
+                if( debug) log.DebugFormat("ProcessPhysical counter was " + value + ". Incremented to " + temp);
             }
             Changed();
         }
@@ -375,7 +375,7 @@ namespace TickZoom.Api
             if (value < 0)
             {
                 var temp = Interlocked.Increment(ref (*state).reprocessPhysical);
-                if (debug) log.Debug("ReprocessPhysical counter was " + value + ". Incremented to " + temp);
+                if (debug) log.DebugFormat("ReprocessPhysical counter was " + value + ". Incremented to " + temp);
             }
             Changed();
         }

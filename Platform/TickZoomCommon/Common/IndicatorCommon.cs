@@ -156,7 +156,7 @@ namespace TickZoom.Common
                 sb.Append(bars.Close[0]);
                 sb.Append(",");
                 sb.Append(bars.Volume[0]);
-                barDataLog.Debug(sb.ToString());
+                barDataLog.DebugFormat(sb.ToString());
             }
             Update();
 			return true;
