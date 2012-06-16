@@ -538,8 +538,7 @@ namespace TickZoom.Common
             {
                 fs.Write(memory.GetBuffer(), 0, (int)memory.Length);
                 snapshotLength += memory.Length;
-                log.Info("Wrote snapshot. Sequence Remote = " + remoteSequence + ", Local = " + localSequence +
-                         ", Size = " + memory.Length + ". File Size = " + snapshotLength);
+                if( debug) log.DebugFormat("Wrote snapshot. Sequence Remote = {0}, Local = {1}, Size = {2}. File Size = {3}", remoteSequence, localSequence, memory.Length, snapshotLength);
                 fs.Flush();
             }
             if( isDisposed)
