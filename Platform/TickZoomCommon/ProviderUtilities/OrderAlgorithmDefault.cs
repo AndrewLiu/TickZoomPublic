@@ -1578,7 +1578,7 @@ namespace TickZoom.Common
             }
             else
 			{
-			    if( debug) log.DebugFormat( "Skipping ProcesOrders. RecursiveCounter {0}\n{1}", count, tickSync);
+			    if( debug) log.DebugFormat( "Skipping ProcesOrders. RecursiveCounter {0} tick {1}", count, tickSync);
 			}
             if (compareSuccess)
             {

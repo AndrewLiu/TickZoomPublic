@@ -505,33 +505,31 @@ namespace TickZoom.Interceptors
         {
             if (debug)
             {
-                var sb = new StringBuilder();
-                sb.AppendLine("Found " + orderMap.Count + " open orders for " + symbol + ":");
+                log.DebugFormat("Found {0} open orders for {1}:", orderMap.Count, symbol);
                 lock (orderMapLocker)
                 {
                     foreach (var kvp in orderMap)
                     {
                         var order = kvp.Value;
-                        sb.AppendLine(order.ToString());
+                        log.DebugFormat("{0}",order);
                     }
-                    LogOrderList(touchOrders, "Touch orders", sb);
-                    LogOrderList(marketOrders, "Market orders", sb);
-                    LogOrderList(increaseOrders, "Increase orders", sb);
-                    LogOrderList(decreaseOrders, "Decrease orders", sb);
+                    LogOrderList(touchOrders, "Touch orders");
+                    LogOrderList(marketOrders, "Market orders");
+                    LogOrderList(increaseOrders, "Increase orders");
+                    LogOrderList(decreaseOrders, "Decrease orders");
                 }
-                log.DebugFormat( sb.ToString());
             }
         }
 
-        private void LogOrderList(ActiveList<CreateOrChangeOrder> list, string name, StringBuilder sb)
+        private void LogOrderList(ActiveList<CreateOrChangeOrder> list, string name)
         {
             if( list.Count > 0)
             {
-                sb.AppendLine("   " + name + " " + list.Count);
+                log.DebugFormat( "   {0} {1}", name, list.Count);
             }
             for( var current = list.First; current != null; current = current.Next)
             {
-                sb.AppendLine("    " + current.Value);
+                log.DebugFormat("    {0}", current.Value);
             }
         }
 
