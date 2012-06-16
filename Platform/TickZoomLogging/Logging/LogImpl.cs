@@ -40,8 +40,7 @@ using TickZoom.Api;
 
 namespace TickZoom.Logging
 {
-
-	/// <summary>
+    /// <summary>
 	/// Description of TickConsole.
 	/// </summary>
     [Serializable]
@@ -56,9 +55,20 @@ namespace TickZoom.Logging
         private static object locker = new object();
         private string fileName;
 	    private LogManagerImpl logManager;
+        private bool allowDebugging = false;
 		
         public LogImpl(LogManagerImpl manager, ILogger logger)
         {
+            switch( logger.Name)
+            {
+                case "TestLog.TradeLog":
+                case "TestLog.TransactionLog":
+                case "TestLog.StatsLog":
+                case "TestLog.BarDataLog":
+                    allowDebugging = true;
+                    break;
+            }
+
             logManager = manager;
 			logWrapper = new LogImplWrapper(logger);
         	Connect();
@@ -513,12 +523,26 @@ namespace TickZoom.Logging
 			}
 		}
 
+        public string resultString;
+
+        public string cloneResult;
+        public Dictionary<Type,Type> uniqueTypes = new Dictionary<Type, Type>();
 		public void VerboseFormat(string format, params object[] args)
 		{
             if( IsVerboseEnabled)
             {
-                var resultString = string.Format(format, args);
-                Verbose(resultString,null);
+                //for (var i = 0; i < args.Length;i++ )
+                //{
+                //    //var type = args[i].GetType();
+                //    //Type none;
+                //    //if( !uniqueTypes.TryGetValue(type, out none))
+                //    //{
+                //    //    Debug(type.ToString(), null);
+                //    //    uniqueTypes.Add(type,type);
+                //    //}
+                //}
+                //resultString = string.Format(format, args);
+                //Verbose(resultString, null);
             }
 		}
 		
@@ -526,17 +550,40 @@ namespace TickZoom.Logging
 		{
 			if( IsTraceEnabled)
 			{
-                var resultString = string.Format(format, args);
-                Trace(resultString,null);
-            }
+                //for (var i = 0; i < args.Length; i++)
+                //{
+                //    //var type = args[i].GetType();
+                //    //Type none;
+                //    //if (!uniqueTypes.TryGetValue(type, out none))
+                //    //{
+                //    //    Debug(type.ToString(), null);
+                //    //    uniqueTypes.Add(type, type);
+                //    //}
+                //}
+                //resultString = string.Format(format, args);
+                //Trace(resultString, null);
+			}
 		}
 		
 		public void DebugFormat(string format, params object[] args)
 		{
             if( IsDebugEnabled)
             {
-                var resultString = string.Format(format, args);
-                Debug(resultString, null);
+                //for (var i = 0; i < args.Length; i++)
+                //{
+                //    //var type = args[i].GetType();
+                //    //Type none;
+                //    //if (!uniqueTypes.TryGetValue(type, out none))
+                //    //{
+                //    //    Debug(type.ToString(), null);
+                //    //    uniqueTypes.Add(type, type);
+                //    //}
+                //}
+                if (allowDebugging)
+                {
+                    resultString = string.Format(format, args);
+                    Debug(resultString, null);
+                }
             }
 		}
 		
