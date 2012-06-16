@@ -251,7 +251,17 @@ namespace TickZoom.Logging
 	        get { return logWrapper; }
 	    }
 
-	    public void Assert(bool test) {
+        public Dictionary<Type, ArgumentHandler> UniqueTypes
+        {
+            get { return uniqueTypesInternal; }
+        }
+
+        public Dictionary<string, FormatHandler> UniqueFormats
+        {
+            get { return uniqueFormatsInternal; }
+        }
+
+        public void Assert(bool test) {
 			if( test == false) {
 				Exception ex = new AssertFailedException(new StackTrace(1,true));
 				LogWrapper.Error("Assertion Failed", ex);
@@ -523,45 +533,107 @@ namespace TickZoom.Logging
 			}
 		}
 
-        public string resultString;
+        private static void LookForUniqueness(string format, object[] args)
+        {
+            FormatHandler formatHandler;
+            if (uniqueFormatsInternal.TryGetValue(format, out formatHandler))
+            {
+                formatHandler.Count++;
+            }
+            else
+            {
+                formatHandler = new FormatHandler();
+                uniqueFormatsInternal.Add(format, formatHandler);
+            }
+            for (var i = 0; i < args.Length; i++)
+            {
+                var arg = args[i];
+                if (arg == null) continue;
+                var type = arg.GetType();
+                ArgumentHandler argumentHandler;
+                if (uniqueTypesInternal.TryGetValue(type, out argumentHandler))
+                {
+                    argumentHandler.Count++;
+                }
+                else
+                {
+                    argumentHandler = new ArgumentHandler();
+                    switch( type.FullName)
+                    {
+                        case "TickZoom.Api.TickBinaryBox": // 89
+                        case "TickZoom.PriceData.TickWrapper": // 533350
+                        case "TickZoom.Internals.LogicalOrderInternal": // 30459
+                        case "TickZoom.Common.CreateOrChangeOrderDefault": // 36877
+                        case "TickZoom.Api.LogicalFillBinary": // 15047
+                        case "TickZoom.Interceptors.PhysicalFillDefault": // 11285
+                        case "TickZoom.Api.LogicalFillBinaryBox": // 3761
+                        case "TickZoom.Api.TransactionPairBinary": // 3761
+                        case "TickZoom.Api.TimeStamp": // 3317
+                        case "TickZoom.Api.TickSync": // 1994
+                        case "TickZoom.TickUtil.TickImpl": // 3
+                        case "TickZoom.Api.IntervalImpl": // 45
+                        case "TickZoom.Api.PositionChangeDetail": // 5498
+                        case "TickZoom.Engine.StrategyPositionWrapper": // 397
+                            argumentHandler.Preprocessor = obj => obj.ToString();
+                            break;
+                        case "TickZoom.Symbols.SymbolProperties": // 34259
+                        case "TickZoom.Internals.ModelDriver": // 455
+                        case "TickZoom.PriceData.TimeFrameSeries": // 45
+                        case "TickZoom.PriceData.PriceSeries": // 15
+                        case "TickZoom.Threading.AgentProxy": // 48
+                        case "TickZoom.SocketAPI.SocketTCP": // 123
+                        case "TickZoom.Provider.FIX.FIXMessage4_2": // 1502
+                        case "TickZoom.Provider.FIX.MessageFIX4_2": // 3151
+                            argumentHandler.Preprocessor = obj => obj.ToString();
+                            break;
+                        default:
+                            if (type.IsValueType || type == typeof(string))
+                            {
+                                argumentHandler.Preprocessor = obj => obj.ToString();
+                            }
+                            else if( type.IsSubclassOf(typeof(Delegate)))
+                            {
+                                argumentHandler.Preprocessor = obj => obj.GetType().FullName;
+                            }
+                            else if( type.GetInterface(typeof(StrategyInterface).FullName) != null)
+                            {
+                                argumentHandler.Preprocessor = obj => obj.ToString();
+                            }
+                            else
+                            {
+                                argumentHandler.Preprocessor = obj => obj.ToString();
+                                argumentHandler.UnknownType = true;
+                            }
+                            break;
+                    }
+                    uniqueTypesInternal.Add(type, argumentHandler);
+                }
+                args[i] = argumentHandler.Preprocessor(arg);
+            }
+        }
 
+        public string resultString;
         public string cloneResult;
-        public Dictionary<Type,Type> uniqueTypes = new Dictionary<Type, Type>();
+
+        private static Dictionary<string, FormatHandler> uniqueFormatsInternal = new Dictionary<string, FormatHandler>();
+        private static Dictionary<Type, ArgumentHandler> uniqueTypesInternal = new Dictionary<Type, ArgumentHandler>();
 		public void VerboseFormat(string format, params object[] args)
 		{
             if( IsVerboseEnabled)
             {
-                //for (var i = 0; i < args.Length;i++ )
-                //{
-                //    //var type = args[i].GetType();
-                //    //Type none;
-                //    //if( !uniqueTypes.TryGetValue(type, out none))
-                //    //{
-                //    //    Debug(type.ToString(), null);
-                //    //    uniqueTypes.Add(type,type);
-                //    //}
-                //}
-                //resultString = string.Format(format, args);
-                //Verbose(resultString, null);
+                LookForUniqueness(format, args);
+                resultString = string.Format(format, args);
+                Verbose(resultString, null);
             }
 		}
-		
-		public void TraceFormat(string format, params object[] args)
+
+        public void TraceFormat(string format, params object[] args)
 		{
 			if( IsTraceEnabled)
 			{
-                //for (var i = 0; i < args.Length; i++)
-                //{
-                //    //var type = args[i].GetType();
-                //    //Type none;
-                //    //if (!uniqueTypes.TryGetValue(type, out none))
-                //    //{
-                //    //    Debug(type.ToString(), null);
-                //    //    uniqueTypes.Add(type, type);
-                //    //}
-                //}
-                //resultString = string.Format(format, args);
-                //Trace(resultString, null);
+                LookForUniqueness(format, args);
+                resultString = string.Format(format, args);
+                Trace(resultString, null);
 			}
 		}
 		
@@ -569,18 +641,14 @@ namespace TickZoom.Logging
 		{
             if( IsDebugEnabled)
             {
-                //for (var i = 0; i < args.Length; i++)
-                //{
-                //    //var type = args[i].GetType();
-                //    //Type none;
-                //    //if (!uniqueTypes.TryGetValue(type, out none))
-                //    //{
-                //    //    Debug(type.ToString(), null);
-                //    //    uniqueTypes.Add(type, type);
-                //    //}
-                //}
                 if (allowDebugging)
                 {
+                    resultString = string.Format(format, args);
+                    Debug(resultString, null);
+                }
+                else
+                {
+                    LookForUniqueness(format, args);
                     resultString = string.Format(format, args);
                     Debug(resultString, null);
                 }

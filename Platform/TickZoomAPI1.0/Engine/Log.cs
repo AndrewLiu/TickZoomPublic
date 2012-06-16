@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace TickZoom.Api
@@ -109,5 +110,18 @@ namespace TickZoom.Api
 		void ErrorFormat(IFormatProvider provider, string format, params object[] args);
 		void FatalFormat(IFormatProvider provider, string format, params object[] args);
         void Register(LogAware logAware);
+
+        Dictionary<Type, ArgumentHandler> UniqueTypes { get; }
+        Dictionary<string, FormatHandler> UniqueFormats { get; }
+    }
+    public class FormatHandler
+    {
+        public long Count = 1;
+    }
+    public class ArgumentHandler
+    {
+        public long Count = 1;
+        public Func<object, object> Preprocessor;
+        public bool UnknownType;
     }
 }
