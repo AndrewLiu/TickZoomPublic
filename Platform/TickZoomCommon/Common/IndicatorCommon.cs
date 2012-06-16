@@ -45,7 +45,7 @@ namespace TickZoom.Common
 		private readonly Log instanceLog;
 		private readonly bool instanceDebug;
 		private readonly bool instanceTrace;
-        private static readonly Log barDataLog = Factory.SysLog.GetLogger("BarDataLog");
+        private static readonly Log barDataLog = Factory.SysLog.GetLogger("TestLog.BarDataLog");
         private readonly bool barDataDebug = barDataLog.IsDebugEnabled;
         private DataHasher barHasher = new DataHasher();
 		double startValue = Double.NaN;
@@ -140,23 +140,7 @@ namespace TickZoom.Common
                 barHasher.Writer.Write(bars.Volume[0]);
                 barHasher.Update();
 
-                var sb = new StringBuilder();
-                sb.Append(Name);
-                sb.Append(",");
-                sb.Append(time);
-                sb.Append(",");
-                sb.Append(endTime);
-                sb.Append(",");
-                sb.Append(bars.Open[0]);
-                sb.Append(",");
-                sb.Append(bars.High[0]);
-                sb.Append(",");
-                sb.Append(bars.Low[0]);
-                sb.Append(",");
-                sb.Append(bars.Close[0]);
-                sb.Append(",");
-                sb.Append(bars.Volume[0]);
-                barDataLog.DebugFormat(sb.ToString());
+                barDataLog.DebugFormat("{0},{1},{2},{3},{4},{5},{6},{7}", Name, time, endTime, bars.Open[0], bars.High[0], bars.Low[0], bars.Close[0], bars.Volume[0]);
             }
             Update();
 			return true;
