@@ -550,61 +550,72 @@ namespace TickZoom.Logging
                 var arg = args[i];
                 if (arg == null) continue;
                 var type = arg.GetType();
+                switch (type.FullName)
+                {
+                    case "TickZoom.Internals.LogicalOrderDefault": // 30459
+                        break;
+                }
                 ArgumentHandler argumentHandler;
                 if (uniqueTypesInternal.TryGetValue(type, out argumentHandler))
                 {
                     argumentHandler.Count++;
                 }
-                else
+                else 
                 {
                     argumentHandler = new ArgumentHandler();
-                    switch( type.FullName)
+                    if (arg is LogReferer)
                     {
-                        case "TickZoom.PriceData.TickBox": // 533302
-                        case "TickZoom.Api.TickBinaryBox": // 89
-                        case "TickZoom.Internals.LogicalOrderInternal": // 30459
-                        case "TickZoom.Common.CreateOrChangeOrderDefault": // 36877
-                        case "TickZoom.Api.LogicalFillBinary": // 15047
-                        case "TickZoom.Interceptors.PhysicalFillDefault": // 11285
-                        case "TickZoom.Api.LogicalFillBinaryBox": // 3761
-                        case "TickZoom.Api.TransactionPairBinary": // 3761
-                        case "TickZoom.Api.TimeStamp": // 3317
-                        case "TickZoom.Api.TickSync": // 1994
-                        case "TickZoom.TickUtil.TickImpl": // 3
-                        case "TickZoom.Api.IntervalImpl": // 45
-                        case "TickZoom.Api.PositionChangeDetail": // 5498
-                            argumentHandler.Preprocessor = obj => obj.ToString();
-                            break;
-                        case "TickZoom.Engine.StrategyPositionWrapper": // 397
-                        case "TickZoom.Symbols.SymbolProperties": // 34259
-                        case "TickZoom.Internals.ModelDriver": // 455
-                        case "TickZoom.PriceData.TimeFrameSeries": // 45
-                        case "TickZoom.PriceData.PriceSeries": // 15
-                        case "TickZoom.Threading.AgentProxy": // 48
-                        case "TickZoom.SocketAPI.SocketTCP": // 123
-                        case "TickZoom.Provider.FIX.FIXMessage4_2": // 1502
-                        case "TickZoom.Provider.FIX.MessageFIX4_2": // 3151
-                            argumentHandler.Preprocessor = obj => obj.ToString();
-                            break;
-                        default:
-                            if (type.IsValueType || type == typeof(string))
-                            {
+                        argumentHandler.Preprocessor = obj => ((LogReferer) arg).ToLog();
+                    }
+                    else
+                    {
+                        switch (type.FullName)
+                        {
+                            case "TickZoom.Api.TickBox": // 533302
+                            case "TickZoom.Api.TickBinaryBox": // 89
+                            case "TickZoom.Common.CreateOrChangeOrderDefault": // 36877
+                            case "TickZoom.Api.LogicalFillBinary": // 15047
+                            case "TickZoom.Interceptors.PhysicalFillDefault": // 11285
+                            case "TickZoom.Api.LogicalFillBinaryBox": // 3761
+                            case "TickZoom.Api.TransactionPairBinary": // 3761
+                            case "TickZoom.Api.TimeStamp": // 3317
+                            case "TickZoom.Api.TickSync": // 1994
+                            case "TickZoom.TickUtil.TickImpl": // 3
+                            case "TickZoom.Api.IntervalImpl": // 45
+                            case "TickZoom.Api.PositionChangeDetail": // 5498
                                 argumentHandler.Preprocessor = obj => obj.ToString();
-                            }
-                            else if( type.IsSubclassOf(typeof(Delegate)))
-                            {
-                                argumentHandler.Preprocessor = obj => obj.GetType().FullName;
-                            }
-                            else if( type.GetInterface(typeof(StrategyInterface).FullName) != null)
-                            {
+                                break;
+                            case "TickZoom.Engine.StrategyPositionWrapper": // 397
+                            case "TickZoom.Symbols.SymbolProperties": // 34259
+                            case "TickZoom.Internals.ModelDriver": // 455
+                            case "TickZoom.PriceData.TimeFrameSeries": // 45
+                            case "TickZoom.PriceData.PriceSeries": // 15
+                            case "TickZoom.Threading.AgentProxy": // 48
+                            case "TickZoom.SocketAPI.SocketTCP": // 123
+                            case "TickZoom.Provider.FIX.FIXMessage4_2": // 1502
+                            case "TickZoom.Provider.FIX.MessageFIX4_2": // 3151
                                 argumentHandler.Preprocessor = obj => obj.ToString();
-                            }
-                            else
-                            {
-                                argumentHandler.Preprocessor = obj => obj.ToString();
-                                argumentHandler.UnknownType = true;
-                            }
-                            break;
+                                break;
+                            default:
+                                if (type.IsValueType || type == typeof(string))
+                                {
+                                    argumentHandler.Preprocessor = obj => obj.ToString();
+                                }
+                                else if (type.IsSubclassOf(typeof(Delegate)))
+                                {
+                                    argumentHandler.Preprocessor = obj => obj.GetType().FullName;
+                                }
+                                else if (type.GetInterface(typeof(StrategyInterface).FullName) != null)
+                                {
+                                    argumentHandler.Preprocessor = obj => obj.ToString();
+                                }
+                                else
+                                {
+                                    argumentHandler.Preprocessor = obj => obj.ToString();
+                                    argumentHandler.UnknownType = true;
+                                }
+                                break;
+                        }
                     }
                     uniqueTypesInternal.Add(type, argumentHandler);
                 }

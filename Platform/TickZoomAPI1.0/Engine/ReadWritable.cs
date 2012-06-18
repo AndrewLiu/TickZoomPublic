@@ -40,8 +40,5 @@ namespace TickZoom.Api
 		void SetTime(TimeStamp utcTime);
 		int FromReader(byte version, BinaryReader reader);
 		object ToPosition();
-		byte DataVersion {
-			get;
-		}
 	}
 }
