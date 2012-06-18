@@ -54,7 +54,6 @@ namespace TickZoom.TickUtil
         private static readonly bool verbose = log.IsVerboseEnabled;
 		private DaylightSavings dst;
 
-		byte dataVersion;
 		TickBinary binary;
 		TimeStamp localTime;
 	    private TickSerializer tickSerializer;
@@ -183,7 +182,6 @@ namespace TickZoom.TickUtil
 					*(a+i) = (ushort) tick.AskLevel(i);
 				}
 			}
-			dataVersion = tick.DataVersion;
 		}
 		
 		public int BidDepth {
@@ -299,10 +297,6 @@ namespace TickZoom.TickUtil
 			}
 		}
 		
-		public byte DataVersion {
-			get { return dataVersion; }
-		}
-
         public double Strike
         {
             get { return binary.Strike.ToDouble(); }

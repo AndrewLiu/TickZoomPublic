@@ -411,7 +411,7 @@ namespace Loaders
                     uniqueFormats++;
                 }
             }
-            Assert.Less(uniqueFormats, 100, "Number of unique string formats.");
+            Assert.Less(uniqueFormats, 250, "Number of unique string formats.");
             if (ShowCharts)
             {
                 log.Warn("Popped up MessageBox: Finished with Charts?");

@@ -46,11 +46,16 @@ namespace TickZoom.Api
         Touched,
         PartialFill,  
     }
+
+    public interface LogReferer
+    {
+        object ToLog();
+    }
 	
 	/// <summary>
 	/// Description of OrderCommon.
 	/// </summary>
-    public interface LogicalOrder : Serializable, IComparable, Order
+    public interface LogicalOrder : Serializable, IComparable, Order, LogReferer
     {
         Action<LogicalOrder> OnModified { get; set; }
 
@@ -161,5 +166,6 @@ namespace TickZoom.Api
 	    TimeStamp UtcTouchTime { get; }
 	    void SetTouched(TimeStamp utcTime);
 	    void SetPartialFill(TimeStamp utcTime);
+	    object ToLog();
     }
 }
