@@ -392,20 +392,26 @@ namespace Loaders
         [TestFixtureTearDown]
         public virtual void EndStrategy()
         {
-            foreach( var kvp in log.UniqueTypes)
+            var unknownCount = 0;
+            foreach (var kvp in log.UniqueTypes)
             {
-                if( kvp.Value.UnknownType)
+                if (kvp.Value.UnknownType)
                 {
                     log.Info("Unknown log argument type: " + kvp.Key.FullName + ", " + kvp.Value.Count);
+                    unknownCount++;
                 }
             }
+            Assert.AreEqual(0,unknownCount,"Number of unknown logging types.");
+            var uniqueFormats = 0;
             foreach (var kvp in log.UniqueFormats)
             {
-                if( kvp.Value.Count < 10)
+                if (kvp.Value.Count < 10)
                 {
                     log.Info("Possibly malformed log format: " + kvp.Key + ", " + kvp.Value.Count);
+                    uniqueFormats++;
                 }
             }
+            Assert.Less(uniqueFormats, 100, "Number of unique string formats.");
             if (ShowCharts)
             {
                 log.Warn("Popped up MessageBox: Finished with Charts?");
