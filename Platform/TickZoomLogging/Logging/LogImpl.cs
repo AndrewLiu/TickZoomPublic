@@ -560,8 +560,8 @@ namespace TickZoom.Logging
                     argumentHandler = new ArgumentHandler();
                     switch( type.FullName)
                     {
+                        case "TickZoom.PriceData.TickBox": // 533302
                         case "TickZoom.Api.TickBinaryBox": // 89
-                        case "TickZoom.PriceData.TickWrapper": // 533350
                         case "TickZoom.Internals.LogicalOrderInternal": // 30459
                         case "TickZoom.Common.CreateOrChangeOrderDefault": // 36877
                         case "TickZoom.Api.LogicalFillBinary": // 15047
@@ -573,9 +573,9 @@ namespace TickZoom.Logging
                         case "TickZoom.TickUtil.TickImpl": // 3
                         case "TickZoom.Api.IntervalImpl": // 45
                         case "TickZoom.Api.PositionChangeDetail": // 5498
-                        case "TickZoom.Engine.StrategyPositionWrapper": // 397
                             argumentHandler.Preprocessor = obj => obj.ToString();
                             break;
+                        case "TickZoom.Engine.StrategyPositionWrapper": // 397
                         case "TickZoom.Symbols.SymbolProperties": // 34259
                         case "TickZoom.Internals.ModelDriver": // 455
                         case "TickZoom.PriceData.TimeFrameSeries": // 45
