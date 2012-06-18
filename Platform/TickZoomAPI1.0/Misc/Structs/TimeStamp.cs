@@ -1012,22 +1012,18 @@ namespace TickZoom.Api
 			lhs._timeStamp += rhs.Internal;
 			return lhs;
 		}
+
+        public static explicit operator TimeStamp( long timeStamp)
+        {
+            return new TimeStamp(timeStamp);
+        }
+
+        public static explicit operator long( TimeStamp TimeStamp)
+        {
+            return TimeStamp.Internal;
+        }
 		
-//		public static explicit operator TimeStamp( long timeStamp)
-//		{
-//			return new TimeStamp(timeStamp);
-//		}
-		
-//		public static explicit operator long( TimeStamp TimeStamp )
-//		{
-//			return TimeStamp._timeStamp;
-//		}
-//		
-//		public static explicit operator double( TimeStamp TimeStamp )
-//		{
-//			return (double)TimeStamp._timeStamp / MillisecondsPerDay;
-//		}
-		
+
 		public static explicit operator DateTime( TimeStamp TimeStamp )
 		{
 			

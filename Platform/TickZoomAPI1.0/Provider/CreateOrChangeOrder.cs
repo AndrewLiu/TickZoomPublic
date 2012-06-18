@@ -52,7 +52,7 @@ namespace TickZoom.Api
         OrderSide Side { get; set; }
     }
 
-    public interface PhysicalOrder : Order
+    public interface PhysicalOrder : Order, LogReferer
     {
         OrderAction Action { get; }
 
@@ -80,13 +80,13 @@ namespace TickZoom.Api
             set;
         }
 
-        CreateOrChangeOrder ReplacedBy
+        PhysicalOrder ReplacedBy
         {
             get;
             set;
         }
 
-        CreateOrChangeOrder OriginalOrder
+        PhysicalOrder OriginalOrder
         {
             get;
             set;
@@ -106,15 +106,11 @@ namespace TickZoom.Api
 
         bool OffsetTooLateToChange { get; }
         bool IsSynthetic { get; set; }
-    }
-
-	public interface CreateOrChangeOrder : PhysicalOrder
-	{
 	    int LogicalOrderId { get; }
 
 	    long LogicalSerialNumber { get; }
 
-	    CreateOrChangeOrder Clone();
+	    PhysicalOrder Clone();
 	    void ResetLastChange(TimeStamp lastChange);
 
         int RemainingSize { get; set;  }

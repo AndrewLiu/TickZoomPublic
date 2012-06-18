@@ -23,9 +23,9 @@ namespace TickZoom.Common
             }
         }
 
-        protected Dictionary<int, CreateOrChangeOrder> ordersBySequence = new Dictionary<int, CreateOrChangeOrder>();
-        protected Dictionary<long, CreateOrChangeOrder> ordersByBrokerId = new Dictionary<long, CreateOrChangeOrder>();
-        protected Dictionary<long, CreateOrChangeOrder> ordersBySerial = new Dictionary<long, CreateOrChangeOrder>();
+        protected Dictionary<int, PhysicalOrder> ordersBySequence = new Dictionary<int, PhysicalOrder>();
+        protected Dictionary<long, PhysicalOrder> ordersByBrokerId = new Dictionary<long, PhysicalOrder>();
+        protected Dictionary<long, PhysicalOrder> ordersBySerial = new Dictionary<long, PhysicalOrder>();
         protected Dictionary<long, SymbolPosition> positions = new Dictionary<long, SymbolPosition>();
         protected Dictionary<int, StrategyPosition> strategyPositions = new Dictionary<int, StrategyPosition>();
         private string name;
@@ -48,7 +48,7 @@ namespace TickZoom.Common
 
         public virtual void AssertAtomic() { }
 
-        public IEnumerable<CreateOrChangeOrder> GetActiveOrders(SymbolInfo symbol)
+        public IEnumerable<PhysicalOrder> GetActiveOrders(SymbolInfo symbol)
         {
             if (debug) log.DebugFormat("GetActiveOrders( {0})", symbol);
             AssertAtomic();
@@ -175,13 +175,13 @@ namespace TickZoom.Common
             }
         }
 
-        public bool TryGetOrderById(long brokerOrder, out CreateOrChangeOrder order)
+        public bool TryGetOrderById(long brokerOrder, out PhysicalOrder order)
         {
             AssertAtomic();
             return ordersByBrokerId.TryGetValue(brokerOrder, out order);
         }
 
-        public bool TryGetOrderBySequence(int sequence, out CreateOrChangeOrder order)
+        public bool TryGetOrderBySequence(int sequence, out PhysicalOrder order)
         {
             AssertAtomic();
             if (sequence == 0)
@@ -192,10 +192,10 @@ namespace TickZoom.Common
             return ordersBySequence.TryGetValue(sequence, out order);
         }
 
-        public CreateOrChangeOrder GetOrderById(long brokerOrder)
+        public PhysicalOrder GetOrderById(long brokerOrder)
         {
             AssertAtomic();
-            CreateOrChangeOrder order;
+            PhysicalOrder order;
             if (!ordersByBrokerId.TryGetValue(brokerOrder, out order))
             {
                 throw new ApplicationException("Unable to find order for id: " + brokerOrder);
@@ -203,7 +203,7 @@ namespace TickZoom.Common
             return order;
         }
 
-        public void PurgeOriginalOrder(CreateOrChangeOrder order)
+        public void PurgeOriginalOrder(PhysicalOrder order)
         {
             if( order.OriginalOrder == null) return;
             var clientOrderId = order.OriginalOrder.BrokerOrder;
@@ -213,7 +213,7 @@ namespace TickZoom.Common
             order.OriginalOrder = null;
         }
 
-        public CreateOrChangeOrder RemoveOrder(long clientOrderId)
+        public PhysicalOrder RemoveOrder(long clientOrderId)
         {
             if (trace) log.TraceFormat("RemoveOrder( {0})", clientOrderId);
             AssertAtomic();
@@ -225,18 +225,18 @@ namespace TickZoom.Common
             return topOrder;
         }
 
-        private CreateOrChangeOrder RemoveOrderInternal(long clientOrderId)
+        private PhysicalOrder RemoveOrderInternal(long clientOrderId)
         {
             if (clientOrderId == 0)
             {
                 return null;
             }
-            CreateOrChangeOrder order = null;
+            PhysicalOrder order = null;
             if (ordersByBrokerId.TryGetValue(clientOrderId, out order))
             {
                 var result = ordersByBrokerId.Remove(clientOrderId);
                 if (result && trace) log.TraceFormat("Removed order by broker id {0}: {1}", clientOrderId, order);
-                CreateOrChangeOrder orderBySerial;
+                PhysicalOrder orderBySerial;
                 if (ordersBySerial.TryGetValue(order.LogicalSerialNumber, out orderBySerial))
                 {
                     if (orderBySerial.BrokerOrder.Equals(clientOrderId))
@@ -251,16 +251,16 @@ namespace TickZoom.Common
             return null;
         }
 
-        public bool TryGetOrderBySerial(long logicalSerialNumber, out CreateOrChangeOrder order)
+        public bool TryGetOrderBySerial(long logicalSerialNumber, out PhysicalOrder order)
         {
             AssertAtomic();
             return ordersBySerial.TryGetValue(logicalSerialNumber, out order);
         }
 
-        public CreateOrChangeOrder GetOrderBySerial(long logicalSerialNumber)
+        public PhysicalOrder GetOrderBySerial(long logicalSerialNumber)
         {
             AssertAtomic();
-            CreateOrChangeOrder order;
+            PhysicalOrder order;
             if (!ordersBySerial.TryGetValue(logicalSerialNumber, out order))
             {
                 throw new ApplicationException("Unable to find order by serial for id: " + logicalSerialNumber);
@@ -268,7 +268,7 @@ namespace TickZoom.Common
             return order;
         }
 
-        public bool HasCreateOrder(CreateOrChangeOrder order)
+        public bool HasCreateOrder(PhysicalOrder order)
         {
             foreach (var queueOrder in GetActiveOrders(order.Symbol))
             {
@@ -294,7 +294,7 @@ namespace TickZoom.Common
             return false;
         }
 
-        public void SetOrder(CreateOrChangeOrder order)
+        public void SetOrder(PhysicalOrder order)
         {
             AssertAtomic();
             if (trace) log.TraceFormat("Assigning order {0} with {1}", order.BrokerOrder, order.LogicalSerialNumber);
@@ -313,9 +313,9 @@ namespace TickZoom.Common
             }
         }
 
-        public List<CreateOrChangeOrder> GetOrdersList(Func<CreateOrChangeOrder, bool> select)
+        public List<PhysicalOrder> GetOrdersList(Func<PhysicalOrder, bool> select)
         {
-            var list = new List<CreateOrChangeOrder>();
+            var list = new List<PhysicalOrder>();
             foreach (var order in GetOrders(select))
             {
                 list.Add(order);
@@ -323,10 +323,10 @@ namespace TickZoom.Common
             return list;
         }
 
-        public IEnumerable<CreateOrChangeOrder> GetOrders(Func<CreateOrChangeOrder, bool> select)
+        public IEnumerable<PhysicalOrder> GetOrders(Func<PhysicalOrder, bool> select)
         {
             AssertAtomic();
-            var list = new List<CreateOrChangeOrder>();
+            var list = new List<PhysicalOrder>();
             foreach (var kvp in ordersByBrokerId)
             {
                 var order = kvp.Value;

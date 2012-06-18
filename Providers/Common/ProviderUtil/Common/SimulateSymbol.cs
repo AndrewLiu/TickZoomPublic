@@ -9,10 +9,10 @@ namespace TickZoom.Provider.FIX
         int ActualPosition { get; }
         FillSimulator FillSimulator { get; }
         SymbolInfo Symbol { get; }
-        void CreateOrder(CreateOrChangeOrder order);
+        void CreateOrder(PhysicalOrder order);
         void TryProcessAdjustments();
-        bool ChangeOrder(CreateOrChangeOrder order);
-        void CancelOrder(CreateOrChangeOrder order);
-        CreateOrChangeOrder GetOrderById(long clientOrderId);
+        bool ChangeOrder(PhysicalOrder order);
+        void CancelOrder(PhysicalOrder order);
+        PhysicalOrder GetOrderById(long clientOrderId);
     }
 }

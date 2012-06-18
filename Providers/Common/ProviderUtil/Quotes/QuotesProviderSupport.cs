@@ -389,7 +389,7 @@ namespace TickZoom.Provider.FIX
 
 	    private void SyntheticOrder(EventItem eventItem)
 	    {
-	        var order = (CreateOrChangeOrder) eventItem.EventDetail;
+	        var order = (PhysicalOrder) eventItem.EventDetail;
             SymbolHandler symbolHandler;
             lock (symbolHandlersLocker)
             {

@@ -15,21 +15,21 @@ namespace TickZoom.Provider.FIX
             this.symbol = symbol;
         }
 
-        public bool OnChangeBrokerOrder(CreateOrChangeOrder order)
+        public bool OnChangeBrokerOrder(PhysicalOrder order)
         {
             if( receiver == null) return false;
             receiver.SendEvent(new EventItem(self, symbol.CommonSymbol, EventType.SyntheticOrder, order));
             return true;
         }
 
-        public bool OnCreateBrokerOrder(CreateOrChangeOrder order)
+        public bool OnCreateBrokerOrder(PhysicalOrder order)
         {
             if (receiver == null) return false;
             receiver.SendEvent(new EventItem(self, symbol.CommonSymbol, EventType.SyntheticOrder, order));
             return true;
         }
 
-        public bool OnCancelBrokerOrder(CreateOrChangeOrder order)
+        public bool OnCancelBrokerOrder(PhysicalOrder order)
         {
             if (receiver == null) return false;
             receiver.SendEvent(new EventItem(self, symbol.CommonSymbol, EventType.SyntheticOrder, order));

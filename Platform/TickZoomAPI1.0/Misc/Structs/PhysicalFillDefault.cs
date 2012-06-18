@@ -28,7 +28,7 @@ using System;
 using System.Text;
 using TickZoom.Api;
 
-namespace TickZoom.Interceptors
+namespace TickZoom.Api
 {
 	public class PhysicalFillDefault : PhysicalFill
 	{

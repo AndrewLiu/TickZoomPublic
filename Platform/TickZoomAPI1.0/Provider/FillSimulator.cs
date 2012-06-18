@@ -39,12 +39,12 @@ namespace TickZoom.Api
 	public interface FillSimulator : PhysicalOrderHandler {
 		void OnOpen(Tick tick);
 		void StartTick(Tick lastTick);
-		CreateOrChangeOrder GetOrderById( long orderId);
+		PhysicalOrder GetOrderById( long orderId);
         void FlushFillQueue();
 	    int ProcessAdjustments();
 	    void LogActiveOrders();
-        Action<PhysicalFill, CreateOrChangeOrder> OnPhysicalFill { get; set; }
-        Action<CreateOrChangeOrder, string> OnRejectOrder { get; set; }
+        Action<PhysicalFill, PhysicalOrder> OnPhysicalFill { get; set; }
+        Action<PhysicalOrder, string> OnRejectOrder { get; set; }
         Action<long> OnPositionChange { get; set; }
         PhysicalOrderConfirm ConfirmOrders { get; set; }
         PartialFillSimulation PartialFillSimulation { get; set; }

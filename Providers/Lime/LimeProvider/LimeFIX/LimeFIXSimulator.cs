@@ -160,7 +160,7 @@ namespace TickZoom.Provider.LimeFIX
                 //ProviderSimulator.SetOrderServerOffline();
                 //return;
             }
-            CreateOrChangeOrder origOrder = null;
+            PhysicalOrder origOrder = null;
             if (debug) log.DebugFormat("FIXChangeOrder() for {0}. Client id: {1}. Original client id: {2}", packet.Symbol, packet.ClientOrderId, packet.OriginalClientOrderId);
             try
             {
@@ -207,7 +207,7 @@ namespace TickZoom.Provider.LimeFIX
             order.OriginalOrder = null; // Original is now gone.
         }
 
-        private void ProcessChangeOrder(CreateOrChangeOrder order)
+        private void ProcessChangeOrder(PhysicalOrder order)
         {
             SendExecutionReport(order, "5", 0.0, 0, 0, 0, (int)order.RemainingSize, TimeStamp.UtcNow);
             SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
@@ -247,7 +247,7 @@ namespace TickZoom.Provider.LimeFIX
 
         private void FIXCancelOrder(MessageFIX4_2 packet)
         {
-            CreateOrChangeOrder origOrder = null;
+            PhysicalOrder origOrder = null;
             try
             {
                 long origClientId;
@@ -298,7 +298,7 @@ namespace TickZoom.Provider.LimeFIX
             return;
         }
 
-        private void ProcessCancelOrder(CreateOrChangeOrder cancelOrder)
+        private void ProcessCancelOrder(PhysicalOrder cancelOrder)
         {
             var origOrder = cancelOrder.OriginalOrder;
             var useCancelOrder = random.Next(0, 10) < 5;
@@ -357,13 +357,13 @@ namespace TickZoom.Provider.LimeFIX
             return;
         }
 
-        private void ProcessCreateOrder(CreateOrChangeOrder order)
+        private void ProcessCreateOrder(PhysicalOrder order)
         {
             SendExecutionReport(order, "0", 0.0, 0, 0, 0, (int)order.RemainingSize, TimeStamp.UtcNow);
             SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
         }
 
-        private CreateOrChangeOrder ConstructOrder(MessageFIX4_2 packet, string clientOrderId)
+        private PhysicalOrder ConstructOrder(MessageFIX4_2 packet, string clientOrderId)
         {
             if (string.IsNullOrEmpty(clientOrderId))
             {
@@ -418,7 +418,7 @@ namespace TickZoom.Provider.LimeFIX
             return physicalOrder;
         }
 
-        private CreateOrChangeOrder ConstructCancelOrder(MessageFIX4_2 packet, string clientOrderId, CreateOrChangeOrder origOrder)
+        private PhysicalOrder ConstructCancelOrder(MessageFIX4_2 packet, string clientOrderId, PhysicalOrder origOrder)
         {
             if (string.IsNullOrEmpty(clientOrderId))
             {
@@ -457,7 +457,7 @@ namespace TickZoom.Provider.LimeFIX
         private string target;
         private string sender;
 
-        public override void OnRejectOrder(CreateOrChangeOrder order, string error)
+        public override void OnRejectOrder(PhysicalOrder order, string error)
         {
             var mbtMsg = (FIXMessage4_2)FixFactory.Create();
             mbtMsg.SetAccount("33006566");
@@ -471,7 +471,7 @@ namespace TickZoom.Provider.LimeFIX
             SendMessage(mbtMsg);
         }
 
-        public override void OnPhysicalFill(PhysicalFill fill, CreateOrChangeOrder order)
+        public override void OnPhysicalFill(PhysicalFill fill, PhysicalOrder order)
         {
             if (order.Symbol.FixSimulationType == FIXSimulationType.BrokerHeldStopOrder &&
                 (order.Type == OrderType.Stop ))
@@ -487,7 +487,7 @@ namespace TickZoom.Provider.LimeFIX
             if (debug) log.DebugFormat("Converting physical fill to FIX: {0}", fill);
             SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
             var orderStatus = fill.CumulativeSize == fill.CompleteSize ? "2" : "1";
-            CreateOrChangeOrder origOrder;
+            PhysicalOrder origOrder;
             if( ProviderSimulator.TryGetOrderById(order.BrokerOrder, out origOrder))
             {
                 origOrder.CompleteSize = Math.Abs(fill.CompleteSize);
@@ -527,12 +527,12 @@ namespace TickZoom.Provider.LimeFIX
             //if(trace) log.Trace("Sending position update: " + mbtMsg);
         }
 
-        private void SendExecutionReport(CreateOrChangeOrder order, string status, double price, int orderQty, int cumQty, int lastQty, int leavesQty, TimeStamp time)
+        private void SendExecutionReport(PhysicalOrder order, string status, double price, int orderQty, int cumQty, int lastQty, int leavesQty, TimeStamp time)
         {
             SendExecutionReport(order, status, status, price, orderQty, cumQty, lastQty, leavesQty, time);
         }
 
-        private void SendExecutionReport(CreateOrChangeOrder order, string status, string executionType, double price, int orderQty, int cumQty, int lastQty, int leavesQty, TimeStamp time)
+        private void SendExecutionReport(PhysicalOrder order, string status, string executionType, double price, int orderQty, int cumQty, int lastQty, int leavesQty, TimeStamp time)
         {
             int orderType = 0;
             switch (order.Type) {

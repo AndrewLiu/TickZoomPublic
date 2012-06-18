@@ -1058,8 +1058,8 @@ namespace TickZoom.Provider.FIX
             get { return providerSimulator; }
         }
 
-        public abstract void OnRejectOrder(CreateOrChangeOrder order, string error);
-        public abstract void OnPhysicalFill(PhysicalFill fill, CreateOrChangeOrder order);
+        public abstract void OnRejectOrder(PhysicalOrder order, string error);
+        public abstract void OnPhysicalFill(PhysicalFill fill, PhysicalOrder order);
 
         protected void OnBusinessReject(string error)
         {

@@ -168,8 +168,8 @@ namespace TickZoom.Provider.FIX
             return 0;
         }
 
-        private Dictionary<long, CreateOrChangeOrder> orders = new Dictionary<long, CreateOrChangeOrder>();
-        public void CreateOrder(CreateOrChangeOrder order)
+        private Dictionary<long, PhysicalOrder> orders = new Dictionary<long, PhysicalOrder>();
+        public void CreateOrder(PhysicalOrder order)
         {
             SimulateSymbol symbolSyncTicks;
             using (symbolHandlersLocker.Using())
@@ -183,7 +183,7 @@ namespace TickZoom.Provider.FIX
             }
         }
 
-        public void TryProcessAdustments(CreateOrChangeOrder order)
+        public void TryProcessAdustments(PhysicalOrder order)
         {
             SimulateSymbol symbolSyncTicks;
             using (symbolHandlersLocker.Using())
@@ -196,7 +196,7 @@ namespace TickZoom.Provider.FIX
             }
         }
 
-        public void ChangeOrder(CreateOrChangeOrder order)
+        public void ChangeOrder(PhysicalOrder order)
         {
             SimulateSymbol symbolSyncTicks;
             using (symbolHandlersLocker.Using())
@@ -213,7 +213,7 @@ namespace TickZoom.Provider.FIX
             }
         }
 
-        public void CancelOrder(CreateOrChangeOrder order)
+        public void CancelOrder(PhysicalOrder order)
         {
             SimulateSymbol symbolSyncTicks;
             using (symbolHandlersLocker.Using())
@@ -227,14 +227,14 @@ namespace TickZoom.Provider.FIX
             }
         }
 
-        public bool TryGetOrderById(long clientOrderId, out CreateOrChangeOrder order)
+        public bool TryGetOrderById(long clientOrderId, out PhysicalOrder order)
         {
             return orders.TryGetValue(clientOrderId, out order);
         }
 
-        public CreateOrChangeOrder GetOrderById(long clientOrderId)
+        public PhysicalOrder GetOrderById(long clientOrderId)
         {
-            CreateOrChangeOrder order;
+            PhysicalOrder order;
             if( !orders.TryGetValue(clientOrderId, out order))
             {
                 throw new ApplicationException("Cannot find client order by id: " + clientOrderId);

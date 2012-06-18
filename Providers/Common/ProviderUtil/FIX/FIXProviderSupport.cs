@@ -319,7 +319,7 @@ namespace TickZoom.Provider.FIX
                         socketTask.Filter.Pop();
                         break;
                     case EventType.SyntheticConfirmation:
-                        SyntheticConfirmation( (CreateOrChangeOrder) eventItem.EventDetail);
+                        SyntheticConfirmation( (PhysicalOrder) eventItem.EventDetail);
                         socketTask.Filter.Pop();
                         break;
                     case EventType.SyntheticFill:
@@ -327,7 +327,7 @@ namespace TickZoom.Provider.FIX
                         socketTask.Filter.Pop();
                         break;
                     case EventType.SyntheticReject:
-                        SyntheticReject((CreateOrChangeOrder)eventItem.EventDetail);
+                        SyntheticReject((PhysicalOrder)eventItem.EventDetail);
                         socketTask.Filter.Pop();
                         break;
                     case EventType.Shutdown:
@@ -386,7 +386,7 @@ namespace TickZoom.Provider.FIX
             }
 		}
 
-        private void SyntheticReject(CreateOrChangeOrder order)
+        private void SyntheticReject(PhysicalOrder order)
         {
             if (debug) log.DebugFormat("SyntheticReject: {0}", order);
             var orderAlgorithm = algorithms.CreateAlgorithm(order.Symbol);
@@ -406,7 +406,7 @@ namespace TickZoom.Provider.FIX
             orderAlgorithm.OrderAlgorithm.SyntheticFill(fill);
         }
 
-        private void SyntheticConfirmation(CreateOrChangeOrder order)
+        private void SyntheticConfirmation(PhysicalOrder order)
         {
             var orderAlgorithm = algorithms.CreateAlgorithm(order.Symbol);
             switch( order.Action)
@@ -798,7 +798,7 @@ namespace TickZoom.Provider.FIX
         }
 
 
-	    protected abstract void ResendOrder(CreateOrChangeOrder order);
+	    protected abstract void ResendOrder(PhysicalOrder order);
 
 
         private bool HandleResend(Message message)
@@ -819,7 +819,7 @@ namespace TickZoom.Provider.FIX
                 var previous = messageFIX.BegSeqNum;
                 for( var i = previous; i<=end; i++)
                 {
-                    CreateOrChangeOrder order;
+                    PhysicalOrder order;
                     FIXTMessage1_1 missingMessage;
                     var sentFlag = false;
                     if( orderStore.TryGetOrderBySequence( i, out order))
@@ -1501,9 +1501,9 @@ namespace TickZoom.Provider.FIX
             }
         }
 
-        public abstract bool OnCreateBrokerOrder(CreateOrChangeOrder createOrChangeOrder);
-        public abstract bool OnCancelBrokerOrder(CreateOrChangeOrder order);
-        public abstract bool OnChangeBrokerOrder(CreateOrChangeOrder createOrChangeOrder);
+        public abstract bool OnCreateBrokerOrder(PhysicalOrder physicalOrder);
+        public abstract bool OnCancelBrokerOrder(PhysicalOrder order);
+        public abstract bool OnChangeBrokerOrder(PhysicalOrder physicalOrder);
 
         public int ProcessOrders()
         {
@@ -1549,7 +1549,7 @@ namespace TickZoom.Provider.FIX
             var originalClientOrderId = 0L;
             long.TryParse(clientOrderIdStr, out originalClientOrderId);
 
-            CreateOrChangeOrder order;
+            PhysicalOrder order;
             if (OrderStore.TryGetOrderById(clientOrderId, out order))
             {
                 var symbol = order.Symbol;
@@ -1620,7 +1620,7 @@ namespace TickZoom.Provider.FIX
             long clientOrderId;
             if (packetFIX.BusinessRejectReferenceId != null && long.TryParse(packetFIX.BusinessRejectReferenceId, out clientOrderId))
             {
-                CreateOrChangeOrder order;
+                PhysicalOrder order;
                 if (OrderStore.TryGetOrderById(clientOrderId, out order))
                 {
                     var symbol = order.Symbol;

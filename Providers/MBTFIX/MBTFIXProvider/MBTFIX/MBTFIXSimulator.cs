@@ -132,7 +132,7 @@ namespace TickZoom.Provider.MBTFIX
                 ProviderSimulator.SetOrderServerOffline();
                 return;
             }
-            CreateOrChangeOrder origOrder = null;
+            PhysicalOrder origOrder = null;
 			if( debug) log.DebugFormat( "FIXChangeOrder() for {0}. Client id: {1}. Original client id: {2}", packet.Symbol, packet.ClientOrderId, packet.OriginalClientOrderId);
 			try
 			{
@@ -168,7 +168,7 @@ namespace TickZoom.Provider.MBTFIX
 		    order.OriginalOrder = null; // Original now gone.
 		}
 
-        private void ProcessChangeOrder(CreateOrChangeOrder order)
+        private void ProcessChangeOrder(PhysicalOrder order)
         {
 			SendExecutionReport( order, "E", 0.0, 0, 0, 0, (int) order.RemainingSize, TimeStamp.UtcNow);
             SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
@@ -232,7 +232,7 @@ namespace TickZoom.Provider.MBTFIX
                 return;
             }
             if (debug) log.DebugFormat("FIXCancelOrder() for {0}. Original client id: {1}", packet.Symbol, packet.OriginalClientOrderId);
-            CreateOrChangeOrder origOrder = null;
+            PhysicalOrder origOrder = null;
             try
             {
                 long origClientId;
@@ -257,7 +257,7 @@ namespace TickZoom.Provider.MBTFIX
             return;
         }
 
-        private void ProcessCancelOrder(CreateOrChangeOrder cancelOrder)
+        private void ProcessCancelOrder(PhysicalOrder cancelOrder)
         {
             var origOrder = cancelOrder.OriginalOrder;
 		    var randomOrder = random.Next(0, 10) < 5 ? cancelOrder : origOrder;
@@ -311,7 +311,7 @@ namespace TickZoom.Provider.MBTFIX
             return;
         }
 
-	    private void ProcessCreateOrder(CreateOrChangeOrder order) {
+	    private void ProcessCreateOrder(PhysicalOrder order) {
 			SendExecutionReport( order, "A", 0.0, 0, 0, 0, (int) order.RemainingSize, TimeStamp.UtcNow);
             SendPositionUpdate(order.Symbol, ProviderSimulator.GetPosition(order.Symbol));
             if( order.Symbol.FixSimulationType == FIXSimulationType.BrokerHeldStopOrder &&
@@ -327,7 +327,7 @@ namespace TickZoom.Provider.MBTFIX
             }
 		}
 		
-		private CreateOrChangeOrder ConstructOrder(MessageFIX4_4 packet, string clientOrderId) {
+		private PhysicalOrder ConstructOrder(MessageFIX4_4 packet, string clientOrderId) {
 			if( string.IsNullOrEmpty(clientOrderId)) {
 				var message = "Client order id was null or empty. FIX Message is: " + packet;
 				log.Error(message);
@@ -374,7 +374,7 @@ namespace TickZoom.Provider.MBTFIX
 			return physicalOrder;
 		}
 
-        private CreateOrChangeOrder ConstructCancelOrder(MessageFIX4_4 packet, string clientOrderId, CreateOrChangeOrder origOrder)
+        private PhysicalOrder ConstructCancelOrder(MessageFIX4_4 packet, string clientOrderId, PhysicalOrder origOrder)
         {
             if (string.IsNullOrEmpty(clientOrderId))
             {
@@ -412,7 +412,7 @@ namespace TickZoom.Provider.MBTFIX
 		private string target;
 		private string sender;
 
-        public override void OnRejectOrder(CreateOrChangeOrder order, string error)
+        public override void OnRejectOrder(PhysicalOrder order, string error)
 		{
 			var mbtMsg = (FIXMessage4_4) FixFactory.Create();
 			mbtMsg.SetAccount( "33006566");
@@ -426,7 +426,7 @@ namespace TickZoom.Provider.MBTFIX
             SendMessage(mbtMsg);
         }
 
-        public override void OnPhysicalFill(PhysicalFill fill, CreateOrChangeOrder order)
+        public override void OnPhysicalFill(PhysicalFill fill, PhysicalOrder order)
         {
             if (order.Symbol.FixSimulationType == FIXSimulationType.BrokerHeldStopOrder &&
                 (order.Type == OrderType.Stop))
@@ -475,12 +475,12 @@ namespace TickZoom.Provider.MBTFIX
             //if(trace) log.Trace("Sending position update: " + mbtMsg);
         }	
 
-		private void SendExecutionReport(CreateOrChangeOrder order, string status, double price, int orderQty, int cumQty, int lastQty, int leavesQty, TimeStamp time)
+		private void SendExecutionReport(PhysicalOrder order, string status, double price, int orderQty, int cumQty, int lastQty, int leavesQty, TimeStamp time)
 		{
 		    SendExecutionReport(order, status, status, price, orderQty, cumQty, lastQty, leavesQty, time);
 		}
 
-	    private void SendExecutionReport(CreateOrChangeOrder order, string status, string executionType, double price, int orderQty, int cumQty, int lastQty, int leavesQty, TimeStamp time) {
+	    private void SendExecutionReport(PhysicalOrder order, string status, string executionType, double price, int orderQty, int cumQty, int lastQty, int leavesQty, TimeStamp time) {
 			int orderType = 0;
 			switch( order.Type) {
 				case OrderType.Market:

@@ -145,6 +145,8 @@
     <Compile Include="Misc\Factories\FactoryLoader.cs" />
     <Compile Include="Misc\Structs\DaylightSavings.cs" />
     <Compile Include="Misc\Structs\LogicalOrderBinary.cs" />
+    <Compile Include="Misc\Structs\PhysicalFillDefault.cs" />
+    <Compile Include="Misc\Structs\PhysicalOrderDefault.cs" />
     <Compile Include="Misc\Structs\Progress.cs" />
     <Compile Include="Misc\Structs\QueueItem.cs" />
     <Compile Include="Misc\Structs\TickBinaryBox.cs" />
@@ -250,6 +252,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Provider\AsyncProviderAware.cs" />
     <Compile Include="Provider\BreakPointInterface.cs" />
+    <Compile Include="Provider\CreateOrChangeOrder.cs" />
     <Compile Include="Provider\EventItem.cs" />
     <Compile Include="Provider\FillHandler.cs" />
     <Compile Include="Provider\FIXSimulator.cs" />
@@ -264,7 +267,6 @@
     <Compile Include="Provider\Message.cs" />
     <Compile Include="Provider\MessageFactory.cs" />
     <Compile Include="Provider\FillSimulator.cs" />
-    <Compile Include="Provider\CreateOrChangeOrder.cs" />
     <Compile Include="Provider\PhysicalOrderHandler.cs" />
     <Compile Include="Provider\Provider.cs" />
     <Compile Include="Provider\ProviderService.cs" />

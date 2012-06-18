@@ -247,22 +247,22 @@ namespace TickZoom.Provider.FIX
             FillSimulator.ProcessAdjustments();
         }
 
-        public bool ChangeOrder(CreateOrChangeOrder order)
+        public bool ChangeOrder(PhysicalOrder order)
         {
             return FillSimulator.OnChangeBrokerOrder(order);
         }
 
-        public void CreateOrder(CreateOrChangeOrder order)
+        public void CreateOrder(PhysicalOrder order)
         {
             FillSimulator.OnCreateBrokerOrder(order);
         }
 
-        public void CancelOrder(CreateOrChangeOrder order)
+        public void CancelOrder(PhysicalOrder order)
         {
             FillSimulator.OnCancelBrokerOrder(order);
         }
 
-        public CreateOrChangeOrder GetOrderById(long clientOrderId)
+        public PhysicalOrder GetOrderById(long clientOrderId)
         {
             return FillSimulator.GetOrderById(clientOrderId);
         }
