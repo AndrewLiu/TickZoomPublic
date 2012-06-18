@@ -129,7 +129,7 @@ namespace Test
                 var list = store.GetOrders((o) => o.Symbol.BaseSymbol == "EUR/USD");
                 var enumerator = list.GetEnumerator();
                 var count = 0;
-                CreateOrChangeOrder firstItem = null;
+                PhysicalOrder firstItem = null;
                 if( enumerator.MoveNext())
                 {
                     count++;
@@ -324,8 +324,8 @@ namespace Test
 
                 Assert.AreEqual(2, store.Count());
 
-                CreateOrChangeOrder result1;
-                CreateOrChangeOrder result2;
+                PhysicalOrder result1;
+                PhysicalOrder result2;
                 using (store.BeginTransaction())
                 {
                     result1 = store.GetOrderById(clientId1);

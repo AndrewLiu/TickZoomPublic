@@ -90,13 +90,13 @@ namespace TickZoom.Common
             SyntheticClear();
         }
 
-	    private void OnSyntheticReject(CreateOrChangeOrder order, string message)
+	    private void OnSyntheticReject(PhysicalOrder order, string message)
 	    {
             if( debug) log.DebugFormat("Synthetic order rejected: {0} {1}", message, order);
             syntheticReceiver.SendEvent(new EventItem(EventType.SyntheticReject, order));
         }
 
-	    private void OnPhysicalFill(PhysicalFill fill, CreateOrChangeOrder order)
+	    private void OnPhysicalFill(PhysicalFill fill, PhysicalOrder order)
 	    {
 	        syntheticReceiver.SendEvent(new EventItem(EventType.SyntheticFill, fill));
 	    }
@@ -399,7 +399,7 @@ namespace TickZoom.Common
 	    public void SyntheticOrder(EventItem eventItem)
 	    {
 	        syntheticReceiver = eventItem.Agent;
-            var order = (CreateOrChangeOrder)eventItem.EventDetail;
+            var order = (PhysicalOrder)eventItem.EventDetail;
             switch (order.Action)
             {
                 case OrderAction.Create:

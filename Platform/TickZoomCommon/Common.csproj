@@ -110,9 +110,9 @@
     <Compile Include="Interceptors\FillSimulatorLogic.cs" />
     <Compile Include="Interceptors\FillSimulatorPhysical.cs" />
     <Compile Include="Interceptors\InternalOrders.cs" />
-    <Compile Include="Interceptors\PhysicalFillDefault.cs" />
     <Compile Include="Interceptors\StrategyInterceptor.cs" />
     <Compile Include="ProviderUtilities\Arguments.cs" />
+    <Compile Include="ProviderUtilities\CreateOrChangeOrderDefault.cs" />
     <Compile Include="ProviderUtilities\PhysicalOrderCacheDefault.cs" />
     <Compile Include="ProviderUtilities\PhysicalOrderQueue.cs" />
     <Compile Include="ProviderUtilities\PhysicalOrderStoreDefault.cs" />
@@ -169,7 +169,6 @@
     <Compile Include="ProviderUtilities\OrderAlgorithmDefault.cs" />
     <Compile Include="ProviderUtilities\AssemblyAttributes.cs" />
     <Compile Include="ProviderUtilities\CommandLine.cs" />
-    <Compile Include="ProviderUtilities\CreateOrChangeOrderDefault.cs" />
     <Compile Include="ProviderUtilities\ProjectInstaller.cs">
       <SubType>Component</SubType>
     </Compile>

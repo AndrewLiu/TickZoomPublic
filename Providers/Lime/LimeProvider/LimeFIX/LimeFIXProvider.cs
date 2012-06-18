@@ -330,7 +330,7 @@ namespace TickZoom.Provider.LimeFIX
                         log.Info("New order but OrderAlgorithm not found for " + symbolInfo + ". Ignoring.");
                         break;
                     }
-                    CreateOrChangeOrder order = null;
+                    PhysicalOrder order = null;
                     OrderStore.TryGetOrderById(clientOrderId, out order);
                     if (order != null && symbolInfo.FixSimulationType == FIXSimulationType.BrokerHeldStopOrder) // Stop Order
                     {
@@ -519,7 +519,7 @@ namespace TickZoom.Provider.LimeFIX
             var fillPosition = packetFIX.LastQuantity * SideToSign(packetFIX.Side);
             if (symbolReceivers.GetSymbolStatus(symbolInfo))
             {
-                CreateOrChangeOrder order;
+                PhysicalOrder order;
                 if( OrderStore.TryGetOrderById( clientOrderId, out order)) {
                     TimeStamp executionTime;
 				    if( UseLocalFillTime) {
@@ -563,19 +563,19 @@ namespace TickZoom.Provider.LimeFIX
             HandleOrderReject(packetFIX.ClientOrderId, packetFIX.Symbol, packetFIX.Text, packetFIX);
         }
 
-        public override bool OnCreateBrokerOrder(CreateOrChangeOrder createOrChangeOrder)
+        public override bool OnCreateBrokerOrder(PhysicalOrder physicalOrder)
         {
             if (!IsRecovered) return false;
-            if (debug) log.DebugFormat("OnCreateBrokerOrder {0}. Connection {1}, IsOrderServerOnline {2}", createOrChangeOrder, ConnectionStatus, isOrderServerOnline);
-            if (createOrChangeOrder.Action != OrderAction.Create)
+            if (debug) log.DebugFormat("OnCreateBrokerOrder {0}. Connection {1}, IsOrderServerOnline {2}", physicalOrder, ConnectionStatus, isOrderServerOnline);
+            if (physicalOrder.Action != OrderAction.Create)
             {
-                throw new InvalidOperationException("Expected action Create but was " + createOrChangeOrder.Action);
+                throw new InvalidOperationException("Expected action Create but was " + physicalOrder.Action);
             }
-            OnCreateOrChangeBrokerOrder(createOrChangeOrder, false);
+            OnCreateOrChangeBrokerOrder(physicalOrder, false);
             return true;
         }
 
-        private void OnCreateOrChangeBrokerOrder(CreateOrChangeOrder order, bool resend)
+        private void OnCreateOrChangeBrokerOrder(PhysicalOrder order, bool resend)
         {
             var fixMsg = (FIXMessage4_2)(resend ? FixFactory.Create(order.Sequence) : FixFactory.Create());
             order.Sequence = fixMsg.Sequence;
@@ -599,7 +599,7 @@ namespace TickZoom.Provider.LimeFIX
                 var origBrokerOrder = order.OriginalOrder.BrokerOrder;
                 fixMsg.SetClientOrderId(order.BrokerOrder.ToString());
 				fixMsg.SetOriginalClientOrderId(origBrokerOrder.ToString());
-                CreateOrChangeOrder origOrder;
+                PhysicalOrder origOrder;
                 if (OrderStore.TryGetOrderById(origBrokerOrder, out origOrder))
                 {
                     origOrder.ReplacedBy = order;
@@ -660,7 +660,7 @@ namespace TickZoom.Provider.LimeFIX
             return TimeStamp.UtcNow.Internal;
         }
 
-        protected override void ResendOrder(CreateOrChangeOrder order)
+        protected override void ResendOrder(PhysicalOrder order)
         {
             if (order.Action == OrderAction.Cancel)
             {
@@ -682,14 +682,14 @@ namespace TickZoom.Provider.LimeFIX
             }
         }
 
-        public override bool OnCancelBrokerOrder(CreateOrChangeOrder order)
+        public override bool OnCancelBrokerOrder(PhysicalOrder order)
         {
             if (!IsRecovered) return false;
             if (debug) log.DebugFormat("OnCancelBrokerOrder {0}. Connection {1}, IsOrderServerOnline {2}", order, ConnectionStatus, isOrderServerOnline);
             OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
-            CreateOrChangeOrder createOrChangeOrder;
+            PhysicalOrder physicalOrder;
 			try {
-                createOrChangeOrder = OrderStore.GetOrderById(order.OriginalOrder.BrokerOrder);
+                physicalOrder = OrderStore.GetOrderById(order.OriginalOrder.BrokerOrder);
 			} catch( ApplicationException ex) {
                 if (LogRecovery || !IsRecovery)
                 {
@@ -701,8 +701,8 @@ namespace TickZoom.Provider.LimeFIX
                 }
                 return true;
             }
-            createOrChangeOrder.ReplacedBy = order;
-            if (!object.ReferenceEquals(order.OriginalOrder, createOrChangeOrder))
+            physicalOrder.ReplacedBy = order;
+            if (!object.ReferenceEquals(order.OriginalOrder, physicalOrder))
             {
                 throw new ApplicationException("Different objects!");
             }
@@ -712,7 +712,7 @@ namespace TickZoom.Provider.LimeFIX
 
         }
 
-        private void SendCancelOrder(CreateOrChangeOrder order, bool resend)
+        private void SendCancelOrder(PhysicalOrder order, bool resend)
         {
             var fixMsg = (FIXMessage4_2)(resend ? FixFactory.Create(order.Sequence) : FixFactory.Create());
             order.Sequence = fixMsg.Sequence;
@@ -728,15 +728,15 @@ namespace TickZoom.Provider.LimeFIX
             SendMessage(fixMsg);
         }
 
-        public override  bool OnChangeBrokerOrder(CreateOrChangeOrder createOrChangeOrder)
+        public override  bool OnChangeBrokerOrder(PhysicalOrder physicalOrder)
         {
             if (!IsRecovered) return false;
-            if (debug) log.DebugFormat("OnChangeBrokerOrder( {0}. Connection {1}, IsOrderServerOnline {2}", createOrChangeOrder, ConnectionStatus, isOrderServerOnline);
-            if (createOrChangeOrder.Action != OrderAction.Change)
+            if (debug) log.DebugFormat("OnChangeBrokerOrder( {0}. Connection {1}, IsOrderServerOnline {2}", physicalOrder, ConnectionStatus, isOrderServerOnline);
+            if (physicalOrder.Action != OrderAction.Change)
             {
-                throw new InvalidOperationException("Expected action Change but was " + createOrChangeOrder.Action);
+                throw new InvalidOperationException("Expected action Change but was " + physicalOrder.Action);
             }
-            OnCreateOrChangeBrokerOrder(createOrChangeOrder, false);
+            OnCreateOrChangeBrokerOrder(physicalOrder, false);
             return true;
         }
 

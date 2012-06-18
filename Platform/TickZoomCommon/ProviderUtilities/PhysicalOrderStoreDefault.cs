@@ -29,8 +29,8 @@ namespace TickZoom.Common
         private MemoryStream memory = null;
         private BinaryWriter writer = null;
         private BinaryReader reader = null;
-        private Dictionary<CreateOrChangeOrder, int> unique = new Dictionary<CreateOrChangeOrder, int>();
-        private Dictionary<int,CreateOrChangeOrder> uniqueIds = new Dictionary<int,CreateOrChangeOrder>();
+        private Dictionary<PhysicalOrder, int> unique = new Dictionary<PhysicalOrder, int>();
+        private Dictionary<int,PhysicalOrder> uniqueIds = new Dictionary<int,PhysicalOrder>();
         private Dictionary<int,int> replaceIds = new Dictionary<int,int>();
         private Dictionary<int, int> originalIds = new Dictionary<int, int>();
         private TimeStamp lastSequenceReset;
@@ -176,7 +176,7 @@ namespace TickZoom.Common
             set { lastSequenceReset = value; }
         }
 
-        private bool AddUniqueOrder(CreateOrChangeOrder order)
+        private bool AddUniqueOrder(PhysicalOrder order)
         {
             AssertAtomic();
             int id;
@@ -333,7 +333,7 @@ namespace TickZoom.Common
             }
         }
 
-        private IEnumerable<CreateOrChangeOrder> OrderReferences(CreateOrChangeOrder order)
+        private IEnumerable<PhysicalOrder> OrderReferences(PhysicalOrder order)
         {
             if( order.ReplacedBy != null)
             {

@@ -5,17 +5,17 @@ namespace TickZoom.Api
 {
     public interface PhysicalOrderCache : IDisposable
     {
-        void SetOrder(CreateOrChangeOrder order);
-        CreateOrChangeOrder RemoveOrder(long clientOrderId);
-        IEnumerable<CreateOrChangeOrder> GetActiveOrders(SymbolInfo symbol);
-        IEnumerable<CreateOrChangeOrder> GetOrders(Func<CreateOrChangeOrder, bool> select);
-        bool TryGetOrderById(long brokerOrder, out CreateOrChangeOrder order);
-        bool TryGetOrderBySequence(int sequence, out CreateOrChangeOrder order);
-        CreateOrChangeOrder GetOrderById(long brokerOrder);
-        bool TryGetOrderBySerial(long logicalSerialNumber, out CreateOrChangeOrder order);
-        CreateOrChangeOrder GetOrderBySerial(long logicalSerialNumber);
+        void SetOrder(PhysicalOrder order);
+        PhysicalOrder RemoveOrder(long clientOrderId);
+        IEnumerable<PhysicalOrder> GetActiveOrders(SymbolInfo symbol);
+        IEnumerable<PhysicalOrder> GetOrders(Func<PhysicalOrder, bool> select);
+        bool TryGetOrderById(long brokerOrder, out PhysicalOrder order);
+        bool TryGetOrderBySequence(int sequence, out PhysicalOrder order);
+        PhysicalOrder GetOrderById(long brokerOrder);
+        bool TryGetOrderBySerial(long logicalSerialNumber, out PhysicalOrder order);
+        PhysicalOrder GetOrderBySerial(long logicalSerialNumber);
         bool HasCancelOrder(PhysicalOrder order);
-        bool HasCreateOrder(CreateOrChangeOrder order);
+        bool HasCreateOrder(PhysicalOrder order);
         void ResetLastChange();
         void SetActualPosition(SymbolInfo symbol, long position);
         long GetActualPosition(SymbolInfo symbol);
@@ -26,8 +26,8 @@ namespace TickZoom.Api
         string StrategyPositionsToString();
         string SymbolPositionsToString();
         string OrdersToString();
-        List<CreateOrChangeOrder> GetOrdersList(Func<CreateOrChangeOrder, bool> func);
-        void PurgeOriginalOrder(CreateOrChangeOrder order);
+        List<PhysicalOrder> GetOrdersList(Func<PhysicalOrder, bool> func);
+        void PurgeOriginalOrder(PhysicalOrder order);
     }
 
     public interface PhysicalOrderStore : PhysicalOrderCache

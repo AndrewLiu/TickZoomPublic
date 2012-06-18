@@ -44,8 +44,8 @@ namespace TickZoom.Provider.FIX
                                       QuoteSimulatorSupport quoteSimulatorSupport,
                                       string symbolString,
                                       Action<Message, SymbolInfo, Tick> onTick,
-                                      Action<PhysicalFill,CreateOrChangeOrder> onPhysicalFill,
-                                      Action<CreateOrChangeOrder, string> onRejectOrder)
+                                      Action<PhysicalFill,PhysicalOrder> onPhysicalFill,
+                                      Action<PhysicalOrder, string> onRejectOrder)
         {
             log.Register(this);
             this.fixSimulatorSupport = fixSimulatorSupport;
@@ -92,7 +92,7 @@ namespace TickZoom.Provider.FIX
             }
         }
 
-        public void CreateOrder(CreateOrChangeOrder order)
+        public void CreateOrder(PhysicalOrder order)
         {
             FillSimulator.OnCreateBrokerOrder(order);
         }
@@ -102,17 +102,17 @@ namespace TickZoom.Provider.FIX
             FillSimulator.ProcessAdjustments();
         }
 
-        public bool ChangeOrder(CreateOrChangeOrder order)
+        public bool ChangeOrder(PhysicalOrder order)
         {
             return FillSimulator.OnChangeBrokerOrder(order);
         }
 
-        public void CancelOrder(CreateOrChangeOrder order)
+        public void CancelOrder(PhysicalOrder order)
         {
             FillSimulator.OnCancelBrokerOrder(order);
         }
 
-        public CreateOrChangeOrder GetOrderById(long clientOrderId)
+        public PhysicalOrder GetOrderById(long clientOrderId)
         {
             return FillSimulator.GetOrderById(clientOrderId);
         }

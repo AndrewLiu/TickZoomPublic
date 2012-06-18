@@ -41,18 +41,18 @@ namespace TickZoom.Common
         {
             return new PhysicalOrderCacheDefault(name);
         }
-        public CreateOrChangeOrder PhysicalOrder(OrderState orderState, SymbolInfo symbol, CreateOrChangeOrder origOrder)
+        public PhysicalOrder PhysicalOrder(OrderState orderState, SymbolInfo symbol, PhysicalOrder origOrder)
         {
-            return new CreateOrChangeOrderDefault(orderState, symbol, origOrder);
+            return new PhysicalOrderDefault(orderState, symbol, origOrder);
         }
-        public CreateOrChangeOrder PhysicalOrder(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type, OrderFlags flags, double price, int remainingSize, int cumulativeSize, int completeSize, int logicalOrderId, long logicalSerialNumber, long brokerOrder, object tag, TimeStamp utcCreateTime)
+        public PhysicalOrder PhysicalOrder(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type, OrderFlags flags, double price, int remainingSize, int cumulativeSize, int completeSize, int logicalOrderId, long logicalSerialNumber, long brokerOrder, object tag, TimeStamp utcCreateTime)
         {
-            return new CreateOrChangeOrderDefault(action, orderState, symbol, side, type, flags, price, remainingSize, cumulativeSize, completeSize, logicalOrderId, logicalSerialNumber, brokerOrder, (string)tag, utcCreateTime);
+            return new PhysicalOrderDefault(action, orderState, symbol, side, type, flags, price, remainingSize, cumulativeSize, completeSize, logicalOrderId, logicalSerialNumber, brokerOrder, (string)tag, utcCreateTime);
         }
 
-        public CreateOrChangeOrder PhysicalOrder(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type, OrderFlags flags, double price, int remainingSize, int logicalOrderId, long logicalSerialNumber, long brokerOrder, object tag, TimeStamp utcCreateTime)
+        public PhysicalOrder PhysicalOrder(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type, OrderFlags flags, double price, int remainingSize, int logicalOrderId, long logicalSerialNumber, long brokerOrder, object tag, TimeStamp utcCreateTime)
         {
-            return new CreateOrChangeOrderDefault(action, orderState, symbol, side, type, flags, price, remainingSize, logicalOrderId, logicalSerialNumber, brokerOrder, (string)tag, utcCreateTime);
+            return new PhysicalOrderDefault(action, orderState, symbol, side, type, flags, price, remainingSize, logicalOrderId, logicalSerialNumber, brokerOrder, (string)tag, utcCreateTime);
         }
 
         public ProviderService CommandLineProcess()

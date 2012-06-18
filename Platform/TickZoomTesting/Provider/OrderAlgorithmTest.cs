@@ -275,7 +275,7 @@ namespace Orders
 			Assert.AreEqual(0,handler.Orders.ChangedOrders.Count);
 			Assert.AreEqual(2,handler.Orders.CreatedOrders.Count);
 			
-			CreateOrChangeOrder order = handler.Orders.CreatedOrders[0];
+			PhysicalOrder order = handler.Orders.CreatedOrders[0];
             Assert.AreEqual(OrderSide.Buy, order.Side);
             Assert.AreEqual(OrderType.Limit, order.Type);
 			Assert.AreEqual(234.12,order.Price);
@@ -870,7 +870,7 @@ namespace Orders
 			Assert.AreEqual(0,handler.Orders.ChangedOrders.Count);
 			Assert.AreEqual(1,handler.Orders.CreatedOrders.Count);
 			
-			CreateOrChangeOrder order = handler.Orders.CreatedOrders[0];
+			PhysicalOrder order = handler.Orders.CreatedOrders[0];
             Assert.AreEqual(OrderSide.Sell, order.Side);
             Assert.AreEqual(OrderType.Market, order.Type);
 			Assert.AreEqual(0,order.Price);
@@ -897,7 +897,7 @@ namespace Orders
 			Assert.AreEqual(0,handler.Orders.ChangedOrders.Count);
 			Assert.AreEqual(1,handler.Orders.CreatedOrders.Count);
 			
-			CreateOrChangeOrder order = handler.Orders.CreatedOrders[0];
+			PhysicalOrder order = handler.Orders.CreatedOrders[0];
             Assert.AreEqual(OrderSide.SellShort, order.Side);
             Assert.AreEqual(OrderType.Market, order.Type);
             Assert.AreEqual(0, order.Price);
@@ -972,7 +972,7 @@ namespace Orders
 			Assert.AreEqual(0,handler.Orders.ChangedOrders.Count);
 			Assert.AreEqual(1,handler.Orders.CreatedOrders.Count);
 			
-			CreateOrChangeOrder order = handler.Orders.CreatedOrders[0];
+			PhysicalOrder order = handler.Orders.CreatedOrders[0];
             Assert.AreEqual(OrderSide.Sell, order.Side);
             Assert.AreEqual(OrderType.Market, order.Type);
             Assert.AreEqual(0, order.Price);
@@ -998,7 +998,7 @@ namespace Orders
 			Assert.AreEqual(0,handler.Orders.ChangedOrders.Count);
 			Assert.AreEqual(1,handler.Orders.CreatedOrders.Count);
 			
-			CreateOrChangeOrder order = handler.Orders.CreatedOrders[0];
+			PhysicalOrder order = handler.Orders.CreatedOrders[0];
             Assert.AreEqual(OrderSide.Buy, order.Side);
             Assert.AreEqual(OrderType.Market, order.Type);
             Assert.AreEqual(0, order.Price);
@@ -1450,9 +1450,9 @@ namespace Orders
 		}
 		
 		public class Change {
-			public CreateOrChangeOrder Order;
+			public PhysicalOrder Order;
 			public long OrigBrokerOrder;
-			public Change( CreateOrChangeOrder order, long origBrokerOrder) {
+			public Change( PhysicalOrder order, long origBrokerOrder) {
 				this.Order = order;
 				this.OrigBrokerOrder = origBrokerOrder;
 			}
@@ -1461,8 +1461,8 @@ namespace Orders
 		public class MockPhysicalOrderHandler : PhysicalOrderHandler {
 			public List<object> CanceledOrders = new List<object>();
 			public List<Change> ChangedOrders = new List<Change>();
-            public List<CreateOrChangeOrder> CreatedOrders = new List<CreateOrChangeOrder>();
-			public List<CreateOrChangeOrder> activeOrders = new List<CreateOrChangeOrder>();
+            public List<PhysicalOrder> CreatedOrders = new List<PhysicalOrder>();
+			public List<PhysicalOrder> activeOrders = new List<PhysicalOrder>();
             private PhysicalOrderConfirm confirmOrders;
 		    private PhysicalOrderCache physicalCache;
 			
@@ -1472,7 +1472,7 @@ namespace Orders
 			    this.physicalCache = physicalOrderCache;
 			}
 
-            public bool HasBrokerOrder( CreateOrChangeOrder order)
+            public bool HasBrokerOrder( PhysicalOrder order)
             {
                 return false;
             }
@@ -1488,7 +1488,7 @@ namespace Orders
                 set { }
 		    }
 
-			public bool OnCancelBrokerOrder(CreateOrChangeOrder order)
+			public bool OnCancelBrokerOrder(PhysicalOrder order)
 			{
 				CanceledOrders.Add(order.OriginalOrder.BrokerOrder);
 				RemoveByBrokerOrder(order.OriginalOrder.BrokerOrder);
@@ -1507,7 +1507,7 @@ namespace Orders
 					}
 				}
 			}
-			public bool OnChangeBrokerOrder(CreateOrChangeOrder order)
+			public bool OnChangeBrokerOrder(PhysicalOrder order)
 			{
 				ChangedOrders.Add(new Change( order, order.OriginalOrder.BrokerOrder));
                 RemoveByBrokerOrder(order.OriginalOrder.BrokerOrder);
@@ -1517,7 +1517,7 @@ namespace Orders
 				}
 			    return true;
 			}
-			public bool OnCreateBrokerOrder(CreateOrChangeOrder order)
+			public bool OnCreateBrokerOrder(PhysicalOrder order)
 			{
 				CreatedOrders.Add(order);
 				activeOrders.Add(order);
@@ -1539,7 +1539,7 @@ namespace Orders
                 ChangedOrders.Clear();
                 CreatedOrders.Clear();
             }
-            public void AddPhysicalOrder(CreateOrChangeOrder order)
+            public void AddPhysicalOrder(PhysicalOrder order)
 			{
 				activeOrders.Add(order);
 			}
@@ -1560,9 +1560,9 @@ namespace Orders
                 confirmOrders.ConfirmCreate(order.BrokerOrder, false);
             }
 
-            public Iterable<CreateOrChangeOrder> GetActiveOrders(SymbolInfo symbol)
+            public Iterable<PhysicalOrder> GetActiveOrders(SymbolInfo symbol)
 			{
-				var result = new ActiveList<CreateOrChangeOrder>();
+				var result = new ActiveList<PhysicalOrder>();
 				foreach( var order in activeOrders) {
 					result.AddLast( order);
 				}
@@ -1685,7 +1685,7 @@ namespace Orders
                 }
             }
 
-            private void FillOrder(CreateOrChangeOrder physical)
+            private void FillOrder(PhysicalOrder physical)
             {
                 var price = physical.Price == 0 ? 1234.12 : physical.Price;
                 var size = physical.Side == OrderSide.Buy ? physical.RemainingSize : -physical.RemainingSize;

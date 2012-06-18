@@ -535,6 +535,10 @@ namespace TickZoom.Logging
 
         private static void LookForUniqueness(string format, object[] args)
         {
+            if( memoryBuffer.Length > 100000)
+            {
+                memoryBuffer.SetLength(0);
+            }
             FormatHandler formatHandler;
             if (uniqueFormatsInternal.TryGetValue(format, out formatHandler))
             {
@@ -573,9 +577,9 @@ namespace TickZoom.Logging
                         {
                             case "TickZoom.Api.TickBox": // 533302
                             case "TickZoom.Api.TickBinaryBox": // 89
-                            case "TickZoom.Common.CreateOrChangeOrderDefault": // 36877
+                            case "TickZoom.Api.PhysicalOrderDefault": // 36877
                             case "TickZoom.Api.LogicalFillBinary": // 15047
-                            case "TickZoom.Interceptors.PhysicalFillDefault": // 11285
+                            case "TickZoom.Api.PhysicalFillDefault": // 11285
                             case "TickZoom.Api.LogicalFillBinaryBox": // 3761
                             case "TickZoom.Api.TransactionPairBinary": // 3761
                             case "TickZoom.Api.TimeStamp": // 3317
@@ -583,7 +587,7 @@ namespace TickZoom.Logging
                             case "TickZoom.TickUtil.TickImpl": // 3
                             case "TickZoom.Api.IntervalImpl": // 45
                             case "TickZoom.Api.PositionChangeDetail": // 5498
-                                argumentHandler.Preprocessor = obj => obj.ToString();
+                                argumentHandler.Preprocessor = obj => obj;
                                 break;
                             case "TickZoom.Engine.StrategyPositionWrapper": // 397
                             case "TickZoom.Symbols.SymbolProperties": // 34259
@@ -599,7 +603,7 @@ namespace TickZoom.Logging
                             default:
                                 if (type.IsValueType || type == typeof(string))
                                 {
-                                    argumentHandler.Preprocessor = obj => obj.ToString();
+                                    argumentHandler.Preprocessor = obj => obj;
                                 }
                                 else if (type.IsSubclassOf(typeof(Delegate)))
                                 {
@@ -626,6 +630,7 @@ namespace TickZoom.Logging
         public string resultString;
         public string cloneResult;
 
+        private static MemoryStream memoryBuffer = new MemoryStream();
         private static Dictionary<string, FormatHandler> uniqueFormatsInternal = new Dictionary<string, FormatHandler>();
         private static Dictionary<Type, ArgumentHandler> uniqueTypesInternal = new Dictionary<Type, ArgumentHandler>();
 		public void VerboseFormat(string format, params object[] args)
