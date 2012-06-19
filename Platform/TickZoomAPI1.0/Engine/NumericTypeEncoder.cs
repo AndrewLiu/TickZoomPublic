@@ -51,9 +51,9 @@ namespace TickZoom.Api
             return (long)encoderDelegate.DynamicInvoke((IntPtr)ptr, original);
         }
 
-        public unsafe long Decode(byte *ptr, object original)
+        public unsafe long Decode(byte *ptr, byte *end, object original)
         {
-            return (long)decoderDelegate.DynamicInvoke((IntPtr)ptr, original);
+            return (long)decoderDelegate.DynamicInvoke((IntPtr)ptr, (IntPtr)end, original);
         }
 
         public long Length(object original)
@@ -89,26 +89,39 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Stloc_0);
         }
 
-        public void EmitEncode(ILGenerator generator, FieldInfo field)
+        public void EmitEncode(ILGenerator generator, FieldInfo field, int memberId)
         {
+            // *ptr = memberId;
+            generator.Emit(OpCodes.Ldloc_0);
+            generator.Emit(OpCodes.Ldc_I4_S, memberId);
+            generator.Emit(OpCodes.Stind_I1);
+
+            // ptr++
+            generator.Emit(OpCodes.Ldloc_0);
+            generator.Emit(OpCodes.Ldc_I4_1);
+            generator.Emit(OpCodes.Conv_I);
+            generator.Emit(OpCodes.Add);
+            generator.Emit(OpCodes.Stloc_0); 
+
+            // *ptr = obj.field
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldarg_1);
             generator.Emit(OpCodes.Ldfld, field);
             if( field.FieldType == typeof(byte) || field.FieldType == typeof(sbyte))
             {
-                generator.Emit(OpCodes.Stind_I1);      // *ptr = obj.field
+                generator.Emit(OpCodes.Stind_I1);
             }
             else if(field.FieldType == typeof(Int16) || field.FieldType == typeof(UInt16))
             {
-                generator.Emit(OpCodes.Stind_I2);      // *ptr = obj.field
+                generator.Emit(OpCodes.Stind_I2);
             }
             else if (field.FieldType == typeof(Int32) || field.FieldType == typeof(UInt32))
             {
-                generator.Emit(OpCodes.Stind_I4);      // *ptr = obj.field
+                generator.Emit(OpCodes.Stind_I4);
             }
             else if (field.FieldType == typeof(Int64) || field.FieldType == typeof(UInt64))
             {
-                generator.Emit(OpCodes.Stind_I8);      // *ptr = obj.field
+                generator.Emit(OpCodes.Stind_I8);
             }
             else
             {
@@ -120,7 +133,7 @@ namespace TickZoom.Api
 
         public void EmitDecode(ILGenerator generator, FieldInfo field)
         {
-            generator.Emit(OpCodes.Ldarg_1);
+            generator.Emit(OpCodes.Ldarg_2);
             generator.Emit(OpCodes.Ldloc_0);
             if (field.FieldType == typeof(byte))
             {
