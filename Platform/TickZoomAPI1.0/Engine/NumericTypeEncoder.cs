@@ -63,6 +63,12 @@ namespace TickZoom.Api
 
         public void EmitLength(ILGenerator generator, FieldInfo field)
         {
+            EmitDataLength(generator,field);
+        }
+
+        private void EmitDataLength(ILGenerator generator, FieldInfo field)
+        {
+            // ptr += sizeof()
             generator.Emit(OpCodes.Ldloc_0);
             if (field.FieldType == typeof(byte) || field.FieldType == typeof(sbyte))
             {
@@ -89,20 +95,8 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Stloc_0);
         }
 
-        public void EmitEncode(ILGenerator generator, FieldInfo field, int memberId)
+        public void EmitEncode(ILGenerator generator, FieldInfo field)
         {
-            // *ptr = memberId;
-            generator.Emit(OpCodes.Ldloc_0);
-            generator.Emit(OpCodes.Ldc_I4_S, memberId);
-            generator.Emit(OpCodes.Stind_I1);
-
-            // ptr++
-            generator.Emit(OpCodes.Ldloc_0);
-            generator.Emit(OpCodes.Ldc_I4_1);
-            generator.Emit(OpCodes.Conv_I);
-            generator.Emit(OpCodes.Add);
-            generator.Emit(OpCodes.Stloc_0); 
-
             // *ptr = obj.field
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldarg_1);
@@ -128,7 +122,7 @@ namespace TickZoom.Api
                 throw new InvalidOperationException("Unexpected type: " + field.FieldType);
             }
 
-            EmitLength(generator,field);
+            EmitDataLength(generator,field);
         }
 
         public void EmitDecode(ILGenerator generator, FieldInfo field)
@@ -173,7 +167,7 @@ namespace TickZoom.Api
             }
             generator.Emit(OpCodes.Stfld, field);
 
-            EmitLength(generator, field);
+            EmitDataLength(generator, field);
         }
     }
 }
