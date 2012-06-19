@@ -36,7 +36,10 @@ using System.Threading;
 
 using log4net.Core;
 using log4net.Filter;
+using ProtoBuf.Meta;
 using TickZoom.Api;
+using ProtoBuf;
+using Serializer = ProtoBuf.Serializer;
 
 namespace TickZoom.Logging
 {
@@ -623,7 +626,21 @@ namespace TickZoom.Logging
                     }
                     uniqueTypesInternal.Add(type, argumentHandler);
                 }
-                args[i] = argumentHandler.Preprocessor(arg);
+                args[i] = arg = argumentHandler.Preprocessor(arg);
+                RuntimeTypeModel.Default.Add(typeof(TimeStamp),false).SetSurrogate(typeof(long));
+                type = arg.GetType();
+                if( !type.IsValueType && type != typeof(string))
+                {
+                    if( Serializer.NonGeneric.CanSerialize(type))
+                    {
+                        int x = 0;
+                    }
+                    else
+                    {
+                        int x = 0;
+                    }
+                }
+                Serializer.Serialize(memoryBuffer, args[i]);
             }
         }
 
@@ -638,8 +655,8 @@ namespace TickZoom.Logging
             if( IsVerboseEnabled)
             {
                 LookForUniqueness(format, args);
-                resultString = string.Format(format, args);
-                Verbose(resultString, null);
+                //resultString = string.Format(format, args);
+                //Verbose(resultString, null);
             }
 		}
 

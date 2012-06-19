@@ -96,7 +96,10 @@
     <Compile Include="Classes\LatencyMetric.cs" />
     <Compile Include="Engine\CloneHelper.cs" />
     <Compile Include="Engine\Cloner.cs" />
+    <Compile Include="Engine\EncodeHelper.cs" />
     <Compile Include="Engine\LogAware.cs" />
+    <Compile Include="Engine\MetaType.cs" />
+    <Compile Include="Engine\NumericTypeEncoder.cs" />
     <Compile Include="Engine\PhysicalOrderCache.cs" />
     <Compile Include="Engine\StrategyPosition.cs" />
     <Compile Include="Engine\LogEvent.cs" />
@@ -106,6 +109,7 @@
     <Compile Include="Engine\TickFile.cs" />
     <Compile Include="Engine\TickFileMode.cs" />
     <Compile Include="Engine\TriggerController.cs" />
+    <Compile Include="Engine\TypeEncoderMap.cs" />
     <Compile Include="Locks\NativeMappedFile.cs" />
     <Compile Include="Locks\SharedMemory.cs" />
     <Compile Include="Locks\SimpleLock.cs" />
@@ -149,6 +153,8 @@
     <Compile Include="Misc\Structs\PhysicalOrderDefault.cs" />
     <Compile Include="Misc\Structs\Progress.cs" />
     <Compile Include="Misc\Structs\QueueItem.cs" />
+    <Compile Include="Misc\Structs\SerializeContractAttribute.cs" />
+    <Compile Include="Misc\Structs\SerializeMemberAttribute.cs" />
     <Compile Include="Misc\Structs\TickBinaryBox.cs" />
     <Compile Include="Misc\Structs\TickBox.cs" />
     <Compile Include="Misc\Testing\SimulatorType.cs" />
@@ -279,5 +285,11 @@
     <Compile Include="Misc\Structs\SymbolTimeZone.cs" />
     <Compile Include="Misc\Structs\TickBinary.cs" />
     <Compile Include="Misc\Structs\TimeStamp.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\protobuf-net\protobuf-net.csproj">
+      <Project>{8374E4D7-2A91-48F1-9360-09B09CF27C3F}</Project>
+      <Name>protobuf-net</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
