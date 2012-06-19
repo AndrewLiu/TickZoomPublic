@@ -24,6 +24,10 @@ namespace TickZoom.Api
         {
             typeCodesByType.Add(type,code);
             typeCodesByCode.Add(code,type);
+            if( code > maxCode)
+            {
+                maxCode = code;
+            }
         }
 
         public int DefineType(Type type)
@@ -41,34 +45,44 @@ namespace TickZoom.Api
             var type = original.GetType();
             var typeEncoder = GetTypeEncoder(type);
             var length = typeEncoder.Length(original);
-            memory.SetLength(memory.Position + length);
+            if( length > 255)
+            {
+                throw new InvalidOperationException("Length must be less than 256 bytes.");
+            }
+            var lengthSize = 1; // one byte for length.
+            memory.SetLength(memory.Position + length + lengthSize);
             fixed( byte *bptr = &memory.GetBuffer()[0])
             {
                 var ptr = bptr + memory.Position;
+                *ptr = (byte) length;
+                ptr++;
                 var count = typeEncoder.Encode(ptr, original);
+                if( length != count)
+                {
+                    throw new InvalidOperationException("Predicted length " + length + " differs from actual " + count);
+                }
                 memory.Position += count;
                 memory.SetLength(memory.Position);
             }
         }
 
-        public unsafe object Decode(MemoryStream memory, Type type)
+        public unsafe object Decode(MemoryStream memory)
         {
-            var typeEncoder = GetTypeEncoder(type);
             fixed (byte* bptr = &memory.GetBuffer()[0])
             {
                 var ptr = bptr + memory.Position;
-                var end = ptr + (memory.Length - memory.Position);
+                var length = *ptr;
+                ptr++;
+                var end = ptr + length;
+                var type = typeCodesByCode[*ptr];
+                ptr++;
+                var typeEncoder = GetTypeEncoder(type);
                 var result = FormatterServices.GetUninitializedObject(type);
                 var count = typeEncoder.Decode(ptr, end, result);
-                memory.Position += count;
+                memory.Position += count + 1;
                 memory.SetLength(memory.Position);
                 return result;
             }
-        }
-
-        public object Decode(MemoryStream memory)
-        {
-            return null;
         }
 
         private void UninitializeObject(ILGenerator generator, Type type)
@@ -139,18 +153,45 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Ldloc, ptrLocal);
             generator.Emit(OpCodes.Stloc, startLocal);
 
-            foreach( var kvp in meta.Members)
+            // *ptr = typeCode;
+            generator.Emit(OpCodes.Ldloc_0);
+            generator.Emit(OpCodes.Ldc_I4_S, typeCodesByType[meta.Type]);
+            generator.Emit(OpCodes.Stind_I1);
+
+            // ptr++
+            IncrementPtr(generator);
+
+            foreach (var kvp in meta.Members)
             {
                 var id = kvp.Key;
                 var field = kvp.Value;
-                EmitField(generator, field, EncodeOperation.Encode, id);
+
+                // *ptr = memberId;
+                generator.Emit(OpCodes.Ldloc_0);
+                generator.Emit(OpCodes.Ldc_I4_S, id);
+                generator.Emit(OpCodes.Stind_I1);
+
+                IncrementPtr(generator);
+
+                EmitField(generator, field, EncodeOperation.Encode);
             }
+
+            // return ptr - start;
             generator.Emit(OpCodes.Ldloc, ptrLocal);
             generator.Emit(OpCodes.Ldloc, startLocal);
             generator.Emit(OpCodes.Sub);
             generator.Emit(OpCodes.Conv_I8);
             generator.Emit(OpCodes.Ret);
             return dymMethod;
+        }
+
+        private void IncrementPtr(ILGenerator generator)
+        {
+            generator.Emit(OpCodes.Ldloc_0);
+            generator.Emit(OpCodes.Ldc_I4_1);
+            generator.Emit(OpCodes.Conv_I);
+            generator.Emit(OpCodes.Add);
+            generator.Emit(OpCodes.Stloc_0);
         }
 
         private DynamicMethod CreateDynamicLength(MetaType meta)
@@ -171,11 +212,16 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Ldloc, ptrLocal);
             generator.Emit(OpCodes.Stloc, startLocal);
 
+            IncrementPtr(generator);  // typeCode
+
             foreach (var kvp in meta.Members)
             {
                 var id = kvp.Key;
                 var field = kvp.Value;
-                EmitField(generator, field, EncodeOperation.Length, id);
+
+                IncrementPtr(generator);
+
+                EmitField(generator, field, EncodeOperation.Length);
             }
 
             generator.Emit(OpCodes.Ldloc, ptrLocal);
@@ -223,12 +269,7 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Ldind_U1);
             generator.Emit(OpCodes.Stloc_3);
 
-            // ptr ++
-            generator.Emit(OpCodes.Ldloc_0);
-            generator.Emit(OpCodes.Ldc_I4_1);
-            generator.Emit(OpCodes.Conv_I);
-            generator.Emit(OpCodes.Add);
-            generator.Emit(OpCodes.Stloc_0);
+            IncrementPtr(generator);
 
             var nextfieldLabel = generator.DefineLabel();
             var firstField = true;
@@ -250,7 +291,7 @@ namespace TickZoom.Api
                 generator.Emit(OpCodes.Ldc_I4_S,id);
                 generator.Emit(OpCodes.Bne_Un_S, nextfieldLabel);
 
-                EmitField(generator, field, EncodeOperation.Decode, id);
+                EmitField(generator, field, EncodeOperation.Decode);
 
                 generator.Emit(OpCodes.Br, whileLoop);
             }
@@ -262,6 +303,7 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Ldloc_2);
             generator.Emit(OpCodes.Blt_Un, continueLoop);
 
+            // return ptr - start;
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldloc_1);
             generator.Emit(OpCodes.Sub);
@@ -270,7 +312,7 @@ namespace TickZoom.Api
             return dymMethod;
         }
 
-        private void EmitField(ILGenerator generator, FieldInfo field, EncodeOperation operation, int memberId)
+        private void EmitField(ILGenerator generator, FieldInfo field, EncodeOperation operation)
         {
             NumericTypeEncoder typeEncoder;
             if (!encoders.encoders.TryGetValue(field.FieldType, out typeEncoder))
@@ -280,7 +322,7 @@ namespace TickZoom.Api
             switch (operation)
             {
                 case EncodeOperation.Encode:
-                    typeEncoder.EmitEncode(generator, field, memberId);
+                    typeEncoder.EmitEncode(generator, field);
                     break;
                 case EncodeOperation.Decode:
                     typeEncoder.EmitDecode(generator, field);
