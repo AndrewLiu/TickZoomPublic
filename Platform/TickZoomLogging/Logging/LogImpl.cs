@@ -36,10 +36,7 @@ using System.Threading;
 
 using log4net.Core;
 using log4net.Filter;
-using ProtoBuf.Meta;
 using TickZoom.Api;
-using ProtoBuf;
-using Serializer = ProtoBuf.Serializer;
 
 namespace TickZoom.Logging
 {
@@ -52,6 +49,7 @@ namespace TickZoom.Logging
 		private readonly static Type callingType = typeof(LogImpl);
 		private LogImplWrapper logWrapper;
 		private static Dictionary<string,string> symbolMap;
+        private EncodeHelper encoderDecoder = new EncodeHelper();
 
 	    #region OldStuff
         private static LoggingQueue messageQueue = null; 
@@ -536,7 +534,7 @@ namespace TickZoom.Logging
 			}
 		}
 
-        private static void LookForUniqueness(string format, object[] args)
+        private void LookForUniqueness(string format, object[] args)
         {
             if( memoryBuffer.Length > 100000)
             {
@@ -572,13 +570,15 @@ namespace TickZoom.Logging
                     argumentHandler = new ArgumentHandler();
                     if (arg is LogReferer)
                     {
-                        argumentHandler.Preprocessor = obj => ((LogReferer) arg).ToLog();
+                        argumentHandler.Preprocessor = obj => ((LogReferer) obj).ToLog();
                     }
                     else
                     {
                         switch (type.FullName)
                         {
                             case "TickZoom.Api.TickBox": // 533302
+                                argumentHandler.Preprocessor = obj => ((TickBox)obj).Tick;
+                                break;
                             case "TickZoom.Api.TickBinaryBox": // 89
                             case "TickZoom.Api.PhysicalOrderDefault": // 36877
                             case "TickZoom.Api.LogicalFillBinary": // 15047
@@ -627,20 +627,11 @@ namespace TickZoom.Logging
                     uniqueTypesInternal.Add(type, argumentHandler);
                 }
                 args[i] = arg = argumentHandler.Preprocessor(arg);
-                RuntimeTypeModel.Default.Add(typeof(TimeStamp),false).SetSurrogate(typeof(long));
                 type = arg.GetType();
-                if( !type.IsValueType && type != typeof(string))
+                if (!type.IsValueType && type != typeof(string))
                 {
-                    if( Serializer.NonGeneric.CanSerialize(type))
-                    {
-                        int x = 0;
-                    }
-                    else
-                    {
-                        int x = 0;
-                    }
+                    //encoderDecoder.Encode(memoryBuffer, arg);
                 }
-                Serializer.Serialize(memoryBuffer, args[i]);
             }
         }
 
@@ -655,8 +646,8 @@ namespace TickZoom.Logging
             if( IsVerboseEnabled)
             {
                 LookForUniqueness(format, args);
-                //resultString = string.Format(format, args);
-                //Verbose(resultString, null);
+                resultString = string.Format(format, args);
+                Verbose(resultString, null);
             }
 		}
 

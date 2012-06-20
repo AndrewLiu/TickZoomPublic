@@ -7,7 +7,7 @@ namespace TickZoom.Api
     [SerializeContract]
     public class LogicalOrderBinary
     {
-        //[SerializeMember(1)]
+        [SerializeMember(1)]
         public SymbolInfo symbol;
 
         [SerializeMember(2)]
@@ -40,7 +40,6 @@ namespace TickZoom.Api
         [SerializeMember(11)]
         public long serialNumber;
 
-        //[SerializeMember(12)]
         public StrategyInterface strategy;
 
         [SerializeMember(13)]
@@ -49,7 +48,6 @@ namespace TickZoom.Api
         [SerializeMember(14)]
         public int strategyPosition;
 
-        //[SerializeMember(15)]
         public Action<LogicalOrder> onModified;
 
         [SerializeMember(16)]

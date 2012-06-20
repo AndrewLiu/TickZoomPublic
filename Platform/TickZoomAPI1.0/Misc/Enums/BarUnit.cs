@@ -182,10 +182,13 @@ namespace TickZoom.Api
     /// <summary>
     /// Description of Period.
     /// </summary>
+    [SerializeContract]
     [Diagram(AttributeExclude = true)]
     public class IntervalImpl : Interval
     {
+        [SerializeMember(1)]
         TimeFrame timeFrame;
+        [SerializeMember(2)]
         TimeFrame secondaryTimeFrame;
         SecondaryType secondaryType;
         bool isTimeBased = false;
