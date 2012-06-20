@@ -9,49 +9,71 @@ namespace TickZoom.Api
     {
         //[SerializeMember(1)]
         public SymbolInfo symbol;
-        //[SerializeMember(2)]
+
+        [SerializeMember(2)]
         public double minimumTick;
-        //[SerializeMember(3)]
+
+        [SerializeMember(3)]
         public double price;
-        //[SerializeMember(4)]
+
+        [SerializeMember(4)]
         public OrderStatus status;
+
         [SerializeMember(5)]
         public int position;
-        //[SerializeMember(6)]
+
+        [SerializeMember(6)]
         public OrderType type;
-        //[SerializeMember(7)]
+
+        [SerializeMember(7)]
         public OrderSide side;
-        //[SerializeMember(8)]
+
+        [SerializeMember(8)]
         public TradeDirection tradeDirection;
+
         //[SerializeMember(9)]
         public string tag;
+
         [SerializeMember(10)]
         public int id;
+
         [SerializeMember(11)]
         public long serialNumber;
+
         //[SerializeMember(12)]
         public StrategyInterface strategy;
+
         [SerializeMember(13)]
         public int strategyId;
+
         [SerializeMember(14)]
         public int strategyPosition;
+
         //[SerializeMember(15)]
         public Action<LogicalOrder> onModified;
-        //[SerializeMember(16)]
+
+        [SerializeMember(16)]
         public bool isInitialized = false;
+
         [SerializeMember(17)]
         public TimeStamp utcChangeTime = TimeStamp.UtcNow;
+
         [SerializeMember(18)]
         public TimeStamp utcTouchTime = default(TimeStamp);
-        //[SerializeMember(19)]
+
+        [SerializeMember(19)]
         public bool isModified = false;
+
         [SerializeMember(20)]
         public int levels = 1;
+
         [SerializeMember(21)]
         public int levelSize = 1;
+
         [SerializeMember(22)]
         public int levelIncrement = 0;
-        //[SerializeMember(23)]
+
+        [SerializeMember(23)]
         public OrderFlags orderFlags;
 
         public bool IsActive
