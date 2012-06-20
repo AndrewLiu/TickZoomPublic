@@ -10,7 +10,8 @@ namespace TickZoom.Api
     public class EncodeHelper
     {
         internal Dictionary<Type, MetaType> metaTypes = new Dictionary<Type, MetaType>();
-        internal TypeEncoderMap encoders = new TypeEncoderMap();
+        internal TypeEncoderMap typeEncoders = new TypeEncoderMap();
+        internal FieldEncoderMap fieldEncoders = new FieldEncoderMap();
         internal Dictionary<Type, int> typeCodesByType = new Dictionary<Type, int>();
         internal Dictionary<int, Type> typeCodesByCode = new Dictionary<int, Type>();
         internal int maxCode = 0;
@@ -103,13 +104,13 @@ namespace TickZoom.Api
         /// </summary>
         /// <param name="myObject">Type of object to clone</param>
         /// <returns>Cloned object (deeply cloned)</returns>
-        public NumericTypeEncoder GetTypeEncoder(Type type)
+        public TypeEncoder GetTypeEncoder(Type type)
         {
-            NumericTypeEncoder encoder = null;
-            if (!encoders.TryGetValue(type, out encoder))
+            TypeEncoder encoder = null;
+            if (!typeEncoders.TryGetValue(type, out encoder))
             {
-                encoder = new NumericTypeEncoder();
-                encoders.Add(type, encoder);
+                encoder = new TypeEncoder();
+                typeEncoders.Add(type, encoder);
                 MetaType meta;
                 if(!metaTypes.TryGetValue(type, out meta))
                 {
@@ -314,21 +315,21 @@ namespace TickZoom.Api
 
         private void EmitField(ILGenerator generator, FieldInfo field, EncodeOperation operation)
         {
-            NumericTypeEncoder typeEncoder;
-            if (!encoders.encoders.TryGetValue(field.FieldType, out typeEncoder))
+            FieldEncoder fieldEncoder;
+            if (!fieldEncoders.encoders.TryGetValue(field.FieldType, out fieldEncoder))
             {
                 throw new InvalidOperationException("Can't find serializer for: " + field.FieldType.FullName);
             }
             switch (operation)
             {
                 case EncodeOperation.Encode:
-                    typeEncoder.EmitEncode(generator, field);
+                    fieldEncoder.EmitEncode(generator, field);
                     break;
                 case EncodeOperation.Decode:
-                    typeEncoder.EmitDecode(generator, field);
+                    fieldEncoder.EmitDecode(generator, field);
                     break;
                 case EncodeOperation.Length:
-                    typeEncoder.EmitLength(generator, field);
+                    fieldEncoder.EmitLength(generator, field);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("unknown direction: " + operation);

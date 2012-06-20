@@ -97,9 +97,11 @@
     <Compile Include="Engine\CloneHelper.cs" />
     <Compile Include="Engine\Cloner.cs" />
     <Compile Include="Engine\EncodeHelper.cs" />
+    <Compile Include="Engine\FieldEncoder.cs" />
+    <Compile Include="Engine\FieldEncoderMap.cs" />
     <Compile Include="Engine\LogAware.cs" />
     <Compile Include="Engine\MetaType.cs" />
-    <Compile Include="Engine\NumericTypeEncoder.cs" />
+    <Compile Include="Engine\NumericFieldEncoder.cs" />
     <Compile Include="Engine\PhysicalOrderCache.cs" />
     <Compile Include="Engine\StrategyPosition.cs" />
     <Compile Include="Engine\LogEvent.cs" />
@@ -108,7 +110,9 @@
     <Compile Include="Engine\StrategyPositionDefault.cs" />
     <Compile Include="Engine\TickFile.cs" />
     <Compile Include="Engine\TickFileMode.cs" />
+    <Compile Include="Engine\TimeStampFieldEncoder.cs" />
     <Compile Include="Engine\TriggerController.cs" />
+    <Compile Include="Engine\TypeEncoder.cs" />
     <Compile Include="Engine\TypeEncoderMap.cs" />
     <Compile Include="Locks\NativeMappedFile.cs" />
     <Compile Include="Locks\SharedMemory.cs" />

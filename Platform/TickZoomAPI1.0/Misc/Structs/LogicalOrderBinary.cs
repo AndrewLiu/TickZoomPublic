@@ -39,9 +39,9 @@ namespace TickZoom.Api
         public Action<LogicalOrder> onModified;
         //[SerializeMember(16)]
         public bool isInitialized = false;
-        //[SerializeMember(17)]
+        [SerializeMember(17)]
         public TimeStamp utcChangeTime = TimeStamp.UtcNow;
-        //[SerializeMember(18)]
+        [SerializeMember(18)]
         public TimeStamp utcTouchTime = default(TimeStamp);
         //[SerializeMember(19)]
         public bool isModified = false;
