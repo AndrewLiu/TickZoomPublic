@@ -315,10 +315,15 @@ namespace TickZoom.Api
 
         private void EmitField(ILGenerator generator, FieldInfo field, EncodeOperation operation)
         {
-            FieldEncoder fieldEncoder;
-            if (!fieldEncoders.encoders.TryGetValue(field.FieldType, out fieldEncoder))
+            var lookupType = field.FieldType;
+            if( lookupType.IsEnum)
             {
-                throw new InvalidOperationException("Can't find serializer for: " + field.FieldType.FullName);
+                lookupType = typeof (Enum);
+            }
+            FieldEncoder fieldEncoder;
+            if (!fieldEncoders.encoders.TryGetValue(lookupType, out fieldEncoder))
+            {
+                throw new InvalidOperationException("Can't find serializer for " + field.FieldType.FullName + " on field " + field.Name + " of " + field.ReflectedType.FullName);
             }
             switch (operation)
             {
