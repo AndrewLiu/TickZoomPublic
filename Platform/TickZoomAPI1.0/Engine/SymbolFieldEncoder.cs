@@ -6,23 +6,6 @@ namespace TickZoom.Api
 {
     public class SymbolFieldEncoder : FieldEncoder
     {
-        public void EmitLength(ILGenerator generator, FieldInfo field)
-        {
-            // LengthString( ptr, field.ToString)
-            generator.Emit(OpCodes.Ldloc_0);
-            generator.Emit(OpCodes.Ldloc_0);
-
-            generator.Emit(OpCodes.Ldarg_1);
-            generator.Emit(OpCodes.Ldfld, field);
-            var toStringMethod = typeof(object).GetMethod("ToString");
-            generator.Emit(OpCodes.Callvirt, toStringMethod);
-            var serializerMethod = typeof(StringFieldEncoder).GetMethod("LengthString");
-            generator.Emit(OpCodes.Call, serializerMethod);
-            generator.Emit(OpCodes.Conv_I);
-            generator.Emit(OpCodes.Add);
-            generator.Emit(OpCodes.Stloc_0);
-        }
-
         public void EmitEncode(ILGenerator generator, FieldInfo field)
         {
             // ptr += SerializeString( ptr, field.ToString)

@@ -45,25 +45,15 @@ namespace TickZoom.Api
         {
             var type = original.GetType();
             var typeEncoder = GetTypeEncoder(type);
-            var length = typeEncoder.Length(original);
-            if( length > 255)
+            if( memory.Length < memory.Position + 256)
             {
-                throw new InvalidOperationException("Length must be less than 256 bytes.");
+                memory.SetLength(memory.Position + 256);
             }
-            var lengthSize = 1; // one byte for length.
-            memory.SetLength(memory.Position + length + lengthSize);
             fixed( byte *bptr = &memory.GetBuffer()[0])
             {
                 var ptr = bptr + memory.Position;
-                *ptr = (byte) length;
-                ptr++;
                 var count = typeEncoder.Encode(ptr, original);
-                if( length != count)
-                {
-                    throw new InvalidOperationException("Predicted length " + length + " differs from actual " + count);
-                }
                 memory.Position += count;
-                memory.SetLength(memory.Position);
             }
         }
 
@@ -128,10 +118,6 @@ namespace TickZoom.Api
                 genericFunc = typeof(Func<,,,>).MakeGenericType(typeof(IntPtr), typeof(IntPtr), type, typeof(long));
                 encoder.DecoderDelegate = dynMethod.CreateDelegate(genericFunc);
 
-                // Compile Length
-                dynMethod = CreateDynamicLength(meta);
-                genericFunc = typeof(Func<,,>).MakeGenericType(typeof(IntPtr), type, typeof(long));
-                encoder.LengthDelegate = dynMethod.CreateDelegate(genericFunc);
             }
             return encoder;
         }
@@ -153,6 +139,9 @@ namespace TickZoom.Api
             // start = ptr;
             generator.Emit(OpCodes.Ldloc, ptrLocal);
             generator.Emit(OpCodes.Stloc, startLocal);
+
+            // ptr++     Skip a byte for the length
+            IncrementPtr(generator);
 
             // *ptr = typeCode;
             generator.Emit(OpCodes.Ldloc_0);
@@ -183,9 +172,17 @@ namespace TickZoom.Api
             }
 
             // return ptr - start;
+            generator.Emit(OpCodes.Ldloc, startLocal);
             generator.Emit(OpCodes.Ldloc, ptrLocal);
             generator.Emit(OpCodes.Ldloc, startLocal);
             generator.Emit(OpCodes.Sub);
+            generator.Emit(OpCodes.Conv_I8);
+            generator.Emit(OpCodes.Conv_U1);
+            generator.Emit(OpCodes.Dup);
+            var byteLocal = generator.DeclareLocal(typeof(byte));
+            generator.Emit(OpCodes.Stloc, byteLocal);
+            generator.Emit(OpCodes.Stind_I1);
+            generator.Emit(OpCodes.Ldloc, byteLocal);
             generator.Emit(OpCodes.Conv_I8);
             generator.Emit(OpCodes.Ret);
             return dymMethod;
@@ -231,44 +228,6 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Conv_I);
             generator.Emit(OpCodes.Add);
             generator.Emit(OpCodes.Stloc_0);
-        }
-
-        private DynamicMethod CreateDynamicLength(MetaType meta)
-        {
-            // Create ILGenerator            
-            var dymMethod = new DynamicMethod("DoEncoding", typeof(long), new Type[] { typeof(IntPtr), meta.Type }, Assembly.GetExecutingAssembly().ManifestModule, true);
-            ILGenerator generator = dymMethod.GetILGenerator();
-            var ptrLocal = generator.DeclareLocal(typeof(byte*));
-            var startLocal = generator.DeclareLocal(typeof(byte*));
-
-            // ptr = (byte*) arg0;
-            generator.Emit(OpCodes.Ldarg_0);
-            var explicitCast = typeof(IntPtr).GetMethod("op_Explicit", new Type[] { typeof(int) });
-            generator.Emit(OpCodes.Call, explicitCast);
-            generator.Emit(OpCodes.Stloc, ptrLocal);
-
-            // start = ptr;
-            generator.Emit(OpCodes.Ldloc, ptrLocal);
-            generator.Emit(OpCodes.Stloc, startLocal);
-
-            IncrementPtr(generator);  // typeCode
-
-            foreach (var kvp in meta.Members)
-            {
-                var id = kvp.Key;
-                var field = kvp.Value;
-
-                IncrementPtr(generator);
-
-                EmitField(generator, field, EncodeOperation.Length);
-            }
-
-            generator.Emit(OpCodes.Ldloc, ptrLocal);
-            generator.Emit(OpCodes.Ldloc, startLocal);
-            generator.Emit(OpCodes.Sub);
-            generator.Emit(OpCodes.Conv_I8);
-            generator.Emit(OpCodes.Ret);
-            return dymMethod;
         }
 
         private DynamicMethod CreateDynamicDecode(MetaType meta)
@@ -370,7 +329,6 @@ namespace TickZoom.Api
                     fieldEncoder.EmitDecode(generator, field);
                     break;
                 case EncodeOperation.Length:
-                    fieldEncoder.EmitLength(generator, field);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("unknown direction: " + operation);
