@@ -31,7 +31,7 @@ namespace TickZoom.Api
         [SerializeMember(8)]
         public TradeDirection tradeDirection;
 
-        //[SerializeMember(9)]
+        [SerializeMember(9)]
         public string tag;
 
         [SerializeMember(10)]

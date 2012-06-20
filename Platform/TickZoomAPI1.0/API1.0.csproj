@@ -110,6 +110,8 @@
     <Compile Include="Engine\LogicalOrderCache.cs" />
     <Compile Include="Engine\ProviderSimulator.cs" />
     <Compile Include="Engine\StrategyPositionDefault.cs" />
+    <Compile Include="Engine\StringFieldEncoder.cs" />
+    <Compile Include="Engine\SymbolFieldEncoder.cs" />
     <Compile Include="Engine\TickFile.cs" />
     <Compile Include="Engine\TickFileMode.cs" />
     <Compile Include="Engine\CastingFieldEncoder.cs" />

@@ -22,6 +22,7 @@ namespace TickZoom.Api
             encoders[typeof(TimeStamp)] = new CastingFieldEncoder(typeof (long));
             encoders[typeof(Enum)] = new EnumFieldEncoder();
             encoders[typeof(Boolean)] = new BooleanFieldEncoder();
+            encoders[typeof(string)] = new StringFieldEncoder();
         }
 
         public bool TryGetValue(Type type, out FieldEncoder encoder)
