@@ -31,7 +31,7 @@ namespace TickZoom.Api
             }
         }
 
-        public int DefineType(Type type)
+        public int DefineTemporaryType(Type type)
         {
             var code = ++maxCode;
             typeCodesByType.Add(type, code);
@@ -156,6 +156,11 @@ namespace TickZoom.Api
 
             // *ptr = typeCode;
             generator.Emit(OpCodes.Ldloc_0);
+            int typeCode;
+            if( !typeCodesByType.TryGetValue(meta.Type, out typeCode))
+            {
+                throw new ApplicationException("No type code defined to serialize " + meta.Type.FullName + ". Please add to " + this.GetType() + " in the constructor.");
+            }
             generator.Emit(OpCodes.Ldc_I4_S, typeCodesByType[meta.Type]);
             generator.Emit(OpCodes.Stind_I1);
 
@@ -274,8 +279,6 @@ namespace TickZoom.Api
             var ptrLocal = generator.DeclareLocal(typeof(byte*));
             var startLocal = generator.DeclareLocal(typeof(byte*));
             var endLocal = generator.DeclareLocal(typeof(byte*));
-            var memberLocal = generator.DeclareLocal(typeof(byte));
-
 
             // ptr = (byte*) arg0;
             generator.Emit(OpCodes.Ldarg_0);
