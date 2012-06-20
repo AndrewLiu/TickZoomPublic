@@ -7,11 +7,6 @@ namespace TickZoom.Api
 {
     public class EnumFieldEncoder : FieldEncoder
     {
-        public void EmitLength(ILGenerator generator, FieldInfo field)
-        {
-            EmitDataLength(generator, field);
-        }
-
         private void EmitDataLength(ILGenerator generator, FieldInfo field)
         {
             // ptr += sizeof()

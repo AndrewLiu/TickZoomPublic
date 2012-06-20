@@ -13,11 +13,6 @@ namespace TickZoom.Api
             this.wireType = wireType;
         }
 
-        public void EmitLength(ILGenerator generator, FieldInfo field)
-        {
-            EmitDataLength(generator, field);
-        }
-
         private void EmitDataLength(ILGenerator generator, FieldInfo field)
         {
             // ptr += sizeof()
