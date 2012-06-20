@@ -1018,7 +1018,7 @@ namespace TickZoom.Api
             return new TimeStamp(timeStamp);
         }
 
-        public static explicit operator long( TimeStamp TimeStamp)
+        public static explicit operator long(TimeStamp TimeStamp)
         {
             return TimeStamp.Internal;
         }
