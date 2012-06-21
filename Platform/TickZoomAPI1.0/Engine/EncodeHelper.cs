@@ -122,38 +122,63 @@ namespace TickZoom.Api
             return encoder;
         }
 
+        private static bool debug = false;
+        private static void LogMessage(ILGenerator generator, string message)
+        {
+            if( debug)
+            {
+                generator.Emit(OpCodes.Ldstr, message);
+                var writeLineMethod = typeof(Console).GetMethod("WriteLine", new Type[] { typeof(string) });
+                generator.Emit(OpCodes.Call, writeLineMethod);
+            }
+        }
+
         private DynamicMethod CreateDynamicEncode(MetaType meta)
         {
             // Create ILGenerator            
             var dymMethod = new DynamicMethod("DoEncoding", typeof(long), new Type[] { typeof(IntPtr), meta.Type }, Assembly.GetExecutingAssembly().ManifestModule, true);
             ILGenerator generator = dymMethod.GetILGenerator();
-            var ptrLocal = generator.DeclareLocal(typeof(byte*));
-            var startLocal = generator.DeclareLocal(typeof(byte*));
+            generator.DeclareLocal(typeof(byte*));
+
+            LogMessage(generator,"ptr = (byte*) arg0;");
 
             // ptr = (byte*) arg0;
             generator.Emit(OpCodes.Ldarg_0);
             var explicitCast = typeof(IntPtr).GetMethod("op_Explicit", new Type[] { typeof(int) });
             generator.Emit(OpCodes.Call, explicitCast);
-            generator.Emit(OpCodes.Stloc, ptrLocal);
+            generator.Emit(OpCodes.Stloc_0);
 
-            // start = ptr;
-            generator.Emit(OpCodes.Ldloc, ptrLocal);
+            LogMessage(generator, "// starting emit of " + meta.Type);
+            EmitType(generator, meta);
+
+            LogMessage(generator, "return *start;");
+            generator.Emit(OpCodes.Ldloc_1);
+            generator.Emit(OpCodes.Ldind_U1);
+            generator.Emit(OpCodes.Conv_U8);
+            generator.Emit(OpCodes.Ret);
+            return dymMethod;
+        }
+
+        private void EmitType(ILGenerator generator, MetaType meta)
+        {
+            var startLocal = generator.DeclareLocal(typeof(byte*));
+
+            LogMessage(generator, "start = ptr;");
+            generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Stloc, startLocal);
 
-            // ptr++     Skip a byte for the length
             IncrementPtr(generator);
 
-            // *ptr = typeCode;
+            LogMessage(generator, "*ptr = typeCode;");
             generator.Emit(OpCodes.Ldloc_0);
             int typeCode;
-            if( !typeCodesByType.TryGetValue(meta.Type, out typeCode))
+            if (!typeCodesByType.TryGetValue(meta.Type, out typeCode))
             {
                 throw new ApplicationException("No type code defined to serialize " + meta.Type.FullName + ". Please add to " + this.GetType() + " in the constructor.");
             }
             generator.Emit(OpCodes.Ldc_I4_S, typeCodesByType[meta.Type]);
             generator.Emit(OpCodes.Stind_I1);
 
-            // ptr++
             IncrementPtr(generator);
 
             foreach (var kvp in meta.Members)
@@ -161,7 +186,7 @@ namespace TickZoom.Api
                 var id = kvp.Key;
                 var field = kvp.Value;
 
-                // *ptr = memberId;
+                LogMessage(generator, "*ptr = memberId;");
                 generator.Emit(OpCodes.Ldloc_0);
                 generator.Emit(OpCodes.Ldc_I4_S, id);
                 generator.Emit(OpCodes.Stind_I1);
@@ -171,30 +196,31 @@ namespace TickZoom.Api
                 EmitField(generator, field, EncodeOperation.Encode);
             }
 
-            // return ptr - start;
+            LogMessage(generator, "*start = ptr - start");
             generator.Emit(OpCodes.Ldloc, startLocal);
-            generator.Emit(OpCodes.Ldloc, ptrLocal);
+            generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldloc, startLocal);
             generator.Emit(OpCodes.Sub);
             generator.Emit(OpCodes.Conv_I8);
             generator.Emit(OpCodes.Conv_U1);
-            generator.Emit(OpCodes.Dup);
-            var byteLocal = generator.DeclareLocal(typeof(byte));
-            generator.Emit(OpCodes.Stloc, byteLocal);
             generator.Emit(OpCodes.Stind_I1);
-            generator.Emit(OpCodes.Ldloc, byteLocal);
-            generator.Emit(OpCodes.Conv_I8);
-            generator.Emit(OpCodes.Ret);
-            return dymMethod;
         }
 
         public static void IncrementPtr(ILGenerator generator)
         {
-            IncrementPtr(generator,1);
+            IncrementPtr(generator, 1);
         }
 
         public static void IncrementPtr(ILGenerator generator, int size)
         {
+            if( size == 1)
+            {
+                LogMessage(generator, "++ptr;");
+            }
+            else
+            {
+                LogMessage(generator, "ptr+=" + size + ";");
+            }
             generator.Emit(OpCodes.Ldloc_0);
             switch( size)
             {
