@@ -6,8 +6,14 @@ namespace TickZoom.Api
 {
     public class SymbolFieldEncoder : FieldEncoder
     {
-        public void EmitEncode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field)
+        public void EmitEncode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field, int id)
         {
+            EncodeHelper.LogMessage(generator, "*ptr = memberId;");
+            generator.Emit(OpCodes.Ldloc_0);
+            generator.Emit(OpCodes.Ldc_I4_S, id);
+            generator.Emit(OpCodes.Stind_I1);
+            EncodeHelper.IncrementPtr(generator);
+
             EncodeHelper.LogMessage(generator, "// starting encode of Symbol");
             // ptr += SerializeString( ptr, field.ToString)
             generator.Emit(OpCodes.Ldloc_0);
