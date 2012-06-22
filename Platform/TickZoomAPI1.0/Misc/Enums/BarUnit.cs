@@ -35,11 +35,15 @@ namespace TickZoom.Api
     /// <summary>
     /// Description of Struct1.
     /// </summary>
+    [SerializeContract]
     [Diagram(AttributeExclude = true)]
     public class TimeFrame
     {
+        [SerializeMember(1)]
         BarUnit unit;
+        [SerializeMember(2)]
         int period;
+        [SerializeMember(3)]
         int seconds;
 
         private int CalcSeconds(BarUnit unit, int interval)
@@ -190,7 +194,9 @@ namespace TickZoom.Api
         TimeFrame timeFrame;
         [SerializeMember(2)]
         TimeFrame secondaryTimeFrame;
+        [SerializeMember(3)]
         SecondaryType secondaryType;
+        [SerializeMember(4)]
         bool isTimeBased = false;
 
         public IntervalImpl(Interval interval)

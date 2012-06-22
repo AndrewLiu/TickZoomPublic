@@ -7,8 +7,22 @@ namespace TickZoom.Api
 {
     public class StringFieldEncoder : FieldEncoder
     {
-        public void EmitEncode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field)
+        public void EmitEncode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field, int id)
         {
+            EncodeHelper.LogMessage(generator, "if( " + field.Name + " != null) {");
+            generator.Emit(OpCodes.Ldloc, resultLocal);
+            generator.Emit(OpCodes.Ldfld, field);
+            generator.Emit(OpCodes.Ldnull);
+            generator.Emit(OpCodes.Ceq);
+            var nullCheckLabel = generator.DefineLabel();
+            generator.Emit(OpCodes.Brtrue_S, nullCheckLabel);
+
+            EncodeHelper.LogMessage(generator, "*ptr = memberId;");
+            generator.Emit(OpCodes.Ldloc_0);
+            generator.Emit(OpCodes.Ldc_I4_S, id);
+            generator.Emit(OpCodes.Stind_I1);
+            EncodeHelper.IncrementPtr(generator);
+
             EncodeHelper.LogMessage(generator, "// starting encode of string");
             EncodeHelper.LogMessage(generator, "SerializeString( ptr, &field)");
             generator.Emit(OpCodes.Ldloc_0);
@@ -22,6 +36,7 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Add);
             EncodeHelper.LogStack(generator, "// ptr address after string");
             generator.Emit(OpCodes.Stloc_0);
+            generator.MarkLabel(nullCheckLabel);
         }
 
         public void EmitDecode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field)

@@ -18,7 +18,17 @@ namespace TickZoom.Api
 
         public EncodeHelper()
         {
-            DefineType(typeof(LogicalOrderBinary),1);
+            DefineType(typeof(LogicalOrderBinary), 1);
+            DefineType(typeof(IntervalImpl), 2);
+            DefineType(typeof(PhysicalOrderDefault), 3);
+            DefineType(typeof(LogicalFillBinary), 4);
+            DefineType(typeof(PhysicalFillDefault), 5);
+            DefineType(typeof(LogicalFillBinaryBox), 6);
+            DefineType(typeof(TransactionPairBinary), 7);
+            DefineType(typeof(TimeStamp), 8);
+            DefineType(typeof(TickSync), 9);
+            DefineType(typeof(PositionChangeDetail), 10);
+            DefineType(typeof(TimeFrame), 11);
         }
 
         public void DefineType( Type type, int code)
@@ -237,14 +247,7 @@ namespace TickZoom.Api
                 var id = kvp.Key;
                 var field = kvp.Value;
 
-                LogMessage(generator, "*ptr = memberId;");
-                generator.Emit(OpCodes.Ldloc_0);
-                generator.Emit(OpCodes.Ldc_I4_S, id);
-                generator.Emit(OpCodes.Stind_I1);
-
-                IncrementPtr(generator);
-
-                EmitFieldEncode(generator, resultLocal, field);
+                EmitFieldEncode(generator, resultLocal, field, id);
             }
 
             LogMessage(generator, "*start = ptr - start");
@@ -433,7 +436,7 @@ namespace TickZoom.Api
             return resultLocal;
         }
 
-        private void EmitFieldEncode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field)
+        private void EmitFieldEncode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field, int id)
         {
             var lookupType = field.FieldType;
             if( lookupType.IsEnum)
@@ -443,11 +446,18 @@ namespace TickZoom.Api
             FieldEncoder fieldEncoder;
             if (fieldEncoders.encoders.TryGetValue(lookupType, out fieldEncoder))
             {
-                fieldEncoder.EmitEncode(generator, resultLocal, field);
+                fieldEncoder.EmitEncode(generator, resultLocal, field, id);
             }
             else
             {
-                LogMessage(generator,"// Encoding " +lookupType + " as a field.");
+                LogMessage(generator, "*ptr = memberId;");
+                generator.Emit(OpCodes.Ldloc_0);
+                generator.Emit(OpCodes.Ldc_I4_S, id);
+                generator.Emit(OpCodes.Stind_I1);
+
+                IncrementPtr(generator);
+
+                LogMessage(generator, "// Encoding " + lookupType + " as a field.");
                 int typeCode;
                 if (typeCodesByType.TryGetValue(lookupType, out typeCode))
                 {
