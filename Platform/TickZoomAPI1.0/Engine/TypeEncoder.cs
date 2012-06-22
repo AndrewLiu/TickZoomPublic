@@ -6,6 +6,14 @@ namespace TickZoom.Api
     {
         private Delegate encoderDelegate;
         private Delegate decoderDelegate;
+        private EncodeHelper helper;
+        private Type type;
+
+        public TypeEncoder(EncodeHelper helper, Type type)
+        {
+            this.helper = helper;
+            this.type = type;
+        }
 
         public Delegate EncoderDelegate
         {
@@ -31,14 +39,19 @@ namespace TickZoom.Api
             }
         }
 
+        public Type Type
+        {
+            get { return type; }
+        }
+
         public unsafe long Encode(byte* ptr, object original)
         {
             return (long)encoderDelegate.DynamicInvoke((IntPtr)ptr, original);
         }
 
-        public unsafe long Decode(byte* ptr, byte* end, object original)
+        public unsafe long Decode(byte* ptr, EncodeHelper.ResultPointer resultPointer)
         {
-            return (long)decoderDelegate.DynamicInvoke((IntPtr)ptr, (IntPtr)end, original);
+            return (long)decoderDelegate.DynamicInvoke(helper,(IntPtr)ptr, resultPointer);
         }
 
     }

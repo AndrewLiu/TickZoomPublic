@@ -35,11 +35,12 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Stloc_0);
         }
 
-        public void EmitEncode(ILGenerator generator, FieldInfo field)
+        public void EmitEncode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field)
         {
+            EncodeHelper.LogMessage(generator, "// starting encode of enum");
             // *ptr = obj.field
             generator.Emit(OpCodes.Ldloc_0);
-            generator.Emit(OpCodes.Ldarg_1);
+            generator.Emit(OpCodes.Ldloc, resultLocal);
             generator.Emit(OpCodes.Ldfld, field);
 
             var underlying = Enum.GetUnderlyingType(field.FieldType);
@@ -65,9 +66,10 @@ namespace TickZoom.Api
             EmitDataLength(generator, field);
         }
 
-        public void EmitDecode(ILGenerator generator, FieldInfo field)
+        public void EmitDecode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field)
         {
-            generator.Emit(OpCodes.Ldarg_2);
+            EncodeHelper.LogMessage(generator, "// starting decode of enum");
+            generator.Emit(OpCodes.Ldloc,resultLocal);
             generator.Emit(OpCodes.Ldloc_0);
             var underlying = Enum.GetUnderlyingType(field.FieldType);
             var size = Marshal.SizeOf(underlying);

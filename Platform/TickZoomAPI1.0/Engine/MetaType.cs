@@ -7,11 +7,13 @@ namespace TickZoom.Api
     public class MetaType
     {
         private Type type;
+        private int typeCode;
         private Dictionary<int,FieldInfo> members = new Dictionary<int, FieldInfo>();
 
-        public MetaType(Type type)
+        public MetaType(Type type, int typeCode)
         {
             this.type = type;
+            this.typeCode = typeCode;
         }
 
         public Dictionary<int, FieldInfo> Members
@@ -22,6 +24,11 @@ namespace TickZoom.Api
         public Type Type
         {
             get { return type; }
+        }
+
+        public int TypeCode
+        {
+            get { return typeCode; }
         }
 
         public void Generate()
