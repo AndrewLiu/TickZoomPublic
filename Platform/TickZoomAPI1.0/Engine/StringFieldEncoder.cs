@@ -10,7 +10,14 @@ namespace TickZoom.Api
         public void EmitEncode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field, int id)
         {
             EncodeHelper.LogMessage(generator, "if( " + field.Name + " != null) {");
-            generator.Emit(OpCodes.Ldloc, resultLocal);
+            if (resultLocal.LocalType.IsValueType)
+            {
+                generator.Emit(OpCodes.Ldloca, resultLocal);
+            }
+            else
+            {
+                generator.Emit(OpCodes.Ldloc, resultLocal);
+            }
             generator.Emit(OpCodes.Ldfld, field);
             generator.Emit(OpCodes.Ldnull);
             generator.Emit(OpCodes.Ceq);
@@ -28,7 +35,14 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Ldloc_0);
             EncodeHelper.LogStack(generator, "ptr addrss");
             generator.Emit(OpCodes.Ldloc_0);
-            generator.Emit(OpCodes.Ldloc, resultLocal);
+            if (resultLocal.LocalType.IsValueType)
+            {
+                generator.Emit(OpCodes.Ldloca, resultLocal);
+            }
+            else
+            {
+                generator.Emit(OpCodes.Ldloc, resultLocal);
+            }
             generator.Emit(OpCodes.Ldfld, field);
             var serializerMethod = this.GetType().GetMethod("SerializeString");
             generator.Emit(OpCodes.Call,serializerMethod);
@@ -46,7 +60,14 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Ldloc_0);
             EncodeHelper.LogStack(generator, "// ptr address");
             generator.Emit(OpCodes.Ldloc_0);
-            generator.Emit(OpCodes.Ldloc, resultLocal);
+            if (resultLocal.LocalType.IsValueType)
+            {
+                generator.Emit(OpCodes.Ldloca, resultLocal);
+            }
+            else
+            {
+                generator.Emit(OpCodes.Ldloc, resultLocal);
+            }
             generator.Emit(OpCodes.Ldflda, field);
             var deserializerMethod = this.GetType().GetMethod("DeserializeString");
             generator.Emit(OpCodes.Call, deserializerMethod);

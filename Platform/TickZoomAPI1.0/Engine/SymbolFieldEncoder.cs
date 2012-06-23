@@ -18,7 +18,14 @@ namespace TickZoom.Api
             // ptr += SerializeString( ptr, field.ToString)
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldloc_0);
-            generator.Emit(OpCodes.Ldloc,resultLocal);
+            if (resultLocal.LocalType.IsValueType)
+            {
+                generator.Emit(OpCodes.Ldloca, resultLocal);
+            }
+            else
+            {
+                generator.Emit(OpCodes.Ldloc, resultLocal);
+            }
             generator.Emit(OpCodes.Ldfld, field);
             var toStringMethod = typeof(object).GetMethod("ToString");
             generator.Emit(OpCodes.Callvirt, toStringMethod);
@@ -47,7 +54,14 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Stloc_0);
 
             // field = Factory.Symbol.LookupSymbol( str);
-            generator.Emit(OpCodes.Ldloc,resultLocal);
+            if (resultLocal.LocalType.IsValueType)
+            {
+                generator.Emit(OpCodes.Ldloca, resultLocal);
+            }
+            else
+            {
+                generator.Emit(OpCodes.Ldloc, resultLocal);
+            }
             var symbolFactoryMethod = typeof(Factory).GetMethod("get_Symbol");
             generator.Emit(OpCodes.Call, symbolFactoryMethod);
             generator.Emit(OpCodes.Ldloc_S, stringLocal);

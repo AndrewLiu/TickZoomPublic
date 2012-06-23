@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace TickZoom.Api
 {
@@ -33,17 +34,28 @@ namespace TickZoom.Api
 
         public void Generate()
         {
+            var attribs = type.GetCustomAttributes(typeof (SerializeContractAttribute), false);
+            if( attribs.Length == 0)
+            {
+                throw new SerializationException(type.FullName + " does not have " + typeof(SerializeContractAttribute).Name + " applied.");
+            }
+            var count = 0;
             foreach (FieldInfo field in type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
             {
-                var attributes = field.GetCustomAttributes(false);
+                var attributes = field.GetCustomAttributes(typeof (SerializeMemberAttribute),false);
                 foreach (var attribute in attributes)
                 {
                     var member = attribute as SerializeMemberAttribute;
                     if (member != null)
                     {
                         Members.Add(member.Id,field);
+                        count++;
                     }
                 }
+            }
+            if( count == 0)
+            {
+                throw new SerializationException(type.FullName + " doesn't have any field with " + typeof(SerializeMemberAttribute).Name + " applied.");
             }
         }
     }

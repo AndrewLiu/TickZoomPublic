@@ -213,6 +213,7 @@ namespace TickZoom.Api
             var resultLocal = generator.DeclareLocal(type);
             generator.Emit(OpCodes.Ldarg_1);
             generator.Emit(OpCodes.Stloc, resultLocal);
+
             EmitTypeEncode(generator, resultLocal, type);
 
             LogMessage(generator, "return *start;");
@@ -246,7 +247,6 @@ namespace TickZoom.Api
             {
                 var id = kvp.Key;
                 var field = kvp.Value;
-
                 EmitFieldEncode(generator, resultLocal, field, id);
             }
 
@@ -334,6 +334,10 @@ namespace TickZoom.Api
 
             generator.Emit(OpCodes.Ldarg_2);
             generator.Emit(OpCodes.Ldloc, resultLocal);
+            if (type.IsValueType)
+            {
+                generator.Emit(OpCodes.Box, type);
+            }
             generator.Emit(OpCodes.Stfld, typeof(ResultPointer).GetField("Result"));
 
 
@@ -379,6 +383,10 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Callvirt, instantiateMethod);
             generator.Emit(OpCodes.Castclass, type);
             var resultLocal = generator.DeclareLocal(type);
+            if( type.IsValueType)
+            {
+                generator.Emit(OpCodes.Unbox_Any, type);
+            }
             generator.Emit(OpCodes.Stloc, resultLocal);
 
             // increment for the type byte.
@@ -461,7 +469,14 @@ namespace TickZoom.Api
                 int typeCode;
                 if (typeCodesByType.TryGetValue(lookupType, out typeCode))
                 {
-                    generator.Emit(OpCodes.Ldloc, resultLocal);
+                    if( resultLocal.LocalType.IsValueType)
+                    {
+                        generator.Emit(OpCodes.Ldloca, resultLocal);
+                    }
+                    else
+                    {
+                        generator.Emit(OpCodes.Ldloc, resultLocal);
+                    }
                     generator.Emit(OpCodes.Ldfld, field);
                     var fieldLocal = generator.DeclareLocal(lookupType);
                     generator.Emit(OpCodes.Stloc, fieldLocal);
@@ -492,8 +507,15 @@ namespace TickZoom.Api
                 if (typeCodesByType.TryGetValue(lookupType, out typeCode))
                 {
                     var subResultLocal = EmitTypeDecode(generator, lookupType);
-                    EncodeHelper.LogMessage(generator, "ResultPointer." + field.Name + " = result;");
-                    generator.Emit(OpCodes.Ldloc, resultLocal);
+                    LogMessage(generator, "ResultPointer." + field.Name + " = result;");
+                    if (resultLocal.LocalType.IsValueType)
+                    {
+                        generator.Emit(OpCodes.Ldloca, resultLocal);
+                    }
+                    else
+                    {
+                        generator.Emit(OpCodes.Ldloc, resultLocal);
+                    }
                     generator.Emit(OpCodes.Ldloc, subResultLocal);
                     generator.Emit(OpCodes.Stfld, field);
                 }
