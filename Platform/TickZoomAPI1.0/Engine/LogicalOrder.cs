@@ -47,15 +47,10 @@ namespace TickZoom.Api
         PartialFill,  
     }
 
-    public interface LogReferer
-    {
-        object ToLog();
-    }
-	
 	/// <summary>
 	/// Description of OrderCommon.
 	/// </summary>
-    public interface LogicalOrder : Serializable, IComparable, Order, LogReferer
+    public interface LogicalOrder : Serializable, IComparable, Order
     {
         Action<LogicalOrder> OnModified { get; set; }
 
