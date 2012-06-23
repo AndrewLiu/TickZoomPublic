@@ -46,7 +46,14 @@ namespace TickZoom.Api
             EncodeHelper.LogMessage(generator, "// starting encode of numeric");
             EncodeHelper.LogMessage(generator, "*ptr = obj.field");
             generator.Emit(OpCodes.Ldloc_0);
-            generator.Emit(OpCodes.Ldloc,resultLocal);
+            if (resultLocal.LocalType.IsValueType)
+            {
+                generator.Emit(OpCodes.Ldloca, resultLocal);
+            }
+            else
+            {
+                generator.Emit(OpCodes.Ldloc, resultLocal);
+            }
             EncodeHelper.LogStack(generator, "// Value at arg 1");
             EncodeHelper.LogMessage(generator, "// load the field value");
             generator.Emit(OpCodes.Ldfld, field);
@@ -80,7 +87,14 @@ namespace TickZoom.Api
         {
             EncodeHelper.LogMessage(generator, "// starting decode of numeric");
             EncodeHelper.LogMessage(generator, "result."+ field.Name + " *ptr");
-            generator.Emit(OpCodes.Ldloc, resultLocal);
+            if (resultLocal.LocalType.IsValueType)
+            {
+                generator.Emit(OpCodes.Ldloca, resultLocal);
+            }
+            else
+            {
+                generator.Emit(OpCodes.Ldloc, resultLocal);
+            }
             generator.Emit(OpCodes.Ldloc_0);
             if (field.FieldType == typeof(byte))
             {

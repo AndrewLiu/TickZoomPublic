@@ -557,7 +557,8 @@ namespace TickZoom.Logging
                 var type = arg.GetType();
                 switch (type.FullName)
                 {
-                    case "TickZoom.Internals.LogicalOrderDefault": // 30459
+                    case "TickZoom.Api.TickBox": // 533302
+                    case "TickZoom.TickUtil.TickImpl": // 3
                         break;
                 }
                 ArgumentHandler argumentHandler;
@@ -630,7 +631,7 @@ namespace TickZoom.Logging
                 type = arg.GetType();
                 if (!type.IsValueType && type != typeof(string))
                 {
-                    //encoderDecoder.Encode(memoryBuffer, arg);
+                    encoderDecoder.Encode(memoryBuffer, arg);
                 }
             }
         }

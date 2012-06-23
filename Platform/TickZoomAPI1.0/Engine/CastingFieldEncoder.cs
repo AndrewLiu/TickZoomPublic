@@ -34,7 +34,14 @@ namespace TickZoom.Api
             EncodeHelper.LogMessage(generator, "// starting encode of cast");
             // *ptr = obj.field
             generator.Emit(OpCodes.Ldloc_0);
-            generator.Emit(OpCodes.Ldloc,resultLocal);
+            if (resultLocal.LocalType.IsValueType)
+            {
+                generator.Emit(OpCodes.Ldloca, resultLocal);
+            }
+            else
+            {
+                generator.Emit(OpCodes.Ldloc, resultLocal);
+            }
             generator.Emit(OpCodes.Ldfld, field);
 
             var cast = FindCast(field.FieldType, field.FieldType, wireType);
@@ -82,7 +89,14 @@ namespace TickZoom.Api
         public void EmitDecode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field)
         {
             EncodeHelper.LogMessage(generator, "// starting decode of cast");
-            generator.Emit(OpCodes.Ldloc,resultLocal);
+            if (resultLocal.LocalType.IsValueType)
+            {
+                generator.Emit(OpCodes.Ldloca, resultLocal);
+            }
+            else
+            {
+                generator.Emit(OpCodes.Ldloc, resultLocal);
+            }
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldind_I8);
             var cast = FindCast(field.FieldType, wireType, field.FieldType);
