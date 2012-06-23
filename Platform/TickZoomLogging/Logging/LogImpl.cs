@@ -569,61 +569,54 @@ namespace TickZoom.Logging
                 else 
                 {
                     argumentHandler = new ArgumentHandler();
-                    if (arg is LogReferer)
+                    switch (type.FullName)
                     {
-                        argumentHandler.Preprocessor = obj => ((LogReferer) obj).ToLog();
-                    }
-                    else
-                    {
-                        switch (type.FullName)
-                        {
-                            case "TickZoom.Api.TickBox": // 533302
-                                argumentHandler.Preprocessor = obj => ((TickBox)obj).Tick;
-                                break;
-                            case "TickZoom.Api.TickBinaryBox": // 89
-                            case "TickZoom.Api.PhysicalOrderDefault": // 36877
-                            case "TickZoom.Api.LogicalFillBinary": // 15047
-                            case "TickZoom.Api.PhysicalFillDefault": // 11285
-                            case "TickZoom.Api.LogicalFillBinaryBox": // 3761
-                            case "TickZoom.Api.TransactionPairBinary": // 3761
-                            case "TickZoom.Api.TimeStamp": // 3317
-                            case "TickZoom.Api.TickSync": // 1994
-                            case "TickZoom.TickUtil.TickImpl": // 3
-                            case "TickZoom.Api.IntervalImpl": // 45
-                            case "TickZoom.Api.PositionChangeDetail": // 5498
+                        case "TickZoom.Api.TickBox": // 533302
+                            argumentHandler.Preprocessor = obj => ((TickBox)obj).Tick;
+                            break;
+                        case "TickZoom.Api.TickBinaryBox": // 89
+                        case "TickZoom.Api.PhysicalOrderDefault": // 36877
+                        case "TickZoom.Api.LogicalFillBinary": // 15047
+                        case "TickZoom.Api.PhysicalFillDefault": // 11285
+                        case "TickZoom.Api.LogicalFillBinaryBox": // 3761
+                        case "TickZoom.Api.TransactionPairBinary": // 3761
+                        case "TickZoom.Api.TimeStamp": // 3317
+                        case "TickZoom.Api.TickSync": // 1994
+                        case "TickZoom.TickUtil.TickImpl": // 3
+                        case "TickZoom.Api.IntervalImpl": // 45
+                        case "TickZoom.Api.PositionChangeDetail": // 5498
+                            argumentHandler.Preprocessor = obj => obj;
+                            break;
+                        case "TickZoom.Engine.StrategyPositionWrapper": // 397
+                        case "TickZoom.Symbols.SymbolProperties": // 34259
+                        case "TickZoom.Internals.ModelDriver": // 455
+                        case "TickZoom.PriceData.TimeFrameSeries": // 45
+                        case "TickZoom.PriceData.PriceSeries": // 15
+                        case "TickZoom.Threading.AgentProxy": // 48
+                        case "TickZoom.SocketAPI.SocketTCP": // 123
+                        case "TickZoom.Provider.FIX.FIXMessage4_2": // 1502
+                        case "TickZoom.Provider.FIX.MessageFIX4_2": // 3151
+                            argumentHandler.Preprocessor = obj => obj.ToString();
+                            break;
+                        default:
+                            if (type.IsValueType || type == typeof(string))
+                            {
                                 argumentHandler.Preprocessor = obj => obj;
-                                break;
-                            case "TickZoom.Engine.StrategyPositionWrapper": // 397
-                            case "TickZoom.Symbols.SymbolProperties": // 34259
-                            case "TickZoom.Internals.ModelDriver": // 455
-                            case "TickZoom.PriceData.TimeFrameSeries": // 45
-                            case "TickZoom.PriceData.PriceSeries": // 15
-                            case "TickZoom.Threading.AgentProxy": // 48
-                            case "TickZoom.SocketAPI.SocketTCP": // 123
-                            case "TickZoom.Provider.FIX.FIXMessage4_2": // 1502
-                            case "TickZoom.Provider.FIX.MessageFIX4_2": // 3151
+                            }
+                            else if (type.IsSubclassOf(typeof(Delegate)))
+                            {
+                                argumentHandler.Preprocessor = obj => obj.GetType().FullName;
+                            }
+                            else if (type.GetInterface(typeof(StrategyInterface).FullName) != null)
+                            {
                                 argumentHandler.Preprocessor = obj => obj.ToString();
-                                break;
-                            default:
-                                if (type.IsValueType || type == typeof(string))
-                                {
-                                    argumentHandler.Preprocessor = obj => obj;
-                                }
-                                else if (type.IsSubclassOf(typeof(Delegate)))
-                                {
-                                    argumentHandler.Preprocessor = obj => obj.GetType().FullName;
-                                }
-                                else if (type.GetInterface(typeof(StrategyInterface).FullName) != null)
-                                {
-                                    argumentHandler.Preprocessor = obj => obj.ToString();
-                                }
-                                else
-                                {
-                                    argumentHandler.Preprocessor = obj => obj.ToString();
-                                    argumentHandler.UnknownType = true;
-                                }
-                                break;
-                        }
+                            }
+                            else
+                            {
+                                argumentHandler.Preprocessor = obj => obj.ToString();
+                                argumentHandler.UnknownType = true;
+                            }
+                            break;
                     }
                     uniqueTypesInternal.Add(type, argumentHandler);
                 }
@@ -631,7 +624,7 @@ namespace TickZoom.Logging
                 type = arg.GetType();
                 if (!type.IsValueType && type != typeof(string))
                 {
-                    encoderDecoder.Encode(memoryBuffer, arg);
+                    //encoderDecoder.Encode(memoryBuffer, arg);
                 }
             }
         }

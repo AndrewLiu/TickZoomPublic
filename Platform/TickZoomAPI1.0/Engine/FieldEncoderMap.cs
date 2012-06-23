@@ -24,6 +24,7 @@ namespace TickZoom.Api
             encoders[typeof(Boolean)] = new BooleanFieldEncoder();
             encoders[typeof(string)] = new StringFieldEncoder();
             encoders[typeof(SymbolInfo)] = new SymbolFieldEncoder();
+            encoders[typeof(Iterable<>)] = new IterableFieldEncoder();
         }
 
         public bool TryGetValue(Type type, out FieldEncoder encoder)

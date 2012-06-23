@@ -30,13 +30,20 @@ using System.Threading;
 
 namespace TickZoom.Api
 {
+    [SerializeContract]
 	public class PositionChangeDetail {
-		private SymbolInfo symbol;
-		private int position;
-		private long utcTime;
-	    private long recency;
-		private Iterable<LogicalOrder> orders;
-	    private Iterable<StrategyPosition> strategyPositions;
+        [SerializeMember(1)]
+        private SymbolInfo symbol;
+        [SerializeMember(2)]
+        private int position;
+        [SerializeMember(3)]
+        private long utcTime;
+        [SerializeMember(4)]
+        private long recency;
+        [SerializeMember(5)]
+        private Iterable<LogicalOrder> orders;
+        [SerializeMember(6)]
+        private Iterable<StrategyPosition> strategyPositions;
 
         public PositionChangeDetail(SymbolInfo symbol, int position, Iterable<LogicalOrder> orders, Iterable<StrategyPosition> strategyPositions, long utcTime, long recency)
         {

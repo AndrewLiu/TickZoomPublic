@@ -101,6 +101,7 @@
     <Compile Include="Engine\EnumFieldEncoder.cs" />
     <Compile Include="Engine\FieldEncoder.cs" />
     <Compile Include="Engine\FieldEncoderMap.cs" />
+    <Compile Include="Engine\IterableFieldEncoder.cs" />
     <Compile Include="Engine\LogAware.cs" />
     <Compile Include="Engine\MetaType.cs" />
     <Compile Include="Engine\NumericFieldEncoder.cs" />
@@ -157,6 +158,7 @@
     <Compile Include="Misc\Factories\FactoryLoader.cs" />
     <Compile Include="Misc\Structs\DaylightSavings.cs" />
     <Compile Include="Misc\Structs\LogicalOrderBinary.cs" />
+    <Compile Include="Misc\Structs\LogicalOrderDefault.cs" />
     <Compile Include="Misc\Structs\PhysicalFillDefault.cs" />
     <Compile Include="Misc\Structs\PhysicalOrderDefault.cs" />
     <Compile Include="Misc\Structs\Progress.cs" />

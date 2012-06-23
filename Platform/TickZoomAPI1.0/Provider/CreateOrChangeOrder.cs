@@ -52,7 +52,7 @@ namespace TickZoom.Api
         OrderSide Side { get; set; }
     }
 
-    public interface PhysicalOrder : Order, LogReferer
+    public interface PhysicalOrder : Order
     {
         OrderAction Action { get; }
 
