@@ -49,9 +49,9 @@ namespace TickZoom.Api
             return (long)encoderDelegate.DynamicInvoke(helper,(IntPtr)ptr, original);
         }
 
-        public unsafe long Decode(byte* ptr, EncodeHelper.ResultPointer resultPointer)
+        public unsafe object Decode(byte* ptr)
         {
-            return (long)decoderDelegate.DynamicInvoke(helper,(IntPtr)ptr, resultPointer);
+            return decoderDelegate.DynamicInvoke(helper,(IntPtr)ptr);
         }
 
     }
