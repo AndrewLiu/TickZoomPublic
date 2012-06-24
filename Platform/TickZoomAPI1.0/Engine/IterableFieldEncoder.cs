@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.InteropServices;
 
 namespace TickZoom.Api
 {
-    public class StringFieldEncoder : FieldEncoder
+
+    public class IterableFieldEncoder : FieldEncoder
     {
         protected EncodeHelper helper;
-        public StringFieldEncoder(EncodeHelper helper)
+        public IterableFieldEncoder(EncodeHelper helper)
         {
             this.helper = helper;
         }
@@ -50,7 +50,7 @@ namespace TickZoom.Api
             }
             generator.Emit(OpCodes.Ldfld, field);
             var serializerMethod = this.GetType().GetMethod("SerializeString");
-            generator.Emit(OpCodes.Call,serializerMethod);
+            generator.Emit(OpCodes.Call, serializerMethod);
             generator.Emit(OpCodes.Conv_I);
             generator.Emit(OpCodes.Add);
             helper.LogStack(generator, "// ptr address after string");
@@ -100,7 +100,7 @@ namespace TickZoom.Api
             var start = ptr;
             //Console.WriteLine("// string start " + (IntPtr)start);
             var byteLength = *((Int32*)ptr);
-            var length = byteLength/sizeof (char);
+            var length = byteLength / sizeof(char);
             //Console.WriteLine("// string length " + byteLength);
             ptr += sizeof(Int32);
             str = new string((char*)ptr, 0, length);

@@ -7,6 +7,11 @@ namespace TickZoom.Api
 {
     public class BooleanFieldEncoder : FieldEncoder
     {
+        protected EncodeHelper helper;
+        public BooleanFieldEncoder(EncodeHelper helper)
+        {
+            this.helper = helper;
+        }
         private void EmitDataLength(ILGenerator generator, FieldInfo field)
         {
             // ptr += sizeof()
@@ -36,13 +41,13 @@ namespace TickZoom.Api
 
         public void EmitEncode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field, int id)
         {
-            EncodeHelper.LogMessage(generator, "*ptr = memberId;");
+            helper.LogMessage(generator, "*ptr = memberId;");
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldc_I4_S, id);
             generator.Emit(OpCodes.Stind_I1);
-            EncodeHelper.IncrementPtr(generator);
+            helper.IncrementPtr(generator);
 
-            EncodeHelper.LogMessage(generator, "// Boolean field encoder");
+            helper.LogMessage(generator, "// Boolean field encoder");
             // *ptr = obj.field
             generator.Emit(OpCodes.Ldloc_0);
             if (resultLocal.LocalType.IsValueType)
@@ -79,7 +84,7 @@ namespace TickZoom.Api
 
         public void EmitDecode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field)
         {
-            EncodeHelper.LogMessage(generator, "// starting decode of boolean");
+            helper.LogMessage(generator, "// starting decode of boolean");
             if (resultLocal.LocalType.IsValueType)
             {
                 generator.Emit(OpCodes.Ldloca, resultLocal);
