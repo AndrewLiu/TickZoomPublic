@@ -35,11 +35,13 @@ namespace TickZoom.Api
     /// <summary>
     /// Description of OrderCommon.
     /// </summary>
+    [SerializeContract]
     public class LogicalOrderDefault : LogicalOrder
     {
         private static readonly Log log = Factory.SysLog.GetLogger("LogicalOrder");
         private readonly bool debug = log.IsDebugEnabled;
         private readonly bool trace = log.IsTraceEnabled;
+        [SerializeMember(1)]
         private LogicalOrderBinary binary = new LogicalOrderBinary();
 
         public LogicalOrderDefault(SymbolInfo symbol)

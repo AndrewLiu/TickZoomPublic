@@ -29,7 +29,7 @@ namespace TickZoom.Api
             var nullCheckLabel = generator.DefineLabel();
             generator.Emit(OpCodes.Brtrue_S, nullCheckLabel);
 
-            helper.LogMessage(generator, "*ptr = memberId;");
+            helper.LogMessage(generator, "*ptr = " + id + "; // member id");
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldc_I4_S, id);
             generator.Emit(OpCodes.Stind_I1);

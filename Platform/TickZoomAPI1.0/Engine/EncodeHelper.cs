@@ -15,6 +15,7 @@ namespace TickZoom.Api
         internal Dictionary<Type, int> typeCodesByType = new Dictionary<Type, int>();
         internal Dictionary<int, Type> typeCodesByCode = new Dictionary<int, Type>();
         internal int maxCode = 0;
+        private bool debug = false;
 
         public EncodeHelper()
         {
@@ -30,6 +31,7 @@ namespace TickZoom.Api
             DefineType(typeof(TickSync), 9);
             DefineType(typeof(PositionChangeDetail), 10);
             DefineType(typeof(TimeFrame), 11);
+            DefineType(typeof(LogicalOrderDefault), 12);
         }
 
         public void DefineType( Type type, int code)
@@ -162,7 +164,6 @@ namespace TickZoom.Api
             public object Result;
         }
 
-        private bool debug = false;
         public void LogMessage(ILGenerator generator, string message)
         {
             if( debug)
@@ -190,8 +191,8 @@ namespace TickZoom.Api
             {
                 LogMessage(generator,message);
                 generator.Emit(OpCodes.Dup);
-                generator.Emit(OpCodes.Conv_U8);
-                var writeLineMethod = typeof(Console).GetMethod("WriteLine", new Type[] { typeof(ulong) });
+                generator.Emit(OpCodes.Conv_R8);
+                var writeLineMethod = typeof(Console).GetMethod("WriteLine", new Type[] { typeof(double) });
                 generator.Emit(OpCodes.Call, writeLineMethod);
             }
         }
@@ -241,7 +242,7 @@ namespace TickZoom.Api
             IncrementPtr(generator);
 
             var meta = GetMeta(type);
-            LogMessage(generator, "*ptr = typeCode;");
+            LogMessage(generator, "*ptr = " + meta.TypeCode + "; // type code");
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldc_I4_S, meta.TypeCode);
             generator.Emit(OpCodes.Stind_I1);
@@ -324,7 +325,7 @@ namespace TickZoom.Api
             var ptrLocal = generator.DeclareLocal(typeof(byte*));
             var startLocal = generator.DeclareLocal(typeof(byte*));
 
-            LogMessage(generator, "// starting emitting decode of " + type);
+            LogMessage(generator, "// starting decode of " + type);
             LogMessage(generator, "ptr = (byte*) arg1");
             generator.Emit(OpCodes.Ldarg_1);
             var explicitCast = typeof(IntPtr).GetMethod("op_Explicit", new Type[] { typeof(int) });
@@ -395,9 +396,10 @@ namespace TickZoom.Api
             var continueLoop = generator.DefineLabel();
             generator.MarkLabel(continueLoop);
 
-            LogMessage(generator, "member = *ptr");
+            LogMessage(generator, "typeCode = *ptr");
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldind_U1);
+            LogStack(generator, "// type code ");
             generator.Emit(OpCodes.Stloc, memberLocal);
 
             IncrementPtr(generator);
@@ -455,19 +457,20 @@ namespace TickZoom.Api
             }
             else
             {
-                int typeCode;
-                if (!typeCodesByType.TryGetValue(lookupType, out typeCode))
-                {
-                    throw new InvalidOperationException("Can't find field or type serializer for " + field.FieldType.FullName + " on field " + field.Name + " of " + field.ReflectedType.FullName);
-                }
-                LogMessage(generator, "*ptr = memberId;");
+                //int typeCode;
+                //if (!typeCodesByType.TryGetValue(lookupType, out typeCode))
+                //{
+                //    throw new InvalidOperationException("Can't find field or type serializer for " + field.FieldType.FullName + " on field " + field.Name + " of " + field.ReflectedType.FullName);
+                //}
+                LogMessage(generator, "*ptr = " + id + "; // member id");
                 generator.Emit(OpCodes.Ldloc_0);
                 generator.Emit(OpCodes.Ldc_I4_S, id);
                 generator.Emit(OpCodes.Stind_I1);
 
                 IncrementPtr(generator);
 
-                LogMessage(generator, "helper.Encode(ptr, object);");
+                LogMessage(generator, "ptr += helper.Encode(ptr, object);");
+                generator.Emit(OpCodes.Ldloc_0);
                 generator.Emit(OpCodes.Ldarg_0);
                 generator.Emit(OpCodes.Ldloc_0);
                 if (resultLocal.LocalType.IsValueType)
@@ -481,6 +484,8 @@ namespace TickZoom.Api
                 generator.Emit(OpCodes.Ldfld, field);
                 var encodeMethod = this.GetType().GetMethod("Encode", new Type[] {typeof (byte).MakePointerType(), typeof (object)});
                 generator.Emit(OpCodes.Call,encodeMethod);
+                generator.Emit(OpCodes.Add);
+                generator.Emit(OpCodes.Stloc_0);
             }
         }
 
@@ -498,13 +503,12 @@ namespace TickZoom.Api
             }
             else
             {
-                int typeCode;
-                if (!typeCodesByType.TryGetValue(lookupType, out typeCode))
-                {
-                    throw new InvalidOperationException("Can't find field or type serializer for " + field.FieldType.FullName + " on field " + field.Name + " of " + field.ReflectedType.FullName);
-                }
-                var subResultLocal = EmitTypeDecode(generator, lookupType);
-                LogMessage(generator, "ResultPointer." + field.Name + " = result;");
+                //int typeCode;
+                //if (!typeCodesByType.TryGetValue(lookupType, out typeCode))
+                //{
+                //    throw new InvalidOperationException("Can't find field or type serializer for " + field.FieldType.FullName + " on field " + field.Name + " of " + field.ReflectedType.FullName);
+                //}
+                LogMessage(generator, "fld = helper.Decode(ptr);");
                 if (resultLocal.LocalType.IsValueType)
                 {
                     generator.Emit(OpCodes.Ldloca, resultLocal);
@@ -513,10 +517,22 @@ namespace TickZoom.Api
                 {
                     generator.Emit(OpCodes.Ldloc, resultLocal);
                 }
-                generator.Emit(OpCodes.Ldloc, subResultLocal);
+                generator.Emit(OpCodes.Ldarg_0);
+                generator.Emit(OpCodes.Ldloc_0);
+                var decodeMethod = this.GetType().GetMethod("Decode", new Type[] { typeof(byte).MakePointerType()});
+                generator.Emit(OpCodes.Call, decodeMethod);
                 generator.Emit(OpCodes.Stfld, field);
+
+                LogMessage(generator, "ptr += *ptr");
+                generator.Emit(OpCodes.Ldloc_0);
+                generator.Emit(OpCodes.Ldloc_0);
+                generator.Emit(OpCodes.Ldind_U1);
+                generator.Emit(OpCodes.Conv_I);
+                generator.Emit(OpCodes.Add);
+                generator.Emit(OpCodes.Stloc_0);
             }
         }
+
         public enum EncodeOperation
         {
             Encode,
