@@ -6,10 +6,11 @@ namespace TickZoom.Api
 {
     public class CastingFieldEncoder : FieldEncoder
     {
+        protected EncodeHelper helper;
         private Type wireType;
-
-        public CastingFieldEncoder(Type wireType)
+        public CastingFieldEncoder(EncodeHelper helper, Type wireType)
         {
+            this.helper = helper;
             this.wireType = wireType;
         }
 
@@ -25,13 +26,13 @@ namespace TickZoom.Api
 
         public void EmitEncode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field, int id)
         {
-            EncodeHelper.LogMessage(generator, "*ptr = memberId;");
+            helper.LogMessage(generator, "*ptr = memberId;");
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldc_I4_S, id);
             generator.Emit(OpCodes.Stind_I1);
-            EncodeHelper.IncrementPtr(generator);
+            helper.IncrementPtr(generator);
 
-            EncodeHelper.LogMessage(generator, "// starting encode of cast");
+            helper.LogMessage(generator, "// starting encode of cast");
             // *ptr = obj.field
             generator.Emit(OpCodes.Ldloc_0);
             if (resultLocal.LocalType.IsValueType)
@@ -88,7 +89,7 @@ namespace TickZoom.Api
 
         public void EmitDecode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field)
         {
-            EncodeHelper.LogMessage(generator, "// starting decode of cast");
+            helper.LogMessage(generator, "// starting decode of cast");
             if (resultLocal.LocalType.IsValueType)
             {
                 generator.Emit(OpCodes.Ldloca, resultLocal);

@@ -6,15 +6,20 @@ namespace TickZoom.Api
 {
     public class SymbolFieldEncoder : FieldEncoder
     {
+        protected EncodeHelper helper;
+        public SymbolFieldEncoder(EncodeHelper helper)
+        {
+            this.helper = helper;
+        }
         public void EmitEncode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field, int id)
         {
-            EncodeHelper.LogMessage(generator, "*ptr = memberId;");
+            helper.LogMessage(generator, "*ptr = memberId;");
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldc_I4_S, id);
             generator.Emit(OpCodes.Stind_I1);
-            EncodeHelper.IncrementPtr(generator);
+            helper.IncrementPtr(generator);
 
-            EncodeHelper.LogMessage(generator, "// starting encode of Symbol");
+            helper.LogMessage(generator, "// starting encode of Symbol");
             // ptr += SerializeString( ptr, field.ToString)
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldloc_0);
@@ -33,24 +38,24 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Call, serializerMethod);
             generator.Emit(OpCodes.Conv_I);
             generator.Emit(OpCodes.Add);
-            EncodeHelper.LogStack(generator, "// ptr address after symbol");
+            helper.LogStack(generator, "// ptr address after symbol");
             generator.Emit(OpCodes.Stloc_0);
         }
 
         public void EmitDecode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field)
         {
-            EncodeHelper.LogMessage(generator, "// starting decode Symbol");
+            helper.LogMessage(generator, "// starting decode Symbol");
             // ptr += DeserializeString( ptr, &str)
             var stringLocal = generator.DeclareLocal(typeof(string));
             generator.Emit(OpCodes.Ldloc_0);
-            EncodeHelper.LogStack(generator, "// ptr address");
+            helper.LogStack(generator, "// ptr address");
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldloca_S, stringLocal);
             var deserializerMethod = typeof(StringFieldEncoder).GetMethod("DeserializeString");
             generator.Emit(OpCodes.Call, deserializerMethod);
             generator.Emit(OpCodes.Conv_I);
             generator.Emit(OpCodes.Add);
-            EncodeHelper.LogStack(generator, "// ptr address after symbol");
+            helper.LogStack(generator, "// ptr address after symbol");
             generator.Emit(OpCodes.Stloc_0);
 
             // field = Factory.Symbol.LookupSymbol( str);

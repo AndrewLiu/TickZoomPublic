@@ -6,9 +6,14 @@ namespace TickZoom.Api
 {
     public class NumericFieldEncoder : FieldEncoder
     {
+        protected EncodeHelper helper;
+        public NumericFieldEncoder(EncodeHelper helper)
+        {
+            this.helper = helper;
+        }
         private void EmitDataLength(ILGenerator generator, FieldInfo field)
         {
-            EncodeHelper.LogMessage(generator, "ptr += sizeof()");
+            helper.LogMessage(generator, "ptr += sizeof()");
             generator.Emit(OpCodes.Ldloc_0);
             if (field.FieldType == typeof(byte) || field.FieldType == typeof(sbyte))
             {
@@ -37,14 +42,14 @@ namespace TickZoom.Api
 
         public void EmitEncode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field, int id)
         {
-            EncodeHelper.LogMessage(generator, "*ptr = memberId;");
+            helper.LogMessage(generator, "*ptr = memberId;");
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldc_I4_S, id);
             generator.Emit(OpCodes.Stind_I1);
-            EncodeHelper.IncrementPtr(generator);
+            helper.IncrementPtr(generator);
 
-            EncodeHelper.LogMessage(generator, "// starting encode of numeric");
-            EncodeHelper.LogMessage(generator, "*ptr = obj.field");
+            helper.LogMessage(generator, "// starting encode of numeric");
+            helper.LogMessage(generator, "*ptr = obj.field");
             generator.Emit(OpCodes.Ldloc_0);
             if (resultLocal.LocalType.IsValueType)
             {
@@ -54,11 +59,11 @@ namespace TickZoom.Api
             {
                 generator.Emit(OpCodes.Ldloc, resultLocal);
             }
-            EncodeHelper.LogStack(generator, "// Value at arg 1");
-            EncodeHelper.LogMessage(generator, "// load the field value");
+            helper.LogStack(generator, "// Value at arg 1");
+            helper.LogMessage(generator, "// load the field value");
             generator.Emit(OpCodes.Ldfld, field);
-            EncodeHelper.LogStack(generator, "// " + field.Name);
-            EncodeHelper.LogMessage(generator, "// Emit store of field value");
+            helper.LogStack(generator, "// " + field.Name);
+            helper.LogMessage(generator, "// Emit store of field value");
             if (field.FieldType == typeof(byte) || field.FieldType == typeof(sbyte))
             {
                 generator.Emit(OpCodes.Stind_I1);
@@ -85,8 +90,8 @@ namespace TickZoom.Api
 
         public void EmitDecode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field)
         {
-            EncodeHelper.LogMessage(generator, "// starting decode of numeric");
-            EncodeHelper.LogMessage(generator, "result."+ field.Name + " *ptr");
+            helper.LogMessage(generator, "// starting decode of numeric");
+            helper.LogMessage(generator, "result."+ field.Name + " *ptr");
             if (resultLocal.LocalType.IsValueType)
             {
                 generator.Emit(OpCodes.Ldloca, resultLocal);
@@ -140,7 +145,7 @@ namespace TickZoom.Api
             {
                 throw new InvalidOperationException("Unexpected type: " + field.FieldType);
             }
-            EncodeHelper.LogStack(generator, "// *ptr");
+            helper.LogStack(generator, "// *ptr");
             generator.Emit(OpCodes.Stfld, field);
 
             EmitDataLength(generator, field);
