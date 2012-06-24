@@ -26,7 +26,7 @@ namespace TickZoom.Api
 
         public void EmitEncode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field, int id)
         {
-            helper.LogMessage(generator, "*ptr = memberId;");
+            helper.LogMessage(generator, "*ptr = " + id + "; // member id");
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldc_I4_S, id);
             generator.Emit(OpCodes.Stind_I1);

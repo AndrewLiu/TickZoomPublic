@@ -42,7 +42,7 @@ namespace TickZoom.Api
 
         public void EmitEncode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field, int id)
         {
-            helper.LogMessage(generator, "*ptr = memberId;");
+            helper.LogMessage(generator, "*ptr = " + id + "; // member id");
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldc_I4_S, id);
             generator.Emit(OpCodes.Stind_I1);
@@ -51,6 +51,7 @@ namespace TickZoom.Api
             helper.LogMessage(generator, "// starting encode of numeric");
             helper.LogMessage(generator, "*ptr = obj.field");
             generator.Emit(OpCodes.Ldloc_0);
+            helper.LogMessage(generator, "// ptr value");
             if (resultLocal.LocalType.IsValueType)
             {
                 generator.Emit(OpCodes.Ldloca, resultLocal);
@@ -72,13 +73,21 @@ namespace TickZoom.Api
             {
                 generator.Emit(OpCodes.Stind_I2);
             }
-            else if (field.FieldType == typeof(Int32) || field.FieldType == typeof(UInt32) || field.FieldType == typeof(Single))
+            else if (field.FieldType == typeof(Int32) || field.FieldType == typeof(UInt32))
             {
                 generator.Emit(OpCodes.Stind_I4);
             }
-            else if (field.FieldType == typeof(Int64) || field.FieldType == typeof(UInt64) || field.FieldType == typeof(Double))
+            else if (field.FieldType == typeof(Int64) || field.FieldType == typeof(UInt64))
             {
                 generator.Emit(OpCodes.Stind_I8);
+            }
+            else if( field.FieldType == typeof(Single))
+            {
+                generator.Emit(OpCodes.Stind_R4);
+            }
+            else if( field.FieldType == typeof(Double))
+            {
+                generator.Emit(OpCodes.Stind_R8);
             }
             else
             {
@@ -91,7 +100,7 @@ namespace TickZoom.Api
         public void EmitDecode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field)
         {
             helper.LogMessage(generator, "// starting decode of numeric");
-            helper.LogMessage(generator, "result."+ field.Name + " *ptr");
+            helper.LogMessage(generator, "result."+ field.Name + " = *ptr");
             if (resultLocal.LocalType.IsValueType)
             {
                 generator.Emit(OpCodes.Ldloca, resultLocal);
@@ -101,6 +110,7 @@ namespace TickZoom.Api
                 generator.Emit(OpCodes.Ldloc, resultLocal);
             }
             generator.Emit(OpCodes.Ldloc_0);
+            helper.LogMessage(generator, "// ptr value");
             if (field.FieldType == typeof(byte))
             {
                 generator.Emit(OpCodes.Ldind_U1);
@@ -135,11 +145,11 @@ namespace TickZoom.Api
             }
             else if (field.FieldType == typeof(Single))
             {
-                generator.Emit(OpCodes.Ldind_R4);  // TODO: How to Ldind for U8.
+                generator.Emit(OpCodes.Ldind_R4);  
             }
             else if (field.FieldType == typeof(Double))
             {
-                generator.Emit(OpCodes.Ldind_R8);  // TODO: How to Ldind for U8.
+                generator.Emit(OpCodes.Ldind_R8);  
             }
             else
             {
