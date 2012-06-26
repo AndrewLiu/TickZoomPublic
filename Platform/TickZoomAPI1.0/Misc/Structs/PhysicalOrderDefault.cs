@@ -4,40 +4,16 @@ using System.Threading;
 
 namespace TickZoom.Api
 {
+    [SerializeContract]
     public class PhysicalOrderDefault : PhysicalOrder
     {
         private static readonly Log log = Factory.SysLog.GetLogger(typeof (PhysicalOrderDefault));
         private static readonly bool debug = log.IsDebugEnabled;
+        [SerializeMember(1)]
         private PhysicalOrderBinary binary;
+        [SerializeMember(2)]
         private long instanceId;
         private static long nextInstanceId;
-
-        public struct PhysicalOrderBinary
-        {
-            public int sequence;
-            public OrderAction action;
-            public OrderState orderState;
-            public TimeStamp lastModifyTime;
-            public TimeStamp lastReadTime;
-            public SymbolInfo symbol;
-            public OrderType type;
-            public double price;
-            public int completeSize;
-            public int cumulativeSize;
-            public int remainingSize;
-            public OrderSide side;
-            public int logicalOrderId;
-            public long logicalSerialNumber;
-            public long brokerOrder;
-            public string tag;
-            public object reference;
-            public PhysicalOrder originalOrder;
-            public PhysicalOrder replacedBy;
-            public TimeStamp utcCreateTime;
-            public OrderFlags orderFlags;
-            public int cancelCount;
-            public int pendingCount;
-        }
 
         public PhysicalOrderDefault(OrderState orderState, SymbolInfo symbol, PhysicalOrder origOrder)
         {

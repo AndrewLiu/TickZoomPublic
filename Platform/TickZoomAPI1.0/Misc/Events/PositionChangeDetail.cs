@@ -42,7 +42,7 @@ namespace TickZoom.Api
         private long recency;
         [SerializeMember(5)]
         private Iterable<LogicalOrder> orders;
-        [SerializeMember(6)]
+        //[SerializeMember(6)]
         private Iterable<StrategyPosition> strategyPositions;
 
         public PositionChangeDetail(SymbolInfo symbol, int position, Iterable<LogicalOrder> orders, Iterable<StrategyPosition> strategyPositions, long utcTime, long recency)

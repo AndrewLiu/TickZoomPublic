@@ -571,6 +571,9 @@ namespace TickZoom.Logging
                     argumentHandler = new ArgumentHandler();
                     switch (type.FullName)
                     {
+                        case "TickZoom.TickUtil.TickImpl": // 3
+                            argumentHandler.Preprocessor = obj => obj.ToString();
+                            break;
                         case "TickZoom.Api.TickBox": // 533302
                             argumentHandler.Preprocessor = obj => ((TickBox)obj).Tick;
                             break;
@@ -582,7 +585,6 @@ namespace TickZoom.Logging
                         case "TickZoom.Api.TransactionPairBinary": // 3761
                         case "TickZoom.Api.TimeStamp": // 3317
                         case "TickZoom.Api.TickSync": // 1994
-                        case "TickZoom.TickUtil.TickImpl": // 3
                         case "TickZoom.Api.IntervalImpl": // 45
                         case "TickZoom.Api.PositionChangeDetail": // 5498
                             argumentHandler.Preprocessor = obj => obj;
@@ -624,7 +626,12 @@ namespace TickZoom.Logging
                 type = arg.GetType();
                 if (!type.IsValueType && type != typeof(string))
                 {
-                    //encoderDecoder.Encode(memoryBuffer, arg);
+                    if( type == null)
+                    {
+                        encoderDecoder = new EncodeHelper();
+                        encoderDecoder.Debug = true;
+                    }
+                    encoderDecoder.Encode(memoryBuffer, arg);
                 }
             }
         }
@@ -639,9 +646,9 @@ namespace TickZoom.Logging
 		{
             if( IsVerboseEnabled)
             {
-                LookForUniqueness(format, args);
                 resultString = string.Format(format, args);
                 Verbose(resultString, null);
+                LookForUniqueness(format, args);
             }
 		}
 
@@ -649,10 +656,10 @@ namespace TickZoom.Logging
 		{
 			if( IsTraceEnabled)
 			{
-                LookForUniqueness(format, args);
                 resultString = string.Format(format, args);
                 Trace(resultString, null);
-			}
+                LookForUniqueness(format, args);
+            }
 		}
 		
 		public void DebugFormat(string format, params object[] args)
@@ -666,9 +673,9 @@ namespace TickZoom.Logging
                 }
                 else
                 {
-                    LookForUniqueness(format, args);
                     resultString = string.Format(format, args);
                     Debug(resultString, null);
+                    LookForUniqueness(format, args);
                 }
             }
 		}
