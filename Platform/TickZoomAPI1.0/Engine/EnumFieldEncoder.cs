@@ -42,13 +42,13 @@ namespace TickZoom.Api
 
         public void EmitEncode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field, int id)
         {
-            helper.LogMessage(generator, "*ptr = " + id + "; // member id");
+            helper.EmitLogMessage(generator, "*ptr = " + id + "; // member id");
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldc_I4_S, id);
             generator.Emit(OpCodes.Stind_I1);
             helper.IncrementPtr(generator);
 
-            helper.LogMessage(generator, "// starting encode of enum");
+            helper.EmitLogMessage(generator, "// starting encode of enum");
             // *ptr = obj.field
             generator.Emit(OpCodes.Ldloc_0);
             if (resultLocal.LocalType.IsValueType)
@@ -86,7 +86,7 @@ namespace TickZoom.Api
 
         public void EmitDecode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field)
         {
-            helper.LogMessage(generator, "// starting decode of enum");
+            helper.EmitLogMessage(generator, "// starting decode of enum");
             if (resultLocal.LocalType.IsValueType)
             {
                 generator.Emit(OpCodes.Ldloca, resultLocal);

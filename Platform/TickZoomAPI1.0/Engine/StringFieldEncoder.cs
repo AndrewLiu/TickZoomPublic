@@ -14,7 +14,7 @@ namespace TickZoom.Api
         }
         public void EmitEncode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field, int id)
         {
-            helper.LogMessage(generator, "if( " + field.Name + " != null) {");
+            helper.EmitLogMessage(generator, "if( " + field.Name + " != null) {");
             if (resultLocal.LocalType.IsValueType)
             {
                 generator.Emit(OpCodes.Ldloca, resultLocal);
@@ -27,18 +27,18 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Ldnull);
             generator.Emit(OpCodes.Ceq);
             var nullCheckLabel = generator.DefineLabel();
-            generator.Emit(OpCodes.Brtrue_S, nullCheckLabel);
+            generator.Emit(OpCodes.Brtrue, nullCheckLabel);
 
-            helper.LogMessage(generator, "*ptr = " + id + "; // member id");
+            helper.EmitLogMessage(generator, "*ptr = " + id + "; // member id");
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldc_I4_S, id);
             generator.Emit(OpCodes.Stind_I1);
             helper.IncrementPtr(generator);
 
-            helper.LogMessage(generator, "// starting encode of string");
-            helper.LogMessage(generator, "SerializeString( ptr, &field)");
+            helper.EmitLogMessage(generator, "// starting encode of string");
+            helper.EmitLogMessage(generator, "SerializeString( ptr, &field)");
             generator.Emit(OpCodes.Ldloc_0);
-            helper.LogStack(generator, "ptr addrss");
+            helper.EmitLogStack(generator, "ptr addrss");
             generator.Emit(OpCodes.Ldloc_0);
             if (resultLocal.LocalType.IsValueType)
             {
@@ -53,17 +53,17 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Call,serializerMethod);
             generator.Emit(OpCodes.Conv_I);
             generator.Emit(OpCodes.Add);
-            helper.LogStack(generator, "// ptr address after string");
+            helper.EmitLogStack(generator, "// ptr address after string");
             generator.Emit(OpCodes.Stloc_0);
             generator.MarkLabel(nullCheckLabel);
         }
 
         public void EmitDecode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field)
         {
-            helper.LogMessage(generator, "// starting decode String( ptr, field)");
-            helper.LogMessage(generator, "DeserializeString( ptr, out field)");
+            helper.EmitLogMessage(generator, "// starting decode String( ptr, field)");
+            helper.EmitLogMessage(generator, "DeserializeString( ptr, out field)");
             generator.Emit(OpCodes.Ldloc_0);
-            helper.LogStack(generator, "// ptr address");
+            helper.EmitLogStack(generator, "// ptr address");
             generator.Emit(OpCodes.Ldloc_0);
             if (resultLocal.LocalType.IsValueType)
             {
@@ -78,7 +78,7 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Call, deserializerMethod);
             generator.Emit(OpCodes.Conv_I);
             generator.Emit(OpCodes.Add);
-            helper.LogStack(generator, "// ptr address after string");
+            helper.EmitLogStack(generator, "// ptr address after string");
             generator.Emit(OpCodes.Stloc_0);
         }
 
