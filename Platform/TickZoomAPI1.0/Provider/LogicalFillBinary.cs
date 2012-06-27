@@ -32,20 +32,33 @@ using TickZoom.Api;
 
 namespace TickZoom.Api
 {
+    [SerializeContract]
     public struct LogicalFillBinary : LogicalFill
 	{
-		private int position;
-		private double price;
-		private TimeStamp time;
-		private TimeStamp utcTime;
-		private TimeStamp postedTime;
-		private int orderId;
-		private long orderSerialNumber;
-		private int orderPosition;
-		private bool isExitStrategy;
-	    private long recency;
-	    private bool isComplete;
-	    private bool isActual;
+        [SerializeMember(1)]
+        private int position;
+        [SerializeMember(2)]
+        private double price;
+        [SerializeMember(3)]
+        private TimeStamp time;
+        [SerializeMember(4)]
+        private TimeStamp utcTime;
+        [SerializeMember(5)]
+        private TimeStamp postedTime;
+        [SerializeMember(6)]
+        private int orderId;
+        [SerializeMember(7)]
+        private long orderSerialNumber;
+        [SerializeMember(8)]
+        private int orderPosition;
+        [SerializeMember(9)]
+        private bool isExitStrategy;
+        [SerializeMember(10)]
+        private long recency;
+        [SerializeMember(11)]
+        private bool isComplete;
+        [SerializeMember(12)]
+        private bool isActual;
 		public LogicalFillBinary(int position, long recency, double price, TimeStamp time, TimeStamp utcTime, int orderId, long orderSerialNumber, int orderPosition, bool isExitStrategy, bool isActual)
 		{
 		    this.isActual = isActual;

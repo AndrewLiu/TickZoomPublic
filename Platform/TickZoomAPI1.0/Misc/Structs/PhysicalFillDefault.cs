@@ -30,20 +30,33 @@ using TickZoom.Api;
 
 namespace TickZoom.Api
 {
+    [SerializeContract]
 	public class PhysicalFillDefault : PhysicalFill
 	{
-	    private SymbolInfo symbol;
-		private int size;
-		private double price;
+        [SerializeMember(1)]
+        private SymbolInfo symbol;
+        [SerializeMember(2)]
+        private int size;
+        [SerializeMember(3)]
+        private double price;
+        [SerializeMember(4)]
         private TimeStamp time;
-		private TimeStamp utcTime;
-		private long brokerOrder;
-		private bool isExitStategy;
-	    private int completeSize;
-	    private int cumulativeSize;
-	    private int remainingSize;
-	    private bool isRealTime;
-	    private bool isActual;
+        [SerializeMember(5)]
+        private TimeStamp utcTime;
+        [SerializeMember(6)]
+        private long brokerOrder;
+        [SerializeMember(7)]
+        private bool isExitStategy;
+        [SerializeMember(8)]
+        private int completeSize;
+        [SerializeMember(9)]
+        private int cumulativeSize;
+        [SerializeMember(10)]
+        private int remainingSize;
+        [SerializeMember(11)]
+        private bool isRealTime;
+        [SerializeMember(12)]
+        private bool isActual;
 
 	    public PhysicalFillDefault(SymbolInfo symbol, int size, double price, TimeStamp time, TimeStamp utcTime, long brokerOrder, 
 	                               bool isExitStategy, int completeSize, int cumulativeSize, int remainingSize, bool isRealTime, bool isActual)

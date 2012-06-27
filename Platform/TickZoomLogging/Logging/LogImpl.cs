@@ -49,7 +49,6 @@ namespace TickZoom.Logging
 		private readonly static Type callingType = typeof(LogImpl);
 		private LogImplWrapper logWrapper;
 		private static Dictionary<string,string> symbolMap;
-        private EncodeHelper encoderDecoder = new EncodeHelper();
 
 	    #region OldStuff
         private static LoggingQueue messageQueue = null; 
@@ -536,31 +535,28 @@ namespace TickZoom.Logging
 
         private void LookForUniqueness(string format, object[] args)
         {
-            if( memoryBuffer.Length > 100000)
+            if( memoryBuffer.Position > 10000)
             {
-                memoryBuffer.SetLength(0);
+                memoryBuffer.Position = 0;
             }
-            FormatHandler formatHandler;
-            if (uniqueFormatsInternal.TryGetValue(format, out formatHandler))
+            if( false)
             {
-                formatHandler.Count++;
-            }
-            else
-            {
-                formatHandler = new FormatHandler();
-                uniqueFormatsInternal.Add(format, formatHandler);
+                FormatHandler formatHandler;
+                if (uniqueFormatsInternal.TryGetValue(format, out formatHandler))
+                {
+                    formatHandler.Count++;
+                }
+                else
+                {
+                    formatHandler = new FormatHandler();
+                    uniqueFormatsInternal.Add(format, formatHandler);
+                }
             }
             for (var i = 0; i < args.Length; i++)
             {
                 var arg = args[i];
                 if (arg == null) continue;
                 var type = arg.GetType();
-                switch (type.FullName)
-                {
-                    case "TickZoom.Api.TickBox": // 533302
-                    case "TickZoom.TickUtil.TickImpl": // 3
-                        break;
-                }
                 ArgumentHandler argumentHandler;
                 if (uniqueTypesInternal.TryGetValue(type, out argumentHandler))
                 {
@@ -571,20 +567,25 @@ namespace TickZoom.Logging
                     argumentHandler = new ArgumentHandler();
                     switch (type.FullName)
                     {
+                        case "TickZoom.Api.TickSync": // 1994
+                            argumentHandler.Preprocessor = obj => ((TickSync) obj).State;
+                            break;
                         case "TickZoom.TickUtil.TickImpl": // 3
-                            argumentHandler.Preprocessor = obj => obj.ToString();
+                            argumentHandler.Preprocessor = obj => ((TickIO) obj).Extract();
                             break;
                         case "TickZoom.Api.TickBox": // 533302
                             argumentHandler.Preprocessor = obj => ((TickBox)obj).Tick;
                             break;
                         case "TickZoom.Api.TickBinaryBox": // 89
+                            argumentHandler.Preprocessor = obj => ((TickBinaryBox)obj).TickBinary;
+                            break;
+                        case "TickZoom.Api.LogicalOrderDefault":
                         case "TickZoom.Api.PhysicalOrderDefault": // 36877
                         case "TickZoom.Api.LogicalFillBinary": // 15047
                         case "TickZoom.Api.PhysicalFillDefault": // 11285
                         case "TickZoom.Api.LogicalFillBinaryBox": // 3761
                         case "TickZoom.Api.TransactionPairBinary": // 3761
                         case "TickZoom.Api.TimeStamp": // 3317
-                        case "TickZoom.Api.TickSync": // 1994
                         case "TickZoom.Api.IntervalImpl": // 45
                         case "TickZoom.Api.PositionChangeDetail": // 5498
                             argumentHandler.Preprocessor = obj => obj;
@@ -624,13 +625,13 @@ namespace TickZoom.Logging
                 }
                 args[i] = arg = argumentHandler.Preprocessor(arg);
                 type = arg.GetType();
-                if (!type.IsValueType && type != typeof(string))
+                if (type == typeof(PhysicalOrderDefault))
                 {
-                    if( type == null)
-                    {
-                        encoderDecoder = new EncodeHelper();
-                        encoderDecoder.Debug = true;
-                    }
+                    encoderDecoder.Encode(memoryBuffer, arg);
+                }
+
+                if (!type.IsValueType && type != typeof(string) && type != typeof(PhysicalOrderDefault))
+                {
                     encoderDecoder.Encode(memoryBuffer, arg);
                 }
             }
@@ -639,6 +640,9 @@ namespace TickZoom.Logging
         public string resultString;
         public string cloneResult;
 
+        private bool serialized = false;
+
+        private static EncodeHelper encoderDecoder = new EncodeHelper();
         private static MemoryStream memoryBuffer = new MemoryStream();
         private static Dictionary<string, FormatHandler> uniqueFormatsInternal = new Dictionary<string, FormatHandler>();
         private static Dictionary<Type, ArgumentHandler> uniqueTypesInternal = new Dictionary<Type, ArgumentHandler>();
@@ -646,9 +650,15 @@ namespace TickZoom.Logging
 		{
             if( IsVerboseEnabled)
             {
-                resultString = string.Format(format, args);
-                Verbose(resultString, null);
-                LookForUniqueness(format, args);
+                if( serialized)
+                {
+                    LookForUniqueness(format, args);
+                }
+                else
+                {
+                    resultString = string.Format(format, args);
+                    Verbose(resultString, null);
+                }
             }
 		}
 
@@ -656,9 +666,15 @@ namespace TickZoom.Logging
 		{
 			if( IsTraceEnabled)
 			{
-                resultString = string.Format(format, args);
-                Trace(resultString, null);
-                LookForUniqueness(format, args);
+                if (serialized)
+                {
+                    LookForUniqueness(format, args);
+                }
+                else
+                {
+                    resultString = string.Format(format, args);
+                    Trace(resultString, null);
+                }
             }
 		}
 		
@@ -673,9 +689,15 @@ namespace TickZoom.Logging
                 }
                 else
                 {
-                    resultString = string.Format(format, args);
-                    Debug(resultString, null);
-                    LookForUniqueness(format, args);
+                    if( serialized)
+                    {
+                        LookForUniqueness(format, args);
+                    }
+                    else
+                    {
+                        resultString = string.Format(format, args);
+                        Debug(resultString, null);
+                    }
                 }
             }
 		}

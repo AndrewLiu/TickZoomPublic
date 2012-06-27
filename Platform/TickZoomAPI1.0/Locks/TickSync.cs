@@ -30,21 +30,43 @@ using System.Threading;
 
 namespace TickZoom.Api
 {
+    [SerializeContract]
     [StructLayout(LayoutKind.Sequential)]
     unsafe public struct TickSyncState
     {
+        [SerializeMember(1)]
         public int isLocked;
+        [SerializeMember(2)]
         public long symbolBinaryId;
+        [SerializeMember(3)]
         public int ticks;
+        [SerializeMember(4)]
         public int positionChange;
+        [SerializeMember(5)]
         public int waitingMatch;
+        [SerializeMember(6)]
         public int processPhysical;
+        [SerializeMember(7)]
         public int reprocessPhysical;
+        [SerializeMember(8)]
         public int physicalFillsCreated;
+        [SerializeMember(9)]
         public int physicalFillsWaiting;
+        [SerializeMember(10)]
         public int physicalOrders;
+        [SerializeMember(11)]
         public int orderChange;
+        [SerializeMember(12)]
         public int switchBrokerState;
+        public override string ToString()
+        {
+            return "TickSync Ticks ( " + ticks + ", Locked " + isLocked + " )" +
+                ", Orders ( Sent " + physicalOrders + ", Changed " + orderChange +
+                    ", Process " + processPhysical + ", Reprocess " + reprocessPhysical + " )" +
+                ", Fills ( Created " + physicalFillsCreated + ", Waiting " + physicalFillsWaiting + " )" +
+                ", Position Changes ( Sent " + positionChange + ", Waiting " + waitingMatch + " )" +
+                ", Switch Broker " + switchBrokerState;
+        }
     }
 
     public unsafe class TickSync
@@ -153,17 +175,12 @@ namespace TickZoom.Api
 
         public override string ToString()
         {
-            return ToString(*state);
+            return (*state).ToString();
         }
 
-        private string ToString(TickSyncState temp)
+        public TickSyncState State
         {
-            return "TickSync Ticks ( " + temp.ticks + ", Locked " + temp.isLocked + " )" +
-                ", Orders ( Sent " + temp.physicalOrders + ", Changed " + temp.orderChange + 
-                    ", Process " + temp.processPhysical + ", Reprocess " + temp.reprocessPhysical + " )" +
-                ", Fills ( Created " + temp.physicalFillsCreated + ", Waiting " + temp.physicalFillsWaiting + " )" +
-                ", Position Changes ( Sent " + temp.positionChange + ", Waiting " + temp.waitingMatch + " )" + 
-                ", Switch Broker " + temp.switchBrokerState;
+            get { return *state; }
         }
 
         public void AddTick(Tick tick)
