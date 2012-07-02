@@ -35,7 +35,6 @@ using System.Text;
 using System.Threading;
 
 using log4net.Core;
-using log4net.Filter;
 using TickZoom.Api;
 
 namespace TickZoom.Logging
@@ -303,8 +302,7 @@ namespace TickZoom.Logging
 				if( t!=null) {
 					System.Diagnostics.Debug.WriteLine(message + "\n" + t);
 				}
-				SetProperties(loggingEvent);
-        		WriteScreen(loggingEvent);
+			    WriteScreen(loggingEvent);
 				LogWrapper.Logger.Log(loggingEvent);
 			}
 		}
@@ -318,8 +316,7 @@ namespace TickZoom.Logging
 				if( t!=null) {
 					System.Diagnostics.Debug.WriteLine(message + "\n" + t);
 				}
-				SetProperties(loggingEvent);
-				LogWrapper.Logger.Log(loggingEvent);
+			    LogWrapper.Logger.Log(loggingEvent);
 			}
 		}
 		
@@ -332,8 +329,7 @@ namespace TickZoom.Logging
 				if( t!=null) {
 					System.Diagnostics.Debug.WriteLine(message + "\n" + t);
 				}
-				SetProperties(loggingEvent);
-				LogWrapper.Logger.Log(loggingEvent);
+			    LogWrapper.Logger.Log(loggingEvent);
 			}
 		}
 		
@@ -424,8 +420,7 @@ namespace TickZoom.Logging
 				if( t!=null) {
 					System.Diagnostics.Debug.WriteLine(message + "\n" + t);
 				}
-				SetProperties(loggingEvent);
-				LogWrapper.Logger.Log(loggingEvent);
+			    LogWrapper.Logger.Log(loggingEvent);
 			}
 		}
 		
@@ -438,8 +433,7 @@ namespace TickZoom.Logging
 				if( t!=null) {
 					System.Diagnostics.Debug.WriteLine(message + "\n" + t);
 				}
-				SetProperties(loggingEvent);
-				LogWrapper.Logger.Log(loggingEvent);
+			    LogWrapper.Logger.Log(loggingEvent);
 			}
 		}
 		
@@ -469,8 +463,7 @@ namespace TickZoom.Logging
 				if( t!=null) {
 					System.Diagnostics.Debug.WriteLine(message + "\n" + t);
 				}
-				SetProperties(loggingEvent);
-	        	WriteScreen(loggingEvent);
+			    WriteScreen(loggingEvent);
 				LogWrapper.Logger.Log(loggingEvent);
                 logManager.Flush();
 			}
@@ -485,50 +478,18 @@ namespace TickZoom.Logging
 				if( t!=null) {
 					System.Diagnostics.Debug.WriteLine(message + "\n" + t);
 				}
-				SetProperties(loggingEvent);
-	        	WriteScreen(loggingEvent);
+			    WriteScreen(loggingEvent);
 				LogWrapper.Logger.Log(loggingEvent);
                 logManager.Flush();
             }
 		}
-		
-		private FilterDecision SymbolDecide()
-		{
-			string symbol = log4net.MDC.Get("Symbol");
-			if( symbol != null && symbol.Length>0 && symbolMap.Count > 0) {
-				if( symbolMap.ContainsKey(symbol)) {
-					return FilterDecision.Neutral;
-				}
-				else
-				{
-					return FilterDecision.Deny;
-				}
-			} else {
-				return FilterDecision.Accept;
-			}
-		}
-		
-		private void SetProperties(LoggingEvent loggingEvent) {
-//			loggingEvent.Properties["TimeStamp"] = CheckNull(log4net.MDC.Get("TimeStamp");
-//			loggingEvent.Properties["Symbol"] = CheckNull(log4net.MDC.Get("Symbol"));
-//			loggingEvent.Properties["CurrentBar"] = CheckNull(log4net.MDC.Get("CurrentBar"));
-		}
-		
-		private string CheckNull(string value) {
-			if( value == null) {
-				return "";
-			} else {
-				return value;
-			}
-		}
-		
-		public void Fatal(object message, Exception t)
+
+        public void Fatal(object message, Exception t)
 		{
 			if (IsFatalEnabled)
 			{
 				LoggingEvent loggingEvent = new LoggingEvent(callingType, LogWrapper.Logger.Repository, LogWrapper.Logger.Name, Level.Fatal, message, t);
-				SetProperties(loggingEvent);
-	        	WriteScreen(loggingEvent);
+			    WriteScreen(loggingEvent);
 				LogWrapper.Logger.Log(loggingEvent);
 			}
 		}
@@ -539,7 +500,7 @@ namespace TickZoom.Logging
             {
                 memoryBuffer.Position = 0;
             }
-            if( false)
+            if( trackFormats)
             {
                 FormatHandler formatHandler;
                 if (uniqueFormatsInternal.TryGetValue(format, out formatHandler))
@@ -640,6 +601,7 @@ namespace TickZoom.Logging
         public string resultString;
         public string cloneResult;
 
+        private bool trackFormats = false;
         private bool serialized = false;
 
         private static EncodeHelper encoderDecoder = new EncodeHelper();
@@ -767,15 +729,10 @@ namespace TickZoom.Logging
 			LogWrapper.FatalFormat(provider, format, args);
 		}
 
-        #region Log Members
-
-
         public void Register(LogAware logAware)
         {
             LogWrapper.Register(logAware);
             logAware.RefreshLogLevel();
         }
-
-        #endregion
     }
 }
