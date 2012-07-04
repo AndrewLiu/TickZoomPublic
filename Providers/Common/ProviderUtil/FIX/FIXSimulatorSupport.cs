@@ -868,7 +868,7 @@ namespace TickZoom.Provider.FIX
 		private void IncreaseHeartbeat()
 		{
 		    var timeStamp = Factory.Parallel.UtcNow;
-            timeStamp.AddMilliseconds(HeartbeatDelay*100);
+            timeStamp.AddMilliseconds(HeartbeatDelay*10);
             if (debug) log.DebugFormat("Setting next heartbeat for {0}", timeStamp);
             heartbeatTimer.Start(timeStamp);
 		}		

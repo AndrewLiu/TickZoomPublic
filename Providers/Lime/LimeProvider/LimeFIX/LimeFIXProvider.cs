@@ -241,11 +241,11 @@ namespace TickZoom.Provider.LimeFIX
                     BusinessReject(packetFIX);
                     break;
                 case "0":
-                    if (trace) log.TraceFormat("Received Hearbeat");
+                    if (debug) log.DebugFormat("Received Heartbeat");
 			        TrySetOrderServerOnline();
                     break;
                 case "1":
-                    if (trace) log.TraceFormat("Received Test Request");
+                    if (debug) log.DebugFormat("Received Test Request");
                     TrySetOrderServerOnline();
                     SendHeartbeat();
                     break;
