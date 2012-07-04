@@ -878,7 +878,7 @@ namespace TickZoom.Provider.FIX
 		    var heartbeatTime = TimeStamp.UtcNow;
             if( SyncTicks.Enabled)
             {
-                heartbeatTime.AddMilliseconds(heartbeatDelay * 100);
+                heartbeatTime.AddMilliseconds(100);
             }
             else
             {
@@ -1427,18 +1427,7 @@ namespace TickZoom.Provider.FIX
         {
             log.Info("OnConnect() ");
             ConnectionStatus = Status.Connected;
-            if (SyncTicks.Enabled)
-            {
-                HeartbeatDelay = 10;
-                if (HeartbeatDelay > 40)
-                {
-                    log.Error("Heartbeat delay is " + HeartbeatDelay);
-                }
-            }
-            else
-            {
-                HeartbeatDelay = 40;
-            }
+            HeartbeatDelay = 40;
             IsResendComplete = true;
             using (OrderStore.BeginTransaction())
             {
