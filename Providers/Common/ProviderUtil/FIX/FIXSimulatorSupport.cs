@@ -246,39 +246,43 @@ namespace TickZoom.Provider.FIX
                 CloseFIXSocket();
                 return Yield.NoWork.Repeat;
             }
-            if (fixState != ServerState.Startup)
+            switch( fixState)
             {
-                var now = TimeStamp.UtcNow;
-                if( now > isHeartbeatPending)
-                {
-                    log.Error("HeartBeat response was never received.\n" + Factory.Parallel.GetStats());
-                    log.Error("All stack traces follow...");
-                    Factory.Parallel.StackTrace();
-                    throw new ApplicationException("HeartBeat response was never received.");
-                }
-                isHeartbeatPending = TimeStamp.UtcNow;
-                isHeartbeatPending.AddSeconds(heartbeatResponseTimeoutSeconds);
-                if (SyncTicks.Frozen)
-                {
-                    frozenHeartbeatCounter++;
-                    if( frozenHeartbeatCounter > 3)
+                case ServerState.Startup:
+                case ServerState.ServerResend:
+                    if( debug) log.DebugFormat("Skipping heartbeat because fix state: {0}", fixState);
+                    break;
+                case ServerState.Recovered:
+                    var now = TimeStamp.UtcNow;
+                    if (now > isHeartbeatPending)
                     {
-                        if (debug) log.DebugFormat("More than 3 heart beats sent after frozen.  Ending heartbeats.");
-                        heartbeatDelay = 50;
+                        log.Error("HeartBeat response was never received.\n" + Factory.Parallel.GetStats());
+                        log.Error("All stack traces follow...");
+                        Factory.Parallel.StackTrace();
+                        throw new ApplicationException("HeartBeat response was never received.");
+                    }
+                    isHeartbeatPending = TimeStamp.UtcNow;
+                    isHeartbeatPending.AddSeconds(heartbeatResponseTimeoutSeconds);
+                    if (SyncTicks.Frozen)
+                    {
+                        frozenHeartbeatCounter++;
+                        if (frozenHeartbeatCounter > 3)
+                        {
+                            if (debug) log.DebugFormat("More than 3 heart beats sent after frozen.  Ending heartbeats.");
+                            heartbeatDelay = 50;
+                        }
+                        else
+                        {
+                            OnHeartbeat();
+                        }
                     }
                     else
                     {
                         OnHeartbeat();
                     }
-                }
-                else
-                {
-                    OnHeartbeat();
-                }
-            }
-            else
-            {
-                if( debug) log.DebugFormat("Skipping heartbeat because fix state: {0}", fixState);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("Unexpected FIX state of " + fixState);
             }
             IncreaseHeartbeat();
             return Yield.DidWork.Repeat;
