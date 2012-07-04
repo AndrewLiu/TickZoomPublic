@@ -4,6 +4,7 @@
     {
         Startup,
         Recovered,
+        WaitingHeartbeat,
         ServerResend
     }
 }

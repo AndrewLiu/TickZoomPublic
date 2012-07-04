@@ -75,6 +75,7 @@ namespace TickZoom.Provider.MBTFIX
 					break;
 				case "0":
 					if( debug) log.DebugFormat("Received heartbeat response.");
+                    ReceivedHeartBeat();
 					break;
                 case "g":
                     FIXRequestSessionStatus(packetFIX);

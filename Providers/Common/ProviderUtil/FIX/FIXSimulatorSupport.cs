@@ -250,6 +250,7 @@ namespace TickZoom.Provider.FIX
             {
                 case ServerState.Startup:
                 case ServerState.ServerResend:
+                case ServerState.WaitingHeartbeat:
                     if( debug) log.DebugFormat("Skipping heartbeat because fix state: {0}", fixState);
                     break;
                 case ServerState.Recovered:
@@ -571,6 +572,7 @@ namespace TickZoom.Provider.FIX
                             break;
                         case ServerState.ServerResend:
                         case ServerState.Recovered:
+                        case ServerState.WaitingHeartbeat:
                             switch (packetFIX.MessageType)
                             {
                                 case "A":
@@ -935,6 +937,14 @@ namespace TickZoom.Provider.FIX
             }
         }
 
+        protected void ReceivedHeartBeat()
+        {
+            if( fixState == ServerState.WaitingHeartbeat)
+            {
+                fixState = ServerState.Recovered;
+            }
+        }
+
         protected virtual Yield OnHeartbeat()
         {
 			if( fixSocket != null && FixFactory != null)
@@ -943,6 +953,7 @@ namespace TickZoom.Provider.FIX
 				mbtMsg.AddHeader("1");
 				if( trace) log.TraceFormat("Requesting heartbeat: {0}", mbtMsg);
                 SendMessage(mbtMsg);
+			    fixState = ServerState.WaitingHeartbeat;
 			}
 			return Yield.DidWork.Return;
 		}
@@ -1023,7 +1034,7 @@ namespace TickZoom.Provider.FIX
 
         public bool IsRecovered
         {
-            get { return fixState == ServerState.Recovered;  }
+            get { return fixState == ServerState.Recovered || fixState == ServerState.WaitingHeartbeat;  }
         }
 
 		public ushort FIXPort {
