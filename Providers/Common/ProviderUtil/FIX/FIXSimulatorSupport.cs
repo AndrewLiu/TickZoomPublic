@@ -250,9 +250,12 @@ namespace TickZoom.Provider.FIX
             {
                 case ServerState.Startup:
                 case ServerState.ServerResend:
-                case ServerState.WaitingHeartbeat:
-                    if( debug) log.DebugFormat("Skipping heartbeat because fix state: {0}", fixState);
+                    if (debug) log.DebugFormat("Skipping heartbeat because fix state: {0}", fixState);
                     break;
+                case ServerState.WaitingHeartbeat:
+                    if( debug) log.DebugFormat("Heartbeat response was never received.");
+                    CloseFIXSocket();
+                    return Yield.NoWork.Repeat;
                 case ServerState.Recovered:
                     var now = TimeStamp.UtcNow;
                     if (now > isHeartbeatPending)
