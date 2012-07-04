@@ -102,6 +102,7 @@ namespace TickZoom.Provider.LimeFIX
                     break;
                 case "0":
                     if (debug) log.DebugFormat("Received heartbeat response.");
+                    ReceivedHeartBeat();
                     break;
                 case "5":
                     log.Info("Received logout message.");
