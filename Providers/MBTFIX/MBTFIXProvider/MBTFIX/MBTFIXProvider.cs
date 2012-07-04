@@ -234,10 +234,11 @@ namespace TickZoom.Provider.MBTFIX
 					CancelRejected( packetFIX);
                     break;
 				case "1":
+                    if (debug) log.DebugFormat("Received Test Request");
 					SendHeartbeat();
 					break;
 				case "0":
-					// Received heartbeat
+                    if (debug) log.DebugFormat("Received Heartbeat");
 					break;
 				case "j":
                     BusinessReject(packetFIX);
