@@ -227,6 +227,8 @@ namespace TickZoom.Api
             thread.Priority = threadPriority;
             return timeStamp;
         }
+
+	    private static Log log;
 		
 		public static TimeStamp UtcNow {
 			get
@@ -253,9 +255,23 @@ namespace TickZoom.Api
                         ResetOriginalUtcNow(index);
                         ++count;
                     }
-                    if (count > 0)
+                    if (count > 10)
                     {
-                        Interlocked.Increment(ref adjustedClockCounter);
+                        if( log == null)
+                        {
+                            try
+                            {
+                                log = Factory.SysLog.GetLogger(typeof(TimeStamp));
+                            }
+                            catch (Exception)
+                            {
+                                // Can't initialize logging yet. Skip it.
+                            }
+                        }
+                        if( log != null)
+                        {
+                            log.ErrorFormat("UtcNow looped {0} times.", count);
+                        }
                     }
                     return result;
                 }
@@ -265,8 +281,6 @@ namespace TickZoom.Api
                 }
             }
 		}
-
-	    private static long adjustedClockCounter;
 
         private static bool CalculateTimeStamp(int index, out TimeStamp timeStamp)
         {
@@ -296,7 +310,7 @@ namespace TickZoom.Api
             if (result)
             {
                 hardwareTimeStamps[index].LastTimeStamp = timeStamp.Internal;
-                hardwareTimeStamps[index].lastTickCount = Environment.TickCount;
+                hardwareTimeStamps[index].lastTickCount = tickCount;
             }
             return result;
         }
