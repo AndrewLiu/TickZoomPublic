@@ -839,6 +839,7 @@ namespace TickZoom.Provider.FIX
                         {
                             case "g":
                             case "5": // Logoff
+                            case "0":
                             case "2":
                                 if (previous < i)
                                 {
@@ -849,7 +850,6 @@ namespace TickZoom.Provider.FIX
                                 sentFlag = true;
                                 break;
                             case "A":
-                            case "0":
                             case "AN":
                             case "G":
                             case "F":
