@@ -53,7 +53,7 @@ namespace TickZoom.Provider.FIX
 		private long realTimeOffset;
 		private object realTimeOffsetLocker = new object();
 		private YieldMethod MainLoopMethod;
-        private int heartbeatDelay = 1;
+        private int heartbeatDelay = 10;
         //private int heartbeatDelay = int.MaxValue;
         private ServerState fixState = ServerState.Startup;
         private readonly int maxFailures = 5;
@@ -93,7 +93,7 @@ namespace TickZoom.Provider.FIX
 		    this.fixPort = fixPort;
             this.providerSimulator = providerSimulator;
 		    var randomSeed = new Random().Next(int.MaxValue);
-            if (heartbeatDelay > 1)
+            if (heartbeatDelay > 10)
             {
                 log.Error("Heartbeat delay is " + heartbeatDelay);
             }
@@ -242,7 +242,12 @@ namespace TickZoom.Provider.FIX
             if (verbose) log.VerboseFormat("Heartbeat occurred at {0}", currentTime);
             if (isConnectionLost)
             {
-                if (debug) log.DebugFormat("FIX connection was lost, closing FIX socket.");
+                if (debug) log.DebugFormat("Simulating FIX connection was lost, closing FIX socket.");
+                if (!fixPacketQueue.IsFull && FIXReadLoop())
+                {
+                    return Yield.DidWork.Repeat;
+                }
+                ProviderSimulator.SwitchBrokerState("heartbeat-connectionlost", false);
                 CloseFIXSocket();
                 return Yield.NoWork.Repeat;
             }
@@ -254,8 +259,8 @@ namespace TickZoom.Provider.FIX
                     break;
                 case ServerState.WaitingHeartbeat:
                     if( debug) log.DebugFormat("Heartbeat response was never received.");
-                    CloseFIXSocket();
-                    return Yield.NoWork.Repeat;
+                    isConnectionLost = true;
+                    return Yield.DidWork.Repeat;
                 case ServerState.Recovered:
                     var now = TimeStamp.UtcNow;
                     if (now > isHeartbeatPending)
@@ -273,7 +278,7 @@ namespace TickZoom.Provider.FIX
                         if (frozenHeartbeatCounter > 3)
                         {
                             if (debug) log.DebugFormat("More than 3 heart beats sent after frozen.  Ending heartbeats.");
-                            heartbeatDelay = 50;
+                            heartbeatDelay = 1000;
                         }
                         else
                         {
@@ -345,7 +350,7 @@ namespace TickZoom.Provider.FIX
         {
             Dispose();
         }
-		
+
 		private enum State { Start, ProcessFIX, WriteFIX, Return };
 		private State state = State.Start;
 		private bool hasFIXPacket;
@@ -357,6 +362,7 @@ namespace TickZoom.Provider.FIX
                 {
                     return Yield.DidWork.Repeat;
                 }
+                ProviderSimulator.SwitchBrokerState("invoke-connectionlost", false);
                 CloseFIXSocket();
                 return Yield.NoWork.Repeat;
             }
@@ -877,7 +883,7 @@ namespace TickZoom.Provider.FIX
 		private void IncreaseHeartbeat()
 		{
 		    var timeStamp = Factory.Parallel.UtcNow;
-            timeStamp.AddMilliseconds(HeartbeatDelay*10);
+            timeStamp.AddMilliseconds(HeartbeatDelay);
             if (debug) log.DebugFormat("Setting next heartbeat for {0}", timeStamp);
             heartbeatTimer.Start(timeStamp);
 		}		
@@ -1012,15 +1018,6 @@ namespace TickZoom.Provider.FIX
                     else 
                     {
                         log.Info("The FIX order server finished up online.");
-                    }
-                    if (isConnectionLost)
-                    {
-                        SyncTicks.Success = false;
-                        log.Error("The FIX order server ended in connection loss state.");
-                    }
-                    else
-                    {
-                        log.Info("The FIX order server finished up connected.");
                     }
                     CloseSockets();
                     if (fixListener != null)

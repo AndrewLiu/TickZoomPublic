@@ -352,7 +352,24 @@ namespace Loaders
 
         public void SimulatorSuccess( string strategyName)
         {
-            Assert.IsTrue(SyncTicks.Success);
+            try {
+                Assert.IsTrue(SyncTicks.Success);
+			}
+            catch (AssertionException ex)
+            {
+                log.Error(ex.Message);
+                testFailed = true;
+                throw;
+            }
+            catch (IgnoreException)
+            {
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.Message, ex);
+                testFailed = true;
+                throw;
+            }
         }
 
         public static void DeleteFile(string path)
@@ -444,8 +461,8 @@ namespace Loaders
                 if (!System.Diagnostics.Debugger.IsAttached)
                 {
                 Environment.Exit(1);
+                }
             }
-        }
         }
 		
         public class TransactionInfo {

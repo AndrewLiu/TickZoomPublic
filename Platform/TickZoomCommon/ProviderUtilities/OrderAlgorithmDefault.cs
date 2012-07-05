@@ -1264,7 +1264,7 @@ namespace TickZoom.Common
             var expiryLimit = Factory.Parallel.UtcNow;
             if( Factory.IsAutomatedTest)
             {
-                expiryLimit.AddMilliseconds(-100);
+                expiryLimit.AddMilliseconds(-10);
             }
             else
             {
