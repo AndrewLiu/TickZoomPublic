@@ -595,6 +595,11 @@ namespace TickZoom.Api
             Status = OrderStatus.PartialFill;
         }
 
+        public override string ToString()
+        {
+            return binary.ToString();
+        }
+
         public object ToLog()
         {
             return binary;

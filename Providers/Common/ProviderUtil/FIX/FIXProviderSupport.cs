@@ -879,6 +879,7 @@ namespace TickZoom.Provider.FIX
             if( SyncTicks.Enabled)
             {
                 heartbeatTime.AddMilliseconds(100);
+                //heartbeatTime = TimeStamp.MaxValue;
             }
             else
             {
@@ -1046,7 +1047,7 @@ namespace TickZoom.Provider.FIX
 	            isDisposed = true;   
 	            if (disposing) {
 	            	if( debug) log.DebugFormat("Dispose()");
-                    if (connectionStatus != Status.PendingLogOut)
+                    if (connectionStatus != Status.PendingLogOut && connectionStatus != Status.PendingLogin)
                     {
                         SyncTicks.Success = false;
                         log.Error("The FIX provider " + providerName + " ended in state: " + connectionStatus);
