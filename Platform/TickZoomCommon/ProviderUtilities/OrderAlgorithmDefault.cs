@@ -2183,7 +2183,7 @@ namespace TickZoom.Common
             PhysicalOrder origOrder;
             if (!physicalOrderCache.TryGetOrderById(originalOrderId, out origOrder))
             {
-                log.Warn("ConfirmCancel: Cannot find physical order for id " + originalOrderId);
+                log.DebugFormat("ConfirmCancel: Cannot find physical order for id " + originalOrderId);
                 return;
             }
             var cancelOrder = origOrder.ReplacedBy;
