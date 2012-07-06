@@ -77,7 +77,7 @@ namespace TickZoom.Provider.FIX
         private int frozenHeartbeatCounter;
 
         private TrueTimer heartbeatTimer;
-        private TimeStamp isHeartbeatPending = TimeStamp.MaxValue;
+        private TimeStamp heartbeatResponseDeadline = TimeStamp.MaxValue;
         private Agent agent;
         private bool isResendComplete = true;
         public Agent Agent
@@ -240,6 +240,7 @@ namespace TickZoom.Provider.FIX
             if (isDisposed) return Yield.Terminate;
             var currentTime = TimeStamp.UtcNow;
             if (verbose) log.VerboseFormat("Heartbeat occurred at {0}", currentTime);
+            IncreaseHeartbeat();
             if (isConnectionLost)
             {
                 if (debug) log.DebugFormat("Simulating FIX connection was lost, closing FIX socket.");
@@ -259,19 +260,13 @@ namespace TickZoom.Provider.FIX
                     break;
                 case ServerState.WaitingHeartbeat:
                     if( debug) log.DebugFormat("Heartbeat response was never received.");
-                    isConnectionLost = true;
-                    return Yield.DidWork.Repeat;
-                case ServerState.Recovered:
-                    var now = TimeStamp.UtcNow;
-                    if (now > isHeartbeatPending)
+                    if (currentTime > heartbeatResponseDeadline)
                     {
-                        log.Error("HeartBeat response was never received.\n" + Factory.Parallel.GetStats());
-                        log.Error("All stack traces follow...");
-                        Factory.Parallel.StackTrace();
-                        throw new ApplicationException("HeartBeat response was never received.");
+                        isConnectionLost = true;
+                        return Yield.DidWork.Repeat;
                     }
-                    isHeartbeatPending = TimeStamp.UtcNow;
-                    isHeartbeatPending.AddSeconds(heartbeatResponseTimeoutSeconds);
+                    return Yield.NoWork.Repeat;
+                case ServerState.Recovered:
                     if (SyncTicks.Frozen)
                     {
                         frozenHeartbeatCounter++;
@@ -293,7 +288,6 @@ namespace TickZoom.Provider.FIX
                 default:
                     throw new ArgumentOutOfRangeException("Unexpected FIX state of " + fixState);
             }
-            IncreaseHeartbeat();
             return Yield.DidWork.Repeat;
         }
 
@@ -546,9 +540,8 @@ namespace TickZoom.Provider.FIX
                     return false;
                 }
 			    var packetFIX = (MessageFIXT1_1)_fixReadMessage;
-                IncreaseHeartbeat();
                 if (debug) log.DebugFormat("Received FIX message: {0}", packetFIX);
-			    isHeartbeatPending = TimeStamp.MaxValue;
+			    heartbeatResponseDeadline = TimeStamp.MaxValue;
                 try
                 {
                     switch( fixState)
@@ -909,7 +902,7 @@ namespace TickZoom.Provider.FIX
                 if (debug) log.DebugFormat("Skipping send of sequence # {0} to simulate lost message. {1}", fixMessage.Sequence, fixMessage);
                 if( fixMessage.Type == "1")
                 {
-                    isHeartbeatPending = TimeStamp.MaxValue;
+                    heartbeatResponseDeadline = TimeStamp.MaxValue;
                 }
                 if (debug) log.DebugFormat("Message type is: {0}", fixMessage.Type);
                 return;
@@ -963,6 +956,16 @@ namespace TickZoom.Provider.FIX
 				if( trace) log.TraceFormat("Requesting heartbeat: {0}", mbtMsg);
                 SendMessage(mbtMsg);
 			    fixState = ServerState.WaitingHeartbeat;
+                heartbeatResponseDeadline = Factory.Parallel.UtcNow;
+                if (SyncTicks.Enabled)
+                {
+                    heartbeatResponseDeadline.AddMilliseconds(heartbeatResponseTimeout);
+                }
+                else
+                {
+                    heartbeatResponseDeadline.AddSeconds(heartbeatResponseTimeout);
+                }
+
 			}
 			return Yield.DidWork.Return;
 		}
@@ -973,7 +976,7 @@ namespace TickZoom.Provider.FIX
 		}
 
 		protected volatile bool isDisposed = false;
-        private int heartbeatResponseTimeoutSeconds = 15;
+        private int heartbeatResponseTimeout = 50;
 
         public void Dispose()
 		{
