@@ -1261,27 +1261,27 @@ namespace TickZoom.Common
 
         public bool CheckForPending()
         {
-            var expiryLimit = Factory.Parallel.UtcNow;
-            if( Factory.IsAutomatedTest)
-            {
-                expiryLimit.AddMilliseconds(-10);
-            }
-            else
-            {
-                expiryLimit.AddSeconds(-30);
-            }
-            if (trace) log.TraceFormat("Checking for orders pending since: {0}", expiryLimit);
+            //var expiryLimit = Factory.Parallel.UtcNow;
+            //if( Factory.IsAutomatedTest)
+            //{
+            //    expiryLimit.AddMilliseconds(-10);
+            //}
+            //else
+            //{
+            //    expiryLimit.AddSeconds(-30);
+            //}
+            //if (trace) log.TraceFormat("Checking for orders pending since: {0}", expiryLimit);
             var foundAny = false;
-            var cancelList = physicalOrderCache.GetOrdersList((x) => x.Symbol == symbol && (x.IsPending) && x.Action == OrderAction.Cancel);
-            if( HandlePending(cancelList,expiryLimit))
-            {
-                foundAny = true;
-            }
-            var orderList = physicalOrderCache.GetOrdersList((x) => x.Symbol == symbol && (x.IsPending) && x.Action != OrderAction.Cancel);
-            if( HandlePending(orderList,expiryLimit))
-            {
-                foundAny = true;
-            }
+            //var cancelList = physicalOrderCache.GetOrdersList((x) => x.Symbol == symbol && (x.IsPending) && x.Action == OrderAction.Cancel);
+            //if( HandlePending(cancelList,expiryLimit))
+            //{
+            //    foundAny = true;
+            //}
+            //var orderList = physicalOrderCache.GetOrdersList((x) => x.Symbol == symbol && (x.IsPending) && x.Action != OrderAction.Cancel);
+            //if( HandlePending(orderList,expiryLimit))
+            //{
+            //    foundAny = true;
+            //}
             return foundAny;
         }
 
