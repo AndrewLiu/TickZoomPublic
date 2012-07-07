@@ -68,9 +68,9 @@ namespace TickZoom.Provider.FIX
                 var symbolBinary = kvp.Key;
                 var handler = kvp.Value;
                 var tickSync = SyncTicks.GetTickSync(symbolBinary);
-                tickSync.SetSwitchBrokerState(description);
                 if (handler.IsOnline != isOnline)
                 {
+                    tickSync.SetSwitchBrokerState(description);
                     handler.IsOnline = isOnline;
                     if (!isOnline)
                     {

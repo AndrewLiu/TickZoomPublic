@@ -122,8 +122,8 @@ namespace TickZoom.Provider.FIX
                 simulator.MaxFailures = maxFailures;
                 simulators.Add(simulatorType, simulator);
             }
-            simulators[SimulatorType.BlackHole].Enabled = allTests;   // Passed individually.
-            simulators[SimulatorType.CancelBlackHole].Enabled = allTests;   // Passed individually.
+            simulators[SimulatorType.BlackHole].Enabled = false;   // Passed individually.
+            simulators[SimulatorType.CancelBlackHole].Enabled = false;   // Passed individually.
             simulators[SimulatorType.RejectSymbol].Enabled = allTests;   // Passed individually.
             simulators[SimulatorType.RejectAll].Enabled = false;
             simulateReceiveFailed = allTests;    // Passed individually.
