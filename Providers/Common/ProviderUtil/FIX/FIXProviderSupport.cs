@@ -950,7 +950,7 @@ namespace TickZoom.Provider.FIX
             configFile.AssureValue("EquityLive/ServerPort","5680");
             configFile.AssureValue("ForexLive/ServerPort","5680");
             configFile.AssureValue("Simulate/UseLocalFillTime", "false");
-            configFile.AssureValue("Simulate/ServerAddress", "127.0.0.1");
+            configFile.AssureValue("Simulate/ServerAddress", "sharedmemory");
             configFile.AssureValue("Simulate/ServerPort", "6489");
             configFile.AssureValue("Simulate/UserName", "Simulate1");
             configFile.AssureValue("Simulate/Password", "only4sim");
