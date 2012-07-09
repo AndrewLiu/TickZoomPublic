@@ -36,7 +36,7 @@ namespace TickZoom.Provider.FIX
 {
     public abstract class FIXSimulatorSupport : FIXSimulator, LogAware
 	{
-		private string localAddress = "0.0.0.0";
+		private string localAddress = "sharedmemory";
 		private static Log log = Factory.SysLog.GetLogger(typeof(FIXSimulatorSupport));
         private volatile bool debug;
         private volatile bool trace;

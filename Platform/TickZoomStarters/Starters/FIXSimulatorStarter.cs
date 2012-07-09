@@ -35,7 +35,7 @@ using TickZoom.Api;
 
 namespace TickZoom.Starters
 {
-    public class MBTSimulatorStarter : FIXSimulatorStarterx
+    public class MBTSimulatorStarter : FIXSimulatorStarter
     {
         public MBTSimulatorStarter()
         {
@@ -45,7 +45,7 @@ namespace TickZoom.Starters
         }
     }
 
-    public class LimeSimulatorStarter : FIXSimulatorStarterx
+    public class LimeSimulatorStarter : FIXSimulatorStarter
     {
         public LimeSimulatorStarter()
         {
@@ -56,14 +56,14 @@ namespace TickZoom.Starters
         
     }
 
-    public class FIXSimulatorStarterx : RealTimeStarterBase
+    public class FIXSimulatorStarter : RealTimeStarterBase
     {
-        private static readonly Log log = Factory.SysLog.GetLogger(typeof (FIXSimulatorStarterx));
+        private static readonly Log log = Factory.SysLog.GetLogger(typeof (FIXSimulatorStarter));
         protected Dictionary<string,string> executionProviders = new Dictionary<string,string>();
         protected Dictionary<string, string> dataProviders = new Dictionary<string, string>();
         protected string providerSimulatorAssembly;
 
-        public FIXSimulatorStarterx()
+        public FIXSimulatorStarter()
         {
 			SyncTicks.Enabled = true;
 			ConfigurationManager.AppSettings.Set("ProviderAddress","InProcess");
