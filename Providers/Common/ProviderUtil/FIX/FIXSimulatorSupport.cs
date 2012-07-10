@@ -259,9 +259,9 @@ namespace TickZoom.Provider.FIX
                     if (debug) log.DebugFormat("Skipping heartbeat because fix state: {0}", fixState);
                     break;
                 case ServerState.WaitingHeartbeat:
-                    if( debug) log.DebugFormat("Heartbeat response was never received.");
                     if (currentTime > heartbeatResponseDeadline)
                     {
+                        if (debug) log.DebugFormat("Heartbeat response was never received.");
                         isConnectionLost = true;
                         return Yield.DidWork.Repeat;
                     }
@@ -436,8 +436,6 @@ namespace TickZoom.Provider.FIX
                     switch (textMessage.Type)
                     {
                         case "A": // Logon
-                        case "0": // Heartbeat
-                        case "1": // Heartbeat
                         case "2": // Resend request.
                         case "4": // Reset sequence.
                             textMessage = GapFillMessage(i);
@@ -791,17 +789,20 @@ namespace TickZoom.Provider.FIX
 
             if (debug) log.DebugFormat("Processing message with {0}. So updating remote sequence...", packetFIX.Sequence);
             RemoteSequence = packetFIX.Sequence + 1;
+            var blackHoleEnabled = false;
             switch (packetFIX.MessageType)
             {
                 case "G":
                 case "D":
                     simulator = simulators[SimulatorType.BlackHole];
+                    blackHoleEnabled = true;
                     break;
                 case "F":
                     simulator = simulators[SimulatorType.CancelBlackHole];
+                    blackHoleEnabled = true;
                     break;
             }
-            if (FixFactory != null && simulator.CheckFrequency())
+            if (blackHoleEnabled && FixFactory != null && simulator.CheckFrequency())
             {
                 if (debug) log.DebugFormat("Simulating order 'black hole' of 35={0} by incrementing sequence to {1} but ignoring message with sequence {2}", packetFIX.MessageType, RemoteSequence, packetFIX.Sequence);
                 return true;
@@ -877,7 +878,7 @@ namespace TickZoom.Provider.FIX
 		{
 		    var timeStamp = Factory.Parallel.UtcNow;
             timeStamp.AddMilliseconds(HeartbeatDelay);
-            if (debug) log.DebugFormat("Setting next heartbeat for {0}", timeStamp);
+            if (debug) log.DebugFormat("Setting next heartbeat for {0}. State: {1}", timeStamp, fixState);
             heartbeatTimer.Start(timeStamp);
 		}		
 

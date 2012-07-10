@@ -840,6 +840,7 @@ namespace TickZoom.Provider.FIX
                             case "g":
                             case "5": // Logoff
                             case "0":
+                            case "1":
                             case "2":
                                 if (previous < i)
                                 {
@@ -878,7 +879,7 @@ namespace TickZoom.Provider.FIX
 		    var heartbeatTime = TimeStamp.UtcNow;
             if( SyncTicks.Enabled)
             {
-                heartbeatTime.AddSeconds(500);
+                heartbeatTime.AddMilliseconds(500);
                 //heartbeatTime = TimeStamp.MaxValue;
             }
             else
