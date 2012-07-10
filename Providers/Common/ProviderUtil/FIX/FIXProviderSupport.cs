@@ -878,7 +878,7 @@ namespace TickZoom.Provider.FIX
 		    var heartbeatTime = TimeStamp.UtcNow;
             if( SyncTicks.Enabled)
             {
-                heartbeatTime.AddMilliseconds(100);
+                heartbeatTime.AddSeconds(500);
                 //heartbeatTime = TimeStamp.MaxValue;
             }
             else
