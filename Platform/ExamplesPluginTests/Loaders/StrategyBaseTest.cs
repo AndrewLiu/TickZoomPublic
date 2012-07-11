@@ -252,7 +252,7 @@ namespace Loaders
                     {
                         if (ex.Message.Contains("not found"))
                         {
-                            Assert.Ignore("LoaderName could not be loaded.");
+                            Assert.Ignore(ex.Message);
                             return;
                         }
                         else
