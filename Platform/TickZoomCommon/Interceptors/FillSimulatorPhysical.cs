@@ -755,6 +755,7 @@ namespace TickZoom.Interceptors
             var cumulativeQuantity = 0;
             if (lastSize == 0) lastSize = totalSize;
             var count = 0;
+            if( debug) log.DebugFormat("{0} totalSize {1}, split {2}, last {3}, cumul {4}, fills {5}, remain {6}", partialFillSimulation, totalSize, split, lastSize, cumulativeQuantity, numberFills, remainingSize);
             while (Math.Abs(remainingSize) > 0 && count < numberFills)
             {
                 count++;
