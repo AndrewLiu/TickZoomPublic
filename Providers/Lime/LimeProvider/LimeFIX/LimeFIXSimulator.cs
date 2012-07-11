@@ -659,11 +659,11 @@ namespace TickZoom.Provider.LimeFIX
                         break;
                     case "2":
                     case "1":
-                        {
-                            var symbolInfo = Factory.Symbol.LookupSymbol(mbtMsg.Symbol);
-                            var tickSync = SyncTicks.GetTickSync(symbolInfo.BinaryIdentifier);
-                            tickSync.RemovePhysicalFill("offline");
-                        }
+                        //{
+                        //    var symbolInfo = Factory.Symbol.LookupSymbol(mbtMsg.Symbol);
+                        //    var tickSync = SyncTicks.GetTickSync(symbolInfo.BinaryIdentifier);
+                        //    tickSync.RemovePhysicalFill("offline");
+                        //}
                         break;
                 }
 
@@ -697,11 +697,11 @@ namespace TickZoom.Provider.LimeFIX
                         break;
                     case "2":
                     case "1":
-                        {
-                            var symbolInfo = Factory.Symbol.LookupSymbol(mbtMsg.Symbol);
-                            var tickSync = SyncTicks.GetTickSync(symbolInfo.BinaryIdentifier);
-                            tickSync.RemovePhysicalFill("offline");
-                        }
+                        //{
+                        //    var symbolInfo = Factory.Symbol.LookupSymbol(mbtMsg.Symbol);
+                        //    var tickSync = SyncTicks.GetTickSync(symbolInfo.BinaryIdentifier);
+                        //    tickSync.RemovePhysicalFill("offline");
+                        //}
                         break;
                 }
 
