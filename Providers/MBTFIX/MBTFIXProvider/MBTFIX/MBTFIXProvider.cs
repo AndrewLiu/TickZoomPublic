@@ -751,7 +751,8 @@ namespace TickZoom.Provider.MBTFIX
             }
 			fixMsg.SetLocateRequired("N");
 			fixMsg.SetSendTime(order.UtcCreateTime);
-			fixMsg.SetOrderQuantity(order.RemainingSize);
+            fixMsg.SetTransactTime(order.OriginalOrder.UtcCreateTime);
+            fixMsg.SetOrderQuantity(order.RemainingSize);
 			fixMsg.SetOrderCapacity("A");
 			fixMsg.SetUserName();
             if (order.Action == OrderAction.Change)
@@ -824,6 +825,7 @@ namespace TickZoom.Provider.MBTFIX
             fixMsg.AddHeader("F");
             fixMsg.SetSymbol(order.Symbol.BaseSymbol);
             fixMsg.SetSendTime(order.OriginalOrder.UtcCreateTime);
+            fixMsg.SetTransactTime(order.OriginalOrder.UtcCreateTime);
             if (resend)
             {
                 fixMsg.SetDuplicate(true);

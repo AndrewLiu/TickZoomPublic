@@ -102,7 +102,7 @@ namespace Loaders
                 Mode = AutoTestMode.Default,
                 Name = "ExampleBreakoutReversalTest",
                 Loader = new ExampleBreakoutReversalLoader(),
-                Symbols = "USD/JPY",
+                Symbols = primarySymbol,
                 StoreKnownGood = storeKnownGood,
                 ShowCharts = showCharts,
                 EndTime = new TimeStamp(2009, 6, 22),
@@ -114,7 +114,25 @@ namespace Loaders
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.RejectSymbol] = 0;
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.ReceiveDisconnect] = 0;
 
-			list.Add( next = new AutoTestSettings 
+            list.Add(next = new AutoTestSettings
+            {
+                Mode = AutoTestMode.Default,
+                Name = "BreakoutReversalFutures",
+                Loader = new ExampleBreakoutReversalLoader(),
+                Symbols = "/NQU0",
+                StoreKnownGood = storeKnownGood,
+                ShowCharts = showCharts,
+                EndTime = new TimeStamp("2011-08-25 15:00:00"),
+                WarmStartTime = new TimeStamp("2010-08-25 16:00"),
+                IntervalDefault = Intervals.Second10,
+            });
+            next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.ServerOfflineReject] = 0;
+            next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.CancelBlackHole] = 0;
+            next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.BlackHole] = 0;
+            next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.RejectSymbol] = 0;
+            next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.ReceiveDisconnect] = 0;
+
+            list.Add(next = new AutoTestSettings 
             {
                 Mode = AutoTestMode.Default,
                 Name = "DualStrategyLimitOrder",
