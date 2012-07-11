@@ -950,13 +950,15 @@ namespace TickZoom.Provider.FIX
             }
             configFile.AssureValue("EquityLive/ServerPort","5680");
             configFile.AssureValue("ForexLive/ServerPort","5680");
-            configFile.AssureValue("Simulate/UseLocalFillTime", "false");
-            configFile.AssureValue("Simulate/ServerAddress", "sharedmemory");
-            configFile.AssureValue("Simulate/ServerPort", "6489");
-            configFile.AssureValue("Simulate/UserName", "Simulate1");
-            configFile.AssureValue("Simulate/Password", "only4sim");
-            configFile.AssureValue("Simulate/AccountNumber", "11111111");
-            configFile.AssureValue("Simulate/DisableChangeOrders", "false");
+
+            // Setup simualator settings.
+            configFile.SetValue("Simulate/UseLocalFillTime", "false");
+            configFile.SetValue("Simulate/ServerAddress", "sharedmemory");
+            configFile.SetValue("Simulate/ServerPort", "6489");
+            configFile.SetValue("Simulate/UserName", "Simulate1");
+            configFile.SetValue("Simulate/Password", "only4sim");
+            configFile.SetValue("Simulate/AccountNumber", "11111111");
+            configFile.SetValue("Simulate/DisableChangeOrders", "false");
         }
 
         private void ParseProperties(ConfigFile configFile)
