@@ -160,7 +160,7 @@ namespace TickZoom.Provider.FIX
         {
             if (endOfTickData)
             {
-                if (tickSync.SentSwtichBrokerState)
+                if (tickSync.SentSwitchBrokerState)
                 {
                     tickSync.ClearSwitchBrokerState("Finished.");
                 }
