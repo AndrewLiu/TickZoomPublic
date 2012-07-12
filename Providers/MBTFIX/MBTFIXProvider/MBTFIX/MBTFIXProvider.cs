@@ -751,7 +751,7 @@ namespace TickZoom.Provider.MBTFIX
             }
 			fixMsg.SetLocateRequired("N");
 			fixMsg.SetSendTime(order.UtcCreateTime);
-            fixMsg.SetTransactTime(order.OriginalOrder.UtcCreateTime);
+            fixMsg.SetTransactTime(order.UtcCreateTime);
             fixMsg.SetOrderQuantity(order.RemainingSize);
 			fixMsg.SetOrderCapacity("A");
 			fixMsg.SetUserName();
