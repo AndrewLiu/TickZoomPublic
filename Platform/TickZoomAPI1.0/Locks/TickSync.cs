@@ -440,7 +440,7 @@ namespace TickZoom.Api
             get { return (*state).waitingMatch > 0; }
         }
 
-        public bool SentSwtichBrokerState
+        public bool SentSwitchBrokerState
         {
             get { return (*state).switchBrokerState > 0; }
         }

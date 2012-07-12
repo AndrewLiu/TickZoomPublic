@@ -422,7 +422,7 @@ namespace TickZoom.Common
 					brokerState = BrokerState.Connected;
                     if (SyncTicks.Enabled)
                     {
-                        while (tickSync.SentSwtichBrokerState)
+                        while (tickSync.SentSwitchBrokerState)
                         {
                             tickSync.ClearSwitchBrokerState("endbroker");
                         }
@@ -432,7 +432,7 @@ namespace TickZoom.Common
 					brokerState = BrokerState.Disconnected;
                     if (SyncTicks.Enabled)
                     {
-                        while (tickSync.SentSwtichBrokerState)
+                        while (tickSync.SentSwitchBrokerState)
                         {
                             tickSync.ClearSwitchBrokerState("endbroker");
                         }

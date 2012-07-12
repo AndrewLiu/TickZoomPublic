@@ -1343,7 +1343,7 @@ namespace TickZoom.Provider.FIX
                 if( SyncTicks.Enabled)
                 {
                     var tickSync = SyncTicks.GetTickSync(symbol.BinaryIdentifier);
-                    if( tickSync.SentSwtichBrokerState)
+                    if( tickSync.SentSwitchBrokerState)
                     {
                         tickSync.ClearSwitchBrokerState("already offline");
                     }
