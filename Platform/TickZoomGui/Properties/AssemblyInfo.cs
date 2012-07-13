@@ -35,5 +35,5 @@ using TickZoom.Api;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("1.4.16.16206")]
+[assembly: AssemblyVersion("1.4.17.17637")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
