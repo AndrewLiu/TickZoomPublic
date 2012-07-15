@@ -357,7 +357,7 @@ namespace TickZoom.Provider.MBTFIX
             else if( trace)
             {
                 var message = "Order server continues offline. Attempting to reconnect.";
-                log.TraceFormat(message);
+                log.TraceFormat(LogMessage.LOGMSG611, message);
             }
 	    }
 

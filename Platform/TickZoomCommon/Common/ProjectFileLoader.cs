@@ -100,7 +100,7 @@ namespace TickZoom.Common
 		
 		private void HandlePropertySet( ModelInterface model, ModelProperties properties) {
 			if( !QuietMode) {
-				log.DebugFormat( properties.Name);
+				log.DebugFormat( LogMessage.LOGMSG611, properties.Name);
 				log.Indent();
 			}
 			

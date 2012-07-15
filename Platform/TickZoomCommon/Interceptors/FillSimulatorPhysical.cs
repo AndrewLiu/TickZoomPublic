@@ -375,7 +375,7 @@ namespace TickZoom.Interceptors
             for (var current = orders.First; current != null; current = current.Next)
             {
                 var order = current.Value;
-                if (debug) log.DebugFormat(order.ToString());
+                if (debug) log.DebugFormat(LogMessage.LOGMSG611, order);
             }
         }
         private void ProcessAdjustmentsInternal(Tick tick)

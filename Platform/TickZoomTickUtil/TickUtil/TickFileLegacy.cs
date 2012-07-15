@@ -152,7 +152,7 @@ namespace TickZoom.TickUtil
             }
             else
             {
-                log.DebugFormat(logMsg);
+                log.DebugFormat(LogMessage.LOGMSG611, logMsg);
             }
         }
 
