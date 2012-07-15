@@ -212,7 +212,7 @@ namespace TickZoom.Provider.FIX
             if (trace)
             {
                 string message = "Generated socket: " + socket;
-                log.TraceFormat(message);
+                log.TraceFormat(LogMessage.LOGMSG611, message);
             }
             // Initiate socket connection.
             while (true)

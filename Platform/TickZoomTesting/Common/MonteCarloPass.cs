@@ -133,7 +133,7 @@ namespace TickZoom.Common
                                amountToOffer + "," + change + "," + inventory.Size + "," + pandl + "," +
                                cumulativeProfit + inventory.ToString();
                     if (writeOutput) sb.AppendLine(line);
-                    if (writeOutput && !debug) log.DebugFormat(line);
+                    if (writeOutput && !debug) log.DebugFormat(LogMessage.LOGMSG611, line);
                 }
                 ProfitLoss = inventory.CumulativeProfit + inventory.CurrentProfitLoss(price);
             }

@@ -26,7 +26,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -55,6 +54,7 @@ namespace TickZoom.Logging
         private string fileName;
 	    private LogManagerImpl logManager;
         private bool allowDebugging = false;
+        private static Dictionary<string,int> uniqueLoggers = new Dictionary<string,int>();
 		
         public LogImpl(LogManagerImpl manager, ILogger logger)
         {
@@ -70,6 +70,7 @@ namespace TickZoom.Logging
 
             logManager = manager;
 			logWrapper = new LogImplWrapper(logger);
+            uniqueLoggers[logWrapper.Logger.Name] = 1;
         	Connect();
 			if( symbolMap == null) {
 				lock( locker) {
@@ -494,12 +495,7 @@ namespace TickZoom.Logging
 			}
 		}
 
-        private void LookForUniqueness(LogMessage formatKey, object[] args)
-        {
-            
-        }
-
-        private void LookForUniqueness(string format, object[] args)
+        private void LookForUniqueness(LogMessage format, object[] args)
         {
             if( memoryBuffer.Position > 10000)
             {
@@ -604,15 +600,8 @@ namespace TickZoom.Logging
 		{
             if( IsVerboseEnabled)
             {
-                if( serialized)
-                {
-                    LookForUniqueness(format, args);
-                }
-                else
-                {
-                    resultString = string.Format(format, args);
-                    Verbose(resultString, null);
-                }
+                resultString = string.Format(format, args);
+                Verbose(resultString, null);
             }
 		}
 
@@ -620,15 +609,8 @@ namespace TickZoom.Logging
 		{
 			if( IsTraceEnabled)
 			{
-                if (serialized)
-                {
-                    LookForUniqueness(format, args);
-                }
-                else
-                {
-                    resultString = string.Format(format, args);
-                    Trace(resultString, null);
-                }
+                resultString = string.Format(format, args);
+                Trace(resultString, null);
             }
 		}
 		
@@ -636,23 +618,8 @@ namespace TickZoom.Logging
 		{
             if( IsDebugEnabled)
             {
-                if (allowDebugging)
-                {
-                    resultString = string.Format(format, args);
-                    Debug(resultString, null);
-                }
-                else
-                {
-                    if( serialized)
-                    {
-                        LookForUniqueness(format, args);
-                    }
-                    else
-                    {
-                        resultString = string.Format(format, args);
-                        Debug(resultString, null);
-                    }
-                }
+                resultString = string.Format(format, args);
+                Debug(resultString, null);
             }
 		}
 		

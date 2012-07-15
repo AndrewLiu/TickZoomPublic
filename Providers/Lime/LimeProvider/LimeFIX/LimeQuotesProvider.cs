@@ -610,7 +610,7 @@ namespace TickZoom.Provider.LimeQuotes
 
                     break;
             }
-            log.TraceFormat(logMessage);
+            log.TraceFormat(LogMessage.LOGMSG611, logMessage);
             log.TraceFormat(LogMessage.LOGMSG176, Environment.NewLine + HexDump( message, length, 32 ));
         }
 

@@ -1249,7 +1249,7 @@ namespace Loaders
                         portfolioDocs[i].ShowInvoke();
                     }
                 } catch( Exception ex) {
-                    log.DebugFormat(ex.ToString());
+                    log.DebugFormat(LogMessage.LOGMSG611, ex);
                 }
             }
         }
@@ -1262,7 +1262,7 @@ namespace Loaders
                 }
                 portfolioDocs.Clear();
             } catch( Exception ex) {
-                log.DebugFormat(ex.ToString());
+                log.DebugFormat(LogMessage.LOGMSG611, ex);
             }
             log.DebugFormat(LogMessage.LOGMSG705);
         }

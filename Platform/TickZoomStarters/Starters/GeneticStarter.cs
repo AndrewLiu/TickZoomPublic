@@ -191,7 +191,7 @@ namespace TickZoom.Starters
 				}
 				
 				Chromosome chromosome = new Chromosome( genome);
-				log.DebugFormat( chromosome.ToString() );
+                log.DebugFormat(LogMessage.LOGMSG611, chromosome);
 				generation.Add( chromosome);
 				alreadyTried.Add( chromosome);
 				for(int i = 0; i<indexes.Length; i++) {
@@ -270,7 +270,7 @@ namespace TickZoom.Starters
 				log.Notice("After sorting generation...");
 				double maxFitness = 0;
 				for(int i=0; i<generation.Count; i++) {
-					log.DebugFormat( generation[i].ToString() );
+                    log.DebugFormat(LogMessage.LOGMSG611, generation[i]);
 					maxFitness = Math.Max(generation[i].Fitness,maxFitness);
 				}
 				// If none of the genes in the chromosome

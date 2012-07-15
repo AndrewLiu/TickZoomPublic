@@ -85,7 +85,7 @@ namespace TickZoom.Provider.FIX
                 {
                     message += " to replace: " + old;
                 }
-                log.TraceFormat(message);
+                log.TraceFormat(LogMessage.LOGMSG611, message);
             }
             if (SyncTicks.Enabled)
             {

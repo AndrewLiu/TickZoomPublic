@@ -135,7 +135,7 @@ namespace TickZoom.Common
             Log.DebugFormat(LogMessage.LOGMSG626, Bars.High[0]);
             Log.DebugFormat(LogMessage.LOGMSG627, Formula.Highest(Bars.High,lookbackPeriod));
 
-            Log.DebugFormat( Ticks[0].Time.ToString());
+            Log.DebugFormat(LogMessage.LOGMSG611, Ticks[0].Time);
             Log.DebugFormat(LogMessage.LOGMSG628);
         }
         #endregion

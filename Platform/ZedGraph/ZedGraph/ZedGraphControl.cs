@@ -825,7 +825,7 @@ namespace ZedGraph
 						_masterPane.DrawBackground( g );
 					}
 					catch( Exception ex) {
-						if( debug) log.DebugFormat(ex.ToString());
+                        if (debug) log.DebugFormat(LogMessage.LOGMSG611, ex);
 					}
 				}
 			}

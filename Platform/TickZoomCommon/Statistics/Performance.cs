@@ -351,7 +351,7 @@ namespace TickZoom.Statistics
 				sb.Append(bars.Close[0]);
 				sb.Append(",");
 				sb.Append(bars.Volume[0]);
-				barDataLog.DebugFormat( sb.ToString());
+                barDataLog.DebugFormat(LogMessage.LOGMSG611, sb.ToString());
 			}
 			if( statsDebug && !model.QuietMode) {
 				Bars bars = model.Bars;
@@ -371,7 +371,7 @@ namespace TickZoom.Statistics
 				sb.Append(equity.OpenEquity);
 				sb.Append(",");
 				sb.Append(equity.CurrentEquity);
-				statsLog.DebugFormat( sb.ToString());
+                statsLog.DebugFormat(LogMessage.LOGMSG611, sb.ToString());
 			}
 			return true;
 		}
