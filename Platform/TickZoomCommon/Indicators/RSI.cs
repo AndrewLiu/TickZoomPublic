@@ -81,23 +81,23 @@ namespace TickZoom.Common
 				int currPrice = (int) (price[0] - avgPrice[0]);
 				int lastPrice = (int) (price[1] - avgPrice[1]);
 				int change = currPrice - lastPrice;
-				if( IsTrace) Log.TraceFormat("{0}: price[0]={1},avgPrice[0]={2},price[1]={3},avgPrice[1]={4}", Name, price[0], avgPrice[0], price[1], avgPrice[1]);
+				if( IsTrace) Log.TraceFormat(LogMessage.LOGMSG630, Name, price[0], avgPrice[0], price[1], avgPrice[1]);
 				if( change > 0) {
 					gain.Add( change);
 					loss.Add(0);
-					Log.DebugFormat("gain.Add({0})", change);
-					Log.DebugFormat("loss.Add(0)");
+					Log.DebugFormat(LogMessage.LOGMSG1181, change);
+                    Log.DebugFormat(LogMessage.LOGMSG1182);
 				} else {
 					gain.Add(0);
 					loss.Add( -change);
-					Log.DebugFormat("gain.Add(0)");
-					Log.DebugFormat("loss.Add({0})", (-change));
+					Log.DebugFormat(LogMessage.LOGMSG1183);
+					Log.DebugFormat(LogMessage.LOGMSG1184, -change);
 			}
 			} else {
 				gain.Add(0);
 				loss.Add(0);
-				if( IsTrace) Log.TraceFormat("gain.Add(0)");
-				if( IsTrace) Log.TraceFormat("loss.Add(0)");
+                if (IsTrace) Log.TraceFormat(LogMessage.LOGMSG1183);
+				if( IsTrace) Log.TraceFormat(LogMessage.LOGMSG1182);
 			}
 		}
 		 
@@ -112,7 +112,7 @@ namespace TickZoom.Common
 				double x = 100 / (rs + 1);
 				double result = 100 - x;
 				this[0] = result;
-				if( IsTrace) Log.TraceFormat("{0}: BarCount={1},ag={2},al={3},rs={4},x={5},this={6}", Name, BarCount, avgGain[0], avgLoss[0], rs, x, this[0]);
+				if( IsTrace) Log.TraceFormat(LogMessage.LOGMSG635, Name, BarCount, avgGain[0], avgLoss[0], rs, x, this[0]);
 			}
 			return true;
 		}

@@ -15,7 +15,7 @@ namespace TickZoom.Api
         {
             this._id = id;
             this._symbol = symbol;
-            if( trace) log.TraceFormat("New StrategyPosition");
+            if( trace) log.TraceFormat(LogMessage.LOGMSG689);
         }
 
         public long ExpectedPosition
@@ -35,7 +35,7 @@ namespace TickZoom.Api
 
         public void SetExpectedPosition(long position)
         {
-            if (trace) log.TraceFormat("SetExpectedPosition() strategy {0} for {1} position change from {2} to {3}.", Id, Symbol, this.position, position);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG690, Id, Symbol, this.position, position);
             this.position = position;
         }
 
@@ -43,12 +43,12 @@ namespace TickZoom.Api
         {
             if (position != this.position)
             {
-                if (debug) log.DebugFormat("Strategy {0} for {1} actual position changed from {2} to {3}.", _id, _symbol, this.position, position);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG691, _id, _symbol, this.position, position);
                 this.position = position;
             }
             else
             {
-                if (trace) log.TraceFormat("Unchanged strategy {0} for {1}. Actual position {2}.", _id, _symbol, this.position);
+                if (trace) log.TraceFormat(LogMessage.LOGMSG692, _id, _symbol, this.position);
             }
         }
 

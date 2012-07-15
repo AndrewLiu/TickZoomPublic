@@ -89,7 +89,7 @@ namespace TickZoom.Api
 				       				log.Notice( "ERROR: In the config file, TickZoomProfiler is set to \"true\"");
 				       				log.Notice( "However, an error occurred while loading TickZoomProfiler engine.");
 				       				log.Notice( "Please check the TickZoom.log for further detail.");
-				       				log.DebugFormat( "TickZoomProfiler load ERROR: {0}", ex);
+				       				log.DebugFormat( LogMessage.LOGMSG697, ex);
 				       				throw;
 				       			}
 				       		}
@@ -149,19 +149,6 @@ namespace TickZoom.Api
 					}
 				}
 				return parallel;
-			}
-		}
-		
-		private static long frequency = Stopwatch.Frequency / 1000;
-		
-		private static long Frequency {
-			get {
-				if( frequency == 0L) {
-					long freq = Stopwatch.Frequency;
-					freq /= 1000;
-					Interlocked.Exchange(ref frequency,  freq);
-				}
-				return frequency;
 			}
 		}
 		

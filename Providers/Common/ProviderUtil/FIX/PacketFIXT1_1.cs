@@ -158,7 +158,7 @@ namespace TickZoom.Provider.FIX
 		}
 		
 		private int FindSplitAt(MemoryStream buffer) {
-		    if( verbose) log.VerboseFormat("Processing Keys: {0}", this);
+		    if( verbose) log.VerboseFormat(LogMessage.LOGMSG289, this);
 		    var position = (int) buffer.Position;
 		    var handle = GCHandle.Alloc(buffer.GetBuffer(), GCHandleType.Pinned);
 		    var beg = ptr = (byte*) handle.AddrOfPinnedObject() + position;
@@ -167,12 +167,12 @@ namespace TickZoom.Provider.FIX
             {
 			    int key;
 			    while( ptr < end && GetKey( out key)) {
-                    if (verbose) log.VerboseFormat("HandleKey({0})", key);
+                    if (verbose) log.VerboseFormat(LogMessage.LOGMSG290, key);
 				    HandleKey(key);
 				    if( key == 10 ) {
 					    isComplete = true;
 				        position = (int) (ptr - beg);
-					    if( verbose) log.VerboseFormat("Copying buffer at {0}", position);
+					    if( verbose) log.VerboseFormat(LogMessage.LOGMSG291, position);
 					    return position;
 				    }
 			    }
@@ -198,11 +198,11 @@ namespace TickZoom.Provider.FIX
 		}
 		
 		
-		private void LogMessage() {
+		private void LogAMessage() {
 			if( trace &&
 			   !IsQuietRecovery &&
 			   messageType != "1" && messageType != "0") {
-				log.TraceFormat("Reading message: \n{0}", this);
+				log.TraceFormat(LogMessage.LOGMSG292, this);
 			}
 		}
 		
@@ -214,10 +214,10 @@ namespace TickZoom.Provider.FIX
             {
                 data.Write(buffer.GetBuffer(), position, (int)copyTo);
                 buffer.Position += copyTo;
-                if( verbose) log.VerboseFormat("Copied buffer: {0}", this);
+                if( verbose) log.VerboseFormat(LogMessage.LOGMSG293, this);
                 return true;
             }
-            LogMessage();
+            LogAMessage();
             return false;
 		}
 		
@@ -246,7 +246,7 @@ namespace TickZoom.Provider.FIX
             }
 	        ++ptr;
 	        if( negative) val *= -1;
-            if (verbose) log.VerboseFormat("int = {0}", val);
+            if (verbose) log.VerboseFormat(LogMessage.LOGMSG294, val);
 	        return true;
 		}
 		
@@ -262,7 +262,7 @@ namespace TickZoom.Provider.FIX
 	        if( *(ptr) == EndOfField) {
 		        ++ptr;
 				result = val;
-				if( trace) log.TraceFormat("double = {0}", result);
+				if( trace) log.TraceFormat(LogMessage.LOGMSG295, result);
 		        return true;
 	        } else {
 		        ++ptr;
@@ -275,7 +275,7 @@ namespace TickZoom.Provider.FIX
 		        }
 		        ++ptr;
 		        result = val + (double) fract / divisor;
-                if (verbose) log.VerboseFormat("double = {0}", result);
+                if (verbose) log.VerboseFormat(LogMessage.LOGMSG295, result);
 				return true;
 	        }
 		}
@@ -290,7 +290,7 @@ namespace TickZoom.Provider.FIX
 	        var length = (int) (ptr - (byte*) sptr);
 	        ++ptr;
             result = new string(sptr, 0, length);
-            if (verbose) log.VerboseFormat("string = {0}", result);
+            if (verbose) log.VerboseFormat(LogMessage.LOGMSG296, result);
 			return true;
 		}
 	        
@@ -301,7 +301,7 @@ namespace TickZoom.Provider.FIX
 			}
 	        ++ptr;
 	        int length = (int) (ptr - bptr);
-			if( verbose) log.VerboseFormat("skipping {0} bytes.", length);
+			if( verbose) log.VerboseFormat(LogMessage.LOGMSG297, length);
 			return true;
 		}
 		
@@ -375,7 +375,7 @@ namespace TickZoom.Provider.FIX
                         }
                         catch( Exception)
                         {
-                            if( debug) log.DebugFormat("Sending time accuracy problem: {0}  Ignoring by using current time instead.", sendUtcTime);
+                            if( debug) log.DebugFormat(LogMessage.LOGMSG298, sendUtcTime);
                             sendUtcTime = TickZoom.Api.TimeStamp.UtcNow.Internal;
                         }
 					}
@@ -396,7 +396,7 @@ namespace TickZoom.Provider.FIX
                         }
                         catch (Exception)
                         {
-                            if (debug) log.DebugFormat("Transaction time accuracy problem: {0}  Ignoring by using current time instead.", TransactTime);
+                            if (debug) log.DebugFormat(LogMessage.LOGMSG299, TransactTime);
                             transactTime = TickZoom.Api.TimeStamp.UtcNow.Internal;
                         }
                     }

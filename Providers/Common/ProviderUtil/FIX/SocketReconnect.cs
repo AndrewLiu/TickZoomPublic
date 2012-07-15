@@ -49,7 +49,7 @@ namespace TickZoom.Provider.FIX
 
         public void Regenerate()
         {
-            if (debug) log.DebugFormat("Regenerate.");
+            if (debug) log.DebugFormat(LogMessage.LOGMSG300);
             Socket old = socket;
             if (socket != null)
             {
@@ -63,7 +63,7 @@ namespace TickZoom.Provider.FIX
                     case SocketState.Disconnected:
                     case SocketState.New:
                     case SocketState.PendingConnect:
-                        if (debug) log.DebugFormat("Wait for graceful socket shutdown because socket state: {0}", socket.State);
+                        if (debug) log.DebugFormat(LogMessage.LOGMSG301, socket.State);
                         return;
                     case SocketState.Closing:
                     case SocketState.Closed:
@@ -77,7 +77,7 @@ namespace TickZoom.Provider.FIX
             socket.SendQueue.ConnectOutbound(task);
             socket.OnConnect = OnConnect;
             socket.MessageFactory = messageFactory;
-            if (debug) log.DebugFormat("Created new {0}", socket);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG187, socket);
             if (trace)
             {
                 string message = "Generated socket: " + socket;
@@ -102,7 +102,7 @@ namespace TickZoom.Provider.FIX
                 try
                 {
                     socket.Connect();
-                    if (debug) log.DebugFormat("Requested Connect for {0}", socket);
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG302, socket);
                     SetupRetry();
                     return;
                 }
@@ -183,7 +183,7 @@ namespace TickZoom.Provider.FIX
                 isDisposed = true;
                 if (disposing)
                 {
-                    if (debug) log.DebugFormat("Dispose()");
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG48);
                     if (socket != null)
                     {
                         socket.Dispose();

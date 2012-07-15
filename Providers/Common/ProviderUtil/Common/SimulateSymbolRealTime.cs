@@ -91,7 +91,7 @@ namespace TickZoom.Provider.FIX
             fillSimulator.PartialFillSimulation = partialFillSimulation;
             latency = new LatencyMetric("SimulateSymbolRealTime-" + symbolString.StripInvalidPathChars());
             diagnoseMetric = Diagnose.RegisterMetric("Simulator");
-            if (debug) log.DebugFormat("Openning tick file for reading.");
+            if (debug) log.DebugFormat(LogMessage.LOGMSG317);
             reader = Factory.TickUtil.TickFile();
             tickPool = Factory.Parallel.TickPool(symbol);
             try
@@ -173,7 +173,7 @@ namespace TickZoom.Provider.FIX
                 {
                     FillSimulator.ProcessOrders();
                 }
-                if (trace) log.TraceFormat("Dequeue tick {0}.{1}", nextTick.UtcTime, nextTick.UtcTime.Microsecond);
+                if (trace) log.TraceFormat(LogMessage.LOGMSG310, nextTick.UtcTime, nextTick.UtcTime.Microsecond);
                 ProcessOnTickCallBack();
                 result = true;
             }
@@ -228,7 +228,7 @@ namespace TickZoom.Provider.FIX
        		if( !isDisposed) {
 	            isDisposed = true;   
 	            if (disposing) {
-                    if (debug) log.DebugFormat("Dispose()");
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG48);
                     if (queueTask != null)
                     {
                         queueTask.Stop();
@@ -239,18 +239,18 @@ namespace TickZoom.Provider.FIX
 	            	}
                     if( fillSimulator != null)
                     {
-                        if (debug) log.DebugFormat("Setting fillSimulator.IsOnline false");
+                        if (debug) log.DebugFormat(LogMessage.LOGMSG314);
                         fillSimulator.IsOnline = false;
                     }
                     else
                     {
-                        if (debug) log.DebugFormat("fillSimulator is null.");
+                        if (debug) log.DebugFormat(LogMessage.LOGMSG315);
                     }
                 }
     		}
             else
        		{
-                if (debug) log.DebugFormat("isDisposed {0}", isDisposed);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG316, isDisposed);
             }
 	    }    
 	        

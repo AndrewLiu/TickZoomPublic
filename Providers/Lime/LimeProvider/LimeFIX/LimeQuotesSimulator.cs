@@ -149,7 +149,7 @@ namespace TickZoom.Provider.LimeFIX
             var quoteMessage = (LimeQuoteMessage)message;
             var isTrade = tick.IsTrade;
             var isQuote = tick.IsQuote;
-            if ( trace ) log.TraceFormat("quote isTrade={0} isQuote={1}", isTrade, isQuote);
+            if ( trace ) log.TraceFormat(LogMessage.LOGMSG177, isTrade, isQuote);
             if (isTrade)
             {
                 var trade = (LimeQuotesInterop.trade_msg*)quoteMessage.Ptr;
@@ -185,7 +185,7 @@ namespace TickZoom.Provider.LimeFIX
                 trade->common.order_id = (uint)(tick.UtcTime.Internal >> 32);
 
                 QuotePacketQueue.Enqueue(quoteMessage, tick.UtcTime.Internal);
-                if (trace) log.TraceFormat("Enqueued tick packet: {0}", new TimeStamp(tick.UtcTime.Internal));
+                if (trace) log.TraceFormat(LogMessage.LOGMSG148, new TimeStamp(tick.UtcTime.Internal));
             }
             else if (isQuote) {
                 bool priceChanged = true;
@@ -212,12 +212,12 @@ namespace TickZoom.Provider.LimeFIX
                         LimeQuoteMessage.DoubleToPrice(tick.Bid, out mantissa, out exponent);
                         order->common.price_mantissa = mantissa;
                         order->common.price_exponent = exponent;
-                        if (trace) log.TraceFormat("Sending Ask {0}", tick.Bid);
+                        if (trace) log.TraceFormat(LogMessage.LOGMSG178, tick.Bid);
                     } else if (order->common.side == LimeQuotesInterop.quote_side.SELL) {
                         LimeQuoteMessage.DoubleToPrice(tick.Ask, out mantissa, out exponent);
                         order->common.price_mantissa = mantissa;
                         order->common.price_exponent = exponent;
-                        if (trace) log.TraceFormat("Sending Bid {0}", tick.Ask);
+                        if (trace) log.TraceFormat(LogMessage.LOGMSG179, tick.Ask);
                     }
 
                     order->common.symbol_index = (uint) symbolID;
@@ -227,7 +227,7 @@ namespace TickZoom.Provider.LimeFIX
                     order->common.order_id = (uint) (tick.UtcTime.Internal >> 32);
 
                     QuotePacketQueue.Enqueue(quoteMessage, tick.UtcTime.Internal);
-                    if (trace) log.TraceFormat("Enqueued tick packet: {0}", new TimeStamp(tick.UtcTime.Internal));
+                    if (trace) log.TraceFormat(LogMessage.LOGMSG148, new TimeStamp(tick.UtcTime.Internal));
                 } 
 
             } else

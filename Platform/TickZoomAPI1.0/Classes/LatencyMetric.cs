@@ -64,7 +64,7 @@ namespace TickZoom.Api
 		    if( id == int.MinValue) {
 				this.symbol = symbol;
 				this.manager = LatencyManager.Register(this, out id, out metricCount, out previous);
-				if( trace) log.TraceFormat( "Registered {0} metric ({1}) on tick {2})", name, id, new TimeStamp( timeStamp));
+				if( trace) log.TraceFormat( LogMessage.LOGMSG698, name, id, new TimeStamp( timeStamp));
 			}
             if (verbose)
             {

@@ -31,6 +31,7 @@ using System.Drawing.Design;
 using System.IO;
 using System.Reflection;
 using System.Xml;
+using TickZoom.Api;
 
 namespace TickZoom.Properties
 {
@@ -90,7 +91,7 @@ namespace TickZoom.Properties
 		}
 		
 		private void HandleConfiguration(XmlReader reader) {
-			log.DebugFormat("Handle Starter properties");
+			log.DebugFormat(LogMessage.LOGMSG408);
 			log.Indent();
 			while( reader.Read()) {
 			    // Print out info on node  
@@ -131,7 +132,7 @@ namespace TickZoom.Properties
 		
 		private void HandleProperty( string name, string value) {
 			properties[name] = value;
-			log.DebugFormat("Property {0} = {1}", name, value);
+			log.DebugFormat(LogMessage.LOGMSG400, name, value);
 		}
 		
 		public Dictionary<string, string> Properties {

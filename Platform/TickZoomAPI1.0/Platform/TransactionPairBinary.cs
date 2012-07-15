@@ -99,11 +99,11 @@ namespace TickZoom.Api
                 if( currentPosition > 0)
                 {
                     var price = tick.IsQuote ? tick.Bid : tick.Price;
-                    if( verbose) log.VerboseFormat("Setting using {0} of {1}", price, tick);
+                    if( verbose) log.VerboseFormat(LogMessage.LOGMSG648, price, tick);
                     UpdatePrice(price);
                 } else {
                     var price = tick.IsQuote ? tick.Ask : tick.Price;
-                    if( verbose) log.VerboseFormat("Setting using {0} of {1}", price, tick);
+                    if( verbose) log.VerboseFormat(LogMessage.LOGMSG648, price, tick);
                     UpdatePrice(price);
                 }
                 exitTime = tick.Time.Internal;
@@ -114,11 +114,11 @@ namespace TickZoom.Api
         public void UpdatePrice(double price) {
             if (price > maxPrice)
             {
-                if( verbose) log.VerboseFormat("UpdatePrice( max = {0})", price);
+                if( verbose) log.VerboseFormat(LogMessage.LOGMSG649, price);
                 maxPrice = price;
             }
             if( price < minPrice) {
-                if( verbose) log.VerboseFormat("UpdatePrice( min = {0})", price);
+                if( verbose) log.VerboseFormat(LogMessage.LOGMSG650, price);
                 minPrice = price;
             }
             exitPrice = price;
@@ -131,7 +131,7 @@ namespace TickZoom.Api
             } else {
                 this.shortVolume = Math.Abs(direction);
             }
-            if( trace) log.TraceFormat("Enter long volume = {0}, short volume = {1}", this.LongVolume, this.ShortVolume);
+            if( trace) log.TraceFormat(LogMessage.LOGMSG651, this.LongVolume, this.ShortVolume);
             this.entryPrice = price;
             this.averageEntryPrice = price;
             this.maxPrice = this.minPrice = averageEntryPrice;
@@ -149,7 +149,7 @@ namespace TickZoom.Api
             } else {
                 this.shortVolume = this.ShortVolume + Math.Abs( currentPosition);
             }
-            if( trace) log.TraceFormat("Exit long volume = {0}, short volume = {1}, Direction = {2}", this.LongVolume, ShortVolume, this.Direction);
+            if( trace) log.TraceFormat(LogMessage.LOGMSG652, this.LongVolume, ShortVolume, this.Direction);
             this.exitPrice = price;
             this.exitTime = time.Internal;
             this.postedExitTime = postedTime.Internal;
@@ -193,7 +193,7 @@ namespace TickZoom.Api
             }
             currentPosition = newSize;
 
-            if( trace) log.TraceFormat("Price = {0}, averageEntryPrice = {1}, CurrentPosition = {2}, NewSize = {3}, Direction = {4}, sizeChange = {5}, Long volume = {6}, short volume = {7}", price, averageEntryPrice, currentPosition, newSize, Direction, sizeChange, this.LongVolume, ShortVolume);
+            if( trace) log.TraceFormat(LogMessage.LOGMSG653, price, averageEntryPrice, currentPosition, newSize, Direction, sizeChange, this.LongVolume, ShortVolume);
         }
 
         public void Change(double price, int positionChange)

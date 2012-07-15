@@ -179,7 +179,7 @@ namespace TickZoom.Provider.FIX
             }
             isFirstTick = false;
             FillSimulator.StartTick(currentTick);
-            if (trace) log.TraceFormat("Dequeue tick {0}.{1}", nextTick.UtcTime, nextTick.UtcTime.Microsecond);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG310, nextTick.UtcTime, nextTick.UtcTime.Microsecond);
             return Yield.DidWork.Invoke(ProcessTick);
         }
 
@@ -204,7 +204,7 @@ namespace TickZoom.Provider.FIX
                     if (nextTick.UtcTime.Internal > currentTime.Internal + overlapp &&
                         tickTimer.Start(nextTick.UtcTime))
                     {
-                        if (trace) log.TraceFormat("Set next timer for {0}.{1} at {2}.{3}", nextTick.UtcTime, nextTick.UtcTime.Microsecond, currentTime, currentTime.Microsecond);
+                        if (trace) log.TraceFormat(LogMessage.LOGMSG311, nextTick.UtcTime, nextTick.UtcTime.Microsecond, currentTime, currentTime.Microsecond);
                         tickStatus = TickStatus.Timer;
                     }
                     else
@@ -212,7 +212,7 @@ namespace TickZoom.Provider.FIX
                         if (nextTick.UtcTime.Internal < currentTime.Internal)
                         {
                             if (trace)
-                                log.TraceFormat("Current time {0} was less than tick time {1}.{2}", currentTime, nextTick.UtcTime, nextTick.UtcTime.Microsecond);
+                                log.TraceFormat(LogMessage.LOGMSG312, currentTime, nextTick.UtcTime, nextTick.UtcTime.Microsecond);
                             result = Yield.DidWork.Invoke(SendPlayBackTick);
                         }
                     }
@@ -256,7 +256,7 @@ namespace TickZoom.Provider.FIX
                 quoteMessage = quoteSimulatorSupport.QuoteSocket.MessageFactory.Create();
             }
             onTick(quoteMessage, Symbol, nextTick);
-            if (trace) log.TraceFormat("Added tick to packet: {0}", nextTick.UtcTime);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG147, nextTick.UtcTime);
             quoteMessage.SendUtcTime = nextTick.UtcTime.Internal;
             return Yield.DidWork.Invoke(TryEnqueuePacket);
         }
@@ -269,7 +269,7 @@ namespace TickZoom.Provider.FIX
                 return Yield.NoWork.Return;
             }
             quoteSimulatorSupport.QuotePacketQueue.Enqueue(quoteMessage, quoteMessage.SendUtcTime);
-            if (trace) log.TraceFormat("Enqueued tick packet: {0}", new TimeStamp(quoteMessage.SendUtcTime));
+            if (trace) log.TraceFormat(LogMessage.LOGMSG148, new TimeStamp(quoteMessage.SendUtcTime));
             quoteMessage = quoteSimulatorSupport.QuoteSocket.MessageFactory.Create();
             tickStatus = TickStatus.Sent;
             return Yield.DidWork.Return;
@@ -280,7 +280,7 @@ namespace TickZoom.Provider.FIX
             var result = Yield.DidWork.Repeat;
             if (tickStatus == TickStatus.Timer)
             {
-                if (trace) log.TraceFormat("Sending tick from timer event: {0}", nextTick.UtcTime);
+                if (trace) log.TraceFormat(LogMessage.LOGMSG313, nextTick.UtcTime);
                 result = Yield.DidWork.Invoke(SendPlayBackTick);
             }
             return result;
@@ -307,7 +307,7 @@ namespace TickZoom.Provider.FIX
                 isDisposed = true;
                 if (disposing)
                 {
-                    if (debug) log.DebugFormat("Dispose()");
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG48);
                     if (queueTask != null)
                     {
                         queueTask.Stop();
@@ -323,18 +323,18 @@ namespace TickZoom.Provider.FIX
                     }
                     if (fillSimulator != null)
                     {
-                        if (debug) log.DebugFormat("Setting fillSimulator.IsOnline false");
+                        if (debug) log.DebugFormat(LogMessage.LOGMSG314);
                         fillSimulator.IsOnline = false;
                     }
                     else
                     {
-                        if (debug) log.DebugFormat("fillSimulator is null.");
+                        if (debug) log.DebugFormat(LogMessage.LOGMSG315);
                     }
                 }
             }
             else
             {
-                if (debug) log.DebugFormat("isDisposed {0}", isDisposed);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG316, isDisposed);
             }
         }
 

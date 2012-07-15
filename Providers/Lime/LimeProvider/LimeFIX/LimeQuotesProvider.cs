@@ -117,8 +117,8 @@ namespace TickZoom.Provider.LimeQuotes
             loginRequest->ver_major = LimeQuotesInterop.majorVersion;
             loginRequest->ver_minor = LimeQuotesInterop.minorVersion;
 
-            if (trace) log.TraceFormat("Sending: {0}", UserName);
-            if (debug) log.DebugFormat("Sending: {0}", UserName);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG149, UserName);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG149, UserName);
 
             while (!Socket.TrySendMessage(message))
             {
@@ -237,7 +237,7 @@ namespace TickZoom.Provider.LimeQuotes
             message.BeforeRead();
             if (trace)
             {
-                log.TraceFormat("Received tick: {0}", message.ToString());
+                log.TraceFormat(LogMessage.LOGMSG151, message.ToString());
             }
             try
             {
@@ -291,7 +291,7 @@ namespace TickZoom.Provider.LimeQuotes
             if (UseLocalTickTime)
             {
                 SetLocalTickTIme(handler);
-                if (trace) log.TraceFormat("Trade {0} at {1} ", symbol, price);
+                if (trace) log.TraceFormat(LogMessage.LOGMSG169, symbol, price);
                 //handler.SendQuote();
             }
             else
@@ -299,7 +299,7 @@ namespace TickZoom.Provider.LimeQuotes
                 // is simulator.
                 var ordertime = modExecute->common.timestamp | ((long)modExecute->common.order_id << 32);
                 SetSimulatorTime(handler, ordertime);
-                if (trace) log.TraceFormat("Trade {0} at {1} time: {2}", symbol, price, new TimeStamp(ordertime));
+                if (trace) log.TraceFormat(LogMessage.LOGMSG170, symbol, price, new TimeStamp(ordertime));
                 //handler.SendQuote();
             }
 
@@ -361,7 +361,7 @@ namespace TickZoom.Provider.LimeQuotes
                     symbol = "<unknwon>";
                 }
             }
-            if (trace) log.TraceFormat("Mapped from {0} to {1}", symbolID, symbol);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG171, symbolID, symbol);
             return symbol;
         }
 
@@ -382,7 +382,7 @@ namespace TickZoom.Provider.LimeQuotes
             if (UseLocalTickTime)
             {
                 SetLocalTickTIme(handler);
-                if (trace) log.TraceFormat("Trade {0} at {1} ", symbol, price);
+                if (trace) log.TraceFormat(LogMessage.LOGMSG169, symbol, price);
                 //handler.SendQuote();
             }
             else
@@ -390,7 +390,7 @@ namespace TickZoom.Provider.LimeQuotes
                 // is simulator.
                 var ordertime = trade->common.timestamp | ((long)trade->common.order_id << 32);
                 SetSimulatorTime(handler, ordertime);
-                if (trace) log.TraceFormat("Trade {0} at {1} time: {2}", symbol, price, new TimeStamp(ordertime));
+                if (trace) log.TraceFormat(LogMessage.LOGMSG170, symbol, price, new TimeStamp(ordertime));
                 //handler.SendQuote();
             }
 
@@ -425,13 +425,13 @@ namespace TickZoom.Provider.LimeQuotes
                     handler.Ask = price;
                     handler.AskSize = (int) Reverse(order->common.shares);
                     if (trace)
-                        log.TraceFormat("Ask {0} at {1} size {2} time: {3}", symbol, price, handler.AskSize,
+                        log.TraceFormat(LogMessage.LOGMSG172, symbol, price, handler.AskSize,
                                         new TimeStamp(ordertime));
                 } else {
                     handler.Bid = price;
                     handler.BidSize = (int) Reverse(order->common.shares);
                     if (trace)
-                        log.TraceFormat("Bid {0} at {1} size {2} time: {3}", symbol, price, handler.BidSize,
+                        log.TraceFormat(LogMessage.LOGMSG173, symbol, price, handler.BidSize,
                                         new TimeStamp(ordertime));
                     sendQuote = true;
                 }
@@ -439,7 +439,7 @@ namespace TickZoom.Provider.LimeQuotes
                 //TODO: Translate Cirtris timestamp to internal
                 if (UseLocalTickTime) {
                     if (trace)
-                        log.TraceFormat("{0}: Bid {1} Ask: {2} BidShares {3} AskShares: {4}", symbol,
+                        log.TraceFormat(LogMessage.LOGMSG174, symbol,
                                         handler.Bid, handler.Ask, handler.BidSize, handler.AskSize);
                     SetLocalTickTIme(handler);
                     handler.SendQuote();
@@ -451,7 +451,7 @@ namespace TickZoom.Provider.LimeQuotes
                     }
                 }
             } else
-                if (trace) log.TraceFormat("Quote not top of book");
+                if (trace) log.TraceFormat(LogMessage.LOGMSG175);
         }
 
         private static void SetSimulatorTime(SymbolHandler handler, long ordertime)
@@ -515,7 +515,7 @@ namespace TickZoom.Provider.LimeQuotes
             {
                 foreach (var handler in symbolHandlers)
                 {
-                    log.DebugFormat("{0} received {1} ticks.", handler.Value.Symbol, handler.Value.TickCount);
+                    log.DebugFormat(LogMessage.LOGMSG156, handler.Value.Symbol, handler.Value.TickCount);
                 }
             }
             base.Dispose(disposing);
@@ -556,7 +556,7 @@ namespace TickZoom.Provider.LimeQuotes
             }
         }
 
-        public unsafe static void LogMessage(byte* message, Log log)
+        public unsafe static void LogAMessage(byte* message, Log log)
         {
           
             ushort length = (ushort)((message[0] << 8) | message[1]);
@@ -611,7 +611,7 @@ namespace TickZoom.Provider.LimeQuotes
                     break;
             }
             log.TraceFormat(logMessage);
-            log.TraceFormat( "Message HexDump: " + Environment.NewLine + HexDump( message, length, 32 ) );
+            log.TraceFormat(LogMessage.LOGMSG176, Environment.NewLine + HexDump( message, length, 32 ));
         }
 
         //Source: http://www.codeproject.com/Articles/36747/Quick-and-Dirty-HexDump-of-a-Byte-Array

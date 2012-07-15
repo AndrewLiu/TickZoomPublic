@@ -122,7 +122,7 @@ namespace TickZoom
 					if( !disableBoxes) {
 						Chart.DrawBox(Drawing.Color,bar,pivot);
 						if( pivotBars.Count>1) {
-							Log.DebugFormat( "|Pivot High,{0},{1},{2},{3}", Bars.Time[pivotBar], elapsed.TotalSeconds, Bars.Time[pivotBar], Bars.Time[Bars.CurrentBar-pivotBars[1]]);
+							Log.DebugFormat(LogMessage.LOGMSG722, Bars.Time[pivotBar], elapsed.TotalSeconds, Bars.Time[pivotBar], Bars.Time[Bars.CurrentBar-pivotBars[1]]);
 						}
 					}
 				}

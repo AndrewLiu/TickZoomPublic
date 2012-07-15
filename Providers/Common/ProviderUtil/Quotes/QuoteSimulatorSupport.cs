@@ -46,7 +46,7 @@ namespace TickZoom.Provider.FIX
             quotePacketQueue.ConnectInbound(task);
             task.Start();
             ListenToQuotes();
-            if (debug) log.DebugFormat("Starting FIX Simulator.");
+            if (debug) log.DebugFormat(LogMessage.LOGMSG180);
         }
 
         private enum State { Start, ProcessQuotes, WriteQuotes, Return };
@@ -146,7 +146,7 @@ namespace TickZoom.Provider.FIX
             {
                 return false;
             }
-            if (trace) log.TraceFormat("ProcessQuotePackets( {0} packets in queue.)", quotePacketQueue.Count);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG181, quotePacketQueue.Count);
             if (quotePacketQueue.TryDequeue(out _quoteWriteMessage))
             {
                 return true;
@@ -178,7 +178,7 @@ namespace TickZoom.Provider.FIX
                     if (disconnect == null)
                     {
                         _quoteReadMessage = message;
-                        if (verbose) log.VerboseFormat("Local Read: {0}", _quoteReadMessage);
+                        if (verbose) log.VerboseFormat(LogMessage.LOGMSG182, _quoteReadMessage);
                         ParseQuotesMessage(_quoteReadMessage);
                         quoteSocket.MessageFactory.Release(_quoteReadMessage);
                         return true;
@@ -200,7 +200,7 @@ namespace TickZoom.Provider.FIX
             if (!isQuoteSimulationStarted || _quoteWriteMessage == null) return true;
             if (quoteSocket.TrySendMessage(_quoteWriteMessage))
             {
-                if (trace) log.TraceFormat("Local Write: {0}", _quoteWriteMessage);
+                if (trace) log.TraceFormat(LogMessage.LOGMSG144, _quoteWriteMessage);
                 _quoteWriteMessage = null;
                 return true;
             }
@@ -232,7 +232,7 @@ namespace TickZoom.Provider.FIX
                 isDisposed = true;
                 if (disposing)
                 {
-                    if (debug) log.DebugFormat("Dispose()");
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG48);
                     CloseSockets();
                     if (quoteListener != null)
                     {
@@ -317,7 +317,7 @@ namespace TickZoom.Provider.FIX
 
         public void OnTick(long id, SymbolInfo anotherSymbol, Tick anotherTick)
         {
-            if (trace) log.TraceFormat("Sending tick: {0}", anotherTick);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG183, anotherTick);
 
             if (anotherSymbol.BinaryIdentifier >= lastTicks.Length)
             {

@@ -48,7 +48,7 @@ namespace TickZoom.TickUtil
             }
             else
             {
-                if( debug) log.DebugFormat("Ignoring event from Reader: {0}", eventType);
+                if( debug) log.DebugFormat(LogMessage.LOGMSG341, eventType);
             }
         }
 

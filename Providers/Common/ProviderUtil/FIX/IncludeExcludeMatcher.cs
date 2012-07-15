@@ -53,7 +53,7 @@ namespace TickZoom.Provider.FIX
             {
                 if (value.CompareWildcard(mask, true))
                 {
-                    if (debug) log.DebugFormat("{0} matched include mask {1}", value, mask);
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG287, value, mask);
                     result = true;
                     break;
                 }
@@ -63,7 +63,7 @@ namespace TickZoom.Provider.FIX
             {
                 if (value.CompareWildcard(mask, true))
                 {
-                    if (debug) log.DebugFormat("Excluding {0} because of mask {1}", value, mask);
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG288, value, mask);
                     result = false;
                     break;
                 }

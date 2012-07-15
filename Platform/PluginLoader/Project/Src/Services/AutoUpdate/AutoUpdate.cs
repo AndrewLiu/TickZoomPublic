@@ -155,7 +155,7 @@ namespace TickZoom.Update
 				post.PostItems.Add("file",fileName);
 //				post.PostItems.Add("model","Free");
 				post.DownloadDirectory = DownloadDirectory;
-				log.DebugFormat("Downloading {0} to {1}", fileName, post.DownloadDirectory);
+				log.DebugFormat(LogMessage.LOGMSG700, fileName, post.DownloadDirectory);
 				message=post.Post();
 				if( "".Equals(message)) {
 					// Now copy it to the generic filename for the latest version.

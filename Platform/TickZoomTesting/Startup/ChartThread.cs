@@ -39,7 +39,7 @@ namespace TickZoom.StarterTest
 		private PortfolioDoc portfolioDoc;
 		public Thread thread;
 		public ChartThread() {
-			log.DebugFormat("Starting Chart Thread");
+			log.DebugFormat(LogMessage.LOGMSG396);
 			ThreadStart job = new ThreadStart(Run);
 			thread = new Thread(job);
 			thread.Name = "ChartTest";
@@ -47,11 +47,11 @@ namespace TickZoom.StarterTest
 			while( portfolioDoc == null) {
 				Thread.Sleep(0);
 			}
-			log.DebugFormat("Returning Chart Created by Thread");
+			log.DebugFormat(LogMessage.LOGMSG397);
 		}
 		public void Run() {
 			try {
-		   				log.DebugFormat("Chart Thread Started");
+		   				log.DebugFormat(LogMessage.LOGMSG398);
 		   				portfolioDoc = new PortfolioDoc();
 		   				Thread.CurrentThread.IsBackground = true;
 		   				while(!stop) {

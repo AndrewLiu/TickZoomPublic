@@ -44,6 +44,7 @@ namespace TickZoom.Api
 		Log GetLogger(string name);
 		string LogFolder { get; }
 	    string ActiveConfigName { get; }
+	    Dictionary<LogMessage, string> Formats { get; }
 	    List<string> GetConfigNames();
 	    void Reconfigure(string extension);
 	    void Flush();

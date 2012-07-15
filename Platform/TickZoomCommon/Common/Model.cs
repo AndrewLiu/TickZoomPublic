@@ -69,7 +69,7 @@ namespace TickZoom.Common
 			drawing = new DrawingCommon(this);
 			formula = new Formula(this);
 			
-			if( trace) instanceLog.TraceFormat("{0}.new", GetType().Name);
+			if( trace) instanceLog.TraceFormat(LogMessage.LOGMSG15, GetType().Name);
 			chain = new ChainImpl(this);
 
 			RequestEvent( EventType.Open);
@@ -484,9 +484,9 @@ namespace TickZoom.Common
 			get { return isActive; }
 			set { if( isActive != value) {
 					if( value) {
-						if( trace) instanceLog.TraceFormat( "{0} waking up.", Name);
+						if( trace) instanceLog.TraceFormat(LogMessage.LOGMSG637, Name);
 					} else {
-						if( trace) instanceLog.TraceFormat( "{0} going to sleep.", Name);
+						if( trace) instanceLog.TraceFormat(LogMessage.LOGMSG638, Name);
 					}
 					isActive = value;
 					IsActiveChanged();

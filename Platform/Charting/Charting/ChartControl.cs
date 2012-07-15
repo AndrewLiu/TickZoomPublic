@@ -114,13 +114,13 @@ namespace TickZoom.Charting
 		
 		public void ChartLoad(object sender, EventArgs e)
 		{
-			if( debug) log.DebugFormat("ChartLoad()");
+			if( debug) log.DebugFormat(LogMessage.LOGMSG724);
 			DrawObjects();
 		}
 		
 		public void ChartResize(object sender, EventArgs e)
 		{
-			if( debug) log.DebugFormat("ChartResize()");
+			if( debug) log.DebugFormat(LogMessage.LOGMSG725);
             if (isDynamicUpdate && isAutoScroll && !pauseScrolling)
             {
                 AutoZoom(dataGraph.GraphPane);
@@ -648,7 +648,7 @@ namespace TickZoom.Charting
 		}
 		private volatile bool isBusy = false;		
 		public void AddBar( Bars chartBars) {
-            if (trace) log.TraceFormat("AddBar()");
+            if (trace) log.TraceFormat(LogMessage.LOGMSG726);
            if (!isBusy)
            {
                isBusy = true;
@@ -661,7 +661,7 @@ namespace TickZoom.Charting
 	    private volatile bool tickUpdate = false;
 		public void UpdateTick()
 		{
-		    if (trace) log.TraceFormat("UpdateTick()");
+		    if (trace) log.TraceFormat(LogMessage.LOGMSG727);
 		    if (!isBusy)
 		    {
 		        isBusy = true;
@@ -672,7 +672,7 @@ namespace TickZoom.Charting
 		
         private volatile bool addBarOccurred = false;
 		private void AddBarPrivate() {
-            if (trace) log.TraceFormat("AddBarPrivate()");
+            if (trace) log.TraceFormat(LogMessage.LOGMSG728);
             if (firstTime == TimeStamp.MinValue)
             {            	
     			firstTime = chartBars.Time[0];
@@ -957,7 +957,7 @@ namespace TickZoom.Charting
 					}
                     else
 					{
-                        if (trace) log.TraceFormat("yMax is NAN from MoveByPixels with yScale {0}, yScale.Max {1}, resetYScaleSpeed {2}, resetYScale {3}", yScale, yScale.Max, resetYScaleSpeed, resetYScale);
+                        if (trace) log.TraceFormat(LogMessage.LOGMSG729, yScale, yScale.Max, resetYScaleSpeed, resetYScale);
                     }
                 }
 				reset = true;
@@ -983,7 +983,7 @@ namespace TickZoom.Charting
                     }
                     else
                     {
-                        if (trace) log.TraceFormat("yMin is NAN from MoveByPixels with yScale {0}, yScale.Min {1}, resetYScaleSpeed {2}, resetYScale {3}", yScale, yScale.Min, resetYScaleSpeed, resetYScale);
+                        if (trace) log.TraceFormat(LogMessage.LOGMSG730, yScale, yScale.Min, resetYScaleSpeed, resetYScale);
                     }
                 }
 				reset = true;
@@ -1019,7 +1019,7 @@ namespace TickZoom.Charting
                         }
                         else
                         {
-                            if (trace) log.TraceFormat("_min is NAN from MoveByPixels with xScale {0}, xScale.Min {1}, resetXScaleSpeed {2}", xScale, xScale.Min, resetXScaleSpeed);
+                            if (trace) log.TraceFormat(LogMessage.LOGMSG731, xScale, xScale.Min, resetXScaleSpeed);
                         }
                     }
                     else
@@ -1035,7 +1035,7 @@ namespace TickZoom.Charting
                         }
                         else
                         {
-                            if (trace) log.TraceFormat("_max is NAN from MoveByPixels with xScale {0}, xScale.Max {1}, resetXScaleSpeed {2}", xScale, xScale.Max, resetXScaleSpeed);
+                            if (trace) log.TraceFormat(LogMessage.LOGMSG732, xScale, xScale.Max, resetXScaleSpeed);
                         }
                     }
                     else
@@ -1097,7 +1097,7 @@ namespace TickZoom.Charting
 		}
 		
 		private void CreateObjects() {
-			if( debug) log.DebugFormat("CreateObjects()");
+			if( debug) log.DebugFormat(LogMessage.LOGMSG733);
    			try {
 				// Setup the gradient fill...
 				// Use Red for negative days and black for positive days
@@ -1482,7 +1482,7 @@ namespace TickZoom.Charting
 	    private void refreshTick(object sender, EventArgs e)
 		{
 			try {
-                if (verbose) log.VerboseFormat("refreshTick()");
+                if (verbose) log.VerboseFormat(LogMessage.LOGMSG734);
 			    var form = FindForm();
                 if (form != null && form.Visible && form.WindowState != FormWindowState.Minimized)
                 {
@@ -1498,7 +1498,7 @@ namespace TickZoom.Charting
 					}
                     if (stockPointList.Count > 0 && (chartBars.BarCount - stockPointList.Count) < 5 && isDynamicUpdate)
                     {
-                        if (trace) log.TraceFormat("dragging={0}, AutoScroll = {1}", isScrolling, isAutoScroll);
+                        if (trace) log.TraceFormat(LogMessage.LOGMSG735, isScrolling, isAutoScroll);
                         bool resetAxis = false;
                         bool redraw = false;
                         timer.Interval = 200;
@@ -1519,12 +1519,12 @@ namespace TickZoom.Charting
                         }
                         if (resetAxis)
                         {
-                            if (trace) log.TraceFormat("refreshing axis");
+                            if (trace) log.TraceFormat(LogMessage.LOGMSG736);
                             dataGraph.AxisChange();
                         }
                         if (resetAxis || redraw)
                         {
-                            if (trace) log.TraceFormat("redrawing");
+                            if (trace) log.TraceFormat(LogMessage.LOGMSG737);
                             this.Refresh();
                         }
                     }

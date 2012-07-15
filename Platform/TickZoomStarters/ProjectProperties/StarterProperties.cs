@@ -67,7 +67,7 @@ namespace TickZoom.Properties
 		{
             var factory = (SymbolFactoryImpl)Factory.Symbol;
             var library = factory.Library;
-            if (debug) log.DebugFormat("SetSymbols uses the global library of symbols.");
+            if (debug) log.DebugFormat(LogMessage.LOGMSG411);
 			value = value.StripWhiteSpace();
 			value = value.StripInvalidPathChars();
 			var symbolFileArray = value.Split(',');

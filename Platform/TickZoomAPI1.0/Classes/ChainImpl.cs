@@ -44,7 +44,7 @@ namespace TickZoom.Api
 		private readonly bool trace = log.IsTraceEnabled;
         public ChainImpl(ModelInterface formula)
 		{
-			if( trace) log.TraceFormat("new ");
+			if( trace) log.TraceFormat(LogMessage.LOGMSG693);
 			if( trace) log.Indent();
 			LinkFormula(formula);
 			previous = this;
@@ -75,7 +75,7 @@ namespace TickZoom.Api
 
 		public Chain InsertBefore(Chain chain)
 		{
-			if( trace) log.TraceFormat("{0} InsertBefore() {1} before {2}", GetType().Name, chain.ToChainString(), this);
+			if( trace) log.TraceFormat(LogMessage.LOGMSG694, GetType().Name, chain.ToChainString(), this);
 			ChainImpl root = (ChainImpl) chain.Root;
 			ChainImpl tail = (ChainImpl) chain.Tail;
 			root.isRoot = isRoot;
@@ -89,7 +89,7 @@ namespace TickZoom.Api
 
 		public Chain Replace(Chain chain)
 		{
-			if( trace) log.TraceFormat("{0} Replace() {1} with {2}", GetType().Name, this, chain.ToChainString());
+			if( trace) log.TraceFormat(LogMessage.LOGMSG695, GetType().Name, this, chain.ToChainString());
 			ChainImpl root = (ChainImpl) chain.Root;
 			ChainImpl tail = (ChainImpl) chain.Tail;
 			root.isRoot = isRoot;
@@ -117,7 +117,7 @@ namespace TickZoom.Api
 
 		public Chain InsertAfter(Chain chain)
 		{
-			if( trace) log.TraceFormat("{0} InsertAfter() {1} after {2}", GetType().Name, chain.ToChainString(), this);
+			if( trace) log.TraceFormat(LogMessage.LOGMSG696, GetType().Name, chain.ToChainString(), this);
 			ChainImpl root = (ChainImpl) chain.Root;
 			ChainImpl tail = (ChainImpl) chain.Tail;
 			root.isRoot = false;

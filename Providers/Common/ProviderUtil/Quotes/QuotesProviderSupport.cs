@@ -109,10 +109,10 @@ namespace TickZoom.Provider.FIX
             socketTask = task;
             socketTask.Scheduler = Scheduler.EarliestTime;
             taskTimer = Factory.Parallel.CreateTimer("Task", socketTask, TimerTask);
-            if (debug) log.DebugFormat("Created timer. (Default startTime: {0})", taskTimer.StartTime);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG184, taskTimer.StartTime);
             filter = socketTask.GetFilter();
             socketTask.Start();
-            if (debug) log.DebugFormat("> Initialize.");
+            if (debug) log.DebugFormat(LogMessage.LOGMSG185);
             var appDataFolder = Factory.Settings["AppDataFolder"];
             if (appDataFolder == null)
             {
@@ -188,7 +188,7 @@ namespace TickZoom.Provider.FIX
 			log.Info("OnDisconnect( " + socket + " ) ");
 			ConnectionStatus = Status.Disconnected;
 		    debugDisconnect = true;
-            if (debug) log.DebugFormat("Socket state now: {0}", socket.State);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG186, socket.State);
             if( isDisposed)
             {
                 Finish();
@@ -207,7 +207,7 @@ namespace TickZoom.Provider.FIX
             socket.MessageFactory = messageFactory;
             socket.ReceiveQueue.ConnectInbound(socketTask);
             socket.SendQueue.ConnectOutbound(socketTask);
-            if (debug) log.DebugFormat("Created new {0}", socket);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG187, socket);
             ConnectionStatus = Status.New;
             if (trace)
             {
@@ -277,7 +277,7 @@ namespace TickZoom.Provider.FIX
             TimeStamp currentTime = TimeStamp.UtcNow;
             currentTime.AddSeconds(timeSeconds);
             taskTimer.Start(currentTime);
-            if (debug) log.DebugFormat("Created timer. (Default startTime: {0})", taskTimer.StartTime);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG184, taskTimer.StartTime);
             return Invoke();
         }
 
@@ -335,12 +335,12 @@ namespace TickZoom.Provider.FIX
 
             if (debugDisconnect)
             {
-                if( debug) log.DebugFormat("Invoke() Current socket state: {0}, {1}", socket.State, socket);
+                if( debug) log.DebugFormat(LogMessage.LOGMSG188, socket.State, socket);
                 debugDisconnect = false;
             }
             if( socket.State != lastSocketState)
             {
-                if( debug) log.DebugFormat("Socket state changed to: {0}", socket.State);
+                if( debug) log.DebugFormat(LogMessage.LOGMSG189, socket.State);
                 lastSocketState = socket.State;
             }
             if (ConnectionStatus != lastStatus)
@@ -412,7 +412,7 @@ namespace TickZoom.Provider.FIX
                 case Status.Disconnected:
 	                retryTimeout = Factory.Parallel.TickCount + retryDelay * 1000;
 	                ConnectionStatus = Status.PendingRetry;
-	                if( debug) log.DebugFormat("Retrying in {0} seconds.", retryDelay);
+	                if( debug) log.DebugFormat(LogMessage.LOGMSG190, retryDelay);
 	                retryDelay += retryIncrease;
 	                retryDelay = retryDelay > retryMaximum ? retryMaximum : retryDelay;
 	                return Yield.NoWork.Repeat;
@@ -531,7 +531,7 @@ namespace TickZoom.Provider.FIX
             TimeStamp currentTime = TimeStamp.UtcNow;
             currentTime.AddSeconds(timeSeconds);
             taskTimer.Start(currentTime);
-            if (debug) log.DebugFormat("Created timer. (Default startTime: {0})", taskTimer.StartTime);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG184, taskTimer.StartTime);
 
             CreateNewSocket();
             retryTimeout = Factory.Parallel.TickCount + retryDelay * 1000;
@@ -699,7 +699,7 @@ namespace TickZoom.Provider.FIX
             if (socketTask != null)
             {
                 socketTask.Stop();
-                if (debug) log.DebugFormat("Stopped socket task.");
+                if (debug) log.DebugFormat(LogMessage.LOGMSG191);
             }
         }
 
@@ -717,7 +717,7 @@ namespace TickZoom.Provider.FIX
 	    protected virtual void Dispose(bool disposing)
 	    {
        		if( !isDisposed) {
-                if (debug) log.DebugFormat("Dispose()");
+                if (debug) log.DebugFormat(LogMessage.LOGMSG48);
 	            isDisposed = true;   
 	            if (disposing) {
                     if (socket != null)
@@ -727,7 +727,7 @@ namespace TickZoom.Provider.FIX
                     if (taskTimer != null)
                     {
                         taskTimer.Dispose();
-                        if (debug) log.DebugFormat("Stopped task timer.");
+                        if (debug) log.DebugFormat(LogMessage.LOGMSG192);
                     }
                     if( socketTask != null)
                     {
@@ -798,7 +798,7 @@ namespace TickZoom.Provider.FIX
 		    {
 		        if( connectionStatus != value)
 		        {
-		            if( debug) log.DebugFormat("Connection status changed from {0} to {1}", connectionStatus, value);
+		            if( debug) log.DebugFormat(LogMessage.LOGMSG193, connectionStatus, value);
 		            connectionStatus = value;
 		        }
 		    }

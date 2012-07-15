@@ -69,7 +69,7 @@ namespace TickZoom.Common
 		{
 		    SetupLog();
 			position = new PositionCommon(this);
-			if( trace) instanceLog.TraceFormat("Constructor");
+			if( trace) instanceLog.TraceFormat(LogMessage.LOGMSG646);
 			Chain.Dependencies.Clear();
 			isStrategy = true;
 			result = new Result(this);
@@ -200,7 +200,7 @@ namespace TickZoom.Common
 					sb.Append("        ");
 					sb.AppendLine( item.ToString());
 				}
-				instanceLog.TraceFormat("Order #{0} was modified while position = {1}\n{2}", order.Id, position.Current, sb);
+				instanceLog.TraceFormat(LogMessage.LOGMSG647, order.Id, position.Current, sb);
 				sb.AppendLine();
 			}
 		}

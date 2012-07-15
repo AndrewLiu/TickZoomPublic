@@ -129,7 +129,7 @@ namespace TickZoom.TickUtil
 					signatureStr += counts[i].Offset;
 				}
 				signatureStr += "}";
-				log.DebugFormat("Signature: {0}", signatureStr);
+				log.DebugFormat(LogMessage.LOGMSG353, signatureStr);
 			}
 		}
 
@@ -152,8 +152,8 @@ namespace TickZoom.TickUtil
 	//					log.Info( intValueCounts[i].Offset+"="+intValueCounts[i].Count);
 					}
 				}
-				log.DebugFormat( "{0} int combinations" , count);
-				log.DebugFormat( " 255 int combinations account for {0} out of {1}", totalUnder255, totalCount/2);
+				log.DebugFormat(LogMessage.LOGMSG354 , count);
+				log.DebugFormat(LogMessage.LOGMSG355, totalUnder255, totalCount/2);
 			}
 		}
 		
@@ -252,7 +252,7 @@ namespace TickZoom.TickUtil
 			int index;
 			int count=0;
 			
-			log.DebugFormat("diff bits = {0}", diffBits.DebugBytes);
+			log.DebugFormat(LogMessage.LOGMSG356, diffBits.DebugBytes);
 			
 			// Calculate differences
 			for( int i=0;i<signature.Length;i++) {

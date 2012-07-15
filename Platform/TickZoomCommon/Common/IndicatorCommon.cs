@@ -140,7 +140,7 @@ namespace TickZoom.Common
                 barHasher.Writer.Write(bars.Volume[0]);
                 barHasher.Update();
 
-                barDataLog.DebugFormat("{0},{1},{2},{3},{4},{5},{6},{7}", Name, time, endTime, bars.Open[0], bars.High[0], bars.Low[0], bars.Close[0], bars.Volume[0]);
+                barDataLog.DebugFormat(LogMessage.LOGMSG636, Name, time, endTime, bars.Open[0], bars.High[0], bars.Low[0], bars.Close[0], bars.Volume[0]);
             }
             Update();
 			return true;
