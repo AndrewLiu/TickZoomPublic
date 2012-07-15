@@ -180,7 +180,7 @@ namespace TickZoom.Provider.FIX
             task.Start();
             ListenToFIX();
             MainLoopMethod = Invoke;
-            if (debug) log.DebugFormat("Starting FIX Simulator.");
+            if (debug) log.DebugFormat(LogMessage.LOGMSG180);
             if (allTests)
             {
                 foreach( var kvp in simulators)
@@ -239,11 +239,11 @@ namespace TickZoom.Provider.FIX
         {
             if (isDisposed) return Yield.Terminate;
             var currentTime = TimeStamp.UtcNow;
-            if (verbose) log.VerboseFormat("Heartbeat occurred at {0}", currentTime);
+            if (verbose) log.VerboseFormat(LogMessage.LOGMSG252, currentTime);
             IncreaseHeartbeat();
             if (isConnectionLost)
             {
-                if (debug) log.DebugFormat("Simulating FIX connection was lost, closing FIX socket.");
+                if (debug) log.DebugFormat(LogMessage.LOGMSG253);
                 if (!fixPacketQueue.IsFull && FIXReadLoop())
                 {
                     return Yield.DidWork.Repeat;
@@ -256,12 +256,12 @@ namespace TickZoom.Provider.FIX
             {
                 case ServerState.Startup:
                 case ServerState.ServerResend:
-                    if (debug) log.DebugFormat("Skipping heartbeat because fix state: {0}", fixState);
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG254, fixState);
                     break;
                 case ServerState.WaitingHeartbeat:
                     if (currentTime > heartbeatResponseDeadline)
                     {
-                        if (debug) log.DebugFormat("Heartbeat response was never received.");
+                        if (debug) log.DebugFormat(LogMessage.LOGMSG255);
                         isConnectionLost = true;
                         return Yield.DidWork.Repeat;
                     }
@@ -272,7 +272,7 @@ namespace TickZoom.Provider.FIX
                         frozenHeartbeatCounter++;
                         if (frozenHeartbeatCounter > 3)
                         {
-                            if (debug) log.DebugFormat("More than 3 heart beats sent after frozen.  Ending heartbeats.");
+                            if (debug) log.DebugFormat(LogMessage.LOGMSG198);
                             heartbeatDelay = 1000;
                         }
                         else
@@ -306,7 +306,7 @@ namespace TickZoom.Provider.FIX
             if( resetSequenceNumbersNextDisconnect)
             {
                 resetSequenceNumbersNextDisconnect = false;
-                if (debug) log.DebugFormat("Resetting sequence numbers because simulation rollover.");
+                if (debug) log.DebugFormat(LogMessage.LOGMSG256);
                 remoteSequence = 1;
                 fixFactory = CreateFIXFactory(0, FixFactory.Sender, FixFactory.Destination);
             }
@@ -401,7 +401,7 @@ namespace TickZoom.Provider.FIX
 			if( _fixWriteMessage == null && fixPacketQueue.Count == 0) {
 				return false;
 			}
-			if( trace) log.TraceFormat("ProcessFIXPackets( {0} packets in queue.)", fixPacketQueue.Count);
+			if( trace) log.TraceFormat(LogMessage.LOGMSG257, fixPacketQueue.Count);
 			if( fixPacketQueue.TryDequeue(out _fixWriteMessage)) {
 				return true;
 			} else {
@@ -421,7 +421,7 @@ namespace TickZoom.Provider.FIX
         private bool HandleResend(MessageFIXT1_1 messageFIX)
         {
             int end = messageFIX.EndSeqNum == 0 ? FixFactory.LastSequence : messageFIX.EndSeqNum;
-            if (debug) log.DebugFormat("Found resend request for {0} to {1}: {2}", messageFIX.BegSeqNum, end, messageFIX);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG219, messageFIX.BegSeqNum, end, messageFIX);
             for (int i = messageFIX.BegSeqNum; i <= end; i++)
             {
                 FIXTMessage1_1 textMessage;
@@ -454,7 +454,7 @@ namespace TickZoom.Provider.FIX
                     {
                         var fixString = textMessage.ToString();
                         string view = fixString.Replace(FIXTBuffer.EndFieldStr, "  ");
-                        log.DebugFormat("Sending Gap Fill message {0}: \n{1}", i, view);
+                        log.DebugFormat(LogMessage.LOGMSG258, i, view);
                     }
                     ResendMessageProtected(textMessage);
                 }
@@ -489,7 +489,7 @@ namespace TickZoom.Provider.FIX
                 mbtMsg.AddHeader("h");
                 mbtMsg.SetTradingSessionId("TSSTATE");
                 mbtMsg.SetTradingSessionStatus(status);
-                if (debug) log.DebugFormat("Sending order server status: {0}", mbtMsg);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG259, mbtMsg);
                 SendMessage(mbtMsg);
             }
             else
@@ -506,7 +506,7 @@ namespace TickZoom.Provider.FIX
 			mbtMsg.AddHeader("2");
 			mbtMsg.SetBeginSeqNum(RemoteSequence);
 			mbtMsg.SetEndSeqNum(0);
-			if( debug) log.DebugFormat("Sending resend request: {0}", mbtMsg);
+			if( debug) log.DebugFormat(LogMessage.LOGMSG260, mbtMsg);
             SendMessage(mbtMsg);
 		    return true;
 		}
@@ -538,7 +538,7 @@ namespace TickZoom.Provider.FIX
                     return false;
                 }
 			    var packetFIX = (MessageFIXT1_1)_fixReadMessage;
-                if (debug) log.DebugFormat("Received FIX message: {0}", packetFIX);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG261, packetFIX);
 			    heartbeatResponseDeadline = TimeStamp.MaxValue;
                 try
                 {
@@ -559,13 +559,13 @@ namespace TickZoom.Provider.FIX
                             if (packetFIX.Sequence > RemoteSequence)
                             {
                                 fixState = ServerState.ServerResend;
-                                if (debug) log.DebugFormat("Login packet sequence {0} was greater than expected {1}", packetFIX.Sequence, RemoteSequence);
+                                if (debug) log.DebugFormat(LogMessage.LOGMSG262, packetFIX.Sequence, RemoteSequence);
                                 recoveryRemoteSequence = packetFIX.Sequence;
                                 return Resend(packetFIX);
                             }
                             else
                             {
-                                if (debug) log.DebugFormat("Login packet sequence {0} was less than or equal to expected {1} so updating remote sequence...", packetFIX.Sequence, RemoteSequence);
+                                if (debug) log.DebugFormat(LogMessage.LOGMSG263, packetFIX.Sequence, RemoteSequence);
                                 RemoteSequence = packetFIX.Sequence + 1;
                                 ServerSyncComplete();
                             }
@@ -580,12 +580,12 @@ namespace TickZoom.Provider.FIX
                             }
                             if (packetFIX.Sequence > RemoteSequence)
                             {
-                                if (debug) log.DebugFormat("packet sequence {0} greater than expected {1}", packetFIX.Sequence, RemoteSequence);
+                                if (debug) log.DebugFormat(LogMessage.LOGMSG264, packetFIX.Sequence, RemoteSequence);
                                 return Resend(packetFIX);
                             }
                             if (packetFIX.Sequence < RemoteSequence)
                             {
-                                if (debug) log.DebugFormat("Already received packet sequence {0}. Ignoring.", packetFIX.Sequence);
+                                if (debug) log.DebugFormat(LogMessage.LOGMSG265, packetFIX.Sequence);
                                 return true;
                             }
                             switch (packetFIX.MessageType)
@@ -597,7 +597,7 @@ namespace TickZoom.Provider.FIX
                                         return true;
                                     }
                                     HandleResend(packetFIX);
-                                    if (debug) log.DebugFormat("Resend request with sequence {0}. So updating remote sequence...", packetFIX.Sequence);
+                                    if (debug) log.DebugFormat(LogMessage.LOGMSG266, packetFIX.Sequence);
                                     RemoteSequence = packetFIX.Sequence + 1;
                                     break;
                                 case "4":
@@ -636,7 +636,7 @@ namespace TickZoom.Provider.FIX
             mbtMsg.AddHeader("5");
             mbtMsg.SetText("System offline");
             SendMessage(mbtMsg);
-            if (trace) log.TraceFormat("Sending system offline simulation: {0}", mbtMsg);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG267, mbtMsg);
             //resetSequenceNumbersNextDisconnect = true;
         }
 
@@ -646,7 +646,7 @@ namespace TickZoom.Provider.FIX
             mbtMsg.AddHeader("5");
             mbtMsg.SetText(message);
             SendMessage(mbtMsg);
-            if (trace) log.TraceFormat("Sent login reject {0}", mbtMsg);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG268, mbtMsg);
         }
 
         private void ServerSyncComplete()
@@ -661,12 +661,12 @@ namespace TickZoom.Provider.FIX
 
         public virtual void SendServerSyncComplete()
         {
-            if (debug) log.DebugFormat("SendServerSyncComplete()");
+            if (debug) log.DebugFormat(LogMessage.LOGMSG269);
         }
 
         public virtual void SendSessionStatusOnline()
         {
-            if (debug) log.DebugFormat("Sending session status online.");
+            if (debug) log.DebugFormat(LogMessage.LOGMSG270);
             var wasOrderServerOnline = ProviderSimulator.IsOrderServerOnline;
             TrySendSessionStatus("2");
             if( !wasOrderServerOnline)
@@ -693,7 +693,7 @@ namespace TickZoom.Provider.FIX
             simulators[SimulatorType.SystemOffline].UpdateNext(packet.Sequence);
 
             var mbtMsg = CreateLoginResponse();
-            if (debug) log.DebugFormat("Sending login response: {0}", mbtMsg);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG271, mbtMsg);
             SendMessage(mbtMsg);
             return true;
         }
@@ -705,7 +705,7 @@ namespace TickZoom.Provider.FIX
                                                         packet.Sequence + " instead of 1.");
                 }
                 fixFactory = CreateFIXFactory(1, packet.Target, packet.Sender);
-                if (debug) log.DebugFormat("Found reset seq number flag. Resetting seq number to {0}", fixFactory.LastSequence);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG272, fixFactory.LastSequence);
                 RemoteSequence = packet.Sequence;
             }
             else if (FixFactory == null)
@@ -741,7 +741,7 @@ namespace TickZoom.Provider.FIX
                 throw new InvalidOperationException("Reset new sequence number must be greater than current sequence: " + RemoteSequence + ".\n" + packetFIX);
             }
             RemoteSequence = packetFIX.NewSeqNum;
-            if (debug) log.DebugFormat("Received gap fill. Setting next sequence = {0}", RemoteSequence);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG206, RemoteSequence);
             return true;
         }
 
@@ -749,14 +749,14 @@ namespace TickZoom.Provider.FIX
         {
             if( isConnectionLost)
             {
-                if (debug) log.DebugFormat("Connection Ignoring message: {0}", packetFIX);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG273, packetFIX);
                 RemoveTickSync(packetFIX);
                 return true;
             }
             var simulator = simulators[SimulatorType.ReceiveDisconnect];
             if (FixFactory != null && simulator.CheckSequence(packetFIX.Sequence))
             {
-                if (debug) log.DebugFormat("Ignoring message: {0}", packetFIX);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG274, packetFIX);
                 // Ignore this message. Pretend we never received it AND disconnect.
                 // This will test the message recovery.)
                 ProviderSimulator.SwitchBrokerState("disconnect",false);
@@ -767,13 +767,13 @@ namespace TickZoom.Provider.FIX
             {
                 // Ignore this message. Pretend we never received it.
                 // This will test the message recovery.
-                if (debug) log.DebugFormat("Ignoring fix message sequence {0}", packetFIX.Sequence);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG275, packetFIX.Sequence);
                 return Resend(packetFIX);
             }
             simulator = simulators[SimulatorType.ReceiveServerOffline];
             if (IsRecovered && FixFactory != null && simulator.CheckSequence(packetFIX.Sequence))
             {
-                if (debug) log.DebugFormat("Skipping message: {0}", packetFIX);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG276, packetFIX);
                 ProviderSimulator.SwitchBrokerState("disconnect", false);
                 ProviderSimulator.SetOrderServerOffline();
                 TrySendSessionStatus("3"); //offline
@@ -787,7 +787,7 @@ namespace TickZoom.Provider.FIX
                 return true;
             }
 
-            if (debug) log.DebugFormat("Processing message with {0}. So updating remote sequence...", packetFIX.Sequence);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG277, packetFIX.Sequence);
             RemoteSequence = packetFIX.Sequence + 1;
             var blackHoleEnabled = false;
             switch (packetFIX.MessageType)
@@ -804,7 +804,7 @@ namespace TickZoom.Provider.FIX
             }
             if (blackHoleEnabled && FixFactory != null && simulator.CheckFrequency())
             {
-                if (debug) log.DebugFormat("Simulating order 'black hole' of 35={0} by incrementing sequence to {1} but ignoring message with sequence {2}", packetFIX.MessageType, RemoteSequence, packetFIX.Sequence);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG278, packetFIX.MessageType, RemoteSequence, packetFIX.Sequence);
                 return true;
             }
             ParseFIXMessage(_fixReadMessage);
@@ -856,7 +856,7 @@ namespace TickZoom.Provider.FIX
             var message = fixMessage.ToString();
             writePacket.DataOut.Write(message.ToCharArray());
             writePacket.SendUtcTime = TimeStamp.UtcNow.Internal;
-            if (debug) log.DebugFormat("Resending simulated FIX Message: {0}", fixMessage);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG279, fixMessage);
             SendMessageInternal(writePacket);
         }
 
@@ -865,7 +865,7 @@ namespace TickZoom.Provider.FIX
             if (fixSocket.TrySendMessage(message))
             {
                 IncreaseHeartbeat();
-                if (trace) log.TraceFormat("Local Write: {0}", message);
+                if (trace) log.TraceFormat(LogMessage.LOGMSG144, message);
                 return true;
             }
             log.Error("Failed to Write: " + message);
@@ -878,7 +878,7 @@ namespace TickZoom.Provider.FIX
 		{
 		    var timeStamp = Factory.Parallel.UtcNow;
             timeStamp.AddMilliseconds(HeartbeatDelay);
-            if (debug) log.DebugFormat("Setting next heartbeat for {0}. State: {1}", timeStamp, fixState);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG280, timeStamp, fixState);
             heartbeatTimer.Start(timeStamp);
 		}		
 
@@ -893,26 +893,26 @@ namespace TickZoom.Provider.FIX
             var simulator = simulators[SimulatorType.SendDisconnect];
             if (simulator.CheckSequence(fixMessage.Sequence) )
             {
-                if (debug) log.DebugFormat("Ignoring message: {0}", fixMessage);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG274, fixMessage);
                 ProviderSimulator.SwitchBrokerState("disconnect",false);
                 isConnectionLost = true;
                 return;
             }
             if (simulateSendFailed && IsRecovered && random.Next(50) == 4)
             {
-                if (debug) log.DebugFormat("Skipping send of sequence # {0} to simulate lost message. {1}", fixMessage.Sequence, fixMessage);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG281, fixMessage.Sequence, fixMessage);
                 if( fixMessage.Type == "1")
                 {
                     heartbeatResponseDeadline = TimeStamp.MaxValue;
                 }
-                if (debug) log.DebugFormat("Message type is: {0}", fixMessage.Type);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG282, fixMessage.Type);
                 return;
             }
             var writePacket = fixSocket.MessageFactory.Create();
             var message = fixMessage.ToString();
             writePacket.DataOut.Write(message.ToCharArray());
             writePacket.SendUtcTime = TimeStamp.UtcNow.Internal;
-            if( debug) log.DebugFormat("Simulating FIX Message: {0}", fixMessage);
+            if( debug) log.DebugFormat(LogMessage.LOGMSG283, fixMessage);
             try
             {
                 fixPacketQueue.Enqueue(writePacket, writePacket.SendUtcTime);
@@ -933,7 +933,7 @@ namespace TickZoom.Provider.FIX
             simulator = simulators[SimulatorType.SendServerOffline];
             if (IsRecovered && FixFactory != null && simulator.CheckSequence( fixMessage.Sequence))
             {
-                if (debug) log.DebugFormat("Skipping message: {0}", fixMessage);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG276, fixMessage);
                 ProviderSimulator.SwitchBrokerState("offline",false);
                 ProviderSimulator.SetOrderServerOffline();
                 TrySendSessionStatus("3");
@@ -954,7 +954,7 @@ namespace TickZoom.Provider.FIX
 			{
 				var mbtMsg = (FIXTMessage1_1) FixFactory.Create();
 				mbtMsg.AddHeader("1");
-				if( trace) log.TraceFormat("Requesting heartbeat: {0}", mbtMsg);
+				if( trace) log.TraceFormat(LogMessage.LOGMSG166, mbtMsg);
                 SendMessage(mbtMsg);
 			    fixState = ServerState.WaitingHeartbeat;
                 heartbeatResponseDeadline = Factory.Parallel.UtcNow;
@@ -990,7 +990,7 @@ namespace TickZoom.Provider.FIX
 			if (!isDisposed) {
 				isDisposed = true;
 				if (disposing) {
-                    if (debug) log.DebugFormat("Dispose()");
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG48);
 				    var sb = new StringBuilder();
 				    var countFailedTests = 0;
                     foreach( var kvp in simulators)
@@ -1066,7 +1066,7 @@ namespace TickZoom.Provider.FIX
             {
                 if( remoteSequence != value)
                 {
-                    if (debug) log.DebugFormat("Remote sequence changed from {0} to {1}", remoteSequence, value);
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG284, remoteSequence, value);
                     remoteSequence = value;
                 }
             }
@@ -1085,7 +1085,7 @@ namespace TickZoom.Provider.FIX
             var mbtMsg = FixFactory.Create();
             mbtMsg.SetText(error);
             mbtMsg.AddHeader("j");
-            if (trace) log.TraceFormat("Sending business reject order: {0}", mbtMsg);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG285, mbtMsg);
             SendMessage(mbtMsg);
         }
 
@@ -1095,7 +1095,7 @@ namespace TickZoom.Provider.FIX
             mbtMsg.SetBusinessRejectReferenceId(clientOrderId);
             mbtMsg.SetText(error);
             mbtMsg.AddHeader("j");
-            if (trace) log.TraceFormat("Sending business reject order: {0}", mbtMsg);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG285, mbtMsg);
             SendMessage(mbtMsg);
         }
 
@@ -1104,7 +1104,7 @@ namespace TickZoom.Provider.FIX
             var mbtMsg = FixFactory.Create();
             mbtMsg.AddHeader("5");
             SendMessage(mbtMsg);
-            if (trace) log.TraceFormat("Sending logout confirmation: {0}", mbtMsg);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG286, mbtMsg);
         }
 	}
 }

@@ -62,7 +62,7 @@ namespace TickZoom.Provider.FIX
         private void NextRandom(int sequence)
         {
             NextSequence = sequence + random.Next(Frequency * getSymbolCount() / 3) + Frequency;
-            if (debug) log.DebugFormat("Set {0} sequence for = {1}", Type, NextSequence);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG326, Type, NextSequence);
         }
 
         public void UpdateNext(int sequence)
@@ -75,7 +75,7 @@ namespace TickZoom.Provider.FIX
             {
                 var remaining = NextSequence - lastSequence;
                 NextSequence = sequence + remaining;
-                if (debug) log.DebugFormat("Set {0} sequence for = {1}", Type, NextSequence);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG326, Type, NextSequence);
                 lastSequence = sequence;
             }
         }
@@ -95,7 +95,7 @@ namespace TickZoom.Provider.FIX
             if( result)
             {
                 counter = Counter + 1;
-                if (debug) log.DebugFormat("Sequence {0} >= {1} sequence {2} so causing negative test. {3} attempts {4}, count {5}", sequence, Type, NextSequence, SyncTicks.CurrentTestName, attemptCounter, counter);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG327, sequence, Type, NextSequence, SyncTicks.CurrentTestName, attemptCounter, counter);
                 NextRandom(sequence);
             }
             return result;
@@ -123,7 +123,7 @@ namespace TickZoom.Provider.FIX
                     if( debug)
                     {
                         var symbolText = symbol != null ? "For " + symbol + ": " : "";
-                        log.DebugFormat("{0}Repeating {1} negative test. Repeat count {2}", symbolText, Type, repeatCounter);
+                        log.DebugFormat(LogMessage.LOGMSG328, symbolText, Type, repeatCounter);
                     }
                     result = true;
                 }
@@ -141,7 +141,7 @@ namespace TickZoom.Provider.FIX
                 if( debug)
                 {
                     var symbolText = symbol != null ? "For " + symbol + ": " : "";
-                    if( debug) log.DebugFormat("{0}Random {1} occurred so causing negative test. {2} attempts {3}, count {4}", symbolText, Type, SyncTicks.CurrentTestName, attemptCounter, counter);
+                    if( debug) log.DebugFormat(LogMessage.LOGMSG329, symbolText, Type, SyncTicks.CurrentTestName, attemptCounter, counter);
                 }
                 if (MaxRepetitions > 0)
                 {

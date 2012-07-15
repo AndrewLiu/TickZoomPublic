@@ -251,7 +251,7 @@ namespace TickZoom.Api
 
         void LoadImplementations(String filename, Dictionary<string, List<Type>> nameListMap)
         {
-            if (debug) log.DebugFormat("Loading {0}", filename);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG655, filename);
             var t2 = typeof(object);
             try
             {

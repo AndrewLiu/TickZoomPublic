@@ -494,24 +494,16 @@ namespace TickZoom.Logging
 			}
 		}
 
+        private void LookForUniqueness(LogMessage formatKey, object[] args)
+        {
+            
+        }
+
         private void LookForUniqueness(string format, object[] args)
         {
             if( memoryBuffer.Position > 10000)
             {
                 memoryBuffer.Position = 0;
-            }
-            if( trackFormats)
-            {
-                FormatHandler formatHandler;
-                if (uniqueFormatsInternal.TryGetValue(format, out formatHandler))
-                {
-                    formatHandler.Count++;
-                }
-                else
-                {
-                    formatHandler = new FormatHandler();
-                    uniqueFormatsInternal.Add(format, formatHandler);
-                }
             }
             for (var i = 0; i < args.Length; i++)
             {
@@ -601,8 +593,8 @@ namespace TickZoom.Logging
         public string resultString;
         public string cloneResult;
 
-        private bool trackFormats = false;
-        private bool serialized = false;
+        private bool trackFormats = true;
+        private bool serialized = true;
 
         private static EncodeHelper encoderDecoder = new EncodeHelper();
         private static MemoryStream memoryBuffer = new MemoryStream();
@@ -664,6 +656,62 @@ namespace TickZoom.Logging
             }
 		}
 		
+		public void VerboseFormat(LogMessage formatKey, params object[] args)
+		{
+            if( IsVerboseEnabled)
+            {
+                if( serialized)
+                {
+                    LookForUniqueness(formatKey, args);
+                }
+                else
+                {
+                    resultString = string.Format(Factory.SysLog.Formats[formatKey], args);
+                    Verbose(resultString, null);
+                }
+            }
+		}
+
+        public void TraceFormat(LogMessage formatKey, params object[] args)
+        {
+            if (IsTraceEnabled)
+            {
+                if (serialized)
+                {
+                    LookForUniqueness(formatKey, args);
+                }
+                else
+                {
+                    resultString = string.Format(Factory.SysLog.Formats[formatKey], args);
+                    Trace(resultString, null);
+                }
+            }
+        }
+
+        public void DebugFormat(LogMessage formatKey, params object[] args)
+        {
+            if (IsDebugEnabled)
+            {
+                if (allowDebugging)
+                {
+                    resultString = string.Format(Factory.SysLog.Formats[formatKey], args);
+                    Debug(resultString, null);
+                }
+                else
+                {
+                    if (serialized)
+                    {
+                        LookForUniqueness(formatKey, args);
+                    }
+                    else
+                    {
+                        resultString = string.Format(Factory.SysLog.Formats[formatKey], args);
+                        Debug(resultString, null);
+                    }
+                }
+            }
+        }
+		
 		public void InfoFormat(string format, params object[] args)
 		{
 			LogWrapper.InfoFormat(format, args);
@@ -689,46 +737,6 @@ namespace TickZoom.Logging
 			LogWrapper.FatalFormat(format, args);
 		}
 		
-		public void VerboseFormat(IFormatProvider provider, string format, params object[] args)
-		{
-			VerboseFormat(string.Format(provider, format, args));
-		}
-		
-		public void TraceFormat(IFormatProvider provider, string format, params object[] args)
-		{
-			TraceFormat(string.Format(provider, format, args));
-		}
-		
-		public void DebugFormat(IFormatProvider provider, string format, params object[] args)
-		{
-			LogWrapper.DebugFormat(provider, format, args);
-		}
-		
-		public void InfoFormat(IFormatProvider provider, string format, params object[] args)
-		{
-			LogWrapper.InfoFormat(provider, format, args);
-		}
-		
-		public void NoticeFormat(IFormatProvider provider, string format, params object[] args)
-		{
-			Notice(string.Format(provider, format, args));
-		}
-		
-		public void WarnFormat(IFormatProvider provider, string format, params object[] args)
-		{
-			LogWrapper.WarnFormat(provider, format, args);
-		}
-		
-		public void ErrorFormat(IFormatProvider provider, string format, params object[] args)
-		{
-			LogWrapper.ErrorFormat(provider, format, args);
-		}
-		
-		public void FatalFormat(IFormatProvider provider, string format, params object[] args)
-		{
-			LogWrapper.FatalFormat(provider, format, args);
-		}
-
         public void Register(LogAware logAware)
         {
             LogWrapper.Register(logAware);

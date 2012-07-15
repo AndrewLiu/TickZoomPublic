@@ -80,8 +80,8 @@ namespace TickZoom.Provider.MBTQuotes
 		    Message message = Socket.MessageFactory.Create();
 		    string hashPassword = Hash(Password);
 		    string login = "L|100=" + UserName + ";133=" + hashPassword + "\n";
-		    if (trace) log.TraceFormat("Sending: {0}", login);
-		    if (debug) log.DebugFormat("Sending: {0}", login);
+		    if (trace) log.TraceFormat(LogMessage.LOGMSG149, login);
+		    if (debug) log.DebugFormat(LogMessage.LOGMSG149, login);
 		    message.DataOut.Write(login.ToCharArray());
 		    while (!Socket.TrySendMessage(message))
 		    {
@@ -108,7 +108,7 @@ namespace TickZoom.Provider.MBTQuotes
 	            log.Info("MBT Quotes API Login response: " + loginResponse);
 	            return true;
 	        }
-			if( debug) log.DebugFormat( "Invalid quotes login response ignored: {0}", loginResponse);
+			if( debug) log.DebugFormat(LogMessage.LOGMSG150, loginResponse);
 			return false;
         }
 		
@@ -133,7 +133,7 @@ namespace TickZoom.Provider.MBTQuotes
                     {
                         message.Data.Position = 0;
 			            var messageText = new string(message.DataIn.ReadChars(message.Remaining));
-                        log.TraceFormat("Received tick: {0}", messageText);
+                        log.TraceFormat(LogMessage.LOGMSG151, messageText);
                     }
                     // Filter Form T trades which are belatedly entered at the last close price
                     // later on the next day with sales type 30031 or condition 29.
@@ -157,7 +157,7 @@ namespace TickZoom.Provider.MBTQuotes
         {
             Message message = Socket.MessageFactory.Create();
             string textMessage = "9|\n";
-            if (trace) log.TraceFormat("Ping request: {0}", textMessage);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG152, textMessage);
             message.DataOut.Write(textMessage.ToCharArray());
             while (!Socket.TrySendMessage(message))
             {
@@ -173,12 +173,12 @@ namespace TickZoom.Provider.MBTQuotes
             message.BeforeRead();
             if (trace)
             {
-                log.TraceFormat("Received tick: {0}", new string(message.DataIn.ReadChars(message.Remaining)));
+                log.TraceFormat(LogMessage.LOGMSG151, new string(message.DataIn.ReadChars(message.Remaining)));
             }
             if (message.MessageType == '9')
             {
                 // Received the ping response.
-                if (trace) log.TraceFormat("Ping response successfully received.");
+                if (trace) log.TraceFormat(LogMessage.LOGMSG153);
                 ReceivedPing();
                 SendStartRealTime();
             }
@@ -292,7 +292,7 @@ namespace TickZoom.Provider.MBTQuotes
 			var handler = symbolHandlers[symbolInfo.BinaryIdentifier];
 			handler.Last = message.Last;
 			if( trace) {
-				log.TraceFormat( "Got last trade price: {0}", handler.Last);// + "\n" + Message);
+				log.TraceFormat(LogMessage.LOGMSG154, handler.Last);// + "\n" + Message);
 			}
 			handler.LastSize = message.LastSize;
 			int condition = message.Condition;
@@ -395,7 +395,7 @@ namespace TickZoom.Provider.MBTQuotes
 			{
 			    Message message = Socket.MessageFactory.Create();
 				string textMessage = "S|1003="+symbol.BaseSymbol+";2000="+tradeType+"\n";
-				if( debug) log.DebugFormat("Symbol request: {0}", textMessage);
+				if( debug) log.DebugFormat(LogMessage.LOGMSG155, textMessage);
 				message.DataOut.Write(textMessage.ToCharArray());
 				while( !Socket.TrySendMessage(message)) {
 					if( IsInterrupted) return;
@@ -407,7 +407,7 @@ namespace TickZoom.Provider.MBTQuotes
 			{
 			    Message message = Socket.MessageFactory.Create();
 				string textMessage = "S|1003="+symbol.BaseSymbol+";2000="+quoteType+"\n";
-				if( debug) log.DebugFormat("Symbol request: {0}", textMessage);
+				if( debug) log.DebugFormat(LogMessage.LOGMSG155, textMessage);
 				message.DataOut.Write(textMessage.ToCharArray());
 				while( !Socket.TrySendMessage(message)) {
 					if( IsInterrupted) return;
@@ -419,7 +419,7 @@ namespace TickZoom.Provider.MBTQuotes
             {
                 Message message = Socket.MessageFactory.Create();
                 string textMessage = "S|1003=" + symbol.BaseSymbol + ";2000=" + optionChain+ "\n";
-                if (debug) log.DebugFormat("Symbol request: {0}", textMessage);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG155, textMessage);
                 message.DataOut.Write(textMessage.ToCharArray());
                 while (!Socket.TrySendMessage(message))
                 {
@@ -463,7 +463,7 @@ namespace TickZoom.Provider.MBTQuotes
             {
                 foreach (var handler in symbolHandlers)
                 {
-                    log.DebugFormat("{0} received {1} ticks.", handler.Value.Symbol, handler.Value.TickCount);
+                    log.DebugFormat(LogMessage.LOGMSG156, handler.Value.Symbol, handler.Value.TickCount);
                 }
             }
             base.Dispose(disposing);

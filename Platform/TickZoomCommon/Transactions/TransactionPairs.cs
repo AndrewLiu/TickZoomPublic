@@ -148,7 +148,7 @@ namespace TickZoom.Transactions
 		
 		public double ProfitInPosition( int index, double price) {
 			TransactionPairBinary binary = transactionPairs[index];
-			if( trace) log.TraceFormat("direction = {0}, currentPosition = {1}, volume = {2}, closed points = {3}", binary.Direction, binary.CurrentPosition, binary.Volume, binary.ClosedPoints);
+			if( trace) log.TraceFormat(LogMessage.LOGMSG413, binary.Direction, binary.CurrentPosition, binary.Volume, binary.ClosedPoints);
             binary.ExitPrice = price;
             return CalcProfitLoss(binary);
 		}

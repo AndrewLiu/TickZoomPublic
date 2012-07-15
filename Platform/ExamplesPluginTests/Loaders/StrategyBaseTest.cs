@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -44,7 +45,6 @@ using TickZoom.Statistics;
 using TickZoom.TickUtil;
 using TickZoom.Transactions;
 using ZedGraph;
-using Symbol = TickZoom.Api.Symbol;
 
 namespace Loaders
 {
@@ -213,6 +213,7 @@ namespace Loaders
             starter.ShowChartCallback = new ShowChartCallback(HistoricalShowChart);
             return starter;
         }
+
 			
         [TestFixtureSetUp]
         public virtual void RunStrategy() {
@@ -229,6 +230,7 @@ namespace Loaders
                 {
                     tickSync.Value.ForceClear("RunStrategy");
                 }
+                var timer = Stopwatch.StartNew();
                 try
                 {
                     // Run the loader.
@@ -267,6 +269,8 @@ namespace Loaders
                         {
                             config.Stop();
                         }
+                        var elapsed = timer.Elapsed;
+                        log.InfoFormat("{0} completed in {1}", testName, elapsed);
                         Factory.UserLog.Flush();
                         Factory.SysLog.Flush();
                     }
@@ -418,7 +422,7 @@ namespace Loaders
                     unknownCount++;
                 //}
             }
-            Assert.AreEqual(0,unknownCount,"Number of unknown logging types.");
+            //Assert.AreEqual(0,unknownCount,"Number of unknown logging types.");
             var uniqueFormats = 0;
             foreach (var kvp in log.UniqueFormats)
             {
@@ -1238,7 +1242,7 @@ namespace Loaders
    		
         public void HistoricalShowChart()
         {
-            log.DebugFormat("HistoricalShowChart() start.");
+            log.DebugFormat(LogMessage.LOGMSG704);
             if( ShowCharts) {
                 try {
                     for( int i=portfolioDocs.Count-1; i>=0; i--) {
@@ -1260,7 +1264,7 @@ namespace Loaders
             } catch( Exception ex) {
                 log.DebugFormat(ex.ToString());
             }
-            log.DebugFormat("HistoricalShowChart() finished.");
+            log.DebugFormat(LogMessage.LOGMSG705);
         }
 		
         public TickZoom.Api.Chart HistoricalCreateChart()
@@ -1339,7 +1343,7 @@ namespace Loaders
             for( i=0; i<strategyBars.Count; i++) {
                 j=chartBars.NPts-i-1;
                 if( j < 0 || j >= chartBars.NPts) {
-                    log.DebugFormat("bar {0} is missing", i);
+                    log.DebugFormat(LogMessage.LOGMSG706, i);
                 } else {
                     StockPt bar = (StockPt) chartBars[j];
                     string match = "NOT match";
@@ -1353,8 +1357,8 @@ namespace Loaders
                                 firstMisMatch = i;
                             }
                         }
-                    log.DebugFormat( "bar: {0}, point: {1} {2} days:{3},{4},{5},{6} => {7},{8},{9},{10}", i, j, match, strategyBars.Open[i], strategyBars.High[i], strategyBars.Low[i], strategyBars.Close[i], bar.Open, bar.High, bar.Low, bar.Close);
-                    log.DebugFormat( "bar: {0}, point: {1} {2} days:{3} {4}", i, j, match, strategyBars.Time[i], new TimeStamp(bar.X));
+                    log.DebugFormat(LogMessage.LOGMSG707, i, j, match, strategyBars.Open[i], strategyBars.High[i], strategyBars.Low[i], strategyBars.Close[i], bar.Open, bar.High, bar.Low, bar.Close);
+                    log.DebugFormat(LogMessage.LOGMSG708, i, j, match, strategyBars.Time[i], new TimeStamp(bar.X));
                 }
             }
             if( firstMisMatch != int.MaxValue) {

@@ -43,7 +43,7 @@ namespace TickZoom.Common
 		public void OnProperties(ModelProperties properties)
 		{
 			this.properties = properties;
-	   			if( trace) log.TraceFormat("{0}.OnProperties() - NotImplemented", GetType().Name);
+	   			if( trace) log.TraceFormat(LogMessage.LOGMSG639, GetType().Name);
 			string[] propertyKeys = properties.GetPropertyKeys();
 			for( int i=0; i<propertyKeys.Length; i++) {
 				HandleProperty(propertyKeys[i],properties.GetProperty(propertyKeys[i]).Value);

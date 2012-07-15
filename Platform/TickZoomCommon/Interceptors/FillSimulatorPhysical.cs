@@ -121,7 +121,7 @@ namespace TickZoom.Interceptors
         private bool hasCurrentTick = false;
         public void OnOpen(Tick tick)
         {
-            if (trace) log.TraceFormat("OnOpen({0})", tick);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG593, tick);
             isOpenTick = true;
             openTime = tick.Time;
             if (!tick.IsQuote && !tick.IsTrade)
@@ -146,13 +146,13 @@ namespace TickZoom.Interceptors
         public bool OnChangeBrokerOrder(PhysicalOrder other)
         {
             var order = other.Clone();
-            if (debug) log.DebugFormat("OnChangeBrokerOrder( {0})", order);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG594, order);
             if( order.OriginalOrder != null)
             {
                 var origOrder = CancelBrokerOrder(order.OriginalOrder.BrokerOrder);
                 if (origOrder == null)
                 {
-                    if (debug) log.DebugFormat("PhysicalOrder too late to change. Already filled or canceled, ignoring.");
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG595);
                     var message = "No such order";
                     if (onRejectOrder != null)
                     {
@@ -211,7 +211,7 @@ namespace TickZoom.Interceptors
                 try
                 {
                     orderMap.Add(order.BrokerOrder, order);
-                    if (trace) log.TraceFormat("Added order {0}", order.BrokerOrder);
+                    if (trace) log.TraceFormat(LogMessage.LOGMSG596, order.BrokerOrder);
                 }
                 catch (ArgumentException)
                 {
@@ -262,7 +262,7 @@ namespace TickZoom.Interceptors
             }
             else
             {
-                if (debug) log.DebugFormat("Skipping TriggerCallback because HasCurrentTick is {0}", hasCurrentTick);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG597, hasCurrentTick);
             }
         }
 
@@ -279,7 +279,7 @@ namespace TickZoom.Interceptors
                 nodePool.Free(node);
                 lock (orderMapLocker)
                 {
-                    if( debug) log.DebugFormat("Canceling by id {0}. Order: {1}", oldOrderId, physicalOrder);
+                    if( debug) log.DebugFormat(LogMessage.LOGMSG598, oldOrderId, physicalOrder);
                     orderMap.Remove(oldOrderId);
                 }
                 if (triggers != null)
@@ -296,7 +296,7 @@ namespace TickZoom.Interceptors
         public bool OnCreateBrokerOrder(PhysicalOrder other)
         {
             var order = other.Clone();
-            if (debug) log.DebugFormat("OnCreateBrokerOrder( {0})", order);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG599, order);
             if (order.RemainingSize <= 0)
             {
                 throw new ApplicationException("Sorry, Size of order must be greater than zero: " + order);
@@ -311,11 +311,11 @@ namespace TickZoom.Interceptors
 
         public bool OnCancelBrokerOrder(PhysicalOrder order)
         {
-            if (debug) log.DebugFormat("OnCancelBrokerOrder( {0})", order.OriginalOrder.BrokerOrder);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG600, order.OriginalOrder.BrokerOrder);
             var origOrder = CancelBrokerOrder(order.OriginalOrder.BrokerOrder);
             if (origOrder == null)
             {
-                if (debug) log.DebugFormat("PhysicalOrder too late to change. Already filled or canceled, ignoring.");
+                if (debug) log.DebugFormat(LogMessage.LOGMSG595);
                 var message = "No such order";
                 if (onRejectOrder != null)
                 {
@@ -343,7 +343,7 @@ namespace TickZoom.Interceptors
             }
             else
             {
-                if (debug) log.DebugFormat("Skipping ProcessOrders because HasCurrentTick is {0}", hasCurrentTick);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG601, hasCurrentTick);
             }
             return 1;
         }
@@ -359,7 +359,7 @@ namespace TickZoom.Interceptors
 
         public void StartTick(Tick lastTick)
         {
-            if (trace) log.TraceFormat("StartTick({0})", lastTick);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG602, lastTick);
             if (!lastTick.IsQuote && !lastTick.IsTrade)
             {
                 throw new ApplicationException("tick w/o either trade or quote data? " + lastTick);
@@ -380,7 +380,7 @@ namespace TickZoom.Interceptors
         }
         private void ProcessAdjustmentsInternal(Tick tick)
         {
-            if (verbose) log.VerboseFormat("ProcessAdjustments( {0}, {1} )", symbol, tick);
+            if (verbose) log.VerboseFormat(LogMessage.LOGMSG603, symbol, tick);
             if (symbol == null)
             {
                 throw new ApplicationException("Please set the Symbol property for the " + GetType().Name + ".");
@@ -424,19 +424,19 @@ namespace TickZoom.Interceptors
             {
                 if (trace)
                 {
-                    log.TraceFormat("ProcessOrders( {0}, {1} ) [OpenTick]", symbol, tick);
+                    log.TraceFormat(LogMessage.LOGMSG604, symbol, tick);
                 }
                 isOpenTick = false;
             }
             else if (trace)
             {
-                log.TraceFormat("ProcessOrders( {0}, {1} )", symbol, tick);
+                log.TraceFormat(LogMessage.LOGMSG605, symbol, tick);
             }
             if (symbol == null)
             {
                 throw new ApplicationException("Please set the Symbol property for the " + GetType().Name + ".");
             }
-            if (trace) log.TraceFormat("Orders: Touch {0}, Market {1}, Increase {2}, Decrease {3}", touchOrders.Count, marketOrders.Count, increaseOrders.Count, decreaseOrders.Count);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG606, touchOrders.Count, marketOrders.Count, increaseOrders.Count, decreaseOrders.Count);
             if (touchOrderCount > 0)
             {
                 for (var node = touchOrders.First; node != null; node = node.Next)
@@ -483,20 +483,20 @@ namespace TickZoom.Interceptors
         {
             if (!isOnline)
             {
-                if (verbose) log.VerboseFormat("Unable to flush fill queue yet because isOnline is {0}", isOnline);
+                if (verbose) log.VerboseFormat(LogMessage.LOGMSG607, isOnline);
                 return;
             }
             while (fillQueue.Count > 0)
             {
                 var wrapper = fillQueue.Dequeue();
-                if (debug) log.DebugFormat("Dequeuing fill ( isOnline {0}): {1}", isOnline, wrapper.Fill);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG608, isOnline, wrapper.Fill);
                 if (enableSyncTicks && !wrapper.IsCounterSet) tickSync.AddPhysicalFill(wrapper.Fill);
                 onPhysicalFill(wrapper.Fill, wrapper.Order);
             }
             while (rejectQueue.Count > 0)
             {
                 var wrapper = rejectQueue.Dequeue();
-                if (debug) log.DebugFormat("Dequeuing reject {0}", wrapper.Order);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG609, wrapper.Order);
                 onRejectOrder(wrapper.Order, wrapper.Message);
             }
         }
@@ -505,13 +505,13 @@ namespace TickZoom.Interceptors
         {
             if (debug)
             {
-                log.DebugFormat("Found {0} open orders for {1}:", orderMap.Count, symbol);
+                log.DebugFormat(LogMessage.LOGMSG610, orderMap.Count, symbol);
                 lock (orderMapLocker)
                 {
                     foreach (var kvp in orderMap)
                     {
                         var order = kvp.Value;
-                        log.DebugFormat("{0}",order);
+                        log.DebugFormat(LogMessage.LOGMSG611,order);
                     }
                     LogOrderList(touchOrders, "Touch orders");
                     LogOrderList(marketOrders, "Market orders");
@@ -525,11 +525,11 @@ namespace TickZoom.Interceptors
         {
             if( list.Count > 0)
             {
-                log.DebugFormat( "   {0} {1}", name, list.Count);
+                log.DebugFormat(LogMessage.LOGMSG612, name, list.Count);
             }
             for( var current = list.First; current != null; current = current.Next)
             {
-                log.DebugFormat("    {0}", current.Value);
+                log.DebugFormat(LogMessage.LOGMSG613, current.Value);
             }
         }
 
@@ -670,7 +670,7 @@ namespace TickZoom.Interceptors
             }
             if (onRejectOrder != null)
             {
-                if (debug) log.DebugFormat("Rejecting order because position is {0} but order side was {1}: {2}", actualPosition, order.Side, order);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG614, actualPosition, order.Side, order);
                 SendReject(order, true, message);
             }
             else
@@ -725,7 +725,7 @@ namespace TickZoom.Interceptors
 
         private void CreatePhysicalFillHelper(int totalSize, double price, TimeStamp time, TimeStamp utcTime, PhysicalOrder order)
         {
-            if (debug) log.DebugFormat("Filling order: {0}", order);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG615, order);
             var remainingSize = totalSize;
             var split = 1;
             var numberFills = split;
@@ -741,7 +741,7 @@ namespace TickZoom.Interceptors
                     {
                         split = 5;
                         numberFills = 3;
-                        if (debug) log.DebugFormat("True Partial of only {0} fills out of {1} for {2}", numberFills, split, order);
+                        if (debug) log.DebugFormat(LogMessage.LOGMSG616, numberFills, split, order);
                     }
                     else
                     {
@@ -755,7 +755,7 @@ namespace TickZoom.Interceptors
             var cumulativeQuantity = 0;
             if (lastSize == 0) lastSize = totalSize;
             var count = 0;
-            if( debug) log.DebugFormat("{0} totalSize {1}, split {2}, last {3}, cumul {4}, fills {5}, remain {6}", partialFillSimulation, totalSize, split, lastSize, cumulativeQuantity, numberFills, remainingSize);
+            if( debug) log.DebugFormat(LogMessage.LOGMSG617, partialFillSimulation, totalSize, split, lastSize, cumulativeQuantity, numberFills, remainingSize);
             while (Math.Abs(remainingSize) > 0 && count < numberFills)
             {
                 count++;
@@ -779,10 +779,10 @@ namespace TickZoom.Interceptors
 
         private void CreateSingleFill(int size, int totalSize, int cumulativeSize, int remainingSize, double price, TimeStamp time, TimeStamp utcTime, PhysicalOrder order)
         {
-            if (debug) log.DebugFormat("Changing actual position from {0} to {1}. Fill size is {2}", this.actualPosition, (actualPosition + size), size);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG618, this.actualPosition, (actualPosition + size), size);
             this.actualPosition += size;
             var fill = new PhysicalFillDefault(symbol, size, price, time, utcTime, order.BrokerOrder, createExitStrategyFills, totalSize, cumulativeSize, remainingSize, false, createActualFills);
-            if (debug) log.DebugFormat("Enqueuing fill (online: {0}): {1}", isOnline, fill);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG619, isOnline, fill);
             var wrapper = new FillWrapper
                               {
                                   IsCounterSet = isOnline,
@@ -829,7 +829,7 @@ namespace TickZoom.Interceptors
             {
                 if (actualPosition != value)
                 {
-                    if (debug) log.DebugFormat("Setter: ActualPosition changed from {0} to {1}", actualPosition, value);
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG620, actualPosition, value);
                     actualPosition = value;
                     if (onPositionChange != null)
                     {
@@ -894,7 +894,7 @@ namespace TickZoom.Interceptors
                 if (isOnline != value)
                 {
                     isOnline = value;
-                    if (debug) log.DebugFormat("IsOnline changed to {0}", isOnline);
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG621, isOnline);
                 }
             }
         }

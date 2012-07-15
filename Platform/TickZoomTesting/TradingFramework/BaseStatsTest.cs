@@ -75,7 +75,7 @@ namespace TickZoom.TradingFramework
 			TransactionPairs trades = random.Performance.ComboTrades;
 			if( log.IsDebugEnabled) {
 				for( int i=0; i<trades.Count; i++) {
-					log.DebugFormat( "{0}: {1}", i, trades[i]);
+					log.DebugFormat(LogMessage.LOGMSG33, i, trades[i]);
 				}
 			}
 

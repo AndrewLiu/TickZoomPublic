@@ -63,7 +63,7 @@ namespace TickZoom.Common
 			
 			Drawing.Color = this[1]<this[0] ? Color.Green : this[1] > this[0] ? Color.Red : Color.Black;
 			
-			if( IsTrace) Log.TraceFormat("rsi={0},wma={1},Value1={2},Value2={3},ifsh={4}", rsi[0], wma[0], value1[0], value2[0], this[0]);
+			if( IsTrace) Log.TraceFormat(LogMessage.LOGMSG629, rsi[0], wma[0], value1[0], value2[0], this[0]);
 			
 			return true;
 		}

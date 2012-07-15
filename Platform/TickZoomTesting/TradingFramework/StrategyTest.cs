@@ -52,7 +52,7 @@ namespace TickZoom.EngineTests
 			drawing = new DrawingCommon(this);
 			indicator =  Doubles();
 			
-			if( trace) log.TraceFormat("{0}.new", GetType().Name);
+			if( trace) log.TraceFormat(LogMessage.LOGMSG15, GetType().Name);
 			name = GetType().Name;
             chain = new ChainImpl(this);
 		}

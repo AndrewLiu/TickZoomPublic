@@ -160,7 +160,7 @@ namespace TickZoom.Api
             {
                 if (binary.position != value)
                 {
-                    if (trace) log.TraceFormat("Position change from {0} to {1}", binary.position, value);
+                    if (trace) log.TraceFormat(LogMessage.LOGMSG654, binary.position, value);
                     binary.position = value;
                     if (binary.tradeDirection == TradeDirection.Exit || binary.tradeDirection == TradeDirection.ExitStrategy)
                     {

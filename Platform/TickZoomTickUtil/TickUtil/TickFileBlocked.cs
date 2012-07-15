@@ -98,7 +98,7 @@ namespace TickZoom.TickUtil
                 //throw new ApplicationException("Requires either a file or folder to read data. Tried both " + folderOrfile + " and " + filePath);
             }
             CheckFileExtension();
-            if (debug) log.DebugFormat("File Name = {0}", fileName);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG357, fileName);
             try
             {
                 OpenFile();
@@ -131,7 +131,7 @@ namespace TickZoom.TickUtil
             InitLogging();
             Directory.CreateDirectory(Path.GetDirectoryName(fileName));
             CheckFileExtension();
-            if (debug) log.DebugFormat("File Name = {0}", fileName);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG357, fileName);
             try
             {
                 OpenFile();
@@ -218,13 +218,13 @@ namespace TickZoom.TickUtil
         private void OpenFileForAppending()
         {
             fs = new FileStream(fileName, FileMode.Append, FileAccess.Write, FileShare.Read, 1024, FileOptions.WriteThrough);
-            log.DebugFormat("OpenFileForWriting()");
+            log.DebugFormat(LogMessage.LOGMSG358);
         }
 
         private unsafe void CreateFileForWriting()
         {
             fs = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Read, 1024, FileOptions.WriteThrough);
-            log.DebugFormat("OpenFileForWriting()");
+            log.DebugFormat(LogMessage.LOGMSG358);
             fileHeader.blockHeader.version = 1;
             fileHeader.blockHeader.type = BlockType.FileHeader;
             fileHeader.blockSize =  1024 * 8;
@@ -324,7 +324,7 @@ namespace TickZoom.TickUtil
             }
             if (isLegacy) return legacy.TryWriteTick(tickIO);
             TryCompleteAsyncWrite();
-            if (trace) log.TraceFormat("Writing to file buffer: {0}", tickIO);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG359, tickIO);
             if( !fileBlock.TryWriteTick(tickIO))
             {
                 MoveMemoryToQueue();
@@ -464,7 +464,7 @@ namespace TickZoom.TickUtil
 
                     if (!quietMode || debug)
                     {
-                        if (debug) log.DebugFormat("Starting to read data.");
+                        if (debug) log.DebugFormat(LogMessage.LOGMSG360);
                     }
                     fileBlock = new FileBlock(fileHeader.blockSize);
                     readFileStopwatch = new Stopwatch();
@@ -692,7 +692,7 @@ namespace TickZoom.TickUtil
                     {
                         streamsToWrite.Peek(out fileBlock);
                     }
-                    if (trace) log.TraceFormat("{0} blocks in queue.", streamsToWrite.Count);
+                    if (trace) log.TraceFormat(LogMessage.LOGMSG361, streamsToWrite.Count);
                     fileBlock.Write(fs);
                     lastTimeWritten = fileBlock.LastUtcTimeStamp;
                     using (memoryLocker.Using())
@@ -727,7 +727,7 @@ namespace TickZoom.TickUtil
                 isDisposed = true;
                 lock (taskLocker)
                 {
-                    if (debug) log.DebugFormat("Dispose()");
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG48);
 
                     if( mode == TickFileMode.Write)
                     {
@@ -739,7 +739,7 @@ namespace TickZoom.TickUtil
                         CloseFileForReading();
                     }
 
-                    if (debug) log.DebugFormat("Exiting Close()");
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG362);
                     if( lastTimeWritten > 0)
                     {
                         log.Notice("Last tick written for " + symbol + ": " + new TimeStamp(lastTimeWritten));
@@ -756,7 +756,7 @@ namespace TickZoom.TickUtil
         {
             if (fs != null)
             {
-                if (debug) log.DebugFormat("CloseFileForReading()");
+                if (debug) log.DebugFormat(LogMessage.LOGMSG363);
                 fs.Close();
                 fs = null;
                 log.Info("Closed file " + fileName);
@@ -767,7 +767,7 @@ namespace TickZoom.TickUtil
         {
             if (fs != null)
             {
-                if (debug) log.DebugFormat("CloseFileForWriting() at with length {0}", fs.Length);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG364, fs.Length);
                 Flush();
                 fs.Flush();
                 if (!FlushFileBuffers(fs.SafeFileHandle))   // Flush OS file cache to disk.

@@ -87,7 +87,7 @@ namespace TickZoom.Transactions
 		}
 		
 		public void UpdatePrice(double price) {
-			if( trace ) log.TraceFormat("UpdatePrice({0})", price);
+			if( trace ) log.TraceFormat(LogMessage.LOGMSG412, price);
 			if( price > maxPrice) {
 				maxPrice = price;
 			}

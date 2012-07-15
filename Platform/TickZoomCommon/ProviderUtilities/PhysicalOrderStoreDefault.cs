@@ -112,7 +112,7 @@ namespace TickZoom.Common
                 try
                 {
                     fs = new FileStream(databasePath, FileMode.Append, FileAccess.Write, FileShare.Read, 1024, FileOptions.WriteThrough);
-                    if( debug) log.DebugFormat("Open {0}", storeName);
+                    if( debug) log.DebugFormat(LogMessage.LOGMSG547, storeName);
                     snapshotLength = fs.Length;
                     return true;
                 }
@@ -212,7 +212,7 @@ namespace TickZoom.Common
                     }
                     else
                     {
-                        if( debug) log.DebugFormat("StartSnapshot() Snapshot already in progress.");
+                        if( debug) log.DebugFormat(LogMessage.LOGMSG548);
                         return;
                     }
                 }
@@ -278,7 +278,7 @@ namespace TickZoom.Common
 
         private void ForceSnapshotRollover()
         {
-            if( debug) log.DebugFormat("Creating new snapshot file and rolling older ones to higher number.");
+            if( debug) log.DebugFormat(LogMessage.LOGMSG549);
             lock( fileLocker)
             {
                 TryClose();
@@ -369,7 +369,7 @@ namespace TickZoom.Common
         {
             try
             {
-                if( debug) log.DebugFormat("SnapshotHandler()");
+                if( debug) log.DebugFormat(LogMessage.LOGMSG550);
                 SnapShotFlushToDisk();
             }
             catch (Exception ex)
@@ -393,12 +393,12 @@ namespace TickZoom.Common
             writer.Write(LocalSequence);
             writer.Write(lastSequenceReset.Internal);
             if (debug)
-                log.DebugFormat("Snapshot writing Local Sequence  {0}, Remote Sequence {1}", localSequence, remoteSequence);
+                log.DebugFormat(LogMessage.LOGMSG551, localSequence, remoteSequence);
             foreach (var kvp in ordersByBrokerId)
             {
                 var order = kvp.Value;
                 AddUniqueOrder(order);
-                if (trace) log.TraceFormat("Snapshot found order by Id: {0}", order);
+                if (trace) log.TraceFormat(LogMessage.LOGMSG552, order);
                 foreach (var reference in OrderReferences(order))
                 {
                     AddUniqueOrder(reference);
@@ -409,7 +409,7 @@ namespace TickZoom.Common
             {
                 var order = kvp.Value;
                 AddUniqueOrder(order);
-                if (trace) log.TraceFormat("Snapshot found order by serial: {0}", order);
+                if (trace) log.TraceFormat(LogMessage.LOGMSG553, order);
                 foreach (var reference in OrderReferences(order))
                 {
                     AddUniqueOrder(reference);
@@ -420,7 +420,7 @@ namespace TickZoom.Common
             foreach (var kvp in unique)
             {
                 var order = kvp.Key;
-                if (trace) log.TraceFormat("Snapshot writing unique order: {0}", order);
+                if (trace) log.TraceFormat(LogMessage.LOGMSG554, order);
                 var id = kvp.Value;
                 writer.Write(id);
                 writer.Write((int) order.Action);
@@ -501,7 +501,7 @@ namespace TickZoom.Common
 
             using (positionsLocker.Using())
             {
-                if (debug) log.DebugFormat("Symbol Positions\n{0}", SymbolPositionsToStringInternal());
+                if (debug) log.DebugFormat(LogMessage.LOGMSG555, SymbolPositionsToStringInternal());
 
                 var positionCount = 0;
                 foreach (var kvp in positions)
@@ -538,7 +538,7 @@ namespace TickZoom.Common
             {
                 fs.Write(memory.GetBuffer(), 0, (int)memory.Length);
                 snapshotLength += memory.Length;
-                if( debug) log.DebugFormat("Wrote snapshot. Sequence Remote = {0}, Local = {1}, Size = {2}. File Size = {3}", remoteSequence, localSequence, memory.Length, snapshotLength);
+                if( debug) log.DebugFormat(LogMessage.LOGMSG556, remoteSequence, localSequence, memory.Length, snapshotLength);
                 fs.Flush();
             }
             if( isDisposed)
@@ -592,7 +592,7 @@ namespace TickZoom.Common
             if (fs != null)
             {
                 fs.Close();
-                if( debug) log.DebugFormat("Closed {0}", storeName);
+                if( debug) log.DebugFormat(LogMessage.LOGMSG557, storeName);
             }
         }
 
@@ -605,16 +605,16 @@ namespace TickZoom.Common
                 var loaded = false;
                 foreach (var file in files)
                 {
-                    if (debug) log.DebugFormat("Attempting recovery from snapshot file: {0}", file.Filename);
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG558, file.Filename);
                     SnapshotReadAll(file.Filename);
                     var snapshots = SnapshotScan();
                     for (var i = snapshots.Count - 1; i >= 0; i--)
                     {
                         var snapshot = snapshots[i];
-                        if (debug) log.DebugFormat("Trying snapshot at offset: {0}, length: {1}", snapshot.Offset, snapshot.Length);
+                        if (debug) log.DebugFormat(LogMessage.LOGMSG559, snapshot.Offset, snapshot.Length);
                         if (SnapshotLoadLast(snapshot))
                         {
-                            if (debug) log.DebugFormat("Snapshot successfully loaded.");
+                            if (debug) log.DebugFormat(LogMessage.LOGMSG560);
                             loaded = true;
                             break;
                         }
@@ -753,7 +753,7 @@ namespace TickZoom.Common
 
         public void Clear()
         {
-            if( debug) log.DebugFormat("Clearing all orders.");
+            if( debug) log.DebugFormat(LogMessage.LOGMSG561);
             ordersByBrokerId.Clear();
             ordersBySequence.Clear();
             ordersBySerial.Clear();
@@ -782,23 +782,23 @@ namespace TickZoom.Common
         {
             if (writeFileResult != null && !writeFileResult.IsCompleted)
             {
-                if (debug) log.DebugFormat("ForceSnapshot() - snapshot in progress. Waiting before beginning another snapshot...");
+                if (debug) log.DebugFormat(LogMessage.LOGMSG562);
                 WaitForSnapshot();
             }
             //if (anySnapShotWritten)
             //{
                 if (IsBusy)
                 {
-                    if (debug) log.DebugFormat("ForceSnapshot() - snapshot already started. Waiting before beginning another snapshot...");
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG563);
                     WaitForSnapshot();
                 }
 
-                if (debug) log.DebugFormat("ForceSnapshot() - starting snapshot now...");
+                if (debug) log.DebugFormat(LogMessage.LOGMSG564);
                 RequestSnapshot();
                 StartSnapShot();
                 WaitForSnapshot();
 
-                if (debug) log.DebugFormat("ForceSnapshot() - snapshot complete.");
+                if (debug) log.DebugFormat(LogMessage.LOGMSG565);
             //}
         }
 
@@ -811,7 +811,7 @@ namespace TickZoom.Common
                 if (!isDisposed)
                 {
                     isDisposed = true;
-                    if( debug) log.DebugFormat("Dispose()");
+                    if( debug) log.DebugFormat(LogMessage.LOGMSG48);
                     lock( snapshotLocker)
                     {
                         ForceSnapshot();

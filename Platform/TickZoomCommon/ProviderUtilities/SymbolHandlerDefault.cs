@@ -92,7 +92,7 @@ namespace TickZoom.Common
 
 	    private void OnSyntheticReject(PhysicalOrder order, string message)
 	    {
-            if( debug) log.DebugFormat("Synthetic order rejected: {0} {1}", message, order);
+            if( debug) log.DebugFormat(LogMessage.LOGMSG566, message, order);
             syntheticReceiver.SendEvent(new EventItem(EventType.SyntheticReject, order));
         }
 
@@ -145,7 +145,7 @@ namespace TickZoom.Common
 					    agent.SendEvent(eventItem);
 					    Interlocked.Increment(ref tickCount);
                         if( Diagnose.TraceTicks) { Diagnose.AddTick(diagnoseMetric, ref box.TickBinary); }
-						if( trace) log.TraceFormat("Sent quote for {0}: {1}", Symbol, tickIO);
+						if( trace) log.TraceFormat(LogMessage.LOGMSG567, Symbol, tickIO);
 					}
 				}
 			}
@@ -231,7 +231,7 @@ namespace TickZoom.Common
             agent.SendEvent(eventItem);
             Interlocked.Increment(ref tickCount);
             if (Diagnose.TraceTicks) { Diagnose.AddTick(diagnoseMetric, ref box.TickBinary); }
-            if (trace) log.TraceFormat("Sent trade tick for {0}: {1}", Symbol, tickIO);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG568, Symbol, tickIO);
         }
 
         bool errorWrongTimeAndSalesType = false;
@@ -297,7 +297,7 @@ namespace TickZoom.Common
                 agent.SendEvent(eventItem);
                 Interlocked.Increment(ref tickCount);
                 if (Diagnose.TraceTicks) { Diagnose.AddTick(diagnoseMetric, ref box.TickBinary); }
-                if (trace) log.TraceFormat("Sent trade tick for {0}: {1}", Symbol, tickIO);
+                if (trace) log.TraceFormat(LogMessage.LOGMSG568, Symbol, tickIO);
 			}
 		}
         
@@ -420,7 +420,7 @@ namespace TickZoom.Common
 
 	    public void SyntheticClear()
 	    {
-            if (debug) log.DebugFormat("Clearing synthetic fill simulator.");
+            if (debug) log.DebugFormat(LogMessage.LOGMSG569);
             syntheticOrders = Factory.Utility.FillSimulator(providerName, symbol, false, false, null);
             syntheticOrders.EnableSyncTicks = SyncTicks.Enabled;
             syntheticOrders.OnPhysicalFill = OnPhysicalFill;

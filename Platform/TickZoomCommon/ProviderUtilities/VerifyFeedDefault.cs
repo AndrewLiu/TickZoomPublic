@@ -112,7 +112,7 @@ namespace TickZoom.Common
                         var box = (TickBinaryBox)eventItem.EventDetail;
                         tickBinary = box.TickBinary;
                         box.Free();
-                        if( debug) log.DebugFormat("Freed box id in verify {0}, count {1}", box.Id, tickPool.AllocatedCount);
+                        if( debug) log.DebugFormat(LogMessage.LOGMSG570, box.Id, tickPool.AllocatedCount);
                         result = true;
                         filter.Pop();
                         break;
@@ -127,7 +127,7 @@ namespace TickZoom.Common
 		private bool actionAlreadyRun = false;
 		public long Verify(int expectedCount, Action<TickIO, TickIO, long> assertTick, int timeout, Action action)
 		{
-			if (debug) log.DebugFormat("Verify");
+			if (debug) log.DebugFormat(LogMessage.LOGMSG571);
             long endTime = Factory.Parallel.TickCount + timeout * 1000;
 			count = 0;
 		    do
@@ -143,12 +143,12 @@ namespace TickZoom.Common
 		                tickIO.Inject(tickBinary);
 		                if (debug && countLog < 5)
 		                {
-		                    log.DebugFormat("Received a tick {0} UTC {1}", tickIO, tickIO.UtcTime);
+		                    log.DebugFormat(LogMessage.LOGMSG572, tickIO, tickIO.UtcTime);
 		                    countLog++;
 		                }
 		                else if (trace)
 		                {
-		                    log.TraceFormat("Received a tick {0} UTC {1}", tickIO, tickIO.UtcTime);
+		                    log.TraceFormat(LogMessage.LOGMSG572, tickIO, tickIO.UtcTime);
 		                }
 		                startTime = Factory.TickCount;
 		                count++;
@@ -200,7 +200,7 @@ namespace TickZoom.Common
 		
 		public long Wait(int expectedTicks, int timeout)
 		{
-			if (debug) log.DebugFormat("Wait");
+			if (debug) log.DebugFormat(LogMessage.LOGMSG573);
 			long startTime = Factory.Parallel.TickCount;
 		    lastTick = Factory.TickUtil.TickIO();
 			count = 0;
@@ -213,12 +213,12 @@ namespace TickZoom.Common
 						tickIO.Inject(tickBinary);
                         if (debug && count < 5)
                         {
-                            log.DebugFormat("Received a tick {0} UTC {1}", tickIO, tickIO.UtcTime);
+                            log.DebugFormat(LogMessage.LOGMSG572, tickIO, tickIO.UtcTime);
                             countLog++;
                         }
                         else if (trace)
                         {
-                            log.TraceFormat("Received a tick {0} UTC {1}", tickIO, tickIO.UtcTime);
+                            log.TraceFormat(LogMessage.LOGMSG572, tickIO, tickIO.UtcTime);
                         }
                         count++;
 						lastTick.Copy(tickIO);
@@ -244,7 +244,7 @@ namespace TickZoom.Common
 
         public bool VerifyState(SymbolState expectedSymbolState, int timeout)
         {
-            if (debug) log.DebugFormat("VerifyState symbol {0}, timeout {1}", expectedSymbolState, timeout);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG574, expectedSymbolState, timeout);
             long startTime = Factory.TickCount;
             count = 0;
             while (Factory.TickCount - startTime < timeout * 1000)
@@ -258,7 +258,7 @@ namespace TickZoom.Common
                     if (TryDequeueTick(ref tickBinary))
                     {
                         tickIO.Inject(tickBinary);
-                        if (debug) log.DebugFormat("Received tick {0}", tickIO);
+                        if (debug) log.DebugFormat(LogMessage.LOGMSG575, tickIO);
                         if (SyncTicks.Enabled && symbolState == SymbolState.RealTime)
                         {
                             tickSync.RemoveTick(ref tickBinary);
@@ -286,7 +286,7 @@ namespace TickZoom.Common
 
         public bool VerifyState(BrokerState expectedBrokerState, SymbolState expectedSymbolState, int timeout)
         {
-			if (debug) log.DebugFormat("VerifyState broker {0}, symbol {1}, timeout {2}", expectedBrokerState, expectedSymbolState, timeout);
+			if (debug) log.DebugFormat(LogMessage.LOGMSG576, expectedBrokerState, expectedSymbolState, timeout);
 			long startTime = Factory.TickCount;
 			count = 0;
 			TickBinary binary = new TickBinary();
@@ -317,7 +317,7 @@ namespace TickZoom.Common
 		
 		public long VerifyEvent(int expectedCount, Action<SymbolInfo,int,object> assertEvent, SymbolInfo symbol, int timeout)
 		{
-			if (debug) log.DebugFormat("VerifyEvent");
+			if (debug) log.DebugFormat(LogMessage.LOGMSG577);
 			long startTime = Factory.TickCount;
 			count = 0;
 			while (Factory.TickCount - startTime < timeout * 1000) {
@@ -360,7 +360,7 @@ namespace TickZoom.Common
 		public int VerifyPosition(int expectedPosition, int timeout, Action action)
 		{
 			if (debug)
-				log.DebugFormat("VerifyFeed");
+				log.DebugFormat(LogMessage.LOGMSG578);
 			log.Info("Sleeping " + pauseSeconds + " seconds to allow checking for over filling of orders.");
 			Thread.Sleep( pauseSeconds * 1000);
 			long startTime = Factory.TickCount;
@@ -507,11 +507,11 @@ namespace TickZoom.Common
                     count++;
                     if (debug && count <= 5)
                     {
-                        log.DebugFormat("Received tick #{0} {1} UTC {2}", count, tickIO, tickIO.UtcTime);
+                        log.DebugFormat(LogMessage.LOGMSG579, count, tickIO, tickIO.UtcTime);
 						countLog++;
 					} else if( trace)
 					{
-                        log.TraceFormat("Received tick #{0} {1} UTC {2}", count, tickIO, tickIO.UtcTime);
+                        log.TraceFormat(LogMessage.LOGMSG579, count, tickIO, tickIO.UtcTime);
                     }
 					if( count == 0) {
 						log.Notice("First tick received: " + tickIO.ToPosition());
@@ -631,7 +631,7 @@ namespace TickZoom.Common
                     if (TryDequeueTick(ref tickBinary))
                     {
                         tickIO.Inject(tickBinary);
-                        if( debug) log.DebugFormat("Clearing out tick #{0} {1} UTC {2}", count, tickIO, tickIO.UtcTime);
+                        if( debug) log.DebugFormat(LogMessage.LOGMSG580, count, tickIO, tickIO.UtcTime);
                         if (SyncTicks.Enabled && symbolState == SymbolState.RealTime)
                         {
                             tickSync.RemoveTick(ref tickBinary);

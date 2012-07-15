@@ -118,7 +118,7 @@ namespace TickZoom.Interceptors
             }
             var price = tick.IsQuote ? tick.Ask : tick.Price;
             fillCallback(order, price, tick);
-            if (debug) log.DebugFormat("Filling {0} at {1} using tick UTC time {2}.{3}", order.Type, price, tick.UtcTime, tick.UtcTime.Microsecond);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG591, order.Type, price, tick.UtcTime, tick.UtcTime.Microsecond);
             return true;
         }
 
@@ -195,7 +195,7 @@ namespace TickZoom.Interceptors
             }
             if (result)
             {
-                if (debug) log.DebugFormat("Filling {0} with {1} at ask {2} / bid {3} at {4}", order.Type, limitOrderQuoteSimulation, tick.Ask, tick.Bid, tick.Time);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG592, order.Type, limitOrderQuoteSimulation, tick.Ask, tick.Bid, tick.Time);
                 fillCallback(order, fillPrice, tick);
             }
             return result;
@@ -274,7 +274,7 @@ namespace TickZoom.Interceptors
             }
             if (result)
             {
-                if (debug) log.DebugFormat("Filling {0} with {1} at ask {2} / bid {3} at {4}", order.Type, limitOrderQuoteSimulation, tick.Ask, tick.Bid, tick.Time);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG592, order.Type, limitOrderQuoteSimulation, tick.Ask, tick.Bid, tick.Time);
                 fillCallback(order, fillPrice, tick);
                 result = true;
             }
@@ -289,7 +289,7 @@ namespace TickZoom.Interceptors
             }
             double price = tick.IsQuote ? tick.Bid : tick.Price;
             fillCallback(order, price, tick);
-            if (debug) log.DebugFormat("Filling {0} at {1} using tick UTC time {2}.{3}", order.Type, price, tick.UtcTime, tick.UtcTime.Microsecond);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG591, order.Type, price, tick.UtcTime, tick.UtcTime.Microsecond);
             return true;
         }
     }

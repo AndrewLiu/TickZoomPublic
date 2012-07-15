@@ -98,7 +98,7 @@ namespace TickZoom.Provider.LimeQuotes
 
         public void SetReadableBytes(int bytes)
         {
-            if (trace) log.TraceFormat("SetReadableBytes({0})", bytes);
+            if (trace) log.TraceFormat(LogMessage.LOGMSG157, bytes);
             _Data.SetLength(_Data.Position + bytes);
         }
 
@@ -127,7 +127,7 @@ namespace TickZoom.Provider.LimeQuotes
 
                     // Read must be last as SetLength clears the buffer :(
                     other.Read(_MessageBuffer, 0, length);
-                    if (trace) LimeQuotesProvider.LogMessage(Ptr, log);
+                    if (trace) LimeQuotesProvider.LogAMessage(Ptr, log);
                 }
             }
             return split;

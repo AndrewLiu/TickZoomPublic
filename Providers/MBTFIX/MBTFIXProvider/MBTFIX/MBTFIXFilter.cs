@@ -59,12 +59,12 @@ namespace TickZoom.Provider.MBTFIX
 				case "AF":
 					isRecovered = false;
 					isOrderUpdateComplete = false;
-					if(debug) log.DebugFormat("OrderUpdate Starting.");
+					if(debug) log.DebugFormat(LogMessage.LOGMSG83);
 					break;
 				case "AN":
 					isRecovered = false;
 					isPositionUpdateComplete = false;
-					if(debug) log.DebugFormat("PositionUpdate Starting.");
+					if(debug) log.DebugFormat(LogMessage.LOGMSG84);
 					break;
 				case "G":
 				case "D":
@@ -160,7 +160,7 @@ namespace TickZoom.Provider.MBTFIX
 		private void PositionUpdate( FIXContext context, MessageFIX4_4 packet) {
 			if( packet.MessageType == "AO") {
 				isPositionUpdateComplete = true;
-				if(debug) log.DebugFormat("PositionUpdate Complete.");
+				if(debug) log.DebugFormat(LogMessage.LOGMSG85);
 				TryEndRecovery();
 			} else {
 				double position = packet.LongQuantity + packet.ShortQuantity;
@@ -171,7 +171,7 @@ namespace TickZoom.Provider.MBTFIX
 					log.Error("Error looking up " + packet.Symbol + ": " + ex.Message);
 					return;
 				}
-				if(debug) log.DebugFormat("PositionUpdate: {0}={1}", symbolInfo, position);
+				if(debug) log.DebugFormat(LogMessage.LOGMSG86, symbolInfo, position);
 				symbolPositionMap[symbolInfo.BinaryIdentifier] = position;
 			}
 		}
@@ -179,7 +179,7 @@ namespace TickZoom.Provider.MBTFIX
 		private void ExecutionReport( FIXContext context, MessageFIX4_4 packetFIX) {
 			if( packetFIX.Text == "END") {
 				isOrderUpdateComplete = true;
-				if(debug) log.DebugFormat("ExecutionReport Complete.");
+				if(debug) log.DebugFormat(LogMessage.LOGMSG87);
 				TryEndRecovery();
 			}
 		}
@@ -204,7 +204,7 @@ namespace TickZoom.Provider.MBTFIX
 			string errorMessage = fixMsg.ToString();
 			message.DataOut.Write(errorMessage.ToCharArray());
 			long end = Factory.Parallel.TickCount + 2000;
-			if( debug) log.DebugFormat("Writing Error Message: {0}", textMessage);
+			if( debug) log.DebugFormat(LogMessage.LOGMSG88, textMessage);
 			while( !context.LocalSocket.TrySendMessage(message)) {
 				if( Factory.Parallel.TickCount > end) {
 					throw new ApplicationException("Timeout while sending an order.");
