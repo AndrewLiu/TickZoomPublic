@@ -63,7 +63,7 @@ namespace Other
 	    [TestFixtureSetUp]
 		public override void RunStrategy()
 		{
-		
+		    StartGUIThread();
 		}
 		
 		[Test]

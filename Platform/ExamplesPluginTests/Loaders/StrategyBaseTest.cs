@@ -68,7 +68,7 @@ namespace Loaders
         Dictionary<string,List<TransactionInfo>> goodTransactionMap = new Dictionary<string,List<TransactionInfo>>();
         Dictionary<string,List<TransactionInfo>> testTransactionMap = new Dictionary<string,List<TransactionInfo>>();
         public bool ShowCharts = false;
-        private bool storeKnownGood = true;
+        private bool storeKnownGood = false;
         public CreateStarterCallback createStarterCallback;
         protected bool testFailed = false;		
         private TimeStamp startTime = new TimeStamp(1800,1,1);
@@ -112,20 +112,30 @@ namespace Loaders
         public StrategyBaseTest() {
             testFileName = GetType().Name;
             createStarterCallback = CreateStarter;
-            StartGUIThread();
         }
 		
         private Starter CreateStarter() {
             return new HistoricalStarter();			
         }
 
-        public void StartGUIThread() {
+        public void StartGUIThread()
+        {
             var isRunning = false;
-            guiThread = new Thread( () => {
-                                              execute = Execute.Create();
-                                              Application.Idle += execute.MessageLoop;
-                                              isRunning = true;
-                                              Application.Run();
+            guiThread = new Thread( () =>
+            {
+                string idStr = null;
+                try
+                {
+                    execute = Execute.Create();
+                    idStr = execute.ToString();
+                    Application.Idle += execute.MessageLoop;
+                    isRunning = true;
+                    Application.Run();
+                }
+                catch( Exception ex)
+                {
+                    Console.WriteLine("GUI Thread excited  " + idStr + "  :" + ex);
+                }
             });
             guiThread.Name = "GUIThread";
             guiThread.Start();
@@ -134,10 +144,18 @@ namespace Loaders
             }
         }
 		
-        public void StopGUIThread() {
-            execute.Exit();
-            guiThread.Join();
-            guiThread.Abort();
+        public void StopGUIThread()
+        {
+            if( execute != null)
+            {
+                Application.Idle -= execute.MessageLoop;
+                execute.Exit();
+            }
+            if( guiThread != null)
+            {
+                guiThread.Join();
+                guiThread.Abort();
+            }
         }
 		
         public StarterConfig SetupConfigStarter(AutoTestMode autoTestMode) {
@@ -303,9 +321,9 @@ namespace Loaders
                 log.Error("Exception while running test: " + ex.Message, ex);
                 if( !System.Diagnostics.Debugger.IsAttached)
                 {
-                Environment.Exit(1);
+                   Environment.Exit(1);
+                }
             }
-        }
         }
 
         private ModelLoaderInterface GetLoaderInstance() {
@@ -1271,7 +1289,8 @@ namespace Loaders
         {
             PortfolioDoc doc = null;
             try {
-                execute.OnUIThreadSync( () => {
+                execute.OnUIThreadSync(() =>
+                                            {
                                                   doc = new PortfolioDoc( execute);
                                                   portfolioDocs.Add(doc);
                 });

@@ -1,18 +1,20 @@
+using TickZoom.Api;
 using TickZoom.Presentation.Framework;
+using Task = TickZoom.Presentation.Framework.Task;
+
 namespace TickZoom.GUI
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Runtime.InteropServices;
     using System.Threading;
-    using System.Windows;
     using System.Windows.Forms;
 
     public class Execute
     {
         #region Fields
 
+        private readonly Log log = Factory.SysLog.GetLogger(typeof (Execute));
     	private volatile bool exit = false;
         private long busycount = 0;
         private long loopcount = 0;
@@ -21,6 +23,13 @@ namespace TickZoom.GUI
         private object tasksLocker = new object();
         private Thread messageLoopThread;
         private string startStack;
+        private int id;
+        private static int nextId;
+
+        public Execute()
+        {
+            id = Interlocked.Increment(ref nextId);
+        }
         
         public static Execute Create() {
         	var execute = new Execute();
@@ -80,7 +89,8 @@ namespace TickZoom.GUI
                 }
             }
         	if( exit) {
-        		Application.ExitThread();
+                log.Warn("Execute exiting thread " + id);
+                Application.ExitThread();
         	}
             Interlocked.Increment( ref busycount);
         }
@@ -127,6 +137,7 @@ namespace TickZoom.GUI
             while( !isComplete) {
                 Thread.Sleep(1);
             }
+            log.Warn("Execute ending " + id);
             return (T) task.Result;
         }
 
@@ -150,6 +161,11 @@ namespace TickZoom.GUI
         }
 
         #endregion Methods
+
+        public override string ToString()
+        {
+            return "Execute " + id;
+        }
 
         #region Nested Types
 

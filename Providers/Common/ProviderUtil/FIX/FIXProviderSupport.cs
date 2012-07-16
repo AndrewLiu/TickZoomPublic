@@ -269,13 +269,11 @@ namespace TickZoom.Provider.FIX
                 }
                 else
                 {
-                    orderStore.ForceSnapshot();
                     SocketReconnect.Regenerate();
                 }
             }
             else
             {
-                orderStore.ForceSnapshot();
                 SocketReconnect.Regenerate();
             }
             IncreaseHeartbeatTimeout();
@@ -879,8 +877,7 @@ namespace TickZoom.Provider.FIX
 		    var heartbeatTime = TimeStamp.UtcNow;
             if( SyncTicks.Enabled)
             {
-                heartbeatTime.AddMilliseconds(500);
-                //heartbeatTime = TimeStamp.MaxValue;
+                heartbeatTime.AddMilliseconds(200);
             }
             else
             {
@@ -1450,13 +1447,13 @@ namespace TickZoom.Provider.FIX
         public virtual void OnDisconnect()
         {
             HeartbeatDelay = int.MaxValue;
-            if( ConnectionStatus == Status.PendingLogOut)
+            OrderStore.RequestSnapshot();
+            if (ConnectionStatus == Status.PendingLogOut)
             {
                 if( debug) log.DebugFormat(LogMessage.LOGMSG235);
             }
             else 
             {
-                OrderStore.ForceSnapshot();
                 var message = "MBTFIXProvider disconnected.";
                 if (SyncTicks.Enabled)
                 {
@@ -1479,7 +1476,6 @@ namespace TickZoom.Provider.FIX
                 case Status.PendingLogin:
                 case Status.PendingServerResend:
                 case Status.PendingRetry:
-                    orderStore.ForceSnapshot();
                     ConnectionStatus = Status.Disconnected;
                     SocketReconnect.Regenerate();
                     break;
@@ -1721,7 +1717,7 @@ namespace TickZoom.Provider.FIX
             {
                 if (debug) log.DebugFormat(LogMessage.LOGMSG247);
                 OrderStore.SetSequences(0, 0);
-                OrderStore.ForceSnapshot();
+                OrderStore.RequestSnapshot();
                 SendLogin(OrderStore.LocalSequence,true);
             }
             return true;
