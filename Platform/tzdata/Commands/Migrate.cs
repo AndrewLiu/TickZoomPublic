@@ -66,10 +66,10 @@ namespace TickZoom.TZData
                 {
                     using (writer = Factory.TickUtil.TickFile())
                     {
-                        reader.Initialize(file, TickFileMode.Read);
+                        reader.Initialize(file, BinaryFileMode.Read);
 
                         writer.EraseFileToStart = true;
-                        writer.Initialize(file + ".temp", TickFileMode.Write);
+                        writer.Initialize(file + ".temp", BinaryFileMode.Write);
 
                         bool first = true;
                         while (reader.TryReadTick(tickIO))

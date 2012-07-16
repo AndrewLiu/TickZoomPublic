@@ -96,7 +96,7 @@ namespace TickZoom.Provider.FIX
             tickPool = Factory.Parallel.TickPool(symbol);
             try
             {
-                reader.Initialize("Test\\MockProviderData", symbolString, TickFileMode.Read);
+                reader.Initialize("Test\\MockProviderData", symbolString, BinaryFileMode.Read);
             }
            catch( FileNotFoundException ex)
            {

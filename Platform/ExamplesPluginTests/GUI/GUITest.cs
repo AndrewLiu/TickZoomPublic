@@ -293,7 +293,7 @@ namespace Other
 				string compareFile1 = appData + @"\Test\MockProviderData\ESZ9.tck";
 				string compareFile2 = appData + @"\Test\ServerCache\ESZ9.tck";
 				using ( var reader1 = Factory.TickUtil.TickFile()) {
-					reader1.Initialize(compareFile1,config.SymbolList,TickFileMode.Read);
+					reader1.Initialize(compareFile1,config.SymbolList,BinaryFileMode.Read);
 				    var tickIO = Factory.TickUtil.TickIO();
 					try {
 						int count = 0;
@@ -307,8 +307,8 @@ namespace Other
 				}
 				using ( var reader1 = Factory.TickUtil.TickFile())
 				using ( var reader2 = Factory.TickUtil.TickFile()) {
-					reader1.Initialize(compareFile1,TickFileMode.Read);
-					reader2.Initialize(compareFile2,TickFileMode.Read);
+					reader1.Initialize(compareFile1,BinaryFileMode.Read);
+					reader2.Initialize(compareFile2,BinaryFileMode.Read);
 				    var tickIO1 = Factory.TickUtil.TickIO();
 				    var tickIO2 = Factory.TickUtil.TickIO();
 					bool result = true;

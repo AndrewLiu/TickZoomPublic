@@ -574,12 +574,7 @@ namespace TickZoom.Logging
                 }
                 args[i] = arg = argumentHandler.Preprocessor(arg);
                 type = arg.GetType();
-                if (type == typeof(PhysicalOrderDefault))
-                {
-                    encoderDecoder.Encode(memoryBuffer, arg);
-                }
-
-                if (!type.IsValueType && type != typeof(string) && type != typeof(PhysicalOrderDefault))
+                if (!type.IsValueType && type != typeof(string))
                 {
                     encoderDecoder.Encode(memoryBuffer, arg);
                 }
@@ -590,7 +585,7 @@ namespace TickZoom.Logging
         public string cloneResult;
 
         private bool trackFormats = true;
-        private bool serialized = true;
+        private bool serialized = false;
 
         private static EncodeHelper encoderDecoder = new EncodeHelper();
         private static MemoryStream memoryBuffer = new MemoryStream();

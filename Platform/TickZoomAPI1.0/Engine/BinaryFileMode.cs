@@ -1,6 +1,6 @@
 ﻿namespace TickZoom.Api
 {
-    public enum TickFileMode
+    public enum BinaryFileMode
     {
         Read,
         Write

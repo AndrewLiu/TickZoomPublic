@@ -52,11 +52,11 @@ namespace TickZoom.TZData
 			if( args.Length > 1) {
 				string symbol = args[0];
 				string filePath = args[1];
-				reader.Initialize(filePath,symbol,TickFileMode.Read);
+				reader.Initialize(filePath,symbol,BinaryFileMode.Read);
 				ReadFile();
 			} else {
 				string filePath = args[0];
-				reader.Initialize(filePath,TickFileMode.Read);
+				reader.Initialize(filePath,BinaryFileMode.Read);
 				ReadFile();
 			}
 		}

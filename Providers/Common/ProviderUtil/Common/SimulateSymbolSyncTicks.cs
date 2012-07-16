@@ -98,7 +98,7 @@ namespace TickZoom.Provider.FIX
             reader = Factory.TickUtil.TickFile();
             try
             {
-                reader.Initialize("Test\\MockProviderData", symbolString, TickFileMode.Read);
+                reader.Initialize("Test\\MockProviderData", symbolString, BinaryFileMode.Read);
                 reader.EndTime = endTime;
             }
             catch( FileNotFoundException ex)
