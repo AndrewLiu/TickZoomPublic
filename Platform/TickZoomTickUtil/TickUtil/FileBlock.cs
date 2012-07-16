@@ -68,6 +68,11 @@ namespace TickZoom.TickUtil
             return result;
         }
 
+        public unsafe void JumpToLast(FileStream fs)
+        {
+            fs.Position = fs.Length - blockSize;
+        }
+
         public unsafe void ReadNextBlock(FileStream fs)
         {
             var tempPosition = fs.Position;

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -44,7 +45,6 @@ namespace TickZoom.Common
         private string dbFolder;
         private int remoteSequence = 0;
         private int localSequence = 0;
-        private object fileLocker = new object();
         private object snapshotLocker = new object();
         private bool snapshotNeeded;
         private PhysicalOrderLock physicalOrderLock;
@@ -279,44 +279,41 @@ namespace TickZoom.Common
         private void ForceSnapshotRollover()
         {
             if( debug) log.DebugFormat(LogMessage.LOGMSG549);
-            lock( fileLocker)
+            TryClose();
+            var files = FindSnapshotFiles();
+            for (var i = files.Count - 1; i >= 0; i--)
             {
-                TryClose();
-                var files = FindSnapshotFiles();
-                for (var i = files.Count - 1; i >= 0; i--)
+                var count = files[i].Order;
+                var source = files[i].Filename;
+                if (File.Exists(source))
                 {
-                    var count = files[i].Order;
-                    var source = files[i].Filename;
-                    if (File.Exists(source))
+                    if (count > 9)
                     {
-                        if (count > 9)
+                        File.Delete(source);
+                    }
+                    else
+                    {
+                        var replace = Path.Combine(dbFolder, storeName + ".dat." + (count + 1));
+                        var errorCount = 0;
+                        var errorList = new List<Exception>();
+                        while (errorCount < 3)
                         {
-                            File.Delete(source);
+                            try
+                            {
+                                File.Move(source, replace);
+                                break;
+                            }
+                            catch (IOException ex)
+                            {
+                                errorList.Add(ex);
+                                errorCount++;
+                                Thread.Sleep(1000);
+                            }
                         }
-                        else
+                        if (errorList.Count > 0)
                         {
-                            var replace = Path.Combine(dbFolder, storeName + ".dat." + (count + 1));
-                            var errorCount = 0;
-                            var errorList = new List<Exception>();
-                            while (errorCount < 3)
-                            {
-                                try
-                                {
-                                    File.Move(source, replace);
-                                    break;
-                                }
-                                catch (IOException ex)
-                                {
-                                    errorList.Add(ex);
-                                    errorCount++;
-                                    Thread.Sleep(1000);
-                                }
-                            }
-                            if (errorList.Count > 0)
-                            {
-                                var ex = errorList[errorList.Count - 1];
-                                throw new ApplicationException("Failed to mov " + source + " to " + replace, ex);
-                            }
+                            var ex = errorList[errorList.Count - 1];
+                            throw new ApplicationException("Failed to mov " + source + " to " + replace, ex);
                         }
                     }
                 }
@@ -370,6 +367,7 @@ namespace TickZoom.Common
             try
             {
                 if( debug) log.DebugFormat(LogMessage.LOGMSG550);
+                CheckSnapshotRollover();
                 SnapShotFlushToDisk();
             }
             catch (Exception ex)
@@ -380,8 +378,6 @@ namespace TickZoom.Common
 
         private void SnapShotInMemory()
         {
-            CheckSnapshotRollover();
-
             memory.SetLength(0);
             uniqueId = 0;
             unique.Clear();
@@ -538,7 +534,6 @@ namespace TickZoom.Common
             {
                 fs.Write(memory.GetBuffer(), 0, (int)memory.Length);
                 snapshotLength += memory.Length;
-                if( debug) log.DebugFormat(LogMessage.LOGMSG556, remoteSequence, localSequence, memory.Length, snapshotLength);
                 fs.Flush();
             }
             if( isDisposed)
@@ -598,38 +593,36 @@ namespace TickZoom.Common
 
         public bool Recover()
         {
-            lock( fileLocker)
+            ForceSnapshot();
+            TryClose();
+            var files = FindSnapshotFiles();
+            var loaded = false;
+            foreach (var file in files)
             {
-                TryClose();
-                var files = FindSnapshotFiles();
-                var loaded = false;
-                foreach (var file in files)
+                if (debug) log.DebugFormat(LogMessage.LOGMSG558, file.Filename);
+                SnapshotReadAll(file.Filename);
+                var snapshots = SnapshotScan();
+                for (var i = snapshots.Count - 1; i >= 0; i--)
                 {
-                    if (debug) log.DebugFormat(LogMessage.LOGMSG558, file.Filename);
-                    SnapshotReadAll(file.Filename);
-                    var snapshots = SnapshotScan();
-                    for (var i = snapshots.Count - 1; i >= 0; i--)
+                    var snapshot = snapshots[i];
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG559, snapshot.Offset, snapshot.Length);
+                    if (SnapshotLoadLast(snapshot))
                     {
-                        var snapshot = snapshots[i];
-                        if (debug) log.DebugFormat(LogMessage.LOGMSG559, snapshot.Offset, snapshot.Length);
-                        if (SnapshotLoadLast(snapshot))
-                        {
-                            if (debug) log.DebugFormat(LogMessage.LOGMSG560);
-                            loaded = true;
-                            break;
-                        }
-                    }
-                    if (loaded)
-                    {
+                        if (debug) log.DebugFormat(LogMessage.LOGMSG560);
+                        loaded = true;
                         break;
                     }
                 }
                 if (loaded)
                 {
-                    forceSnapShotRollover = true;
+                    break;
                 }
-                return loaded;
             }
+            if (loaded)
+            {
+                forceSnapShotRollover = true;
+            }
+            return loaded;
         }
 
         private bool forceSnapShotRollover = false;
@@ -785,21 +778,18 @@ namespace TickZoom.Common
                 if (debug) log.DebugFormat(LogMessage.LOGMSG562);
                 WaitForSnapshot();
             }
-            //if (anySnapShotWritten)
-            //{
-                if (IsBusy)
-                {
-                    if (debug) log.DebugFormat(LogMessage.LOGMSG563);
-                    WaitForSnapshot();
-                }
-
-                if (debug) log.DebugFormat(LogMessage.LOGMSG564);
-                RequestSnapshot();
-                StartSnapShot();
+            if (IsBusy)
+            {
+                if (debug) log.DebugFormat(LogMessage.LOGMSG563);
                 WaitForSnapshot();
+            }
 
-                if (debug) log.DebugFormat(LogMessage.LOGMSG565);
-            //}
+            if (debug) log.DebugFormat(LogMessage.LOGMSG564);
+            RequestSnapshot();
+            StartSnapShot();
+            WaitForSnapshot();
+
+            if (debug) log.DebugFormat(LogMessage.LOGMSG565);
         }
 
         private volatile bool isDisposed = false;

@@ -171,7 +171,7 @@ namespace TickZoom.TickUtil
                     OpenFileForReading();
                     try
                     {
-                        ReadNextTickBlock();
+                        ReadNextBlock();
                         endOfData = false;
                     }
                     catch( EndOfStreamException)
@@ -421,8 +421,14 @@ namespace TickZoom.TickUtil
             }
         }
 
-        private unsafe void ReadNextTickBlock()
+        private unsafe void JumpToLast()
         {
+            fileBlock.JumpToLast(fs);
+        }
+
+        private unsafe void ReadNextBlock()
+        {
+            var skipCount = 0L;
             do
             {
                 fileBlock.ReadNextBlock(fs);
@@ -432,7 +438,12 @@ namespace TickZoom.TickUtil
                     progressCallback("Loading file...", fs.Position, fs.Length);
                     nextProgressUpdateSecond = (long) currentSecond + 1;
                 }
+                skipCount++;
             } while (fileBlock.LastUtcTimeStamp < startTime.Internal);
+            if( skipCount > 1)
+            {
+                if( debug) log.DebugFormat("Skipped {0} ticks to find start tick.", skipCount);
+            }
         }
 
 
@@ -484,12 +495,15 @@ namespace TickZoom.TickUtil
                 throw new InvalidOperationException("File size " + length + " isn't not an even multiple of block size " + fileHeader.blockSize);
             }
             fs.Seek(- fileHeader.blockSize, SeekOrigin.End);
-            ReadNextTickBlock();
+            JumpToLast();
+            ReadNextBlock();
+            var skipCount = 0L;
             while( TryReadTick(lastTickIO))
             {
+                skipCount++;
                 // Read till last tick in the last block.
             }
-
+            if( debug) log.DebugFormat("Skipped {0} ticks to find last tick.", skipCount);
         }
 
         public bool TryReadTick(TickIO tickIO)
@@ -502,12 +516,13 @@ namespace TickZoom.TickUtil
             }
             try
             {
+                var skipCount = 0L;
                 do
                 {
                     tickIO.SetSymbol(lSymbol);
                     if (!fileBlock.TryRead(tickIO))
                     {
-                        ReadNextTickBlock();
+                        ReadNextBlock();
                         if (!fileBlock.TryRead(tickIO))
                         {
                             throw new InvalidOperationException("Unable to write the first tick in a new block.");
@@ -523,6 +538,10 @@ namespace TickZoom.TickUtil
                     }
                     tickCount++;
                 } while (tickIO.UtcTime < StartTime);
+                if( skipCount > 1)
+                {
+                    if( debug) log.DebugFormat("Skipped {0} ticks to find start tick.", skipCount);
+                }
                 return true;
             }
             catch (EndOfStreamException)
@@ -599,7 +618,9 @@ namespace TickZoom.TickUtil
                 while (writeFileResult != null)
                 {
                     TryCompleteAsyncWrite();
-                    Thread.Sleep(100);
+                    var sleepMs = 100;
+                    if( debug) log.DebugFormat("Sleeping {0}ms till write result is good", sleepMs);
+                    Thread.Sleep(sleepMs);
                 }
             }
         }
