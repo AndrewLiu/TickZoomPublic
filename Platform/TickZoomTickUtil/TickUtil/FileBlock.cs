@@ -10,7 +10,7 @@ namespace TickZoom.TickUtil
         private static readonly bool debug = log.IsDebugEnabled;
         private static readonly bool trace = log.IsTraceEnabled;
         private MemoryStream memory = new MemoryStream();
-        private TickFileBlocked.TickBlockHeader tickBlockHeader;
+        private SerialDataHeader serialDataHeader;
         private int tickBlockHeaderSize;
         private int blockSize;
         private int dataVersion;
@@ -21,13 +21,13 @@ namespace TickZoom.TickUtil
                 throw new ArgumentException("blocksize cannot be zero");
             }
             this.blockSize = blockSize;
-            tickBlockHeaderSize = sizeof(TickFileBlocked.TickBlockHeader);
+            tickBlockHeaderSize = sizeof(SerialDataHeader);
             memory.SetLength(tickBlockHeaderSize);
         }
 
         public long LastUtcTimeStamp
         {
-            get { return tickBlockHeader.lastUtcTimeStamp; }
+            get { return serialDataHeader.lastUtcTimeStamp; }
         }
 
         public bool HasData
@@ -46,14 +46,14 @@ namespace TickZoom.TickUtil
             memory.Position = tickBlockHeaderSize;
         }
 
-        public bool TryWriteTick(TickIO tickIO)
+        public bool TryWrite(Serializable serializable, long utcTime)
         {
             var result = true;
             var tempPosition = memory.Position;
-            tickIO.ToWriter(memory);
-            if (tickBlockHeader.firstUtcTimeStamp == 0L)
+            serializable.ToWriter(memory);
+            if (serialDataHeader.firstUtcTimeStamp == 0L)
             {
-                tickBlockHeader.firstUtcTimeStamp = tickIO.lUtcTime;
+                serialDataHeader.firstUtcTimeStamp = utcTime;
             }
             if (memory.Position > blockSize)
             {
@@ -63,7 +63,7 @@ namespace TickZoom.TickUtil
             }
             else
             {
-                tickBlockHeader.lastUtcTimeStamp = tickIO.lUtcTime;
+                serialDataHeader.lastUtcTimeStamp = utcTime;
             }
             return result;
         }
@@ -86,10 +86,10 @@ namespace TickZoom.TickUtil
 
             fixed (byte* bptr = buffer)
             {
-                tickBlockHeader = *((TickFileBlocked.TickBlockHeader*)bptr);
+                serialDataHeader = *((SerialDataHeader*)bptr);
             }
             memory.Position = tickBlockHeaderSize;
-            if (!tickBlockHeader.VerifyChecksum())
+            if (!serialDataHeader.VerifyChecksum())
             {
                 var tempLength = fs.Length;
                 throw new InvalidOperationException("Tick block header checksum failed at " + tempPosition + ", length " + tempLength + ", current length " + fs.Length + ", current position " + fs.Position + ": " + fs.Name + "\n" + BitConverter.ToString(memory.GetBuffer(), 0, blockSize));
@@ -102,29 +102,25 @@ namespace TickZoom.TickUtil
             {
                 throw new InvalidOperationException("Insufficient byte to write tick block header. Expected: " + tickBlockHeaderSize + " but was: " + memory.Length);
             }
-            tickBlockHeader.blockHeader.type = TickFileBlocked.BlockType.TickBlock;
-            tickBlockHeader.blockHeader.version = 1;
-            tickBlockHeader.blockHeader.length = (int)memory.Position;
-            tickBlockHeader.SetChecksum();
+            serialDataHeader.blockHeader.type = BinaryBlockType.SerialData;
+            serialDataHeader.blockHeader.version = 1;
+            serialDataHeader.blockHeader.length = (int)memory.Position;
+            serialDataHeader.SetChecksum();
             fixed (byte* bptr = memory.GetBuffer())
             {
-                *((TickFileBlocked.TickBlockHeader*)bptr) = tickBlockHeader;
+                *((SerialDataHeader*)bptr) = serialDataHeader;
             }
         }
 
-        public bool TryReadTick(TickIO tickIO)
+        public bool TryRead(Serializable tickIO)
         {
             try
             {
-                if( memory.Position >= tickBlockHeader.blockHeader.length)
+                if( memory.Position >= serialDataHeader.blockHeader.length)
                 {
                     return false;
                 }
-                tickIO.SetSymbol(tickIO.lSymbol);
-                var size = memory.GetBuffer()[memory.Position];
                 dataVersion = tickIO.FromReader(memory);
-                var utcTime = new TimeStamp(tickIO.lUtcTime);
-                tickIO.SetTime(utcTime);
                 return true;
             }
             catch (EndOfStreamException)

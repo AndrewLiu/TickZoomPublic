@@ -32,7 +32,7 @@ namespace TickZoom.TickUtil
         private bool eraseFileToStart = false;
         private TaskLock memoryLocker = new TaskLock();
         private Action writeFileAction;
-        private TickFileMode mode;
+        private BinaryFileMode mode;
         private Stream bufferedStream;
         private long tickCount;
         private long maxCount = long.MaxValue;
@@ -69,7 +69,7 @@ namespace TickZoom.TickUtil
             trace = log.IsTraceEnabled;
         }
 
-        public void Initialize(string folderOrfile, string symbolFile, TickFileMode mode)
+        public void Initialize(string folderOrfile, string symbolFile, BinaryFileMode mode)
         {
             string[] symbolParts = symbolFile.Split(new char[] { '.' });
             string _symbol = symbolParts[0];
@@ -98,7 +98,7 @@ namespace TickZoom.TickUtil
             isInitialized = true;
         }
 
-        public void Initialize(string fileName, TickFileMode mode)
+        public void Initialize(string fileName, BinaryFileMode mode)
         {
             this.mode = mode;
             this.fileName = fileName = Path.GetFullPath(fileName);
@@ -121,10 +121,10 @@ namespace TickZoom.TickUtil
             lSymbol = symbol.BinaryIdentifier;
             switch (mode)
             {
-                case TickFileMode.Read:
+                case BinaryFileMode.Read:
                     OpenFileForReading();
                     break;
-                case TickFileMode.Write:
+                case BinaryFileMode.Write:
                     OpenFileForWriting();
                     break;
                 default:
@@ -285,7 +285,7 @@ namespace TickZoom.TickUtil
                     fileName = locatedFile;
                     log.Warn("Deprecated: Please use new style .tck file names by removing \"_Tick\" from the name.");
                 }
-                else if( mode == TickFileMode.Read)
+                else if( mode == BinaryFileMode.Read)
                 {
                     throw new FileNotFoundException("Sorry, unable to find the file: " + fileName);
                 }
@@ -535,14 +535,14 @@ namespace TickZoom.TickUtil
                         dataIn.Close();
                     }
 
-                    if( fs != null && mode == TickFileMode.Read)
+                    if( fs != null && mode == BinaryFileMode.Read)
                     {
                         fs.Close();
                         fs = null;
                         log.Info("Closed file " + fileName);
                     }
 
-                    if (fs != null && mode == TickFileMode.Write)
+                    if (fs != null && mode == BinaryFileMode.Write)
                     {
                         Flush();
                         CloseFile(fs);

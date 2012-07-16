@@ -119,6 +119,5 @@ namespace TickZoom.Api
 		}
 
 	    long lUtcTime { get; }
-        void ResetCompression();
 	}
 }

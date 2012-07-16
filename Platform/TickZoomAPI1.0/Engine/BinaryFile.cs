@@ -2,14 +2,14 @@
 
 namespace TickZoom.Api
 {
-    public interface TickFile : IDisposable
+    public interface BinaryFile : IDisposable
     {
         void Initialize(string folderOrfile, string symbolFile, BinaryFileMode mode);
         void Initialize(string fileName, BinaryFileMode mode);
-        bool TryWriteTick(TickIO tickIO);
-        void WriteTick(TickIO tickIO);
-        void GetLastTick(TickIO lastTickIO);
-        bool TryReadTick(TickIO tickIO);
+        bool TryWrite(Serializable serializable, long utcTime);
+        void Write(Serializable tickIO, long utcTime);
+        void GetLast(Serializable lastTickIO);
+        bool TryRead(Serializable serializable);
         void Flush();
         long Length { get; }
         long Position { get; }
@@ -17,7 +17,7 @@ namespace TickZoom.Api
         int BlockVersion { get; }
         bool QuietMode { get; set; }
         string FileName { get; }
-        SymbolInfo Symbol { get; }
+        string Name { get; }
         bool EraseFileToStart { get; set; }
         long WriteCounter { get; }
         long MaxCount { get; set; }

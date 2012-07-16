@@ -49,11 +49,12 @@ namespace TickZoom.Api
         /// <returns>the version number of the serialized object.</returns>
 		int FromReader(MemoryStream reader);
 		void ToWriter(MemoryStream memory);
+	    void ResetCompression();
 	}
 	
 	public interface Serializer  {
-		object FromReader(MemoryStream reader);
-		void ToWriter(object eventDetail, MemoryStream memory);
+		object Read(MemoryStream reader);
+		void Write(object eventDetail, MemoryStream memory);
         EventType EventType
         {
 			get;

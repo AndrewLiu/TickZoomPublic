@@ -66,8 +66,8 @@ namespace TickZoom.TZData
 		    using( var reader = Factory.TickUtil.TickFile())
 		    using( var writer = Factory.TickUtil.TickFile())
 		    {
-                writer.Initialize(outputPath, TickFileMode.Write);
-                reader.Initialize(inputPath, TickFileMode.Read);
+                writer.Initialize(outputPath, BinaryFileMode.Write);
+                reader.Initialize(inputPath, BinaryFileMode.Read);
                 TickIO firstTick = Factory.TickUtil.TickIO();
                 TickIO lastTick = Factory.TickUtil.TickIO();
                 TickIO prevTick = Factory.TickUtil.TickIO();

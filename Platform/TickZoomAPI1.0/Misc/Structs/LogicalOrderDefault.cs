@@ -604,5 +604,15 @@ namespace TickZoom.Api
         {
             return binary;
         }
+
+        #region Serializable Members
+
+
+        public void ResetCompression()
+        {
+            // Not implemented
+        }
+
+        #endregion
     }
 }

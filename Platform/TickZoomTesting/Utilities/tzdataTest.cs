@@ -129,7 +129,7 @@ namespace TickZoom.Utilities
 	       	import.Run(args);
 
 		    var reader = Factory.TickUtil.TickFile();
-	       	reader.Initialize(@"DataCache", symbol.BaseSymbol, TickFileMode.Read);
+	       	reader.Initialize(@"DataCache", symbol.BaseSymbol, BinaryFileMode.Read);
 	       	var tickIO = Factory.TickUtil.TickIO();
 	       	var sb = new StringBuilder();
 	       	long lineCount = 0;

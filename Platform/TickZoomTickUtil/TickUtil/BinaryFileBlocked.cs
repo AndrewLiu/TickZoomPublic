@@ -11,12 +11,9 @@ using TickZoom.Api;
 
 namespace TickZoom.TickUtil
 {
-    public class TickFileBlocked : TickFile
+    public class BinaryFileBlocked : BinaryFile
     {
-        private TickFileLegacy legacy = new TickFileLegacy();
-        private bool isLegacy;
-        private SymbolInfo symbol;
-        private long lSymbol;
+        private string name;
         private int dataVersion;
         private FileStream fs = null;
         private bool quietMode;
@@ -30,7 +27,6 @@ namespace TickZoom.TickUtil
         private TaskLock memoryLocker = new TaskLock();
         private Action writeFileAction;
         private BinaryFileMode mode;
-        private long tickCount;
         private long maxCount = long.MaxValue;
         private TimeStamp startTime = TimeStamp.MinValue;
         private TimeStamp endTime = TimeStamp.MaxValue;
@@ -39,13 +35,14 @@ namespace TickZoom.TickUtil
         private long startCount;
         private bool isInitialized;
         private StackTrace constructorTrace;
-        private bool isFirstTick = true;
         private Stopwatch readFileStopwatch;
         private long nextProgressUpdateSecond;
-        private static object tickFilesLocker = new object();
-        private static List<TickFileBlocked> tickFiles = new List<TickFileBlocked>();
+        private static object locker = new object();
+        private long recordsCount;
+        private bool isFirstWrite = true;
+        private static List<BinaryFileBlocked> binaryFiles = new List<BinaryFileBlocked>();
 
-        public unsafe TickFileBlocked()
+        public unsafe BinaryFileBlocked()
         {
             var property = "PriceDataFolder";
             priceDataFolder = Factory.Settings[property];
@@ -60,16 +57,16 @@ namespace TickZoom.TickUtil
                 throw new ApplicationException("Must set " + property + " property in app.config");
             }
             writeFileAction = WriteToFile;
-            lock( tickFilesLocker)
+            lock( locker)
             {
-                tickFiles.Add(this);
+                binaryFiles.Add(this);
             }
             constructorTrace = new StackTrace(true);
         }
 
         private void InitLogging()
         {
-            log = Factory.SysLog.GetLogger("TickZoom.TickUtil.TickFileBlocked." + mode + "." + symbol.ExpandedSymbol.StripInvalidPathChars());
+            log = Factory.SysLog.GetLogger(typeof(BinaryFileBlocked) + "." + mode + "." + name);
             debug = log.IsDebugEnabled;
             trace = log.IsTraceEnabled;
         }
@@ -79,7 +76,7 @@ namespace TickZoom.TickUtil
             string[] symbolParts = symbolFile.Split(new char[] { '.' });
             string _symbol = symbolParts[0];
             this.mode = mode;
-            symbol = Factory.Symbol.LookupSymbol(_symbol);
+            name = Factory.Symbol.LookupSymbol(_symbol).ExpandedSymbol.StripInvalidPathChars();
             InitLogging();
             var dataFolder = folderOrfile.Contains(@"Test\") ? appDataFolder : priceDataFolder;
             var filePath = dataFolder + "\\" + folderOrfile;
@@ -106,9 +103,7 @@ namespace TickZoom.TickUtil
             catch( InvalidOperationException)
             {
                 CloseFileForReading();
-                // Must a be a legacy format
-                isLegacy = true;
-                legacy.Initialize(folderOrfile,symbolFile,mode);
+                throw;
             }
             catch( EndOfStreamException)
             {
@@ -123,11 +118,7 @@ namespace TickZoom.TickUtil
             this.mode = mode;
             this.fileName = fileName = Path.GetFullPath(fileName);
             string baseName = Path.GetFileNameWithoutExtension(fileName);
-            if (symbol == null)
-            {
-                symbol = Factory.Symbol.LookupSymbol(baseName.Replace("_Tick", ""));
-                lSymbol = symbol.BinaryIdentifier;
-            }
+            name = fileName;
             InitLogging();
             Directory.CreateDirectory(Path.GetDirectoryName(fileName));
             CheckFileExtension();
@@ -140,8 +131,7 @@ namespace TickZoom.TickUtil
             {
                 CloseFileForReading();
                 // Must a be a legacy format
-                isLegacy = true;
-                legacy.Initialize(fileName, mode);
+                throw;
             }
             catch (EndOfStreamException)
             {
@@ -164,14 +154,13 @@ namespace TickZoom.TickUtil
 
         private void OpenFile()
         {
-            lSymbol = symbol.BinaryIdentifier;
             switch (mode)
             {
                 case BinaryFileMode.Read:
                     OpenFileForReading();
                     try
                     {
-                        ReadNextTickBlock();
+                        ReadNextBlock();
                         endOfData = false;
                     }
                     catch( EndOfStreamException)
@@ -190,7 +179,7 @@ namespace TickZoom.TickUtil
         {
             if (eraseFileToStart)
             {
-                log.Notice("TickWriter file will be erased to begin writing.");
+                log.NoticeFormat("Binary file {0} will be erased to begin writing.", name);
                 CreateFileForWriting();
             }
             else
@@ -270,8 +259,8 @@ namespace TickZoom.TickUtil
             }
         }
 
-        private FastQueue<FileBlock> streamsToWrite = Factory.Parallel.FastQueue<FileBlock>("TickFileDirtyPages");
-        private FastQueue<FileBlock> streamsAvailable = Factory.Parallel.FastQueue<FileBlock>("TickFileAvailable");
+        private FastQueue<FileBlock> streamsToWrite = Factory.Parallel.FastQueue<FileBlock>("BinaryFileDirtyPages");
+        private FastQueue<FileBlock> streamsAvailable = Factory.Parallel.FastQueue<FileBlock>("BinaryFileAvailable");
 
         private void MoveMemoryToQueue()
         {
@@ -303,9 +292,7 @@ namespace TickZoom.TickUtil
             catch (InvalidOperationException)
             {
                 CloseFileForReading();
-                // Must a be a legacy format
-                isLegacy = true;
-                legacy.Initialize(fileName, mode);
+                throw;
             }
             catch (EndOfStreamException)
             {
@@ -314,25 +301,24 @@ namespace TickZoom.TickUtil
             }
         }
 
-        public bool TryWriteTick(TickIO tickIO)
+        public bool TryWrite(Serializable serializable, long utcTime)
         {
             if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-            if( isFirstTick)
+            if( isFirstWrite)
             {
                 HandleFirstWrite();
-                isFirstTick = false;
+                isFirstWrite = false;
             }
-            if (isLegacy) return legacy.TryWriteTick(tickIO);
             TryCompleteAsyncWrite();
-            if (trace) log.TraceFormat(LogMessage.LOGMSG359, tickIO);
-            if( !fileBlock.TryWrite(tickIO, tickIO.lUtcTime))
+            if (trace) log.TraceFormat(LogMessage.LOGMSG359, serializable);
+            if (!fileBlock.TryWrite(serializable,utcTime))
             {
                 MoveMemoryToQueue();
                 fileBlock.ReserveHeader();
-                tickIO.ResetCompression();
-                if (!fileBlock.TryWrite(tickIO,tickIO.lUtcTime))
+                serializable.ResetCompression();
+                if (!fileBlock.TryWrite(serializable,utcTime))
                 {
-                    throw new InvalidOperationException("After creating new block, writing tick failed.");
+                    throw new InvalidOperationException("After creating new block, write failed.");
                 }
                 TryCompleteAsyncWrite();
                 if( writeFileResult == null)
@@ -343,10 +329,27 @@ namespace TickZoom.TickUtil
             return true;
         }
 
-        public void WriteTick(TickIO tickIO)
+        public void Write(Serializable serializable, long utcTime)
         {
             if (!IsInitialized) throw new InvalidOperationException("Please call one of the Initialize() methods first.");
-            TryWriteTick(tickIO);
+            TryWrite(serializable,utcTime);
+        }
+
+        public struct FileBlockHeader
+        {
+            public short version;
+            public BinaryBlockType type;
+            public int length;
+            public long checkSum;
+            public long CalcChecksum()
+            {
+                return (short)type ^ version ^ length;
+            }
+            public override string ToString()
+            {
+                return "FileBlock( version " + version + ", type " + type + ", length " + length + ", checksum " +
+                       checkSum + ")";
+            }
         }
 
         private BinaryFileHeader fileHeader;
@@ -365,8 +368,8 @@ namespace TickZoom.TickUtil
                     Directory.CreateDirectory(Path.GetDirectoryName(fileName));
 
                     fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                    var headerBytes = new byte[sizeof(BinaryFileHeader)];
-                    var headerSize = sizeof (BinaryFileHeader);
+                    var headerBytes = new byte[sizeof(BinaryBlockHeader)];
+                    var headerSize = sizeof(BinaryBlockHeader);
                     var readBytes = fs.Read(headerBytes, 0, headerSize);
                     if (readBytes != headerSize)
                     {
@@ -389,7 +392,7 @@ namespace TickZoom.TickUtil
                         case 1:
                             break;
                         default:
-                            throw new InvalidOperationException("Unrecognized tick file version " + fileHeader.blockHeader.version);
+                            throw new InvalidOperationException("Unrecognized binary file version " + fileHeader.blockHeader.version);
                     }
 
                     if (!quietMode || debug)
@@ -421,7 +424,7 @@ namespace TickZoom.TickUtil
             }
         }
 
-        private unsafe void ReadNextTickBlock()
+        private unsafe void ReadNextBlock()
         {
             do
             {
@@ -441,27 +444,11 @@ namespace TickZoom.TickUtil
             string locatedFile = FindFile(fileName);
             if (locatedFile == null)
             {
-                if (fileName.Contains("_Tick.tck"))
-                {
-                    locatedFile = FindFile(fileName.Replace("_Tick.tck", ".tck"));
-                }
-                else
-                {
-                    locatedFile = FindFile(fileName.Replace(".tck", "_Tick.tck"));
-                }
-                if (locatedFile != null)
-                {
-                    fileName = locatedFile;
-                    log.Warn("Deprecated: Please use new style .tck file names by removing \"_Tick\" from the name.");
-                }
-                else if( mode == BinaryFileMode.Read)
+                if( mode == BinaryFileMode.Read)
                 {
                     throw new FileNotFoundException("Sorry, unable to find the file: " + fileName);
                 }
-                else
-                {
-                    log.Info("File was not found. Will create it. " + fileName);
-                }
+                log.Info("File was not found. Will create it. " + fileName);
             }
             else
             {
@@ -469,14 +456,9 @@ namespace TickZoom.TickUtil
             }
         }
 
-        public void GetLastTick(TickIO lastTickIO)
+        public void GetLast(Serializable serializable)
         {
             if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-            if (isLegacy)
-            {
-                legacy.GetLastTick(lastTickIO);
-                return; 
-            }
             OpenFileForReading();
             var length = fs.Length;
             if( length % fileHeader.blockSize != 0)
@@ -484,45 +466,33 @@ namespace TickZoom.TickUtil
                 throw new InvalidOperationException("File size " + length + " isn't not an even multiple of block size " + fileHeader.blockSize);
             }
             fs.Seek(- fileHeader.blockSize, SeekOrigin.End);
-            ReadNextTickBlock();
-            while( TryReadTick(lastTickIO))
+            ReadNextBlock();
+            while (TryRead(serializable))
             {
-                // Read till last tick in the last block.
+                // Read till last in the last block.
             }
 
         }
 
-        public bool TryReadTick(TickIO tickIO)
+        public bool TryRead(Serializable serializable)
         {
             if (!IsInitialized) return false;
-            if (isLegacy) return legacy.TryReadTick(tickIO);
-            if( tickCount > MaxCount || endOfData)
+            if( recordsCount > MaxCount || endOfData)
             {
                 return false;
             }
             try
             {
-                do
+                if( !fileBlock.TryRead(serializable))
                 {
-                    tickIO.SetSymbol(lSymbol);
-                    if (!fileBlock.TryRead(tickIO))
+                    ReadNextBlock();
+                    if (!fileBlock.TryRead(serializable))
                     {
-                        ReadNextTickBlock();
-                        if (!fileBlock.TryRead(tickIO))
-                        {
-                            throw new InvalidOperationException("Unable to write the first tick in a new block.");
-                        }
+                        throw new InvalidOperationException("Unable to read the first binary data in a new block.");
                     }
-                    var utcTime = new TimeStamp(tickIO.lUtcTime);
-                    tickIO.SetTime(utcTime);
-                    dataVersion = fileBlock.DataVersion;
-                    if (tickIO.lUtcTime > EndTime.Internal)
-                    {
-                        ReportEndOfData();
-                        return false;
-                    }
-                    tickCount++;
-                } while (tickIO.UtcTime < StartTime);
+                }
+                dataVersion = fileBlock.DataVersion;
+                recordsCount++;
                 return true;
             }
             catch (EndOfStreamException)
@@ -562,7 +532,7 @@ namespace TickZoom.TickUtil
             {
                 sb.Append((long)elapsed.TotalMilliseconds + " milliseconds");
             }
-            log.Notice(tickCount.ToString("0,0") + " ticks read for " + symbol + ". Finished in " + sb);
+            log.Notice(recordsCount.ToString("0,0") + " items read for " + name + ". Finished in " + sb);
             endOfData = true;
         }
 
@@ -580,11 +550,6 @@ namespace TickZoom.TickUtil
         public void Flush()
         {
             if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-            if (isLegacy)
-            {
-                legacy.Flush();
-                return;
-            }
             while (fileBlock.HasData || streamsToWrite.Count > 0 || writeFileResult != null)
             {
                 if (fileBlock.HasData)
@@ -644,10 +609,6 @@ namespace TickZoom.TickUtil
         private object taskLocker = new object();
         public void Dispose()
         {
-            if( isLegacy)
-            {
-                legacy.Dispose();
-            }
             Dispose(true);
             GC.SuppressFinalize(this);
         }
@@ -674,7 +635,7 @@ namespace TickZoom.TickUtil
                     if (debug) log.DebugFormat(LogMessage.LOGMSG362);
                     if( lastTimeWritten > 0)
                     {
-                        log.Notice("Last tick written for " + symbol + ": " + new TimeStamp(lastTimeWritten));
+                        log.Notice("Last time written for " + name + ": " + new TimeStamp(lastTimeWritten));
                     }
                 }
             }
@@ -715,13 +676,13 @@ namespace TickZoom.TickUtil
 
         public static void VerifyClosed()
         {
-            lock( tickFilesLocker)
+            lock( locker)
             {
-                foreach( var file in tickFiles)
+                foreach( var file in binaryFiles)
                 {
                     file.VerifyClosedInternal();
                 }
-                tickFiles.Clear();
+                binaryFiles.Clear();
             }
         }
 
@@ -730,8 +691,8 @@ namespace TickZoom.TickUtil
             var result = 0L;
             if( !isDisposed)
             {
-                var message = "TickFile " + fileName + " was never disposed.\n" + constructorTrace;
-                if (log == null) log = Factory.SysLog.GetLogger(typeof (TickFileBlocked));
+                var message = "BinaryFile " + fileName + " was never disposed.\n" + constructorTrace;
+                if (log == null) log = Factory.SysLog.GetLogger(typeof (BinaryFileBlocked));
                 log.Error(message);
                 throw new ApplicationException(message);
             }
@@ -740,8 +701,8 @@ namespace TickZoom.TickUtil
                 try
                 {
                     result = fs.Length;
-                    var message = "TickFile " + fileName + " is still open.\n" + constructorTrace;
-                    if (log == null) log = Factory.SysLog.GetLogger(typeof(TickFileBlocked));
+                    var message = "BinaryFile " + fileName + " is still open.\n" + constructorTrace;
+                    if (log == null) log = Factory.SysLog.GetLogger(typeof(BinaryFileBlocked));
                     log.Error(message);
                     throw new ApplicationException(message);
                 }
@@ -758,7 +719,6 @@ namespace TickZoom.TickUtil
             get
             {
                 if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-                if (isLegacy) return legacy.Length;
                 return fs.Length;
             }
         }
@@ -768,7 +728,6 @@ namespace TickZoom.TickUtil
             get
             {
                 if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-                if (isLegacy) return legacy.Position;
                 return fs.Position;
             }
         }
@@ -778,7 +737,6 @@ namespace TickZoom.TickUtil
             get
             {
                 if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-                if (isLegacy) return legacy.DataVersion;
                 return dataVersion;
             }
         }
@@ -797,17 +755,11 @@ namespace TickZoom.TickUtil
             get
             {
                 if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-                if (isLegacy) return legacy.QuietMode;
                 return quietMode;
             }
             set
             {
                 if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-                if (isLegacy)
-                {
-                    legacy.QuietMode = value;
-                    return;
-                }
                 quietMode = value;
             }
         }
@@ -817,18 +769,16 @@ namespace TickZoom.TickUtil
             get
             {
                 if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-                if (isLegacy) return legacy.FileName;
                 return fileName;
             }
         }
 
-        public SymbolInfo Symbol
+        public string Name
         {
             get
             {
                 if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-                if (isLegacy) return legacy.Symbol;
-                return symbol;
+                return name;
             }
         }
 
@@ -836,13 +786,11 @@ namespace TickZoom.TickUtil
         {
             get
             {
-                if (isLegacy) return legacy.EraseFileToStart;
                 return eraseFileToStart;
             }
             set
             {
                 if (IsInitialized) throw new InvalidStateException("Please set EraseFileToStart before any Initialize() method.");
-                legacy.EraseFileToStart = value;
                 eraseFileToStart = value;
             }
         }
@@ -852,7 +800,6 @@ namespace TickZoom.TickUtil
             get
             {
                 if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-                if (isLegacy) return legacy.WriteCounter;
                 return writeCounter;
             }
         }
@@ -862,17 +809,11 @@ namespace TickZoom.TickUtil
             get
             {
                 if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-                if (isLegacy) return legacy.MaxCount;
                 return maxCount;
             }
             set
             {
                 if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-                if (isLegacy)
-                {
-                    legacy.MaxCount = value;
-                    return;
-                }
                 maxCount = value;
             }
         }
@@ -896,16 +837,11 @@ namespace TickZoom.TickUtil
             get
             {
                 if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-                if (isLegacy) return legacy.StartTime;
                 return startTime;
             }
             set
             {
                 if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-                if (isLegacy)
-                {
-                    legacy.StartTime = value;
-                }
                 startTime = value;
             }
         }
@@ -920,10 +856,6 @@ namespace TickZoom.TickUtil
             set
             {
                 if (!IsInitialized) throw new InvalidStateException("Please call one of the Initialize() methods first.");
-                if (isLegacy)
-                {
-                    legacy.EndTime = value;
-                }
                 endTime = value;
             }
         }

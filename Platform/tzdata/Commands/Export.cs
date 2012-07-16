@@ -25,18 +25,18 @@ namespace TickZoom.TZData
             if (args.Length == 1)
             {
                 string filePath = args[0];
-                reader.Initialize(filePath, TickFileMode.Read);
+                reader.Initialize(filePath, BinaryFileMode.Read);
             }
             else if (args.Length == 2)
             {
                 string filePath = args[0];
                 symbolString = args[1];
-                reader.Initialize(filePath, symbolString, TickFileMode.Read);
+                reader.Initialize(filePath, symbolString, BinaryFileMode.Read);
             }
             else if( args.Length == 3)
             {
                 string filePath = args[0];
-                reader.Initialize(filePath,TickFileMode.Read);
+                reader.Initialize(filePath,BinaryFileMode.Read);
                 startTime = new TimeStamp(args[1]);
                 endTime = new TimeStamp(args[2]);
             }
@@ -44,7 +44,7 @@ namespace TickZoom.TZData
             {
                 string filePath = args[0];
                 symbolString = args[1];
-                reader.Initialize(filePath, symbolString, TickFileMode.Read);
+                reader.Initialize(filePath, symbolString, BinaryFileMode.Read);
                 startTime = new TimeStamp(args[2]);
                 endTime = new TimeStamp(args[3]);
             }
