@@ -395,6 +395,20 @@ namespace TickZoom.Provider.LimeFIX
                     break;
                 case "2":
                     type = OrderType.Limit;
+                    if( symbol.IceBergOrderSize > 0)
+                    {
+                        if( packet.MaxFloor != symbol.IceBergOrderSize)
+                        {
+                            throw new ApplicationException(symbol + ": Expected packet.MaxFloor to match symbol.IceBergOrderSize but " + packet.MaxFloor + " != " + symbol.IceBergOrderSize);
+                        }
+                    }
+                    else
+                    {
+                        if( packet.MaxFloor > 0)
+                        {
+                            throw new ApplicationException(symbol + ": Expected packet.MaxFloor to be disabled because symobl.IceBergOrderSize = " + symbol.IceBergOrderSize);
+                        }
+                    }
                     break;
                 default:
                     //throw new LimeException("Unsupported Order Type");

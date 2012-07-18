@@ -82,6 +82,7 @@ namespace TickZoom.Symbols
 	    private string expandedSymbol;
         private SymbolInfo _commonSymbol;
 	    private bool offsetTooLateToChange = true;
+	    private long iceBergOrderSize = 0;
 
 	    public SymbolProperties()
         {
@@ -381,6 +382,12 @@ namespace TickZoom.Symbols
 	    public string SymbolWithSource
 	    {
 	        get { return symbolWithSource; }
+	    }
+
+	    public long IceBergOrderSize
+	    {
+	        get { return iceBergOrderSize; }
+	        set { iceBergOrderSize = value; }
 	    }
 	}
 }

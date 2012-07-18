@@ -416,5 +416,14 @@ namespace TickZoom.Provider.FIX
         {
             Append(47, value);
         }
+
+        /// <summary>
+        /// 111 Maximum number of shares within an order to be shown on the exchange floor at any given time.
+        /// </summary>
+        /// <param name="value"></param>
+        public void SetMaxFloor(long value)
+        {
+            Append(111, value);
+        }
     }
 }

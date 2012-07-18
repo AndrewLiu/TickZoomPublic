@@ -249,8 +249,17 @@ namespace TickZoom.Api
  		string Destination {
  			get;
  		}
- 		
- 		/// <summary>
+
+        /// <summary>
+        /// Used by execution providers to hide the entire size of any limit order
+        /// to only show a portion at a time at the exchange. Default is 0 which means disabled.
+        /// </summary>
+        long IceBergOrderSize
+        {
+            get;
+        }
+
+        /// <summary>
  		/// Controls the maximum possible position size for the FIX Pre-Trade Risk 
  		/// Management filter.  If any individual order quantity will be sufficient
  		/// to push the position size beyond this maximum, then the filter will block
