@@ -45,8 +45,9 @@ namespace TickZoom.Provider.FIX
         private string tradingSessionId;
         private int tradingSessionStatus;
         private string tradingSessionSubId;
+	    private int maxFloor;
 
-        public override void Clear()
+	    public override void Clear()
         {
             base.Clear();
             account = null;
@@ -81,6 +82,7 @@ namespace TickZoom.Provider.FIX
             tradingSessionId = null;
             tradingSessionStatus = 0;
             tradingSessionSubId = null;
+	        maxFloor = 0;
         }
 
  
@@ -145,6 +147,9 @@ namespace TickZoom.Provider.FIX
                     break;
                 case 100:
                     result = GetString(out destination);
+                    break;
+                case 111:
+                    result = GetInt(out maxFloor);
                     break;
                 case 122:
                     result = GetString(out originalSendTime);
@@ -492,5 +497,10 @@ namespace TickZoom.Provider.FIX
         {
             get { return tradingSessionSubId; }
         }
-    }
+
+	    public int MaxFloor
+	    {
+	        get { return maxFloor; }
+	    }
+	}
 }

@@ -627,6 +627,14 @@ namespace TickZoom.Provider.LimeFIX
                     fixMsg.SetOrderType(2);
                     fixMsg.SetPrice(order.Price);
                     fixMsg.SetTimeInForce(0); // Lime only supports Day orders.
+                    if( order.Symbol.BaseSymbol == "JY")
+                    {
+                        int x = 0;
+                    }
+                    if( order.Symbol.IceBergOrderSize > 0)
+                    {
+                        fixMsg.SetMaxFloor(order.Symbol.IceBergOrderSize);
+                    }
                     break;
                 case OrderType.Market:
                     fixMsg.SetOrderType(1);

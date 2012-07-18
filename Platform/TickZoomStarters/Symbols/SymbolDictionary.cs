@@ -683,7 +683,9 @@ namespace TickZoom.Symbols
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""17:00:00"" />
       <property name=""SessionEnd"" value=""16:00:00"" />
-      <symbol name=""JY"" />
+      <symbol name=""JY"">
+          <property name=""IceBergOrderSize"" value=""100""/>
+      </symbol>
       <symbol name=""EC"" />
       <symbol name=""SF"" />
     </category>
