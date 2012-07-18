@@ -200,6 +200,10 @@ namespace TickZoom.Common
 
         private void StartSnapShot()
         {
+            if (localSequence == 0 || remoteSequence == 0)
+            {
+                return;
+            }
             SnapShotInMemory();
             lock( snapshotLocker)
             {
@@ -785,7 +789,6 @@ namespace TickZoom.Common
             }
 
             if (debug) log.DebugFormat(LogMessage.LOGMSG564);
-            RequestSnapshot();
             StartSnapShot();
             WaitForSnapshot();
 
