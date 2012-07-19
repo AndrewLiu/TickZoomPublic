@@ -58,7 +58,7 @@ namespace TickZoom.Api
             }
         }
 
-        private SharedMemory(string name, long size)
+        public SharedMemory(string name, long size)
         {
             this.name = name;
             handle = NativeMappedFile.CreateFileMapping(NativeMappedFile.INVALID_HANDLE,
@@ -78,7 +78,7 @@ namespace TickZoom.Api
                 (int)((offset >> 32) & 0xFFFFFFFF),
                 (int)(offset & 0xFFFFFFFF), (IntPtr)size);
 
-            if (BaseAddress == NativeMappedFile.INVALID_HANDLE)
+            if (BaseAddress == NativeMappedFile.NULL_HANDLE)
                 throw new IOException("MapViewOfFile returned: " + Marshal.GetHRForLastWin32Error());
 
 

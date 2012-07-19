@@ -192,13 +192,11 @@ namespace Test
             using (var store = Factory.Utility.PhyscalOrderStore("OrderStoreTest"))
             {
                 store.SetOrder(order1);
-                store.RequestSnapshot();
                 store.TrySnapshot();
                 store.WaitForSnapshot();
 
                 // Replace order in store to make new snapshot.
                 store.SetOrder(order2);
-                store.RequestSnapshot();
                 store.TrySnapshot();
                 store.WaitForSnapshot();
             }
@@ -277,7 +275,6 @@ namespace Test
                     store.SnapshotRolloverSize = 1000;
                     store.SetOrder(order1);
                 }
-                store.RequestSnapshot();
                 store.WaitForSnapshot();
 
                 using (store.BeginTransaction())
@@ -285,13 +282,11 @@ namespace Test
                     // Replace order in store to make new snapshot.
                     store.SetOrder(order2);
                 }
-                store.RequestSnapshot();
                 store.TrySnapshot();
                 store.WaitForSnapshot();
 
                 for (int i = 0; i < 20; i++)
                 {
-                    store.RequestSnapshot();
                     store.TrySnapshot();
                     store.WaitForSnapshot();
                 }
