@@ -1076,6 +1076,7 @@ namespace TickZoom.Symbols
       <symbol name=""GOOG!market""/>
       <symbol name=""XLF!market""/>
       <symbol name=""JPM!market""/>
+      <symbol name=""IBM!market""/>
   </category>
 </category>";
 #endregion
