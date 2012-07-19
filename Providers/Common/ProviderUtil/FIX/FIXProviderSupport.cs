@@ -1454,7 +1454,7 @@ namespace TickZoom.Provider.FIX
             }
             else 
             {
-                var message = "MBTFIXProvider disconnected.";
+                var message = "FIXProvider disconnected.";
                 if (SyncTicks.Enabled)
                 {
                     log.Notice(message);
