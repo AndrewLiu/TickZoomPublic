@@ -238,10 +238,15 @@ namespace TickZoom.Common
 
         public void WaitForSnapshot()
         {
-
+            var timer = Stopwatch.StartNew();
             while (IsBusy)
             {
                 Thread.Sleep(100);
+            }
+            var elapsed = timer.Elapsed;
+            if( elapsed.TotalMilliseconds > 10)
+            {
+                if( debug) log.DebugFormat("Waiting for snapshot for {0}ms.", elapsed.TotalMilliseconds);
             }
             lock(snapshotLocker)
             {
