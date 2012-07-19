@@ -1447,7 +1447,6 @@ namespace TickZoom.Provider.FIX
         public virtual void OnDisconnect()
         {
             HeartbeatDelay = int.MaxValue;
-            OrderStore.RequestSnapshot();
             if (ConnectionStatus == Status.PendingLogOut)
             {
                 if( debug) log.DebugFormat(LogMessage.LOGMSG235);
@@ -1711,13 +1710,11 @@ namespace TickZoom.Provider.FIX
                 if (debug) log.DebugFormat(LogMessage.LOGMSG246, OrderStore.StrategyPositionsToString());
                 RemoteSequence = OrderStore.RemoteSequence;
                 SendLogin(OrderStore.LocalSequence,false);
-                OrderStore.RequestSnapshot();
             }
             else
             {
                 if (debug) log.DebugFormat(LogMessage.LOGMSG247);
                 OrderStore.SetSequences(0, 0);
-                OrderStore.RequestSnapshot();
                 SendLogin(OrderStore.LocalSequence,true);
             }
             return true;

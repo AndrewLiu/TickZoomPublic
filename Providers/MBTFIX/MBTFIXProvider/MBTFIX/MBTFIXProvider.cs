@@ -283,7 +283,6 @@ namespace TickZoom.Provider.MBTFIX
                 case Status.PendingRecovery:
                     if (IsResendComplete && isOrderServerOnline)
                     {
-                        OrderStore.RequestSnapshot();
                         EndRecovery();
                         RequestPositions();
                         RequestSessionUpdate();

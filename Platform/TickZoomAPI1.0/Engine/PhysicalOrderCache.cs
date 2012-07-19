@@ -36,7 +36,6 @@ namespace TickZoom.Api
         long SnapshotRolloverSize { get; set; }
         int RemoteSequence { get; }
         int LocalSequence { get; }
-        void RequestSnapshot();
         void WaitForSnapshot();
         void ForceSnapshot();
         bool Recover();
