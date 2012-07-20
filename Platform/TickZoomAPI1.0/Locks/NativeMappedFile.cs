@@ -60,7 +60,7 @@ namespace TickZoom.Api
         [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Auto)]
         public static extern IntPtr CreateFileMapping(
             IntPtr hFile, IntPtr lpAttributes, int flProtect,
-            int dwMaximumSizeLow, int dwMaximumSizeHigh,
+            uint dwMaximumSizeLow, uint dwMaximumSizeHigh,
             String lpName);
 
         [DllImport("kernel32", SetLastError = true)]
@@ -69,8 +69,8 @@ namespace TickZoom.Api
 
         [DllImport("kernel32", SetLastError = true)]
         public static extern IntPtr MapViewOfFile(
-            IntPtr hFileMappingObject, int dwDesiredAccess, int dwFileOffsetHigh,
-            int dwFileOffsetLow, IntPtr dwNumBytesToMap);
+            IntPtr hFileMappingObject, int dwDesiredAccess, uint dwFileOffsetHigh,
+            uint dwFileOffsetLow, uint dwNumBytesToMap);
 
         [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Auto)]
         public static extern IntPtr OpenFileMapping(
