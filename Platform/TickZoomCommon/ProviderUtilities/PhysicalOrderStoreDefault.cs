@@ -633,7 +633,13 @@ namespace TickZoom.Common
             var loaded = false;
             using (snapshotLocker.Using())
             {
-                if (freeSnapShots.Count > 0)
+                if( readySnapshots.Count > 0)
+                {
+                    var node = readySnapshots.Last;
+                    var memory = node.Value;
+                    loaded = RecoverFromMemory(memory);
+                }
+                if (!loaded && freeSnapShots.Count > 0)
                 {
                     var node = freeSnapShots.Last;
                     var memory = node.Value;
@@ -646,7 +652,7 @@ namespace TickZoom.Common
             }
             return loaded;
         }
-
+         
         private bool RecoverFromFiles()
         {
             ForceSnapshot();
