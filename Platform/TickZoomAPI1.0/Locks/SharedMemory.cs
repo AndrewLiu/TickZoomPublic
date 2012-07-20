@@ -64,22 +64,22 @@ namespace TickZoom.Api
             handle = NativeMappedFile.CreateFileMapping(NativeMappedFile.INVALID_HANDLE,
                                                                NativeMappedFile.NULL_HANDLE,
                                                                (int)NativeMappedFile.MapProtection.ReadWrite,
-                                                               (int)((size >> 32) & 0xFFFFFFFF),
-                                                               (int)(size & 0xFFFFFFFF), name);
+                                                               (uint)((size >> 32) & 0xFFFFFFFF),
+                                                               (uint)(size & 0xFFFFFFFF), name);
             if (handle == NativeMappedFile.NULL_HANDLE)
             {
                 var error = Marshal.GetHRForLastWin32Error();
-                throw new IOException("CreateFileMapping returned: " + error);
+                throw new IOException(string.Format("CreateFileMapping returned: 0x{0:x}", error));
             }
 
             long offset = 0L;
             baseAddress = NativeMappedFile.MapViewOfFile(
                 handle, (int)NativeMappedFile.MapAccess.FileMapAllAccess,
-                (int)((offset >> 32) & 0xFFFFFFFF),
-                (int)(offset & 0xFFFFFFFF), (IntPtr)size);
+                (uint)((offset >> 32) & 0xFFFFFFFF),
+                (uint)(offset & 0xFFFFFFFF), (uint)size);
 
             if (BaseAddress == NativeMappedFile.NULL_HANDLE)
-                throw new IOException("MapViewOfFile returned: " + Marshal.GetHRForLastWin32Error());
+                throw new IOException(string.Format("MapViewOfFile returned: 0x{0:x}", Marshal.GetHRForLastWin32Error()));
 
 
         }
