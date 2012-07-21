@@ -165,12 +165,13 @@ namespace TickZoom.Interceptors
                     return true;
                 }
             }
-            order.OriginalOrder = null; // Original order was canceled.
             if (CreateBrokerOrder(order))
             {
-                if (confirmOrders != null) confirmOrders.ConfirmChange(order.BrokerOrder, true);
+                var originalOrderId = order.OriginalOrder == null ? 0 : order.OriginalOrder.BrokerOrder;
+                if (confirmOrders != null) confirmOrders.ConfirmChange(order.BrokerOrder, originalOrderId, true);
                 UpdateCounts();
             }
+            order.OriginalOrder = null; // Original order was canceled.
             return true;
         }
 

@@ -226,6 +226,7 @@ namespace TickZoom.Provider.LimeFIX
                     if (transactTime >= OrderStore.LastSequenceReset)
                     {
                         ExecutionReport(packetFIX);
+                        if (debug) log.DebugFormat(LogMessage.LOGMSG163, OrderStore.OrdersToString());
                     }
                     else
                     {
@@ -373,7 +374,7 @@ namespace TickZoom.Provider.LimeFIX
                         log.Info("ConfirmChange but OrderAlgorithm not found for " + symbolInfo + ". Ignoring.");
                         break;
                     }
-                    algorithm.OrderAlgorithm.ConfirmChange(clientOrderId, IsRecovered);
+                    algorithm.OrderAlgorithm.ConfirmChange(clientOrderId, originalClientOrderId, IsRecovered);
                     TrySendStartBroker(symbolInfo, "sync on confirm change");
                     OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
                     break;
@@ -481,7 +482,6 @@ namespace TickZoom.Provider.LimeFIX
                 default:
                     throw new ApplicationException("Unknown order status: '" + orderStatus + "'");
             }
-            if (debug) log.DebugFormat(LogMessage.LOGMSG163, OrderStore.OrdersToString());
         }
 
 		private void TryHandlePiggyBackFill(MessageFIX4_2 packetFIX) {

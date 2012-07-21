@@ -1513,7 +1513,7 @@ namespace Orders
                 RemoveByBrokerOrder(order.OriginalOrder.BrokerOrder);
 				activeOrders.Add( order);
 				if( confirmOrders != null) {
-					confirmOrders.ConfirmChange(order.BrokerOrder,true);
+					confirmOrders.ConfirmChange(order.BrokerOrder, order.OriginalOrder.BrokerOrder, true);
 				}
 			    return true;
 			}

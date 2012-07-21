@@ -45,7 +45,6 @@ namespace TickZoom.Api
         TimeStamp LastSequenceReset { get; set; }
         bool IsBusy { get; }
         int Count();
-        void IncrementUpdateCount();
         void TrySnapshot();
         IDisposable BeginTransaction();
         void EndTransaction();

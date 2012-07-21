@@ -459,7 +459,7 @@ namespace TickZoom.Provider.MBTFIX
                         log.Info("ConfirmChange but OrderAlgorithm not found for " + symbolInfo + ". Ignoring.");
                         break;
                     }
-                    algorithm.OrderAlgorithm.ConfirmChange(clientOrderId, IsRecovered);
+                    algorithm.OrderAlgorithm.ConfirmChange(clientOrderId, originalClientOrderId, IsRecovered);
                     TrySendStartBroker(symbolInfo, "sync on confirm change");
                     OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
                     break;
