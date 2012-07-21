@@ -61,11 +61,58 @@ namespace TickZoom.Api
         public SharedMemory(string name, long size)
         {
             this.name = name;
+
+            try
+            {
+                OpenSharedMemory(name, size);
+            }
+            catch (Exception ex)
+            {
+                CreateSharedMemory(name, size);
+            }
+
+        }
+
+        private void OpenSharedMemory(string name, long size)
+        {
+            var access = NativeMappedFile.MapAccess.FileMapAllAccess;
+            var accessStr = string.Format("{0:x}", access);
+
+            this.name = name;
+            handle = NativeMappedFile.OpenFileMapping((int)access, false, name);
+            if (handle == NativeMappedFile.NULL_HANDLE)
+            {
+                var error = Marshal.GetHRForLastWin32Error();
+                throw new IOException(string.Format("OpenFileMapping returned: 0x{0:x}", error));
+
+            }
+
+            long offset = 0L;
+            baseAddress = NativeMappedFile.MapViewOfFile(
+                handle,
+                (int)access,
+                (uint)((offset >> 32) & 0xFFFFFFFF),
+                (uint)(offset & 0xFFFFFFFF),
+                (uint)size);
+
+            if (BaseAddress == NativeMappedFile.NULL_HANDLE)
+            {
+                NativeMappedFile.CloseHandle(handle);
+                throw new IOException(string.Format("MapViewOfFile returned: 0x{0:x}", Marshal.GetHRForLastWin32Error()));
+            }
+        }
+
+        private void CreateSharedMemory(string name, long size)
+        {
+            var access = NativeMappedFile.MapAccess.FileMapAllAccess;
+            var accessStr = string.Format("{0:x}", access);
+
+            this.name = name;
             handle = NativeMappedFile.CreateFileMapping(NativeMappedFile.INVALID_HANDLE,
-                                                               NativeMappedFile.NULL_HANDLE,
-                                                               (int)NativeMappedFile.MapProtection.ReadWrite,
-                                                               (uint)((size >> 32) & 0xFFFFFFFF),
-                                                               (uint)(size & 0xFFFFFFFF), name);
+                                                                NativeMappedFile.NULL_HANDLE,
+                                                                (int)NativeMappedFile.MapProtection.ReadWrite,
+                                                                (uint)((size >> 32) & 0xFFFFFFFF),
+                                                                (uint)(size & 0xFFFFFFFF), name);
             if (handle == NativeMappedFile.NULL_HANDLE)
             {
                 var error = Marshal.GetHRForLastWin32Error();
@@ -74,14 +121,17 @@ namespace TickZoom.Api
 
             long offset = 0L;
             baseAddress = NativeMappedFile.MapViewOfFile(
-                handle, (int)NativeMappedFile.MapAccess.FileMapAllAccess,
+                handle,
+                (int)access,
                 (uint)((offset >> 32) & 0xFFFFFFFF),
-                (uint)(offset & 0xFFFFFFFF), (uint)size);
+                (uint)(offset & 0xFFFFFFFF),
+                (uint)size);
 
             if (BaseAddress == NativeMappedFile.NULL_HANDLE)
+            {
+                NativeMappedFile.CloseHandle(handle);
                 throw new IOException(string.Format("MapViewOfFile returned: 0x{0:x}", Marshal.GetHRForLastWin32Error()));
-
-
+            }
         }
 
         private volatile bool isDisposed = false;
