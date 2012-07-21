@@ -92,7 +92,7 @@ namespace TickZoom.Logging
                 collection.Add( LogMessage.LOGMSG30,"Initialized Variables.");
                 collection.Add( LogMessage.LOGMSG31,"Total Diff Bytes = {0}");
                 collection.Add( LogMessage.LOGMSG32,"Reading ticks back from file.");
-                collection.Add( LogMessage.LOGMSG33,"{0}: {1}");
+                collection.Add( LogMessage.LOGMSG33,"{0} {1}");
                 collection.Add( LogMessage.LOGMSG34,"Close BarCount={0}");
                 collection.Add( LogMessage.LOGMSG35,"Last Tick={0}");
                 collection.Add( LogMessage.LOGMSG36,"Bar {0}");

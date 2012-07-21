@@ -34,7 +34,7 @@ namespace TickZoom.Api
         void ConfirmActive(long brokerOrder, bool isRecovered);
         void ConfirmCreate(long brokerOrder, bool isRecovered);
         void ConfirmCancel(long brokerOrder, bool isRecovered);
-        void ConfirmChange(long brokerOrder, bool isRecovered);
+        void ConfirmChange(long brokerOrder, long originalOrder, bool isRecovered);
         void RejectOrder(long brokerOrder, bool isRealTime, bool retryImmediately);
     }
 

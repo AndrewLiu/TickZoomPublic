@@ -2070,7 +2070,7 @@ namespace TickZoom.Common
         }
 
         // This is a callback to confirm order was properly placed.
-        public void ConfirmChange(long brokerOrder, bool isRealTime)
+        public void ConfirmChange(long brokerOrder, long originalOrder, bool isRealTime)
         {
             if (debug) log.DebugFormat(LogMessage.LOGMSG523, (isRealTime ? "RealTime" : "Recovery"), brokerOrder);
             PhysicalOrder order;

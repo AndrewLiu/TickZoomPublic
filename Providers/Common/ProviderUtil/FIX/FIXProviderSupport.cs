@@ -413,7 +413,8 @@ namespace TickZoom.Provider.FIX
                     orderAlgorithm.OrderAlgorithm.ConfirmCreate(order.BrokerOrder, IsRecovered);
                     break;
                 case OrderAction.Change:
-                    orderAlgorithm.OrderAlgorithm.ConfirmChange(order.BrokerOrder, IsRecovered);
+                    var originalOrderId = order.OriginalOrder == null ? 0 : order.OriginalOrder.BrokerOrder;
+                    orderAlgorithm.OrderAlgorithm.ConfirmChange(order.BrokerOrder, originalOrderId, IsRecovered);
                     break;
                 case OrderAction.Cancel:
                     orderAlgorithm.OrderAlgorithm.ConfirmCancel(order.OriginalOrder.BrokerOrder, IsRecovered);
@@ -611,7 +612,6 @@ namespace TickZoom.Provider.FIX
                         {
                             SocketReconnect.Release(messageFIX);
                         }
-                        orderStore.IncrementUpdateCount();
                         IncreaseHeartbeatTimeout();
                         return Yield.DidWork.Repeat;
                     }
@@ -1085,6 +1085,7 @@ namespace TickZoom.Provider.FIX
             }
             SendMessageInternal(fixMsg);
             OrderStore.UpdateLocalSequence(FixFactory.LastSequence);
+            orderStore.TrySnapshot();
         }
 		
 	    private void SendMessageInternal(FIXTMessage1_1 fixMsg) {
@@ -1114,7 +1115,6 @@ namespace TickZoom.Provider.FIX
 				Factory.Parallel.Yield();
 			}
 	        lastMessageTime = Factory.Parallel.UtcNow;
-            orderStore.IncrementUpdateCount();
         }
 
         protected virtual void TryEndRecovery()
@@ -1256,7 +1256,7 @@ namespace TickZoom.Provider.FIX
 
         private unsafe void LogAMessage(string messageFIX, bool received)
         {
-            fixLog.DebugFormat(LogMessage.LOGMSG33, received ? "RCV" : "SND", messageFIX);
+            fixLog.DebugFormat(LogMessage.LOGMSG33, received ? "RCV:" : "SND:", messageFIX);
         }
 
         protected void TrySend(EventType type, SymbolInfo symbol, Agent agent)

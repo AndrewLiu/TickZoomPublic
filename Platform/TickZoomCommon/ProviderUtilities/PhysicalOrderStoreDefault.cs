@@ -14,6 +14,7 @@ namespace TickZoom.Common
         private volatile bool info;
         private volatile bool trace;
         private volatile bool debug;
+        private volatile bool verbose;
         public override void RefreshLogLevel()
         {
             base.RefreshLogLevel();
@@ -22,6 +23,7 @@ namespace TickZoom.Common
                 info = log.IsDebugEnabled;
                 debug = log.IsDebugEnabled;
                 trace = log.IsTraceEnabled;
+                verbose = log.IsVerboseEnabled;
             }
         }
 
@@ -39,7 +41,6 @@ namespace TickZoom.Common
         private Action writeFileAction;
         private IAsyncResult writeFileResult;
         private long snapshotLength = 0;
-        private int updateCount = 0;
         private long snapshotRolloverSize = 128*1024;
         private string storeName;
         private string dbFolder;
@@ -136,11 +137,6 @@ namespace TickZoom.Common
             StartSnapShot();
         }
 
-        public void IncrementUpdateCount()
-        {
-            ++updateCount;
-        }
-
         public string DatabasePath
         {
             get { return databasePath; }
@@ -215,7 +211,6 @@ namespace TickZoom.Common
                 if( writeFileResult == null)
                 {
                     writeFileResult = writeFileAction.BeginInvoke(null, null);
-                    updateCount = 0;
                 }
             }
         }
@@ -551,8 +546,11 @@ namespace TickZoom.Common
                         writer.Write(kvp.Value.Position);
                     }
                 }
-
             }
+
+            memory.Position = 0;
+            writer.Write((Int32)memory.Length - sizeof(Int32)); // length excludes the size of the length value.
+
             var count = 0;
             using (snapshotLocker.Using())
             {
@@ -572,11 +570,7 @@ namespace TickZoom.Common
             if( node != null)
             {
                 var memory = node.Value;
-                if( debug) log.DebugFormat("Flushing snapshot to disk: {0}", GetId(memory, 0));
-                var writer = new BinaryWriter(memory);
-                // Add Length header
-                memory.Position = 0;
-                writer.Write((Int32)memory.Length - sizeof(Int32)); // length excludes the size of the length value.
+                if( verbose) log.VerboseFormat("Flushing snapshot to disk: {0}", GetId(memory, 0));
                 if (TryOpen())
                 {
                     fs.Write(memory.GetBuffer(), 0, (int)memory.Length);
@@ -587,7 +581,7 @@ namespace TickZoom.Common
                         readySnapshots.RemoveFirst();
                         freeSnapShots.AddLast(node);
                     }
-                    if( debug) log.DebugFormat("Added snapshot {0} to free list: ", GetId(memory,0));
+                    if( verbose) log.VerboseFormat("Added snapshot {0} to free list: ", GetId(memory,0));
                 }
                 if (isDisposed)
                 {
