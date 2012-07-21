@@ -162,6 +162,21 @@ namespace TickZoom.Common
             get { return localSequence; }
         }
 
+        private unsafe long GetId(MemoryStream memory, int offset)
+        {
+            var minimum = sizeof (Int32) + sizeof (Int64);
+            if( memory.Length < minimum)
+            {
+                throw new ApplicationException("memory was less than " + minimum + " length.");
+            }
+            fixed( byte *ptr = memory.GetBuffer())
+            {
+                byte* bptr = ptr;
+                bptr += sizeof (Int32);
+                return *(long*) bptr;
+            }
+        }
+
         public TimeStamp LastSequenceReset
         {
             get { return lastSequenceReset; }
@@ -396,6 +411,8 @@ namespace TickZoom.Common
 
             // Save space for length.
             writer.Write((int) memory.Length);
+            // Write a unique id
+            writer.Write(Factory.Parallel.UtcNow.Internal);
             // Write the current sequence number
             writer.Write(remoteSequence);
             writer.Write(LocalSequence);
@@ -542,7 +559,7 @@ namespace TickZoom.Common
                 readySnapshots.AddLast(node);
                 count = readySnapshots.Count;
             }
-            if( debug) log.DebugFormat("Added snapshot to ready queue. {0} snapshots ready to write.", count);
+            if( debug) log.DebugFormat("Added snapshot {0} to ready queue. {1} snapshots ready.", GetId(memory, 0), count);
         }
 
         private void SnapShotFlushToDisk()
@@ -555,6 +572,7 @@ namespace TickZoom.Common
             if( node != null)
             {
                 var memory = node.Value;
+                if( debug) log.DebugFormat("Flushing snapshot to disk: {0}", GetId(memory, 0));
                 var writer = new BinaryWriter(memory);
                 // Add Length header
                 memory.Position = 0;
@@ -569,6 +587,7 @@ namespace TickZoom.Common
                         readySnapshots.RemoveFirst();
                         freeSnapShots.AddLast(node);
                     }
+                    if( debug) log.DebugFormat("Added snapshot {0} to free list: ", GetId(memory,0));
                 }
                 if (isDisposed)
                 {
@@ -631,22 +650,37 @@ namespace TickZoom.Common
         public bool Recover()
         {
             var loaded = false;
+            MemoryStream memory = null;
             using (snapshotLocker.Using())
             {
-                if( readySnapshots.Count > 0)
+                if (readySnapshots.Count > 0)
                 {
                     var node = readySnapshots.Last;
-                    var memory = node.Value;
-                    loaded = RecoverFromMemory(memory);
-                }
-                if (!loaded && freeSnapShots.Count > 0)
-                {
-                    var node = freeSnapShots.Last;
-                    var memory = node.Value;
+                    memory = node.Value;
                     loaded = RecoverFromMemory(memory);
                 }
             }
-            if( !loaded)
+            if (loaded)
+            {
+                if (debug) log.DebugFormat("Recovered from ready snapshots: {0}", GetId(memory, 0));
+            }
+            else
+            {
+                using (snapshotLocker.Using())
+                {
+                    if (!loaded && freeSnapShots.Count > 0)
+                    {
+                        var node = freeSnapShots.Last;
+                        memory = node.Value;
+                        loaded = RecoverFromMemory(memory);
+                    }
+                }
+                if (loaded)
+                {
+                    if (debug) log.DebugFormat("Recovered from free snapshots: {0}", GetId(memory, 0));
+                }
+            }
+            if (!loaded)
             {
                 loaded = RecoverFromFiles();
             }
@@ -686,7 +720,7 @@ namespace TickZoom.Common
                 if (debug) log.DebugFormat(LogMessage.LOGMSG559, snapshot.Offset, snapshot.Length);
                 if (SnapshotLoadLast(buffer, snapshot))
                 {
-                    if (debug) log.DebugFormat(LogMessage.LOGMSG560);
+                    if (debug) log.DebugFormat("Successfully loaded snapshot: {0}", GetId(buffer, snapshot.Offset));
                     loaded = true;
                     break;
                 }
@@ -706,6 +740,8 @@ namespace TickZoom.Common
                 memory.Position = snapshot.Offset + sizeof(Int32); // Skip the snapshot length;
                 var reader = new BinaryReader(memory);
 
+                // Skip the unique id.
+                reader.ReadUInt64();
                 remoteSequence = reader.ReadInt32();
                 localSequence = reader.ReadInt32();
                 lastSequenceReset = new TimeStamp(reader.ReadInt64());
