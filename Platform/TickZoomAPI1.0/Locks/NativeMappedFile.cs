@@ -33,10 +33,18 @@ namespace TickZoom.Api
     {
         public enum MapAccess
         {
-            FileMapCopy = 0x0001,
+            StandardRightsRequired = 0x000F0000,
+            FileMapQuery = 0x0001,
             FileMapWrite = 0x0002,
             FileMapRead = 0x0004,
-            FileMapAllAccess = 0x001f,
+            FileMapExecute = 0x0008,
+            FileMapExtendSize = 0x0008,
+            FileMapFullAccess = FileMapQuery | FileMapWrite | FileMapRead,
+            FileMapAllAccess = StandardRightsRequired|FileMapQuery|
+            FileMapWrite|      
+            FileMapRead|      
+            FileMapExecute|    
+            FileMapExtendSize,
         }
         public enum MapProtection
         {
