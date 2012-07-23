@@ -29,6 +29,13 @@ using System.Collections.Generic;
 
 namespace TickZoom.Api
 {
+
+    public enum RealTimePriority
+    {
+        High,
+        AboveNormal,
+        Normal,
+    }
 		
 	public enum YieldStatus {
 		None,
@@ -184,5 +191,6 @@ namespace TickZoom.Api
 	    AgentPerformer SpawnPerformer(Type typeToSpawn, params object[] args);
 	    object Spawn(Type typeToSpawn, params object[] args);
 	    AgentPerformer SpawnPerformer(string assemblyName, string className, params object[] args);
+	    void SetRealTimePriority(RealTimePriority realTimePriority);
 	}
 }

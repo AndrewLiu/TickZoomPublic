@@ -83,7 +83,6 @@ namespace TickZoom.Starters
             parallelMode = ParallelMode.RealTime;
             Factory.SysLog.RegisterHistorical("FIXSimulator", GetDefaultLogConfig());
             Factory.SysLog.RegisterRealTime("FIXSimulator", GetDefaultLogConfig());
-            Config = "WarehouseTest.config";
 		    Address = "inprocess";
             SetupProviderServiceConfig();
             var providerManager = Factory.Parallel.SpawnProvider("ProviderCommon", "ProviderManager");

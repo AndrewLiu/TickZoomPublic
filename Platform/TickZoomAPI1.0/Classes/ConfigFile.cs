@@ -165,33 +165,42 @@ namespace TickZoom.Api
 		public new object GetValue (string property, System.Type sType)
 		{
 			string retVal = GetValue(property);
-			if (sType == typeof(string))
-				return Convert.ToString(retVal);
-			else
-				if (sType == typeof(bool))
-			{
-				if (retVal.Equals("True") || retVal.Equals("False"))
-					return Convert.ToBoolean(retVal);
-				else
-					return false;
-			}
-			else
-				if (sType == typeof(int))
-				return Convert.ToInt32(retVal);
-			else
-				if (sType == typeof(double))
-				return Convert.ToDouble(retVal);
-			else
-				if (sType == typeof(DateTime))
-				return Convert.ToDateTime(retVal);
-			else
-				if (sType == typeof(ushort))
-				return Convert.ToUInt16(retVal);
-			else
-				return Convert.ToString(retVal);
+            if (sType == typeof(string))
+                return Convert.ToString(retVal);
+            else if (sType == typeof(bool))
+            {
+                if (retVal.Equals("True") || retVal.Equals("False"))
+                    return Convert.ToBoolean(retVal);
+                else
+                    return false;
+            }
+            else if (sType == typeof(int))
+            {
+                    return Convert.ToInt32(retVal);
+            }
+            else if (sType == typeof(double))
+		    {
+                    return Convert.ToDouble(retVal);
+		    }
+            else if (sType == typeof(DateTime))
+            {
+                return Convert.ToDateTime(retVal);
+            }
+            else if (sType == typeof(ushort))
+            {
+                return Convert.ToUInt16(retVal);
+            }
+            else if (sType.IsEnum)
+            {
+                return Enum.Parse(sType, retVal);
+            }
+            else
+            {
+                return Convert.ToString(retVal);
+            }
 		}
 
-		public bool SetValue2(string property, string val)
+        public bool SetValue2(string property, string val)
 		{
 			XmlDocument doc = new XmlDocument();
 			loadDoc(doc);

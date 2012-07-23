@@ -161,7 +161,6 @@ namespace Loaders
         public StarterConfig SetupConfigStarter(AutoTestMode autoTestMode) {
             // Set run properties 
             var config = new StarterConfig("test");
-            config.ServicePort = 6490;
             config.EndDateTime = endTime.DateTime;
             config.StartDateTime = startTime.DateTime;
             config.TestFinishedTimeout = testFinshedTimeout;

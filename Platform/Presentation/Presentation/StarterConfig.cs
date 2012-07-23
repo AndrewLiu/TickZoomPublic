@@ -60,14 +60,13 @@ namespace TickZoom.Presentation
         private int breakAtBar;
         private string chartBarUnit = BarUnit.Hour.ToString();
         private int chartPeriod = 1;
-        private ushort servicePort;
         private ModelLoaderInterface loaderInstance;
         private string dataSubFolder;
-        private string serviceConfig;
         private bool autoUpdate;
         private Starter starter;
         private string starterName;
         private int testFinishedTimeout;
+        private RealTimePriority realTimePriority;
         
 		public bool AutoUpdate {
 			get { return autoUpdate; }
@@ -78,12 +77,6 @@ namespace TickZoom.Presentation
 					TryAutoUpdate();
 				}
 			}
-		}
-        
-		public string ServiceConfig {
-			get { return serviceConfig; }
-			set { NotifyOfPropertyChange( () => ServiceConfig );
-				serviceConfig = value; }
 		}
         
 		public string DataSubFolder {
@@ -101,11 +94,6 @@ namespace TickZoom.Presentation
         	}
         }
         
-		public ushort ServicePort {
-			get { return servicePort; }
-			set { servicePort = value; }
-		}
-
         public int ReplaySpeed
         {
             get { return replaySpeed; }
@@ -725,15 +713,17 @@ namespace TickZoom.Presentation
 
         private void Load()
         {
-			autoUpdate = (bool) projectConfig.GetValue("AutoUpdate",typeof(bool));
-			serviceConfig = projectConfig.GetValue("ServiceConfig");
-			servicePort = (ushort) projectConfig.GetValue("ServicePort", typeof (ushort));
+            projectConfig.AssureValue("AutoUpdate", "true");
+            projectConfig.AssureValue("RealTimePriority", "High");
+            projectConfig.AssureValue("RealTimePriority", "High");
+            projectConfig.AssureValue("DataSubFolder", "");
+            projectConfig.AssureValue("AlarmSound", @"..\..\Media\59642_AlternatingToneAlarm.wav");
+            projectConfig.AssureValue("DisableCharting", "false");
+
+            autoUpdate = (bool)projectConfig.GetValue("AutoUpdate", typeof(bool));
+            realTimePriority = (RealTimePriority) projectConfig.GetValue("RealTimePriority", typeof (RealTimePriority));
             dataSubFolder = projectConfig.GetValue("DataSubFolder");
             alarmFile = projectConfig.GetValue("AlarmSound");
-            if (string.IsNullOrEmpty(alarmFile))
-            {
-                alarmFile = @"..\..\Media\59642_AlternatingToneAlarm.wav";
-            }
             var disableChartingString = projectConfig.GetValue("DisableCharting");
             disableCharting = !string.IsNullOrEmpty(disableChartingString) &&
                               "true".Equals(disableChartingString.ToLower());
@@ -741,7 +731,6 @@ namespace TickZoom.Presentation
             var startTimeStr = projectConfig.GetValue("StartTime");
             var endTimeStr = projectConfig.GetValue("EndTime");
             modelLoader = projectConfig.GetValue("ModelLoader");
-
             symbolList = projectConfig.GetValue("Symbol");
 
             if (startTimeStr != null)
@@ -793,7 +782,7 @@ namespace TickZoom.Presentation
 
         public void Save()
         {
-            projectConfig.SetValue("ServicePort", servicePort.ToString());
+            projectConfig.SetValue("RealTimePriority", realTimePriority.ToString());
             projectConfig.SetValue("DisableCharting", disableCharting ? "true" : "false");
             projectConfig.SetValue("StartTime", new TimeStamp(startDateTime).ToString());
             projectConfig.SetValue("EndTime", new TimeStamp(endDateTime).ToString());
@@ -818,7 +807,6 @@ namespace TickZoom.Presentation
             projectConfig.SetValue("Starter", starterFactoryName);
             projectConfig.SetValue("AutoUpdate", projectConfig.GetValue("AutoUpdate"));
             projectConfig.SetValue("DataSubFolder", dataSubFolder);
-            projectConfig.SetValue("ServiceConfig", serviceConfig);
         }
 
         private void PlayAlarmSound()
@@ -924,6 +912,7 @@ namespace TickZoom.Presentation
         {
             FlushCharts();
             IntervalsUpdate();
+            starterInstance.RealTimePriority = realTimePriority;
             starterInstance.ProjectProperties.ConfigFile = projectConfig;
             starterInstance.ProjectProperties.Starter.StartTime = (TimeStamp) startDateTime;
             starterInstance.ProjectProperties.Starter.EndTime = (TimeStamp)endDateTime;
@@ -954,8 +943,6 @@ namespace TickZoom.Presentation
             starterInstance.ProjectProperties.Chart.ChartType = chartType;
             starterInstance.ProjectProperties.Starter.TryAddSymbols(symbolList);
             starterInstance.ProjectProperties.Starter.IntervalDefault = intervalDefault;
-            starterInstance.Config = serviceConfig;
-            starterInstance.Port = servicePort;
             if (useDefaultInterval)
             {
                 starterInstance.ProjectProperties.Chart.IntervalChartBar = intervalDefault;
