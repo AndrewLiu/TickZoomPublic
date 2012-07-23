@@ -405,9 +405,10 @@ namespace TickZoom.Common
             var sb = new StringBuilder();
             foreach (var kvp in positions)
             {
+                sb.AppendLine();
                 var symbol = Factory.Symbol.LookupSymbol(kvp.Key);
                 var position = kvp.Value;
-                sb.AppendLine(symbol + " " + position);
+                sb.Append(symbol + " " + position);
             }
             return sb.ToString();
         }

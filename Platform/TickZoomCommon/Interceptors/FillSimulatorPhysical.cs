@@ -43,41 +43,18 @@ namespace TickZoom.Interceptors
         private FillSimulatorLogic fillLogic;
         private bool isChanged;
         private bool enableSyncTicks;
-        public void RefreshLogLevel()
-        {
-            if (log != null)
-            {
-                debug = log.IsDebugEnabled;
-                trace = log.IsTraceEnabled;
-            }
-        }
-        private struct FillWrapper
-        {
-            public bool IsCounterSet;
-            public PhysicalFill Fill;
-            public PhysicalOrder Order;
-        }
         private Queue<FillWrapper> fillQueue = new Queue<FillWrapper>();
-        private struct RejectWrapper
-        {
-            public PhysicalOrder Order;
-            public bool RemoveOriginal;
-            public string Message;
-        }
         private Queue<RejectWrapper> rejectQueue = new Queue<RejectWrapper>();
-
         private PartialFillSimulation partialFillSimulation;
-
-        private Dictionary<long, PhysicalOrder> orderMap = new Dictionary<long, PhysicalOrder>();
-        private ActiveList<PhysicalOrder> increaseOrders = new ActiveList<PhysicalOrder>();
-        private ActiveList<PhysicalOrder> decreaseOrders = new ActiveList<PhysicalOrder>();
-        private ActiveList<PhysicalOrder> marketOrders = new ActiveList<PhysicalOrder>();
-        private ActiveList<PhysicalOrder> touchOrders = new ActiveList<PhysicalOrder>();
-        private NodePool<PhysicalOrder> nodePool = new NodePool<PhysicalOrder>();
+        private Dictionary<long, PhysicalOrder> orderMap;
+        private ActiveList<PhysicalOrder> increaseOrders;
+        private ActiveList<PhysicalOrder> decreaseOrders;
+        private ActiveList<PhysicalOrder> marketOrders;
+        private ActiveList<PhysicalOrder> touchOrders;
+        private NodePool<PhysicalOrder> nodePool;
         private object orderMapLocker = new object();
         private bool isOpenTick = false;
         private TimeStamp openTime;
-
         private Action<PhysicalFill,PhysicalOrder> onPhysicalFill;
         private Action<PhysicalOrder, string> onRejectOrder;
         private Action<long> onPositionChange;
@@ -102,6 +79,27 @@ namespace TickZoom.Interceptors
         private TriggerController triggers;
         private Dictionary<long, long> serialTriggerMap = new Dictionary<long, long>();
 
+        public void RefreshLogLevel()
+        {
+            if (log != null)
+            {
+                debug = log.IsDebugEnabled;
+                trace = log.IsTraceEnabled;
+            }
+        }
+        private struct FillWrapper
+        {
+            public bool IsCounterSet;
+            public PhysicalFill Fill;
+            public PhysicalOrder Order;
+        }
+        private struct RejectWrapper
+        {
+            public PhysicalOrder Order;
+            public bool RemoveOriginal;
+            public string Message;
+        }
+
         public FillSimulatorPhysical(string name, SymbolInfo symbol, bool createExitStrategyFills, bool createActualFills, TriggerController triggers)
         {
             this.symbol = symbol;
@@ -116,6 +114,7 @@ namespace TickZoom.Interceptors
             fillLogic = new FillSimulatorLogic(name, symbol, FillCallback);
             IsChanged = true;
             PartialFillSimulation = symbol.PartialFillSimulation;
+            Clear();
         }
 
         private bool hasCurrentTick = false;
@@ -842,7 +841,14 @@ namespace TickZoom.Interceptors
 
         public void Clear()
         {
-            throw new NotImplementedException();
+            fillQueue = new Queue<FillWrapper>();
+            rejectQueue = new Queue<RejectWrapper>();
+            orderMap = new Dictionary<long, PhysicalOrder>();
+            increaseOrders = new ActiveList<PhysicalOrder>();
+            decreaseOrders = new ActiveList<PhysicalOrder>();
+            marketOrders = new ActiveList<PhysicalOrder>();
+            touchOrders = new ActiveList<PhysicalOrder>();
+            nodePool = new NodePool<PhysicalOrder>();
         }
 
         public Action<long> OnPositionChange
