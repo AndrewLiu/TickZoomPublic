@@ -87,17 +87,14 @@ namespace TickZoom.Provider.FIX
         {
             lock (algorithmsLocker)
             {
-                var symbols = new List<SymbolInfo>();
-                foreach (var kvp in algorithms)
+                var oldAlgorithms = algorithms;
+                algorithms = new Dictionary<long, SymbolAlgorithm>();
+                foreach (var kvp in oldAlgorithms)
                 {
-                    var algo = kvp.Value.OrderAlgorithm;
-                    symbols.Add(algo.Symbol);
-                    algo.Clear();
-                }
-                algorithms.Clear();
-                foreach (var symbol in symbols)
-                {
-                    CreateAlgorithm(symbol);
+                    var oldAlgorithm = kvp.Value;
+                    var symbol = oldAlgorithm.OrderAlgorithm.Symbol;
+                    var algorithm = CreateAlgorithm(symbol);
+                    algorithm.OrderAlgorithm.IsBrokerOnline = oldAlgorithm.OrderAlgorithm.IsBrokerOnline;
                 }
             }
         }
