@@ -588,6 +588,10 @@ namespace TickZoom.Provider.MBTFIX
                             var symbolInfo = Factory.Symbol.LookupSymbol(mbtMsg.Symbol);
                             var tickSync = SyncTicks.GetTickSync(symbolInfo.BinaryIdentifier);
                             tickSync.RemovePhysicalOrder("offline");
+                            if (!tickSync.IsWaitingMatch)
+                            {
+                                tickSync.AddWaitingMatch("offline");
+                            }
                         }
                         break;
                     case "A":
@@ -597,6 +601,10 @@ namespace TickZoom.Provider.MBTFIX
                             var symbolInfo = Factory.Symbol.LookupSymbol(mbtMsg.Symbol);
                             var tickSync = SyncTicks.GetTickSync(symbolInfo.BinaryIdentifier);
                             tickSync.RemovePhysicalOrder("offline");
+                            if (!tickSync.IsWaitingMatch)
+                            {
+                                tickSync.AddWaitingMatch("offline");
+                            }
                         }
                         break;
                     case "2":
@@ -605,6 +613,10 @@ namespace TickZoom.Provider.MBTFIX
                             var symbolInfo = Factory.Symbol.LookupSymbol(mbtMsg.Symbol);
                             var tickSync = SyncTicks.GetTickSync(symbolInfo.BinaryIdentifier);
                             tickSync.RemovePhysicalFill("offline");
+                            if( !tickSync.IsWaitingMatch)
+                            {
+                                tickSync.AddWaitingMatch("offline");
+                            }
                         }
                         break;
                 }
