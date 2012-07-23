@@ -87,7 +87,12 @@ namespace TickZoom.Common
 			this.salesLatency = new LatencyMetric( "SymbolHandler-Trade-" + symbol.ExpandedSymbol.StripInvalidPathChars());
             tickPool =  Factory.Parallel.TickPool(symbol);
 		    tickPoolCallerId = tickPool.GetCallerId("SymbolHandler-" + symbol + "-" + agent);
-            SyntheticClear();
+            syntheticOrders = Factory.Utility.FillSimulator(providerName, symbol, false, false, null);
+            syntheticOrders.EnableSyncTicks = SyncTicks.Enabled;
+            syntheticOrders.OnPhysicalFill = OnPhysicalFill;
+            syntheticOrders.OnRejectOrder = OnSyntheticReject;
+            syntheticOrders.PartialFillSimulation = PartialFillSimulation.None;
+            syntheticOrders.IsOnline = true;
         }
 
 	    private void OnSyntheticReject(PhysicalOrder order, string message)
@@ -421,12 +426,7 @@ namespace TickZoom.Common
 	    public void SyntheticClear()
 	    {
             if (debug) log.DebugFormat(LogMessage.LOGMSG569);
-            syntheticOrders = Factory.Utility.FillSimulator(providerName, symbol, false, false, null);
-            syntheticOrders.EnableSyncTicks = SyncTicks.Enabled;
-            syntheticOrders.OnPhysicalFill = OnPhysicalFill;
-            syntheticOrders.OnRejectOrder = OnSyntheticReject;
-            syntheticOrders.PartialFillSimulation = PartialFillSimulation.None;
-            syntheticOrders.IsOnline = true;
+            syntheticOrders.Clear();
         }
 	}
 }

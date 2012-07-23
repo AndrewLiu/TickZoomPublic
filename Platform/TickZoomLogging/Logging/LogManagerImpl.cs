@@ -614,7 +614,7 @@ namespace TickZoom.Logging
                 collection.Add( LogMessage.LOGMSG552,"Snapshot found order by Id: {0}");
                 collection.Add( LogMessage.LOGMSG553,"Snapshot found order by serial: {0}");
                 collection.Add( LogMessage.LOGMSG554,"Snapshot writing unique order: {0}");
-                collection.Add( LogMessage.LOGMSG555,"Symbol Positions\n{0}");
+                collection.Add( LogMessage.LOGMSG555,"Symbol Positions:{0}");
                 collection.Add( LogMessage.LOGMSG556,"Wrote snapshot. Sequence Remote = {0}, Local = {1}, Size = {2}. File Size = {3}");
                 collection.Add( LogMessage.LOGMSG557,"Closed {0}");
                 collection.Add( LogMessage.LOGMSG558,"Attempting recovery from snapshot file: {0}");
