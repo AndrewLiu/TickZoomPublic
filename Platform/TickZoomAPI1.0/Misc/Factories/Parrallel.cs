@@ -35,6 +35,7 @@ namespace TickZoom.Api
         High,
         AboveNormal,
         Normal,
+        BelowNormal,
     }
 		
 	public enum YieldStatus {
