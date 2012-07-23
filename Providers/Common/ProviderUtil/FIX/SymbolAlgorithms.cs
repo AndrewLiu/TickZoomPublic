@@ -95,6 +95,7 @@ namespace TickZoom.Provider.FIX
                     var symbol = oldAlgorithm.OrderAlgorithm.Symbol;
                     var algorithm = CreateAlgorithm(symbol);
                     algorithm.OrderAlgorithm.IsBrokerOnline = oldAlgorithm.OrderAlgorithm.IsBrokerOnline;
+                    oldAlgorithm.OrderAlgorithm.Clear();
                 }
             }
         }

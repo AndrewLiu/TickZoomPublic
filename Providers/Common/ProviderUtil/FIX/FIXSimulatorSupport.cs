@@ -244,7 +244,7 @@ namespace TickZoom.Provider.FIX
             if (isConnectionLost)
             {
                 if (debug) log.DebugFormat(LogMessage.LOGMSG253);
-                if (!fixPacketQueue.IsFull && FIXReadLoop())
+                if (!fixPacketQueue.IsEmpty && FIXReadLoop())
                 {
                     return Yield.DidWork.Repeat;
                 }

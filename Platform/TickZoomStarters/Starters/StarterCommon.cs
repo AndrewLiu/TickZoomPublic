@@ -59,12 +59,11 @@ namespace TickZoom.Starters
 		Dictionary<ModelInterface,Dictionary<string,object>> optimizeValueMap = new Dictionary<ModelInterface, Dictionary<string, object>>();
 		Progress progress = new Progress();
 		private string address = "InProcess";
-		private int port = 6490;
         protected int maxParallelPasses = 1000;
-		private string config;
 		private TickEngine engine;
 		protected RunMode runMode = RunMode.Historical;
 		protected ParallelMode parallelMode = ParallelMode.Normal;
+	    private RealTimePriority realTimePriority = RealTimePriority.High;
 		
 		public StarterCommon() {
     		storageFolder = Factory.Settings["AppDataFolder"];
@@ -120,6 +119,7 @@ namespace TickZoom.Starters
 		public virtual void Run(ModelInterface model)
 		{
 		    Factory.Parallel.SetMode(parallelMode);
+		    Factory.Parallel.SetRealTimePriority(realTimePriority);
 		    try
 		    {
                 engine = Factory.Engine.TickEngine("Starter");
@@ -520,16 +520,11 @@ namespace TickZoom.Starters
 			get { return address; }
 			set { address = value; }
 		}
-		
-		public int Port {
-			get { return port; }
-			set { port = value; }
-		}
-		
-		public string Config {
-			get { return config; }
-			set { config = value; }
-		}
 
+	    public RealTimePriority RealTimePriority
+	    {
+	        get { return realTimePriority; }
+	        set { realTimePriority = value; }
+	    }
 	}
 }
