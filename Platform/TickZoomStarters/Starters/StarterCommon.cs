@@ -118,8 +118,8 @@ namespace TickZoom.Starters
 		
 		public virtual void Run(ModelInterface model)
 		{
-		    Factory.Parallel.SetMode(parallelMode);
-		    Factory.Parallel.SetRealTimePriority(realTimePriority);
+            Factory.Parallel.SetRealTimePriority(realTimePriority);
+            Factory.Parallel.SetMode(parallelMode);
 		    try
 		    {
                 engine = Factory.Engine.TickEngine("Starter");
