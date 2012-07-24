@@ -422,6 +422,8 @@ namespace TickZoom.Provider.FIX
         {
             int end = messageFIX.EndSeqNum == 0 ? FixFactory.LastSequence : messageFIX.EndSeqNum;
             if (debug) log.DebugFormat(LogMessage.LOGMSG219, messageFIX.BegSeqNum, end, messageFIX);
+            var sentTestRequest = false;
+            var sentHeartbeat = false;
             for (int i = messageFIX.BegSeqNum; i <= end; i++)
             {
                 FIXTMessage1_1 textMessage;
@@ -440,6 +442,20 @@ namespace TickZoom.Provider.FIX
                         case "4": // Reset sequence.
                             textMessage = GapFillMessage(i);
                             gapFill = true;
+                            break;
+                        case "1": // Test Request
+                            if( !sentTestRequest)
+                            {
+                                textMessage.SetDuplicate(true);
+                            }
+                            sentTestRequest = true;
+                            break;
+                        case "0": // Heart beat
+                            if( !sentHeartbeat)
+                            {
+                                textMessage.SetDuplicate(true);
+                            }
+                            sentHeartbeat = true;
                             break;
                         default:
                             textMessage.SetDuplicate(true);
