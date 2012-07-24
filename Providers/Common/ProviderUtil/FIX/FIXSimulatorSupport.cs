@@ -122,10 +122,10 @@ namespace TickZoom.Provider.FIX
                 simulator.MaxFailures = maxFailures;
                 simulators.Add(simulatorType, simulator);
             }
-            simulators[SimulatorType.BlackHole].Enabled = false;   // Passed individually.
-            simulators[SimulatorType.CancelBlackHole].Enabled = false;   // Passed individually.
+            simulators[SimulatorType.BlackHole].Enabled = false;   // Black hole testing no longer supported.
+            simulators[SimulatorType.CancelBlackHole].Enabled = false;   // Black hole testing no longer supported.
             simulators[SimulatorType.RejectSymbol].Enabled = allTests;   // Passed individually.
-            simulators[SimulatorType.RejectAll].Enabled = false;
+            simulators[SimulatorType.RejectAll].Enabled = false;  // Not implemented
             simulateReceiveFailed = allTests;    // Passed individually.
             simulateSendFailed = allTests;      // Passed individually.
             simulators[SimulatorType.SendServerOffline].Enabled = allTests; // Passed individually.
