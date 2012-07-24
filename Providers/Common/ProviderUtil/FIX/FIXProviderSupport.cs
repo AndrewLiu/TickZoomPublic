@@ -186,11 +186,15 @@ namespace TickZoom.Provider.FIX
             }
             LoadProperties(configFile);
             algorithms.DisableChangeOrders = disableChangeOrders;
-            SocketReconnect = new SocketReconnect(providerName, name, task, addrStr, port, CreateMessageFactory(), OnConnect, OnDisconnect);
+            SocketReconnect = new SocketReconnect(providerName, name, task, addrStr, port, CreateMessageFactory(), OnConnect, OnDisconnect, OnRegenerate);
         }
 
         protected abstract MessageFactory CreateMessageFactory();
 
+        public void OnRegenerate()
+        {
+            TrySendEndBroker();
+        }
 
 		public void WriteFailedLoginFile(string packetString) {
 			string message = "Login failed for user name: " + userName + " and password: " + new string('*',password.Length);

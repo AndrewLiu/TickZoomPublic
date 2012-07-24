@@ -1028,23 +1028,37 @@ namespace TickZoom.Common
             switch (logical.Side)
             {
                 case OrderSide.Buy:
-                    if (logical.TradeDirection == TradeDirection.Change)
+                    switch (logical.TradeDirection)
                     {
-                        return position >= logical.Position + strategyPosition;
+                        case TradeDirection.Entry:
+                        case TradeDirection.Reverse:
+                            return position >= logical.Position;
+                        case TradeDirection.Change:
+                            return position >= logical.Position + strategyPosition;
+                        case TradeDirection.Exit:
+                        case TradeDirection.ExitStrategy:
+                            if( debug) log.DebugFormat( "Check exit order filled. Side {0}, strategy position {1}, position {2}, logical position {3}", logical.Side, strategyPosition, position, logical.Position);
+                            return strategyPosition >= 0;
+                        default:
+                            throw new ArgumentOutOfRangeException("Unexpected trade direction: " + logical.TradeDirection);
                     }
-                    else
-                    {
-                        return position >= logical.Position;
-                    }
+                    break;
                 default:
-                    if (logical.TradeDirection == TradeDirection.Change)
+                    switch (logical.TradeDirection)
                     {
-                        return position <= -logical.Position + strategyPosition;
+                        case TradeDirection.Entry:
+                        case TradeDirection.Reverse:
+                            return position <= -logical.Position;
+                        case TradeDirection.Change:
+                            return position <= -logical.Position + strategyPosition;
+                        case TradeDirection.Exit:
+                        case TradeDirection.ExitStrategy:
+                            if( debug) log.DebugFormat( "Check exit order filled. Side {0}, strategy position {1}, position {2}, logical position {3}", logical.Side, strategyPosition, position, logical.Position);
+                            return strategyPosition <= 0;
+                        default:
+                            throw new ArgumentOutOfRangeException("Unexpected trade direction: " + logical.TradeDirection);
                     }
-                    else
-                    {
-                        return position <= -logical.Position;
-                    }
+                    break;
             }
         }
 		

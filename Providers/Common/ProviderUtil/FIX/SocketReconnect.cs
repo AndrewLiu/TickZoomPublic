@@ -30,8 +30,9 @@ namespace TickZoom.Provider.FIX
         protected bool fastRetry = false;
         private Action onDisconnect;
         private Action onConnect;
+        private Action onRegenerate;
 
-        public SocketReconnect(string providerName, string config, Task task, string address, int port, MessageFactory messageFactory, Action onConnect, Action onDisconnect)
+        public SocketReconnect(string providerName, string config, Task task, string address, int port, MessageFactory messageFactory, Action onConnect, Action onDisconnect, Action onRegenerate)
         {
             log = Factory.SysLog.GetLogger(typeof(SocketReconnect) + "." + providerName + "." + config);
             log.Register(this);
@@ -45,6 +46,7 @@ namespace TickZoom.Provider.FIX
             this.retryTimer = Factory.Parallel.CreateTimer("Retry", task, RetryTimerEvent);
             this.onDisconnect = onDisconnect;
             this.onConnect = onConnect;
+            this.onRegenerate = onRegenerate;
         }
 
         public void Regenerate()
@@ -72,6 +74,7 @@ namespace TickZoom.Provider.FIX
                         throw new ArgumentOutOfRangeException("Unexpected socket state: " + socket.State);
                 }
             }
+            onRegenerate();
             socket = Factory.Provider.Socket(this.GetType().Name + "Socket", address, port);
             socket.ReceiveQueue.ConnectInbound(task);
             socket.SendQueue.ConnectOutbound(task);
