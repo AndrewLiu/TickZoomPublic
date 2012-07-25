@@ -33,6 +33,7 @@ namespace TickZoom.Api
 		Pending,
         PendingNew,
 		Active,
+	    Lost,
 		Suspended,
 		Filled,
         Expired,

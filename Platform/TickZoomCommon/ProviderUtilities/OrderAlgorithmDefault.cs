@@ -1531,18 +1531,18 @@ namespace TickZoom.Common
             order.OrderState = OrderState.Filled;
             originalPhysicals.Remove(order);
             physicalOrders.Remove(order);
-            if (order.ReplacedBy != null)
+            // Leave it in the cache so a too late to cancel or too late to change order can find it.
+            // physicalOrderCache.RemoveOrder(order.BrokerOrder);
+            var replacedBy = order.ReplacedBy;
+            if (replacedBy != null)
             {
-                if (debug) log.DebugFormat(LogMessage.LOGMSG486, order.ReplacedBy);
-                originalPhysicals.Remove(order.ReplacedBy);
-                physicalOrders.Remove(order.ReplacedBy);
-                physicalOrderCache.RemoveOrder(order.ReplacedBy.BrokerOrder);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG486, replacedBy);
+                CleanupFilledPhysicalOrder(replacedBy);
                 if (DoSyncTicks)
                 {
                     tickSync.RemovePhysicalOrder(order.ReplacedBy);
                 }
             }
-            physicalOrderCache.RemoveOrder(order.BrokerOrder);
         }
 
         private TaskLock performCompareLocker = new TaskLock();
@@ -2084,24 +2084,50 @@ namespace TickZoom.Common
         }
 
         // This is a callback to confirm order was properly placed.
-        public void ConfirmChange(long brokerOrder, long originalOrder, bool isRealTime)
+        public void ConfirmChange(long brokerOrderId, long originalOrderId, bool isRealTime)
         {
-            if (debug) log.DebugFormat(LogMessage.LOGMSG523, (isRealTime ? "RealTime" : "Recovery"), brokerOrder);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG523, (isRealTime ? "RealTime" : "Recovery"), brokerOrderId);
+            PhysicalOrder originalOrder = null;
+            if( originalOrderId != 0)
+            {
+                if (physicalOrderCache.TryGetOrderById(originalOrderId, out originalOrder))
+                {
+                    physicalOrderCache.RemoveOrder(originalOrderId);
+                }
+                else
+                {
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG524, originalOrderId);
+                }
+            }
+
             PhysicalOrder order;
-            if (!physicalOrderCache.TryGetOrderById(brokerOrder, out order))
+            if (physicalOrderCache.TryGetOrderById(brokerOrderId, out order))
             {
-                if( debug) log.DebugFormat(LogMessage.LOGMSG524, brokerOrder);
-                return;
+                if( order.OrderState == OrderState.Filled)
+                {
+                    if (debug) log.DebugFormat("Removing order because already filled: {0}", order);
+                    physicalOrderCache.RemoveOrder(originalOrderId);
+                }
+                else
+                {
+                    ++confirmedOrderCount;
+                    order.OrderState = OrderState.Active;
+                    order.RemainingSize = order.CompleteSize - order.CumulativeSize;
+                    order.OriginalOrder = null;
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG525, order);
+                }
             }
-            ++confirmedOrderCount;
-            order.OrderState = OrderState.Active;
-            if( order.OriginalOrder != null)
+            else
             {
-                order.CumulativeSize = order.OriginalOrder.CumulativeSize;
+                if (debug) log.DebugFormat(LogMessage.LOGMSG524, brokerOrderId);
+                TryCreateLostOrder(brokerOrderId);
             }
-            order.RemainingSize = order.CompleteSize - order.CumulativeSize;
-            physicalOrderCache.PurgeOriginalOrder(order);
-            if (debug) log.DebugFormat(LogMessage.LOGMSG525, order);
+
+            if( originalOrder != null && order == null)
+            {
+                order.CumulativeSize = originalOrder.CumulativeSize;
+            }
+
             if (isRealTime)
             {
                 PerformCompareProtected();
@@ -2120,13 +2146,16 @@ namespace TickZoom.Common
         public void ConfirmActive(long brokerOrder, bool isRealTime)
         {
             PhysicalOrder order;
-            if (!physicalOrderCache.TryGetOrderById(brokerOrder, out order))
+            if (physicalOrderCache.TryGetOrderById(brokerOrder, out order))
+            {
+                if (debug) log.DebugFormat(LogMessage.LOGMSG526, (isRealTime ? "RealTime" : "Recovery"), order);
+                order.OrderState = OrderState.Active;
+            }
+            else
             {
                 log.Warn("ConfirmActive: Cannot find physical order for id " + brokerOrder);
-                return;
+                TryCreateLostOrder(brokerOrder);
             }
-            if (debug) log.DebugFormat(LogMessage.LOGMSG526, (isRealTime ? "RealTime" : "Recovery"), order);
-            order.OrderState = OrderState.Active;
             if (isRealTime)
             {
                 PerformCompareProtected();
@@ -2137,17 +2166,29 @@ namespace TickZoom.Common
             }
         }
 
+        private bool TryCreateLostOrder(long orderId)
+        {
+            var physical = new PhysicalOrderDefault(OrderState.Lost, symbol, orderId);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG434, physical);
+            TryAddPhysicalOrder(physical);
+            physicalOrderCache.SetOrder(physical);
+            return true;
+        }
+
         public void ConfirmCreate(long brokerOrder, bool isRealTime)
         {
             PhysicalOrder order;
-            if (!physicalOrderCache.TryGetOrderById(brokerOrder, out order))
+            if (physicalOrderCache.TryGetOrderById(brokerOrder, out order))
+            {
+                ++confirmedOrderCount;
+                order.OrderState = OrderState.Active;
+                if (debug) log.DebugFormat(LogMessage.LOGMSG527, (isRealTime ? "RealTime" : "Recovery"), order);
+            }
+            else
             {
                 log.Warn("ConfirmCreate: Cannot find physical order for id " + brokerOrder);
-                return;
+                TryCreateLostOrder(brokerOrder);
             }
-            ++confirmedOrderCount;
-            order.OrderState = OrderState.Active;
-            if (debug) log.DebugFormat(LogMessage.LOGMSG527, (isRealTime ? "RealTime" : "Recovery"), order);
             if (isRealTime)
             {
                 PerformCompareProtected();

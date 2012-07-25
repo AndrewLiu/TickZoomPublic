@@ -48,11 +48,16 @@ namespace TickZoom.Common
 
         public virtual void AssertAtomic() { }
 
+        private const int sortTimesCount = 64;
+        private PhysicalOrder[] sortTimesArray = new PhysicalOrder[sortTimesCount];
         public IEnumerable<PhysicalOrder> GetActiveOrders(SymbolInfo symbol)
         {
             if (debug) log.DebugFormat(LogMessage.LOGMSG533, symbol);
             AssertAtomic();
+            Array.Clear(sortTimesArray, 0, sortTimesArray.Length);
+            var excludedCount = 0;
             var list = GetOrders((o) => o.Symbol.BinaryIdentifier == symbol.BinaryIdentifier);
+
             foreach (var order in list)
             {
                 if (order.OrderState != OrderState.Filled)
@@ -62,7 +67,35 @@ namespace TickZoom.Common
                 }
                 else
                 {
-                    if (debug) log.DebugFormat(LogMessage.LOGMSG535, order);
+                    if( excludedCount < sortTimesArray.Length)
+                    {
+                        sortTimesArray[excludedCount] = order;
+                    }
+                    ++excludedCount;
+                }
+            }
+            if( excludedCount >= sortTimesCount >> 1)
+            {
+                if( debug) log.DebugFormat("Found {0} filled orders.", excludedCount);
+                Array.Sort(sortTimesArray, (x, y) => (int)((y== null ? 0L : y.LastModifyTime.Internal) - (x == null ? 0L : x.LastModifyTime.Internal)));
+                if (trace) log.TraceFormat("Sorted orders by last modify time:");
+                var count = 0;
+                for (var x = 0; x < sortTimesArray.Length; x++)
+                {
+                    var order = sortTimesArray[x];
+                    if (order != null)
+                    {
+                        if (count >= excludedCount >> 1)
+                        {
+                            if (trace) log.TraceFormat("Removing order: {0}", sortTimesArray[x]);
+                            RemoveOrderInternal(order.BrokerOrder);
+                        }
+                        else
+                        {
+                            if (trace) log.TraceFormat("Keeping order: {0}", sortTimesArray[x]);
+                        }
+                        count++;
+                    }
                 }
             }
         }
