@@ -64,11 +64,17 @@ namespace TickZoom.Api
             }
         }
 
+        public PhysicalOrderDefault(OrderState orderState, SymbolInfo symbol, long orderId)
+            : this(orderState, symbol, null, default(OrderSide), 0, 0, 0D)
+        {
+            binary.action = default(OrderAction);
+            binary.brokerOrder = orderId;
+        }
+
         public PhysicalOrderDefault(OrderAction orderAction, SymbolInfo symbol, LogicalOrder logical, OrderSide side, int remainingSize, int cumulativeSize, double price)
             : this(OrderState.Pending, symbol, logical, side, remainingSize, cumulativeSize, price)
         {
             binary.action = orderAction;
-            instanceId = ++nextInstanceId;
         }
 
         public PhysicalOrderDefault(OrderState orderState, SymbolInfo symbol, LogicalOrder logical, OrderSide side, int remainingSize, int cumulativeSize, double price)
@@ -78,20 +84,23 @@ namespace TickZoom.Api
             binary.lastModifyTime = Factory.Parallel.UtcNow;
             binary.symbol = symbol;
             binary.side = side;
-            binary.type = logical.Type;
             binary.price = price;
             binary.remainingSize = remainingSize;
             binary.cumulativeSize = cumulativeSize;
             binary.completeSize = remainingSize + cumulativeSize;
-            binary.logicalOrderId = logical.Id;
-            binary.logicalSerialNumber = logical.SerialNumber;
-            binary.tag = logical.Tag;
             binary.reference = null;
             binary.replacedBy = null;
             binary.originalOrder = null;
             binary.brokerOrder = CreateBrokerOrderId();
-            binary.utcCreateTime = logical.UtcChangeTime;
-            binary.orderFlags = logical.OrderFlags;
+            if (logical != null)
+            {
+                binary.type = logical.Type;
+                binary.logicalOrderId = logical.Id;
+                binary.logicalSerialNumber = logical.SerialNumber;
+                binary.tag = logical.Tag;
+                binary.utcCreateTime = logical.UtcChangeTime;
+                binary.orderFlags = logical.OrderFlags;
+            }
             instanceId = ++nextInstanceId;
         }
 
@@ -142,63 +151,79 @@ namespace TickZoom.Api
             }
             sb.Append(binary.action);
             sb.Append(" ");
-            sb.Append(binary.orderState);
-            sb.Append(" ");
-            switch (binary.action)
+            switch( binary.orderState)
             {
-                case OrderAction.Create:
-                case OrderAction.Change:
-                    sb.Append(binary.side);
+                case OrderState.Lost:
+                    sb.Append(binary.orderState);
                     sb.Append(" ");
-                    sb.Append(binary.completeSize);
-                    sb.Append(" remains ");
-                    sb.Append(binary.remainingSize);
-                    sb.Append(" ");
-                    sb.Append(binary.type);
-                    sb.Append(" ");
-                    break;
-                case OrderAction.Cancel:
+                    sb.Append(binary.symbol);
+                    sb.Append(" broker: ");
+                    sb.Append(binary.brokerOrder);
+                    sb.Append(" create ");
+                    sb.Append(binary.utcCreateTime);
+                    sb.Append(" last change: ");
+                    sb.Append(binary.lastModifyTime);
+                    return sb.ToString();
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("Unexpected action: " + binary.action);
+                    sb.Append(binary.orderState);
+                    sb.Append(" ");
+                    switch (binary.action)
+                    {
+                        case OrderAction.Create:
+                        case OrderAction.Change:
+                            sb.Append(binary.side);
+                            sb.Append(" ");
+                            sb.Append(binary.completeSize);
+                            sb.Append(" remains ");
+                            sb.Append(binary.remainingSize);
+                            sb.Append(" ");
+                            sb.Append(binary.type);
+                            sb.Append(" ");
+                            break;
+                        case OrderAction.Cancel:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException("Unexpected action: " + binary.action);
+                    }
+                    sb.Append(binary.symbol);
+                    if (binary.action != OrderAction.Cancel && binary.type != OrderType.Market)
+                    {
+                        sb.Append(" at ");
+                        sb.Append(binary.price);
+                    }
+                    sb.Append(" and logical id: ");
+                    sb.Append(binary.logicalOrderId);
+                    sb.Append("-");
+                    sb.Append(binary.logicalSerialNumber);
+                    sb.Append(" broker: ");
+                    sb.Append(binary.brokerOrder);
+                    if (binary.originalOrder != null)
+                    {
+                        sb.Append(" original: ");
+                        sb.Append(binary.originalOrder.BrokerOrder);
+                    }
+                    if (binary.replacedBy != null)
+                    {
+                        sb.Append(" replaced by: ");
+                        sb.Append(binary.replacedBy.BrokerOrder);
+                    }
+                    if (binary.tag != null)
+                    {
+                        sb.Append(" ");
+                        sb.Append(binary.tag);
+                    }
+                    if (binary.sequence != 0)
+                    {
+                        sb.Append(" sequence: ");
+                        sb.Append(binary.sequence);
+                    }
+                    sb.Append(" create ");
+                    sb.Append(binary.utcCreateTime);
+                    sb.Append(" last change: ");
+                    sb.Append(binary.lastModifyTime);
+                    return sb.ToString();
             }
-            sb.Append(binary.symbol);
-            if (binary.action != OrderAction.Cancel && binary.type != OrderType.Market)
-            {
-                sb.Append(" at ");
-                sb.Append(binary.price);
-            }
-            sb.Append(" and logical id: ");
-            sb.Append(binary.logicalOrderId);
-            sb.Append("-");
-            sb.Append(binary.logicalSerialNumber);
-            sb.Append(" broker: ");
-            sb.Append(binary.brokerOrder);
-            if (binary.originalOrder != null)
-            {
-                sb.Append(" original: ");
-                sb.Append(binary.originalOrder.BrokerOrder);
-            }
-            if (binary.replacedBy != null)
-            {
-                sb.Append(" replaced by: ");
-                sb.Append(binary.replacedBy.BrokerOrder);
-            }
-            if (binary.tag != null)
-            {
-                sb.Append(" ");
-                sb.Append(binary.tag);
-            }
-            if (binary.sequence != 0)
-            {
-                sb.Append(" sequence: ");
-                sb.Append(binary.sequence);
-            }
-            sb.Append(" create ");
-            sb.Append(binary.utcCreateTime);
-            sb.Append(" last change: ");
-            sb.Append(binary.lastModifyTime);
-            return sb.ToString();
         }
 
         private static long lastId = 0L;
