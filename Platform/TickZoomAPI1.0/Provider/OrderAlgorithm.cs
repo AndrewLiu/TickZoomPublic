@@ -29,12 +29,18 @@ using System.Collections.Generic;
 
 namespace TickZoom.Api
 {
+    public enum Origin
+    {
+        Synthetic,
+        Provider
+    }
+
     public interface PhysicalOrderConfirm
     {
-        void ConfirmActive(long brokerOrder, bool isRecovered);
-        void ConfirmCreate(long brokerOrder, bool isRecovered);
+        void ConfirmActive(long brokerOrder, Origin origin, bool isRecovered);
+        void ConfirmCreate(long brokerOrder, Origin origin, bool isRecovered);
+        void ConfirmChange(long brokerOrder, long originalOrder, Origin origin, bool isRecovered);
         void ConfirmCancel(long brokerOrder, bool isRecovered);
-        void ConfirmChange(long brokerOrder, long originalOrder, bool isRecovered);
         void RejectOrder(long brokerOrder, bool isRealTime, bool retryImmediately);
     }
 

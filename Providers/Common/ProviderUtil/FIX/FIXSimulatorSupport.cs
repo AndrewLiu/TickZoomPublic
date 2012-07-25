@@ -440,22 +440,31 @@ namespace TickZoom.Provider.FIX
                         case "A": // Logon
                         case "2": // Resend request.
                         case "4": // Reset sequence.
+                        case "5": // Reset sequence.
                             textMessage = GapFillMessage(i);
                             gapFill = true;
                             break;
                         case "1": // Test Request
-                            if( !sentTestRequest)
+                            if( sentTestRequest)
+                            {
+                                gapFill = true;
+                            }
+                            else
                             {
                                 textMessage.SetDuplicate(true);
+                                sentTestRequest = true;
                             }
-                            sentTestRequest = true;
                             break;
                         case "0": // Heart beat
-                            if( !sentHeartbeat)
+                            if (sentHeartbeat)
+                            {
+                                gapFill = true;
+                            }
+                            else
                             {
                                 textMessage.SetDuplicate(true);
+                                sentHeartbeat = true;
                             }
-                            sentHeartbeat = true;
                             break;
                         default:
                             textMessage.SetDuplicate(true);

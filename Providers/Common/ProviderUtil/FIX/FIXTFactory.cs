@@ -40,5 +40,7 @@ namespace TickZoom.Provider.FIX
 	    int FirstSequence { get; }
 	    string Sender { get; }
 	    string Destination { get; }
+	    void RollbackLastLogin();
+	    void SetNextSequence(int newSequenceNumber);
 	}
 }

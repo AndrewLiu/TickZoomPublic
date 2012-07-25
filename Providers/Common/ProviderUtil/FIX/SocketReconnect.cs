@@ -128,6 +128,7 @@ namespace TickZoom.Provider.FIX
             RetryStart = 1;
             fastRetry = true;
             SetupRetry();
+            Regenerate();
         }
 
         private void SetupRetry()

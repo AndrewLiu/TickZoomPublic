@@ -645,6 +645,7 @@ namespace TickZoom.Common
         {
             var loaded = false;
             MemoryStream memory = null;
+    if( false) 
             using (snapshotLocker.Using())
             {
                 if (readySnapshots.Count > 0)
@@ -664,7 +665,7 @@ namespace TickZoom.Common
                 {
                     if (!loaded && freeSnapShots.Count > 0)
                     {
-                        var node = freeSnapShots.Last;
+                        var node = freeSnapShots.First;
                         memory = node.Value;
                         loaded = RecoverFromMemory(memory);
                     }

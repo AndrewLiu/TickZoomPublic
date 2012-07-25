@@ -122,7 +122,7 @@ namespace TickZoom.Provider.LimeFIX
             TryEndRecovery();
         }
 
-       protected override void OnFinishRecovery() 
+        protected override void OnFinishRecovery() 
         {
         }
 
@@ -131,18 +131,9 @@ namespace TickZoom.Provider.LimeFIX
             TrySendEndBroker();
         }
 	
-		private void RequestPositions() {
-			var fixMsg = (FIXMessage4_2) FixFactory.Create();
-            fixMsg.SetSubscriptionRequestType(1);
-            fixMsg.SetAccount(AccountNumber);
-			fixMsg.SetPositionRequestId(1);
-			fixMsg.SetPositionRequestType(0);
-			fixMsg.AddHeader("AN");
-			SendMessage(fixMsg);
-		}
-
         protected override void HandleRejectedLogin(MessageFIXT1_1 message)
         {
+            var result = true;
             var message42 = (MessageFIX4_2)message;
             if (message42.Text != null)
             {
@@ -150,16 +141,46 @@ namespace TickZoom.Provider.LimeFIX
                 // telling us what we should be at.  So if we can, we just use that when we reconnect.
                 if (message42.Text.StartsWith("MsgSeqNum too low"))
                 {
-                    var match = Regex.Match(message42.Text, "expecting (\\d+)");
-                    int newSequenceNumber = 0;
-                    if (match.Success && int.TryParse(match.Groups[1].Value, out newSequenceNumber) && newSequenceNumber >= OrderStore.LocalSequence)
+                    var match = Regex.Match(message42.Text, "but was (\\d+)");
+                    int badSequenceNumber = 0;
+                    if (match.Success && int.TryParse(match.Groups[1].Value, out badSequenceNumber))
                     {
-                        log.Error(message42.Text);
-                        var remoteSequence = OrderStore.RemoteSequence == 0 ? message.Sequence + 1 : OrderStore.RemoteSequence;
-                        OrderStore.SetSequences(remoteSequence,newSequenceNumber);
-                        SocketReconnect.FastRetry();
+                        FixFactory.RollbackLastLogin();
+                    }
+                    else
+                    {
+                        result = false;
+                    }
+
+                    if( result)
+                    {
+                        match = Regex.Match(message42.Text, "expecting (\\d+)");
+                        int newSequenceNumber = 0;
+                        if (match.Success && int.TryParse(match.Groups[1].Value, out newSequenceNumber) && newSequenceNumber >= OrderStore.LocalSequence)
+                        {
+                            log.Error(message42.Text);
+                            var remoteSequence = OrderStore.RemoteSequence == 0 ? message.Sequence + 1 : OrderStore.RemoteSequence;
+                            var highestSequence = OrderStore.GetHighestSequence();
+                            if (highestSequence > newSequenceNumber)
+                            {
+                                newSequenceNumber = highestSequence + 1;
+                            }
+                            OrderStore.SetSequences(remoteSequence, newSequenceNumber);
+                            FixFactory.SetNextSequence(newSequenceNumber);
+                            OrderStore.TrySnapshot();
+                            SocketReconnect.FastRetry();
+                        }
+                        else
+                        {
+                            result = false;
+                        }
                     }
                 }
+
+            }
+            if( !result)
+            {
+                throw new ApplicationException("Unable to parse rejected login error message: " + message42.Text);
             }
         }
         #endregion
@@ -338,7 +359,7 @@ namespace TickZoom.Provider.LimeFIX
                             break;
                         }
                     }
-                    algorithm.OrderAlgorithm.ConfirmCreate(clientOrderId, IsRecovered);
+                    algorithm.OrderAlgorithm.ConfirmCreate(clientOrderId, Origin.Provider, IsRecovered);
                     TrySendStartBroker(symbolInfo, "sync on confirm cancel");
                     OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
                     break;
@@ -374,7 +395,7 @@ namespace TickZoom.Provider.LimeFIX
                         log.Info("ConfirmChange but OrderAlgorithm not found for " + symbolInfo + ". Ignoring.");
                         break;
                     }
-                    algorithm.OrderAlgorithm.ConfirmChange(clientOrderId, originalClientOrderId, IsRecovered);
+                    algorithm.OrderAlgorithm.ConfirmChange(clientOrderId, originalClientOrderId, Origin.Provider, IsRecovered);
                     TrySendStartBroker(symbolInfo, "sync on confirm change");
                     OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
                     break;
@@ -452,12 +473,12 @@ namespace TickZoom.Provider.LimeFIX
                         }
                         else
                         {
-                            algorithm.OrderAlgorithm.ConfirmCreate(clientOrderId, IsRecovered);
+                            algorithm.OrderAlgorithm.ConfirmCreate(clientOrderId, Origin.Provider, IsRecovered);
                         }
                     }
                     else
                     {
-                        algorithm.OrderAlgorithm.ConfirmActive(clientOrderId, IsRecovered);
+                        algorithm.OrderAlgorithm.ConfirmActive(clientOrderId, Origin.Provider, IsRecovered);
                     }
                     TrySendStartBroker(symbolInfo, "sync on confirm cancel orig order");
                     OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
@@ -659,10 +680,6 @@ namespace TickZoom.Provider.LimeFIX
             }
             fixMsg.SetSendTime(order.UtcCreateTime);
             SendMessage(fixMsg);
-        }
-
-		private long GetUniqueOrderId() {
-            return TimeStamp.UtcNow.Internal;
         }
 
         protected override void ResendOrder(PhysicalOrder order)
