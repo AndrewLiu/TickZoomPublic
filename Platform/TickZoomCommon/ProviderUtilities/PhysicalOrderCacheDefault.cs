@@ -381,6 +381,20 @@ namespace TickZoom.Common
             }
         }
 
+        public int GetHighestSequence()
+        {
+            var highestSequence = 0;
+            foreach (var kvp in ordersByBrokerId)
+            {
+                var order = kvp.Value;
+                if( order.Sequence > highestSequence)
+                {
+                    highestSequence = order.Sequence;
+                }
+            }
+            return highestSequence;
+        }
+
         public string OrdersToString()
         {
             var sb = new StringBuilder();

@@ -86,6 +86,7 @@ namespace TickZoom.Provider.FIX
 		{
 		    return messageHistory.TryGetValue(sequence, out result);
 		}
+
 		public int LastSequence {
 			get { return lastSequence; }
 		}
@@ -94,5 +95,44 @@ namespace TickZoom.Provider.FIX
 	    {
 	        get { return firstSequence; }
 	    }
-	}
+
+        private void RollbackSequence(int badSequenceNumber)
+        {
+            var removeList = new List<int>();
+            foreach( var kvp in messageHistory)
+            {
+                var sequence = kvp.Key;
+                if( sequence >= badSequenceNumber)
+                {
+                    removeList.Add(sequence);
+                }
+            }
+            foreach( var sequence in removeList)
+            {
+                messageHistory.Remove(sequence);
+            }
+            SetNextSequence(badSequenceNumber);
+        }
+
+        public void SetNextSequence(int newSequenceNumber)
+        {
+            lastSequence = nextSequence = newSequenceNumber - 1;
+        }
+
+        public void RollbackLastLogin()
+        {
+            var lastLoginSequence = 0;
+            foreach (var kvp in messageHistory)
+            {
+                var sequence = kvp.Key;
+                var message = kvp.Value;
+                var type = message.Type;
+                if( type == "A" && sequence > lastLoginSequence)
+                {
+                    lastLoginSequence = sequence;
+                }
+            }
+            RollbackSequence(lastLoginSequence);
+        }
+    }
 }

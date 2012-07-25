@@ -67,7 +67,7 @@ namespace TickZoom.Api
         public PhysicalOrderDefault(OrderState orderState, SymbolInfo symbol, long orderId)
             : this(orderState, symbol, null, default(OrderSide), 0, 0, 0D)
         {
-            binary.action = default(OrderAction);
+            binary.action = OrderAction.Create;
             binary.brokerOrder = orderId;
         }
 
@@ -164,7 +164,6 @@ namespace TickZoom.Api
                     sb.Append(" last change: ");
                     sb.Append(binary.lastModifyTime);
                     return sb.ToString();
-                    break;
                 default:
                     sb.Append(binary.orderState);
                     sb.Append(" ");
@@ -184,7 +183,7 @@ namespace TickZoom.Api
                         case OrderAction.Cancel:
                             break;
                         default:
-                            throw new ArgumentOutOfRangeException("Unexpected action: " + binary.action);
+                            throw new ArgumentOutOfRangeException("Unexpected action " + binary.action + " for order id " + binary.brokerOrder);
                     }
                     sb.Append(binary.symbol);
                     if (binary.action != OrderAction.Cancel && binary.type != OrderType.Market)

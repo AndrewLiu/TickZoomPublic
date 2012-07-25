@@ -28,6 +28,7 @@ namespace TickZoom.Api
         string OrdersToString();
         List<PhysicalOrder> GetOrdersList(Func<PhysicalOrder, bool> func);
         void PurgeOriginalOrder(PhysicalOrder order);
+        int GetHighestSequence();
     }
 
     public interface PhysicalOrderStore : PhysicalOrderCache

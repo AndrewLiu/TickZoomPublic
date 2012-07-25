@@ -423,7 +423,7 @@ namespace TickZoom.Provider.MBTFIX
                             break;
                         }
                     }
-                    algorithm.OrderAlgorithm.ConfirmCreate(clientOrderId, IsRecovered);
+                    algorithm.OrderAlgorithm.ConfirmCreate(clientOrderId, Origin.Provider, IsRecovered);
                     TrySendStartBroker(symbolInfo, "sync on confirm cancel");
                     OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
                     break;
@@ -459,7 +459,7 @@ namespace TickZoom.Provider.MBTFIX
                         log.Info("ConfirmChange but OrderAlgorithm not found for " + symbolInfo + ". Ignoring.");
                         break;
                     }
-                    algorithm.OrderAlgorithm.ConfirmChange(clientOrderId, originalClientOrderId, IsRecovered);
+                    algorithm.OrderAlgorithm.ConfirmChange(clientOrderId, originalClientOrderId, Origin.Provider, IsRecovered);
                     TrySendStartBroker(symbolInfo, "sync on confirm change");
                     OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);
                     break;
@@ -537,12 +537,12 @@ namespace TickZoom.Provider.MBTFIX
                         }
                         else
                         {
-                            algorithm.OrderAlgorithm.ConfirmCreate(clientOrderId, IsRecovered);
+                            algorithm.OrderAlgorithm.ConfirmCreate(clientOrderId, Origin.Provider, IsRecovered);
                         }
                     }
                     else
                     {
-                        algorithm.OrderAlgorithm.ConfirmActive(clientOrderId, IsRecovered);
+                        algorithm.OrderAlgorithm.ConfirmActive(clientOrderId, Origin.Provider, IsRecovered);
                     }
                     TrySendStartBroker(symbolInfo, "sync on confirm cancel orig order");
                     OrderStore.SetSequences(RemoteSequence, FixFactory.LastSequence);

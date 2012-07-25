@@ -414,11 +414,11 @@ namespace TickZoom.Provider.FIX
             switch( order.Action)
             {
                 case OrderAction.Create:
-                    orderAlgorithm.OrderAlgorithm.ConfirmCreate(order.BrokerOrder, IsRecovered);
+                    orderAlgorithm.OrderAlgorithm.ConfirmCreate(order.BrokerOrder, Origin.Synthetic, IsRecovered);
                     break;
                 case OrderAction.Change:
                     var originalOrderId = order.OriginalOrder == null ? 0 : order.OriginalOrder.BrokerOrder;
-                    orderAlgorithm.OrderAlgorithm.ConfirmChange(order.BrokerOrder, originalOrderId, IsRecovered);
+                    orderAlgorithm.OrderAlgorithm.ConfirmChange(order.BrokerOrder, originalOrderId, Origin.Synthetic, IsRecovered);
                     break;
                 case OrderAction.Cancel:
                     orderAlgorithm.OrderAlgorithm.ConfirmCancel(order.OriginalOrder.BrokerOrder, IsRecovered);
@@ -1692,6 +1692,20 @@ namespace TickZoom.Provider.FIX
                 var synthetics = OrderStore.GetOrders((o) => o.IsSynthetic);
                 foreach (var order in synthetics)
                 {
+                    switch( order.OrderState)
+                    {
+                        case OrderState.Pending:
+                        case OrderState.PendingNew:
+                        case OrderState.Active:
+                        case OrderState.Suspended:
+                        case OrderState.Expired:
+                            break;
+                        case OrderState.Lost:
+                        case OrderState.Filled:
+                            continue;
+                        default:
+                            throw new ArgumentOutOfRangeException("Unexpected order state: " + order.OrderState);
+                    }
                     var algo = algorithms.CreateAlgorithm(order.Symbol);
                     switch( order.Action)
                     {

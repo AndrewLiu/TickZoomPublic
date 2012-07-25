@@ -167,7 +167,7 @@ namespace TickZoom.Interceptors
             if (CreateBrokerOrder(order))
             {
                 var originalOrderId = order.OriginalOrder == null ? 0 : order.OriginalOrder.BrokerOrder;
-                if (confirmOrders != null) confirmOrders.ConfirmChange(order.BrokerOrder, originalOrderId, true);
+                if (confirmOrders != null) confirmOrders.ConfirmChange(order.BrokerOrder, originalOrderId, Origin.Provider, true);
                 UpdateCounts();
             }
             order.OriginalOrder = null; // Original order was canceled.
@@ -303,7 +303,7 @@ namespace TickZoom.Interceptors
             }
             if( CreateBrokerOrder(order))
             {
-                if (confirmOrders != null) confirmOrders.ConfirmCreate(order.BrokerOrder, true);
+                if (confirmOrders != null) confirmOrders.ConfirmCreate(order.BrokerOrder, Origin.Provider, true);
                 UpdateCounts();
             }
             return true;
