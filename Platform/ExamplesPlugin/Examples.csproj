@@ -65,6 +65,14 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
+    <Reference Include="TickZoomAPI1.0, Version=1.4.19.19232, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\bin\Debug\TickZoomAPI1.0.dll</HintPath>
+    </Reference>
+    <Reference Include="TickZoomPluginCommon, Version=1.4.19.19232, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\bin\Debug\TickZoomPluginCommon.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CustomBars\PointFigureBars.cs" />
@@ -199,15 +207,5 @@
     <Compile Include="Strategies\ExampleSMAStrategy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="COPYING.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\TickZoomAPI1.0\API1.0.csproj">
-      <Project>{27D6C88D-52B6-432C-820B-CD38A299830C}</Project>
-      <Name>API1.0</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TickZoomCommon\Common.csproj">
-      <Project>{3272A53F-7A88-4A5B-BBCA-1C3A9EA2E21F}</Project>
-      <Name>Common</Name>
-    </ProjectReference>
   </ItemGroup>
 </Project>

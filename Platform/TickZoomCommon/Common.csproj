@@ -85,6 +85,10 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml" />
+    <Reference Include="TickZoomAPI1.0, Version=1.4.19.19232, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\bin\Debug\TickZoomAPI1.0.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\BarLogic.cs" />
@@ -191,11 +195,5 @@
     <Compile Include="Transactions\TransactionPairsBinary.cs" />
     <Compile Include="Transactions\TransactionPairsPage.cs" />
     <Compile Include="Transactions\TransactionPairsPages.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\TickZoomAPI1.0\API1.0.csproj">
-      <Project>{27D6C88D-52B6-432C-820B-CD38A299830C}</Project>
-      <Name>API1.0</Name>
-    </ProjectReference>
   </ItemGroup>
 </Project>
