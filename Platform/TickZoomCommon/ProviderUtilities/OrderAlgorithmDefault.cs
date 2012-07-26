@@ -1042,7 +1042,6 @@ namespace TickZoom.Common
                         default:
                             throw new ArgumentOutOfRangeException("Unexpected trade direction: " + logical.TradeDirection);
                     }
-                    break;
                 default:
                     switch (logical.TradeDirection)
                     {
@@ -1058,7 +1057,6 @@ namespace TickZoom.Common
                         default:
                             throw new ArgumentOutOfRangeException("Unexpected trade direction: " + logical.TradeDirection);
                     }
-                    break;
             }
         }
 		
