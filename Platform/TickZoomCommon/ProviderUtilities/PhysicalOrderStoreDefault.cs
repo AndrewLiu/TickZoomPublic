@@ -29,7 +29,8 @@ namespace TickZoom.Common
 
         private string databasePath;
         private FileStream fs;
-        private SimpleLock snapshotLocker = new SimpleLock();
+        private object snapshotThreadLocker = new object();
+        private SimpleLock snapshotListLocker = new SimpleLock();
         private ActiveList<MemoryStream> readySnapshots = new ActiveList<MemoryStream>();
         private ActiveList<MemoryStream> freeSnapShots = new ActiveList<MemoryStream>();
         private Dictionary<PhysicalOrder, int> unique = new Dictionary<PhysicalOrder, int>();
@@ -193,7 +194,7 @@ namespace TickZoom.Common
 
         private void StartSnapShot()
         {
-            lock( snapshotLocker)
+            lock( snapshotThreadLocker)
             {
                 if(writeFileResult != null)
                 {
@@ -235,7 +236,7 @@ namespace TickZoom.Common
             {
                 if( debug) log.DebugFormat("Waiting for snapshot for {0}ms.", elapsed.TotalMilliseconds);
             }
-            lock(snapshotLocker)
+            lock(snapshotThreadLocker)
             {
                 if (writeFileResult != null && writeFileResult.IsCompleted)
                 {
@@ -388,7 +389,7 @@ namespace TickZoom.Common
             ActiveListNode<MemoryStream> node;
             if( freeSnapShots.Count > leaveLatestSnapshotCount)
             {
-                using (snapshotLocker.Using())
+                using (snapshotListLocker.Using())
                 {
                     node = freeSnapShots.First;
                     freeSnapShots.RemoveFirst();
@@ -552,7 +553,7 @@ namespace TickZoom.Common
             writer.Write((Int32)memory.Length - sizeof(Int32)); // length excludes the size of the length value.
 
             var count = 0;
-            using (snapshotLocker.Using())
+            using (snapshotListLocker.Using())
             {
                 readySnapshots.AddLast(node);
                 count = readySnapshots.Count;
@@ -563,7 +564,7 @@ namespace TickZoom.Common
         private void SnapShotFlushToDisk()
         {
             ActiveListNode<MemoryStream>node;
-            using (snapshotLocker.Using())
+            using (snapshotListLocker.Using())
             {
                 node = readySnapshots.First;
             }
@@ -576,7 +577,7 @@ namespace TickZoom.Common
                     fs.Write(memory.GetBuffer(), 0, (int)memory.Length);
                     snapshotLength += memory.Length;
                     fs.Flush();
-                    using (snapshotLocker.Using())
+                    using (snapshotListLocker.Using())
                     {
                         readySnapshots.RemoveFirst();
                         freeSnapShots.AddLast(node);
@@ -645,15 +646,14 @@ namespace TickZoom.Common
         {
             var loaded = false;
             MemoryStream memory = null;
-    if( false) 
-            using (snapshotLocker.Using())
+            if (readySnapshots.Count > 0)
             {
-                if (readySnapshots.Count > 0)
+                using (snapshotListLocker.Using())
                 {
                     var node = readySnapshots.Last;
                     memory = node.Value;
-                    loaded = RecoverFromMemory(memory);
                 }
+                loaded = RecoverFromMemory(memory);
             }
             if (loaded)
             {
@@ -661,14 +661,14 @@ namespace TickZoom.Common
             }
             else
             {
-                using (snapshotLocker.Using())
+                if (!loaded && freeSnapShots.Count > 0)
                 {
-                    if (!loaded && freeSnapShots.Count > 0)
+                    using (snapshotListLocker.Using())
                     {
-                        var node = freeSnapShots.First;
+                        var node = freeSnapShots.Last;
                         memory = node.Value;
-                        loaded = RecoverFromMemory(memory);
                     }
+                    loaded = RecoverFromMemory(memory);
                 }
                 if (loaded)
                 {
@@ -901,11 +901,8 @@ namespace TickZoom.Common
                 {
                     isDisposed = true;
                     if( debug) log.DebugFormat(LogMessage.LOGMSG48);
-                    lock( snapshotLocker)
-                    {
-                        ForceSnapshot();
-                        TryClose();
-                    }
+                    ForceSnapshot();
+                    TryClose();
                 }
             }
         }
