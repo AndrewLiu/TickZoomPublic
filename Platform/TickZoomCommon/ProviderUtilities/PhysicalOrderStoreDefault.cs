@@ -216,7 +216,7 @@ namespace TickZoom.Common
             }
         }
 
-        public bool IsBusy
+        private bool IsBusy
         {
             get
             {

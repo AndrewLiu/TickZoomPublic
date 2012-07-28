@@ -1158,15 +1158,15 @@ namespace TickZoom.Common
 
 	    private void SyncPosition()
         {
-            if( !ReceivedDesiredPosition)
+            if (symbol.DisableRealtimeSimulation)
             {
-                if (debug) log.DebugFormat(LogMessage.LOGMSG453, ReceivedDesiredPosition);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG454, symbol.DisableRealtimeSimulation);
+                isPositionSynced = true;
                 return;
             }
-            if( symbol.DisableRealtimeSimulation)
+            if (!ReceivedDesiredPosition)
             {
-                if( debug) log.DebugFormat(LogMessage.LOGMSG454, symbol.DisableRealtimeSimulation);
-                isPositionSynced = true;
+                if (debug) log.DebugFormat(LogMessage.LOGMSG453, ReceivedDesiredPosition);
                 return;
             }
             // Find any pending adjustments.
