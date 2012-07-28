@@ -774,6 +774,7 @@ namespace TickZoom.Provider.FIX
                 }
                 else
                 {
+                    ConnectionStatus = Status.PendingServerResend;
                     log.Notice("HandleResend status " + connectionStatus);
                     IsResendComplete = false;
                     expectedResendSequence = to;
@@ -881,11 +882,14 @@ namespace TickZoom.Provider.FIX
 		    var heartbeatTime = TimeStamp.UtcNow;
             if( SyncTicks.Enabled)
             {
-                heartbeatTime.AddMilliseconds(200);
+                var ms = 200;
+                heartbeatTime.AddMilliseconds(ms);
+                if( debug) log.DebugFormat("Adding {0}ms for heartbeat timeout at {1}.", ms, heartbeatTime);
             }
             else
             {
                 heartbeatTime.AddSeconds(heartbeatDelay);
+                if (debug) log.DebugFormat("Adding {0}sec for heartbeat timeout at {1}.", heartbeatDelay, heartbeatTime);
             }
 			heartbeatTimer.Start(heartbeatTime);
 		}
@@ -1662,7 +1666,7 @@ namespace TickZoom.Provider.FIX
             fixMsg.AddHeader("0");
             SendMessage( fixMsg);
             previousHeartbeatTime = recentHeartbeatTime;
-            recentHeartbeatTime = TimeStamp.UtcNow;
+            recentHeartbeatTime = Factory.Parallel.UtcNow;
         }
 
         protected string GetOpenOrders()
