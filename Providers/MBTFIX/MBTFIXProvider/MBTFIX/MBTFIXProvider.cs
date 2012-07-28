@@ -73,8 +73,9 @@ namespace TickZoom.Provider.MBTFIX
             return new MessageFactoryFix44();
         }
 
-        private void RequestSessionUpdate()
+        private void TryRequestSessionUpdate()
         {
+            if (isOrderServerOnline) return;
             var mbtMsg = FixFactory.Create();
             mbtMsg.SetTradingSessionRequestId(FixFactory.Sender + "-" + mbtMsg.Sequence + "-" + TimeStamp.UtcNow);
             mbtMsg.SetTradingSessionId("TSSTATE");
@@ -150,7 +151,7 @@ namespace TickZoom.Provider.MBTFIX
 
         protected override void SendHeartbeat()
         {
-            if (!isOrderServerOnline) RequestSessionUpdate();
+            TryRequestSessionUpdate();
             base.SendHeartbeat();
         }
 
@@ -285,7 +286,7 @@ namespace TickZoom.Provider.MBTFIX
                     {
                         EndRecovery();
                         RequestPositions();
-                        RequestSessionUpdate();
+                        TryRequestSessionUpdate();
                         StartPositionSync();
                         return;
                     }

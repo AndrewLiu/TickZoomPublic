@@ -44,7 +44,6 @@ namespace TickZoom.Api
         void UpdateRemoteSequence(int remoteSequence);
         void SetSequences(int remoteSequence, int localSequence);
         TimeStamp LastSequenceReset { get; set; }
-        bool IsBusy { get; }
         int Count();
         void TrySnapshot();
         IDisposable BeginTransaction();

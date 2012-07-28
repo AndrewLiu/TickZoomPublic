@@ -234,8 +234,15 @@ namespace TickZoom.Provider.FIX
 		}
 		
 		public void EndRecovery() {
-			ConnectionStatus = Status.Recovered;
-		    bestConnectionStatus = Status.Recovered;
+            if( logoutPending)
+            {
+                ConnectionStatus = Status.PendingLogOut;
+            }
+            else
+            {
+                ConnectionStatus = Status.Recovered;
+                bestConnectionStatus = Status.Recovered;
+            }
             OrderStore.ResetLastChange();
             OnFinishRecovery();
         }
@@ -251,11 +258,6 @@ namespace TickZoom.Provider.FIX
 				return ConnectionStatus == Status.PendingRecovery;
 			}
 		}
-
-        private bool SnapshotBusy
-        {
-            get { return orderStore.IsBusy; }
-        }
 
         private int frozenHeartbeatCounter;
         private Yield HeartBeatTimerEvent()
@@ -344,8 +346,6 @@ namespace TickZoom.Provider.FIX
                         throw new ApplicationException("Unexpected event type: " + eventItem.EventType);
                 }
             }
-
-            if (SnapshotBusy) return Yield.DidWork.Repeat;
 
             if (SocketReconnect == null) return Yield.DidWork.Repeat;
 
@@ -571,11 +571,8 @@ namespace TickZoom.Provider.FIX
                             {
                                 if (CheckForServerSync(messageFIX))
                                 {
-                                    if (ConnectionStatus == Status.PendingServerResend)
-                                    {
-                                        ConnectionStatus = Status.PendingRecovery;
-                                        TryEndRecovery();
-                                    }
+                                    ConnectionStatus = Status.PendingRecovery;
+                                    TryEndRecovery();
                                 }
                             }
                             if (!CheckForMissingMessages(messageFIX, out releaseFlag) && !handledAlready)
@@ -1130,6 +1127,8 @@ namespace TickZoom.Provider.FIX
             throw new NotImplementedException();
         }
 
+        private bool logoutPending;
+
         public void LogOut()
         {
             if (bestConnectionStatus != Status.Recovered)
@@ -1151,11 +1150,13 @@ namespace TickZoom.Provider.FIX
                         Dispose();
                         break;
                     case Status.PendingLogOut:
+                        logoutPending = true;
                         break;
                     case Status.Recovered:
                     case Status.PendingServerResend:
                     case Status.PendingRecovery:
                         ConnectionStatus = Status.PendingLogOut;
+                        logoutPending = true;
                         using (orderStore.BeginTransaction())
                         {
                             if (debug) log.DebugFormat(LogMessage.LOGMSG222);
