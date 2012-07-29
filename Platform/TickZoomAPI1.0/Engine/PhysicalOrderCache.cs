@@ -25,7 +25,7 @@ namespace TickZoom.Api
         void SyncPositions(Iterable<StrategyPosition> strategyPositions);
         string StrategyPositionsToString();
         string SymbolPositionsToString();
-        string OrdersToString();
+        void LogOrders(Log log);
         List<PhysicalOrder> GetOrdersList(Func<PhysicalOrder, bool> func);
         void PurgeOriginalOrder(PhysicalOrder order);
         int GetHighestSequence();

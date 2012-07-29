@@ -395,14 +395,12 @@ namespace TickZoom.Common
             return highestSequence;
         }
 
-        public string OrdersToString()
+        public void LogOrders(Log log)
         {
-            var sb = new StringBuilder();
             foreach (var kvp in ordersByBrokerId)
             {
-                sb.AppendLine(kvp.Value.ToString());
+                log.DebugFormat(LogMessage.LOGMSG611,kvp.Value);
             }
-            return sb.ToString();
         }
 
         private volatile bool isDisposed = false;

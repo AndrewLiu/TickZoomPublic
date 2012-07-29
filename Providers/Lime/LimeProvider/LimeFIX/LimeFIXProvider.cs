@@ -247,7 +247,8 @@ namespace TickZoom.Provider.LimeFIX
                     if (transactTime >= OrderStore.LastSequenceReset)
                     {
                         ExecutionReport(packetFIX);
-                        if (debug) log.DebugFormat(LogMessage.LOGMSG163, OrderStore.OrdersToString());
+                        if (debug) log.DebugFormat(LogMessage.LOGMSG163);
+                        if (debug) OrderStore.LogOrders(log);
                     }
                     else
                     {

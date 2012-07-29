@@ -1215,6 +1215,7 @@ namespace TickZoom.Api
         LOGMSG1182,
         LOGMSG1183,
         LOGMSG1184,
+        LOGMSG1185
     }
 
     public interface Log 

@@ -121,18 +121,29 @@ namespace TickZoom.Symbols
 			return symbol;
 		}
 
-        public string GetSymbolSource(string symbol)
+        public static string GetSymbolSource(string symbol)
         {
-            var parts = symbol.Split('!');
+            var countBangs = 0;
+            var firstBang = symbol.IndexOf('!');
+            var index = 0;
+            do
+            {
+                ++index;
+                index = symbol.IndexOf('!',index);
+                if( index >= 0) ++countBangs;
+            } while (index >= 0);
+
             var result = "default";
-            if (parts.Length > 2)
+            if (countBangs > 2)
             {
                 throw new FormatException(symbol + " has more than one '!' symbol.");
             }
-            parts = parts[0].Split('.');
-            if( parts.Length > 1)
+
+            var endOfSource = firstBang >= 0 ? firstBang : symbol.Length;
+            var firstDot = symbol.IndexOf(".");
+            if( firstDot >= 0)
             {
-                result = string.Join(".", parts, 1, parts.Length - 1);
+                result = symbol.Substring(firstDot + 1, endOfSource - firstDot - 1);
             }
             return result;
         }
