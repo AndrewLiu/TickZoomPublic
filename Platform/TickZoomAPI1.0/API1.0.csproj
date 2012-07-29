@@ -104,6 +104,7 @@
     <Compile Include="Engine\FieldEncoderMap.cs" />
     <Compile Include="Engine\IterableFieldEncoder.cs" />
     <Compile Include="Engine\LogAware.cs" />
+    <Compile Include="Engine\LogMessage.cs" />
     <Compile Include="Engine\MetaType.cs" />
     <Compile Include="Engine\NumericFieldEncoder.cs" />
     <Compile Include="Engine\PhysicalOrderCache.cs" />

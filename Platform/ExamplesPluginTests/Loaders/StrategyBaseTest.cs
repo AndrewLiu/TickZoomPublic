@@ -1375,7 +1375,8 @@ namespace Loaders
                                 firstMisMatch = i;
                             }
                         }
-                    log.DebugFormat(LogMessage.LOGMSG707, i, j, match, strategyBars.Open[i], strategyBars.High[i], strategyBars.Low[i], strategyBars.Close[i], bar.Open, bar.High, bar.Low, bar.Close);
+                    log.DebugFormat(LogMessage.LOGMSG707, i, j, match, strategyBars.Open[i], strategyBars.High[i], strategyBars.Low[i], strategyBars.Close[i]);
+                    log.DebugFormat("    => {0},{1},{2},{3}", bar.Open, bar.High, bar.Low, bar.Close);
                     log.DebugFormat(LogMessage.LOGMSG708, i, j, match, strategyBars.Time[i], new TimeStamp(bar.X));
                 }
             }

@@ -766,7 +766,7 @@ namespace TickZoom.Logging
                 collection.Add( LogMessage.LOGMSG704,"HistoricalShowChart() start.");
                 collection.Add( LogMessage.LOGMSG705,"HistoricalShowChart() finished.");
                 collection.Add( LogMessage.LOGMSG706,"bar {0} is missing");
-                collection.Add( LogMessage.LOGMSG707,"bar: {0}, point: {1} {2} days:{3},{4},{5},{6} => {7},{8},{9},{10}");
+                collection.Add( LogMessage.LOGMSG707,"bar: {0}, point: {1} {2} days:{3},{4},{5},{6}");
                 collection.Add( LogMessage.LOGMSG708,"bar: {0}, point: {1} {2} days:{3} {4}");
                 collection.Add( LogMessage.LOGMSG709,"close: {0} {1} {2}");
                 collection.Add( LogMessage.LOGMSG710,"isFlat {0}, Position.IsFlat {1}, trades.Count {2}, Completed {3}");
@@ -840,7 +840,7 @@ namespace TickZoom.Logging
                 collection.Add( LogMessage.LOGMSG778,"Found {0} sockets ready to write.");
                 collection.Add( LogMessage.LOGMSG779,"Ready to write on socket: {0}");
                 collection.Add( LogMessage.LOGMSG780,"Shutdown()");
-                collection.Add( LogMessage.LOGMSG781,"None {0}, Pnd {1}, Con {2}, Bnd {3}, Lst {4}, Sht {5}, Clg {6}, Cld {7}, Oth {8} -- Read {9}/{10}, Write {11}/{12}");
+                collection.Add( LogMessage.LOGMSG781,"None {0}, Pnd {1}, Con {2}, Bnd {3}, Lst {4}");
                 collection.Add( LogMessage.LOGMSG782,"removing selector from list");
                 collection.Add( LogMessage.LOGMSG783,"Listen for {0}");
                 collection.Add( LogMessage.LOGMSG784,"Binding handle {0} to port {1}");
