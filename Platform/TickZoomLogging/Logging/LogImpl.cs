@@ -584,7 +584,6 @@ namespace TickZoom.Logging
         public string resultString;
         public string cloneResult;
 
-        private bool trackFormats = true;
         private bool serialized = false;
 
         private static EncodeHelper encoderDecoder = new EncodeHelper();

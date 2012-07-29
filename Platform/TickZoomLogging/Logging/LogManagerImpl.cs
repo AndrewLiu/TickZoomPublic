@@ -222,7 +222,7 @@ namespace TickZoom.Logging
                 collection.Add( LogMessage.LOGMSG160,"Received Cancel Rejected");
                 collection.Add( LogMessage.LOGMSG161,"Received Business Reject");
                 collection.Add( LogMessage.LOGMSG162,"Setting Order Server online");
-                collection.Add( LogMessage.LOGMSG163,"Resulting orders in snapshot: \n{0}");
+                collection.Add( LogMessage.LOGMSG163,"Resulting orders in snapshot:");
                 collection.Add( LogMessage.LOGMSG164,"Setup Fix Factory");
                 collection.Add( LogMessage.LOGMSG165,"Set local sequence number to {0}");
                 collection.Add( LogMessage.LOGMSG166,"Requesting heartbeat: {0}");
@@ -303,13 +303,13 @@ namespace TickZoom.Logging
                 collection.Add( LogMessage.LOGMSG241,"SendHeartBeat Status {0}, Session Status Online {1}, Resend Complete {2}");
                 collection.Add( LogMessage.LOGMSG242,"LimeFIXProvider.Login()");
                 collection.Add( LogMessage.LOGMSG243,"Recovered from snapshot Local Sequence {0}, Remote Sequence {1}");
-                collection.Add( LogMessage.LOGMSG244,"Recovered orders from snapshot: \n{0}");
+                collection.Add( LogMessage.LOGMSG244,"Recovered orders from snapshot:");
                 collection.Add( LogMessage.LOGMSG245,"Recovered symbol positions from snapshot:\n{0}");
                 collection.Add( LogMessage.LOGMSG246,"Recovered strategy positions from snapshot:\n{0}");
                 collection.Add( LogMessage.LOGMSG247,"Unable to recover from snapshot. Beginning full recovery.");
                 collection.Add( LogMessage.LOGMSG248,"StartPositionSync()");
                 collection.Add( LogMessage.LOGMSG249,"Found 0 open orders prior to sync.");
-                collection.Add( LogMessage.LOGMSG250,"Orders prior to sync:\n{0}");
+                collection.Add( LogMessage.LOGMSG250,"Orders prior to sync:");
                 collection.Add( LogMessage.LOGMSG251,"ConnectionStatus changed from {0} to {1}");
                 collection.Add( LogMessage.LOGMSG252,"Heartbeat occurred at {0}");
                 collection.Add( LogMessage.LOGMSG253,"Simulating FIX connection was lost, closing FIX socket.");
@@ -1244,7 +1244,8 @@ namespace TickZoom.Logging
 		        collection.Add( LogMessage.LOGMSG1182, "loss.Add(0)");
                 collection.Add( LogMessage.LOGMSG1183, "gain.Add(0)");
                 collection.Add( LogMessage.LOGMSG1184, "loss.Add({0})");
-        }
+		        collection.Add(LogMessage.LOGMSG1185, "client id {0} for {1}");
+		}
 
         public void ConfigureUserLog()
         {

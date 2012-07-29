@@ -209,8 +209,11 @@ namespace TickZoom.Api
         public void RemoveTick(ref TickBinary tick)
         {
             var value = Interlocked.Decrement(ref (*state).ticks);
-            var callback = changeCallBack == null ? "" : " Callback, ";
-            if (trace) log.TraceFormat(LogMessage.LOGMSG660, callback + value, tick, this);
+            if (trace)
+            {
+                var callback = changeCallBack == null ? "" : " Callback, ";
+                log.TraceFormat(LogMessage.LOGMSG660, callback + value, tick, this);
+            }
             if (value < 0)
             {
                 var temp = Interlocked.Increment(ref (*state).ticks);

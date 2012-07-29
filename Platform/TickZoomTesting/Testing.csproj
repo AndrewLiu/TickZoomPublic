@@ -143,6 +143,7 @@
     <Compile Include="Utilities\ISINTest.cs" />
     <Compile Include="Utilities\MultiCoreSameClassTest.cs" />
     <Compile Include="Utilities\MultiCoreTest.cs" />
+    <Compile Include="Utilities\SymbolLibraryTest.cs" />
     <Compile Include="Utilities\SymbolTest.cs" />
     <Compile Include="Utilities\tzdataTest.cs" />
     <None Include="app.config" />

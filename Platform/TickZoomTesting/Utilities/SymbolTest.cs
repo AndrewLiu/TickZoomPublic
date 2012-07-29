@@ -31,7 +31,7 @@ using TickZoom.Api;
 
 namespace TickZoom.Utilities
 {
-	[TestFixture]
+    [TestFixture]
 	public class SymbolTest
 	{
 		[Test]

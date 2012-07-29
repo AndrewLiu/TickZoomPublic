@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -1670,18 +1671,16 @@ namespace TickZoom.Provider.FIX
             recentHeartbeatTime = Factory.Parallel.UtcNow;
         }
 
-        protected string GetOpenOrders()
+        private List<PhysicalOrder> openOrderList = new List<PhysicalOrder>();
+        protected List<PhysicalOrder> GetOpenOrders()
         {
-            var sb = new StringBuilder();
+            openOrderList.Clear();
             var list = OrderStore.GetOrders((x) => true);
-            foreach( var order in list) {
-                sb.Append("    ");
-                sb.Append( order.BrokerOrder);
-                sb.Append(" ");
-                sb.Append(order);
-                sb.AppendLine();
+            foreach (var order in list)
+            {
+                openOrderList.Add(order);
             }
-            return sb.ToString();
+            return openOrderList;
         }
 
         protected abstract void SendLogin(int localSequence, bool b);
@@ -1728,7 +1727,8 @@ namespace TickZoom.Provider.FIX
                     }
                 }
                 if (debug) log.DebugFormat(LogMessage.LOGMSG243, OrderStore.LocalSequence, OrderStore.RemoteSequence);
-                if (debug) log.DebugFormat(LogMessage.LOGMSG244, OrderStore.OrdersToString());
+                if (debug) log.DebugFormat(LogMessage.LOGMSG244);
+                if (debug) OrderStore.LogOrders(log);
                 if (debug) log.DebugFormat(LogMessage.LOGMSG245, OrderStore.SymbolPositionsToString());
                 if (debug) log.DebugFormat(LogMessage.LOGMSG246, OrderStore.StrategyPositionsToString());
                 RemoteSequence = OrderStore.RemoteSequence;
@@ -1757,13 +1757,17 @@ namespace TickZoom.Provider.FIX
         {
             if (debug) log.DebugFormat(LogMessage.LOGMSG248);
             var openOrders = GetOpenOrders();
-            if (string.IsNullOrEmpty(openOrders))
+            if (openOrders.Count == 0)
             {
                 if (debug) log.DebugFormat(LogMessage.LOGMSG249);
             }
-            else
+            else if( debug)
             {
-                if (debug) log.DebugFormat(LogMessage.LOGMSG250, openOrders);
+                log.DebugFormat(LogMessage.LOGMSG250);
+                foreach (var order in openOrders)
+                {
+                    log.DebugFormat(LogMessage.LOGMSG1185, order.BrokerOrder, order);
+                }
             }
             MessageFIXT1_1.IsQuietRecovery = false;
             foreach (var algorithm in algorithms.GetAlgorithms())
