@@ -50,25 +50,28 @@ namespace TickZoom.Api
         public void DefineType<T>(int code)
         {
             var type = typeof (T);
-            typeCodesByType.Add(type,code);
-            typeCodesByCode.Add(code,type);
+            try
+            {
+                typeCodesByType.Add(type, code);
+            }
+            catch( ArgumentException ex)
+            {
+                throw new ArgumentException("The key " + type + " with code " + code + " already exists.");
+            }
+            try
+            {
+                typeCodesByCode.Add(code, type);
+            }
+            catch( ArgumentException ex)
+            {
+                throw new ArgumentException("The key " + code + " with value " + type + " already exists.");
+            }
             if( code > maxCode)
             {
                 maxCode = code;
             }
             CreateMeta(type);
             CreateTypeEncoder<T>();
-        }
-
-        public int DefineTemporaryType<T>()
-        {
-            var type = typeof (T);
-            var code = ++maxCode;
-            typeCodesByType.Add(type, code);
-            typeCodesByCode.Add(code, type);
-            CreateMeta(type);
-            CreateTypeEncoder<T>();
-            return code;
         }
 
         #region Private Methods
