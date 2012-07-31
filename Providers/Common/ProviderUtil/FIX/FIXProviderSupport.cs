@@ -265,7 +265,10 @@ namespace TickZoom.Provider.FIX
         {
             var typeStr = ConnectionStatus == Status.PendingLogin ? "Login Timeout" : "Heartbeat timeout";
             log.Info(typeStr + ". Last Message UTC Time: " + lastMessageTime + ", current UTC Time: " + TimeStamp.UtcNow);
-            log.Error("FIXProvider " + typeStr);
+            if( !Factory.IsAutomatedTest)
+            {
+                log.Error("FIXProvider " + typeStr);
+            }
             if (SyncTicks.Frozen)
             {
                 frozenHeartbeatCounter++;
