@@ -210,7 +210,7 @@ namespace TickZoom.Symbols
                             {
                                 symbols.Add(symbol.ExpandedSymbol, symbol);
                             }
-                            catch( ArgumentException ex)
+                            catch( ArgumentException)
                             {
                                 Error(reader, "Duplicate symbol in the same dictionary file: " + symbol.ExpandedSymbol);
                             }

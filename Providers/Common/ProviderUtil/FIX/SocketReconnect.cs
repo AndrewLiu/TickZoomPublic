@@ -273,6 +273,11 @@ namespace TickZoom.Provider.FIX
             get { return socket.State; }
         }
 
+        public bool IsFinalized
+        {
+            get { return isFinalized; }
+        }
+
         public void ResetRetry()
         {
             if (RetryDelay != RetryStart)

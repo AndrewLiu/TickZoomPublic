@@ -20,7 +20,7 @@ namespace TickZoom.Loader
 	/// for you, provided you use it like this:
 	/// 1. Create a new CoreStartup instance
 	/// 2. (Optional) Set the values of the properties.
-	/// 3. Call <see cref=LOGMSG702/>.
+	/// 3. Call <see cref=""/>.
 	/// 4. Add "preinstalled" Plugins using <see cref="AddPluginsFromDirectory"/>
 	///    and <see cref="AddPluginFile"/>.
 	/// 5. (Optional) Call <see cref="ConfigureExternalPlugins"/> to support

@@ -303,10 +303,6 @@ namespace TickZoom.Provider.LimeFIX
         {
             var origOrder = cancelOrder.OriginalOrder;
             var useCancelOrder = random.Next(0, 10) < 5;
-            if( !useCancelOrder)
-            {
-                int x = 0;
-            }
             var randomOrder = useCancelOrder ? cancelOrder : origOrder;
             SendExecutionReport(randomOrder, "6", 0.0, 0, 0, 0, (int)origOrder.RemainingSize, TimeStamp.UtcNow);
             SendPositionUpdate(cancelOrder.Symbol, ProviderSimulator.GetPosition(cancelOrder.Symbol));

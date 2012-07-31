@@ -85,10 +85,6 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml" />
-    <Reference Include="TickZoomAPI1.0, Version=1.4.19.19232, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\bin\Debug\TickZoomAPI1.0.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\BarLogic.cs" />
@@ -124,28 +120,6 @@
     <Compile Include="Reports\IndexForReport.cs" />
     <Compile Include="Reports\ReportHelper.cs" />
     <Compile Include="Reports\TradeStatsReport.cs" />
-    <Compile Include="Indicators\ADX.cs" />
-    <Compile Include="Indicators\ATR.cs" />
-    <Compile Include="Indicators\AvgRange.cs" />
-    <Compile Include="Indicators\CCI.cs" />
-    <Compile Include="Indicators\ChartPoint.cs" />
-    <Compile Include="Indicators\DEMA.cs" />
-    <Compile Include="Indicators\DynamicSR.cs" />
-    <Compile Include="Indicators\EMA.cs" />
-    <Compile Include="Indicators\HMA.cs" />
-    <Compile Include="Indicators\IFT.cs" />
-    <Compile Include="Indicators\InverseFisherTransform.cs" />
-    <Compile Include="Indicators\LinearRegression.cs" />
-    <Compile Include="Indicators\PercentR.cs" />
-    <Compile Include="Indicators\Range.cs" />
-    <Compile Include="Indicators\RSI.cs" />
-    <Compile Include="Indicators\SMA.cs" />
-    <Compile Include="Indicators\T3Average.cs" />
-    <Compile Include="Indicators\TEMA.cs" />
-    <Compile Include="Indicators\Volume.cs" />
-    <Compile Include="Indicators\Wilder.cs" />
-    <Compile Include="Indicators\WilderRSI.cs" />
-    <Compile Include="Indicators\WMA.cs" />
     <Compile Include="Interceptors\EnterCommon.cs" />
     <Compile Include="Interceptors\ExitCommon.cs">
     </Compile>
@@ -195,5 +169,11 @@
     <Compile Include="Transactions\TransactionPairsBinary.cs" />
     <Compile Include="Transactions\TransactionPairsPage.cs" />
     <Compile Include="Transactions\TransactionPairsPages.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TickZoomAPI1.0\API1.0.csproj">
+      <Project>{27D6C88D-52B6-432C-820B-CD38A299830C}</Project>
+      <Name>API1.0</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

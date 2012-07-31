@@ -63,6 +63,10 @@
     <echo message=" === Compile Platform ${config.platform} === "/>
     <echo message=""/>
     
+    <msbuild project="Platform\TickZoomCommon\Common.csproj">
+      <property name="Configuration" value="${config.platform}"/>
+    </msbuild>    
+    
     <msbuild project="Platform\TickZoom.sln">
       <property name="Configuration" value="${config.platform}"/>
     </msbuild>    

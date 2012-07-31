@@ -66,7 +66,7 @@ namespace TickZoom.Api
             {
                 OpenSharedMemory(name, size);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 CreateSharedMemory(name, size);
             }

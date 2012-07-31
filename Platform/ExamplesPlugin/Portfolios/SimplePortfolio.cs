@@ -4,8 +4,8 @@ namespace TickZoom.Examples
 {
     public class SimplePortfolio : Portfolio
     {
-        private SimpleStrategy shortSide;
-        private SimpleStrategy longSide;
+        private SimplexOrigStrategy shortSide;
+        private SimplexOrigStrategy longSide;
         public SimplePortfolio()
         {
         }
@@ -13,12 +13,12 @@ namespace TickZoom.Examples
         public override void OnInitialize()
         {
             Performance.Equity.GraphEquity = true;
-            shortSide = Strategies[0] as SimpleStrategy;
+            shortSide = Strategies[0] as SimplexOrigStrategy;
             shortSide.Name = "Short Strategy";
             shortSide.OnDirectionChange = OnDirectionChange;
             shortSide.IsActive = true;
             shortSide.IsVisible = true;
-            longSide = Strategies[1] as SimpleStrategy;
+            longSide = Strategies[1] as SimplexOrigStrategy;
             longSide.Name = "Next Strategy";
             longSide.IsVisible = true;
             longSide.IsActive = false;
@@ -45,7 +45,7 @@ namespace TickZoom.Examples
             return true;
         }
 
-        public void OnDirectionChange(SimpleStrategy strategy)
+        public void OnDirectionChange(SimplexOrigStrategy strategy)
         {
             return;
         }

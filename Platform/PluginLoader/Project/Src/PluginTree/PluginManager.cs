@@ -223,7 +223,7 @@ namespace TickZoom.Loader
 		/// Plugins.
 		/// </summary>
 		/// <param name="plugins">
-		/// The list of Plugins to add. (use <see cref=LOGMSG703/> instances
+		/// The list of Plugins to add. instances
 		/// created by <see cref="Plugin.Load(TextReader)"/>).
 		/// </param>
 		public static void AddExternalPlugins(IList<Plugin> plugins)
