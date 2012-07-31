@@ -17,7 +17,7 @@ namespace TickZoom.Api
         internal Dictionary<Type, int> typeCodesByType = new Dictionary<Type, int>();
         internal Dictionary<int, Type> typeCodesByCode = new Dictionary<int, Type>();
         internal int maxCode = 0;
-        private bool debug = false;
+        private bool debug = true;
         private bool isInitialized;
 
         public EncodeHelper()
