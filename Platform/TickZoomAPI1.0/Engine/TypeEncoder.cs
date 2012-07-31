@@ -2,20 +2,22 @@
 
 namespace TickZoom.Api
 {
-    public class TypeEncoder
+    public unsafe interface TypeEncoder
     {
-        private Delegate encoderDelegate;
-        private Delegate decoderDelegate;
-        private EncodeHelper helper;
-        private Type type;
+        long Encode(byte* ptr, object original);
+    }
 
-        public TypeEncoder(EncodeHelper helper, Type type)
+    public class TypeEncoder<T> : TypeEncoder
+    {
+        private Func<EncodeHelper,IntPtr,T,long> encoderDelegate;
+        private EncodeHelper helper;
+
+        public TypeEncoder(EncodeHelper helper)
         {
             this.helper = helper;
-            this.type = type;
         }
 
-        public Delegate EncoderDelegate
+        public Func<EncodeHelper, IntPtr, T, long> EncoderDelegate
         {
             set
             {
@@ -27,31 +29,9 @@ namespace TickZoom.Api
             }
         }
 
-        public Delegate DecoderDelegate
-        {
-            set
-            {
-                if (decoderDelegate != null)
-                {
-                    throw new InvalidOperationException("Can't change after originally set.");
-                }
-                decoderDelegate = value;
-            }
-        }
-
-        public Type Type
-        {
-            get { return type; }
-        }
-
         public unsafe long Encode(byte* ptr, object original)
         {
-            return (long)encoderDelegate.DynamicInvoke(helper,(IntPtr)ptr, original);
-        }
-
-        public unsafe object Decode(byte* ptr)
-        {
-            return decoderDelegate.DynamicInvoke(helper,(IntPtr)ptr);
+            return encoderDelegate(helper, (IntPtr)ptr, (T) original);
         }
 
     }

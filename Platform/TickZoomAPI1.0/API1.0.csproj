@@ -119,6 +119,8 @@
     <Compile Include="Engine\BinaryFileMode.cs" />
     <Compile Include="Engine\CastingFieldEncoder.cs" />
     <Compile Include="Engine\TriggerController.cs" />
+    <Compile Include="Engine\TypeDecoder.cs" />
+    <Compile Include="Engine\TypeDecoderMap.cs" />
     <Compile Include="Engine\TypeEncoder.cs" />
     <Compile Include="Engine\TypeEncoderMap.cs" />
     <Compile Include="Locks\NativeMappedFile.cs" />

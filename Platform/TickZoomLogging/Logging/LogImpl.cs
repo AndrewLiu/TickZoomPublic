@@ -251,14 +251,40 @@ namespace TickZoom.Logging
 	        get { return logWrapper; }
 	    }
 
-        public Dictionary<Type, ArgumentHandler> UniqueTypes
+        public List<ArgumentHandler> UniqueTypes
         {
-            get { return uniqueTypesInternal; }
+            get
+            {
+                var list = new List<ArgumentHandler>();
+                foreach( var storage in logThread)
+                {
+                    if (storage == null) continue;
+                    foreach( var kvp in storage.UniqueTypesInternal)
+                    {
+                        var handler = kvp.Value;
+                        list.Add(handler);
+                    }
+                }
+                return list;
+            }
         }
 
-        public Dictionary<string, FormatHandler> UniqueFormats
+        public List<FormatHandler> UniqueFormats
         {
-            get { return uniqueFormatsInternal; }
+            get
+            {
+                var list = new List<FormatHandler>();
+                foreach (var storage in logThread)
+                {
+                    if (storage == null) continue;
+                    foreach (var kvp in storage.UniqueFormatsInternal)
+                    {
+                        var handler = kvp.Value;
+                        list.Add(handler);
+                    }
+                }
+                return list;
+            }
         }
 
         public void Assert(bool test) {
@@ -495,176 +521,123 @@ namespace TickZoom.Logging
 			}
 		}
 
-        private void LookForUniqueness(LogMessage format, object[] args)
-        {
-            if( memoryBuffer.Position > 10000)
-            {
-                memoryBuffer.Position = 0;
-            }
-            for (var i = 0; i < args.Length; i++)
-            {
-                var arg = args[i];
-                if (arg == null) continue;
-                var type = arg.GetType();
-                ArgumentHandler argumentHandler;
-                if (uniqueTypesInternal.TryGetValue(type, out argumentHandler))
-                {
-                    argumentHandler.Count++;
-                }
-                else 
-                {
-                    argumentHandler = new ArgumentHandler();
-                    switch (type.FullName)
-                    {
-                        case "TickZoom.Api.TickSync": // 1994
-                            argumentHandler.Preprocessor = obj => ((TickSync) obj).State;
-                            break;
-                        case "TickZoom.TickUtil.TickImpl": // 3
-                            argumentHandler.Preprocessor = obj => ((TickIO) obj).Extract();
-                            break;
-                        case "TickZoom.Api.TickBox": // 533302
-                            argumentHandler.Preprocessor = obj => ((TickBox)obj).Tick;
-                            break;
-                        case "TickZoom.Api.TickBinaryBox": // 89
-                            argumentHandler.Preprocessor = obj => ((TickBinaryBox)obj).TickBinary;
-                            break;
-                        case "TickZoom.Api.LogicalOrderDefault":
-                        case "TickZoom.Api.PhysicalOrderDefault": // 36877
-                        case "TickZoom.Api.LogicalFillBinary": // 15047
-                        case "TickZoom.Api.PhysicalFillDefault": // 11285
-                        case "TickZoom.Api.LogicalFillBinaryBox": // 3761
-                        case "TickZoom.Api.TransactionPairBinary": // 3761
-                        case "TickZoom.Api.TimeStamp": // 3317
-                        case "TickZoom.Api.IntervalImpl": // 45
-                        case "TickZoom.Api.PositionChangeDetail": // 5498
-                            argumentHandler.Preprocessor = obj => obj;
-                            break;
-                        case "TickZoom.Engine.StrategyPositionWrapper": // 397
-                        case "TickZoom.Symbols.SymbolProperties": // 34259
-                        case "TickZoom.Internals.ModelDriver": // 455
-                        case "TickZoom.PriceData.TimeFrameSeries": // 45
-                        case "TickZoom.PriceData.PriceSeries": // 15
-                        case "TickZoom.Threading.AgentProxy": // 48
-                        case "TickZoom.SocketAPI.SocketTCP": // 123
-                        case "TickZoom.Provider.FIX.FIXMessage4_2": // 1502
-                        case "TickZoom.Provider.FIX.MessageFIX4_2": // 3151
-                            argumentHandler.Preprocessor = obj => obj.ToString();
-                            break;
-                        default:
-                            if (type.IsValueType || type == typeof(string))
-                            {
-                                argumentHandler.Preprocessor = obj => obj;
-                            }
-                            else if (type.IsSubclassOf(typeof(Delegate)))
-                            {
-                                argumentHandler.Preprocessor = obj => obj.GetType().FullName;
-                            }
-                            else if (type.GetInterface(typeof(StrategyInterface).FullName) != null)
-                            {
-                                argumentHandler.Preprocessor = obj => obj.ToString();
-                            }
-                            else
-                            {
-                                argumentHandler.Preprocessor = obj => obj.ToString();
-                                argumentHandler.UnknownType = true;
-                            }
-                            break;
-                    }
-                    uniqueTypesInternal.Add(type, argumentHandler);
-                }
-                args[i] = arg = argumentHandler.Preprocessor(arg);
-                type = arg.GetType();
-                if (!type.IsValueType && type != typeof(string))
-                {
-                    encoderDecoder.Encode(memoryBuffer, arg);
-                }
-            }
-        }
-
         private void SerializeArgument<T>(T arg)
         {
-            var type = typeof (T);
+            var threadId = Thread.CurrentThread.ManagedThreadId;
+            var storage = logThread[threadId];
+            if( storage == null)
+            {
+                storage = logThread[threadId] = new LogThreadStorage();
+            }
+            if( arg == null)
+            {
+                return;
+            }
+            var type = arg.GetType();
             ArgumentHandler argumentHandler;
-            if (uniqueTypesInternal.TryGetValue(type, out argumentHandler))
+            if (storage.UniqueTypesInternal.TryGetValue(type, out argumentHandler))
             {
                 argumentHandler.Count++;
             }
             else
             {
-                argumentHandler = new ArgumentHandler();
-                switch (type.FullName)
-                {
-                    case "TickZoom.Api.TickSync": // 1994
-                        argumentHandler.Preprocessor = obj => ((TickSync)obj).State;
-                        break;
-                    case "TickZoom.TickUtil.TickImpl": // 3
-                        argumentHandler.Preprocessor = obj => ((TickIO)obj).Extract();
-                        break;
-                    case "TickZoom.Api.TickBox": // 533302
-                        argumentHandler.Preprocessor = obj => ((TickBox)obj).Tick;
-                        break;
-                    case "TickZoom.Api.TickBinaryBox": // 89
-                        argumentHandler.Preprocessor = obj => ((TickBinaryBox)obj).TickBinary;
-                        break;
-                    case "TickZoom.Api.LogicalOrderDefault":
-                    case "TickZoom.Api.PhysicalOrderDefault": // 36877
-                    case "TickZoom.Api.LogicalFillBinary": // 15047
-                    case "TickZoom.Api.PhysicalFillDefault": // 11285
-                    case "TickZoom.Api.LogicalFillBinaryBox": // 3761
-                    case "TickZoom.Api.TransactionPairBinary": // 3761
-                    case "TickZoom.Api.TimeStamp": // 3317
-                    case "TickZoom.Api.IntervalImpl": // 45
-                    case "TickZoom.Api.PositionChangeDetail": // 5498
-                        argumentHandler.Preprocessor = obj => obj;
-                        break;
-                    case "TickZoom.Engine.StrategyPositionWrapper": // 397
-                    case "TickZoom.Symbols.SymbolProperties": // 34259
-                    case "TickZoom.Internals.ModelDriver": // 455
-                    case "TickZoom.PriceData.TimeFrameSeries": // 45
-                    case "TickZoom.PriceData.PriceSeries": // 15
-                    case "TickZoom.Threading.AgentProxy": // 48
-                    case "TickZoom.SocketAPI.SocketTCP": // 123
-                    case "TickZoom.Provider.FIX.FIXMessage4_2": // 1502
-                    case "TickZoom.Provider.FIX.MessageFIX4_2": // 3151
-                        argumentHandler.Preprocessor = obj => obj.ToString();
-                        break;
-                    default:
-                        if (type.IsValueType || type == typeof(string))
-                        {
-                            argumentHandler.Preprocessor = obj => obj;
-                        }
-                        else if (type.IsSubclassOf(typeof(Delegate)))
-                        {
-                            argumentHandler.Preprocessor = obj => obj.GetType().FullName;
-                        }
-                        else if (type.GetInterface(typeof(StrategyInterface).FullName) != null)
-                        {
-                            argumentHandler.Preprocessor = obj => obj.ToString();
-                        }
-                        else
-                        {
-                            argumentHandler.Preprocessor = obj => obj.ToString();
-                            argumentHandler.UnknownType = true;
-                        }
-                        break;
-                }
-                uniqueTypesInternal.Add(type, argumentHandler);
+                argumentHandler = CreateArgumentHandler(type);
+                storage.UniqueTypesInternal.Add(type, argumentHandler);
             }
-            if (!type.IsValueType && type != typeof(string))
+            switch (argumentHandler.ArgumentType)
             {
-                encoderDecoder.Encode(memoryBuffer, arg);
+                case ArgumentType.Actual:
+                    if (!type.IsValueType && type != typeof(string))
+                    {
+                        storage.EncoderDecoder.Encode(storage.MemoryBuffer, arg);
+                    }
+                    break;
+                case ArgumentType.ToString:
+                    //encoderDecoder.Encode(memoryBuffer, arg.ToString());
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("Unknown argument type: " + argumentHandler.ArgumentType);
             }
+        }
+
+        private ArgumentHandler CreateArgumentHandler(Type type)
+        {
+            var argumentHandler = new ArgumentHandler();
+            argumentHandler.Type = type;
+            switch (type.FullName)
+            {
+                case "TickZoom.Api.TickSync": // 1994
+                    throw new ApplicationException("Use State property to log TickSync.");
+                case "TickZoom.TickUtil.TickImpl": // 3
+                    throw new ApplicationException("Use Extract() method to log TickImpl.");
+                case "TickZoom.Api.TickBox": // 533302
+                    throw new ApplicationException("Use Tick property to log TickBox.");
+                case "TickZoom.Api.TickBinaryBox": // 89
+                    throw new ApplicationException("Use TickBinary property to log TickBinaryBox.");
+                case "TickZoom.Api.LogicalOrderDefault":
+                case "TickZoom.Api.PhysicalOrderDefault": // 36877
+                case "TickZoom.Api.LogicalFillBinary": // 15047
+                case "TickZoom.Api.PhysicalFillDefault": // 11285
+                case "TickZoom.Api.LogicalFillBinaryBox": // 3761
+                case "TickZoom.Api.TransactionPairBinary": // 3761
+                case "TickZoom.Api.TimeStamp": // 3317
+                case "TickZoom.Api.IntervalImpl": // 45
+                case "TickZoom.Api.PositionChangeDetail": // 5498
+                    argumentHandler.ArgumentType = ArgumentType.Actual;
+                    break;
+                case "TickZoom.Engine.StrategyPositionWrapper": // 397
+                case "TickZoom.Symbols.SymbolProperties": // 34259
+                case "TickZoom.Internals.ModelDriver": // 455
+                case "TickZoom.PriceData.TimeFrameSeries": // 45
+                case "TickZoom.PriceData.PriceSeries": // 15
+                case "TickZoom.Threading.AgentProxy": // 48
+                case "TickZoom.SocketAPI.SocketTCP": // 123
+                case "TickZoom.SocketAPI.SocketSharedMemory": // 123
+                case "TickZoom.Provider.FIX.FIXMessage4_2": // 1502
+                case "TickZoom.Provider.FIX.MessageFIX4_2": // 3151
+                case "TickZoom.Provider.FIX.FIXMessage4_4": // 1502
+                case "TickZoom.Provider.FIX.MessageFIX4_4": // 3151
+                case "System.RuntimeType": // 3151
+                    argumentHandler.ArgumentType = ArgumentType.ToString;
+                    break;
+                default:
+                    if (type.IsValueType || type == typeof (string))
+                    {
+                        argumentHandler.ArgumentType = ArgumentType.Actual;
+                    }
+                    else if (type.IsSubclassOf(typeof (Delegate)))
+                    {
+                        throw new ApplicationException("Use GetType().FullName property to log a delegate.");
+                    }
+                    else if (type.GetInterface(typeof (StrategyInterface).FullName) != null)
+                    {
+                        argumentHandler.ArgumentType = ArgumentType.ToString;
+                    }
+                    else
+                    {
+                        argumentHandler.ArgumentType = ArgumentType.ToString;
+                        argumentHandler.IsUnknownType = true;
+                    }
+                    break;
+            }
+            return argumentHandler;
         }
 
         public string resultString;
         public string cloneResult;
 
-        private bool serialized = false;
+        private bool genericSerialized = false;
 
-        private static EncodeHelper encoderDecoder = new EncodeHelper();
-        private static MemoryStream memoryBuffer = new MemoryStream();
-        private static Dictionary<string, FormatHandler> uniqueFormatsInternal = new Dictionary<string, FormatHandler>();
-        private static Dictionary<Type, ArgumentHandler> uniqueTypesInternal = new Dictionary<Type, ArgumentHandler>();
+        public class LogThreadStorage
+        {
+            public EncodeHelper EncoderDecoder = new EncodeHelper();
+            public MemoryStream MemoryBuffer = new MemoryStream();
+            public Dictionary<string, FormatHandler> UniqueFormatsInternal = new Dictionary<string, FormatHandler>();
+            public Dictionary<Type, ArgumentHandler> UniqueTypesInternal = new Dictionary<Type, ArgumentHandler>();
+        }
+
+        private static LogThreadStorage[] logThread = new LogThreadStorage[1000];
+
 		private void VerboseInternal(string format, params object[] args)
 		{
             if( IsVerboseEnabled)
@@ -696,15 +669,8 @@ namespace TickZoom.Logging
 		{
             if( IsVerboseEnabled)
             {
-                if( serialized)
-                {
-                    LookForUniqueness(formatKey, args);
-                }
-                else
-                {
-                    resultString = string.Format(Factory.SysLog.Formats[formatKey], args);
-                    Verbose(resultString, null);
-                }
+                resultString = string.Format(Factory.SysLog.Formats[formatKey], args);
+                Verbose(resultString, null);
             }
 		}
 
@@ -712,15 +678,8 @@ namespace TickZoom.Logging
         {
             if (IsTraceEnabled)
             {
-                if (serialized)
-                {
-                    LookForUniqueness(formatKey, args);
-                }
-                else
-                {
-                    resultString = string.Format(Factory.SysLog.Formats[formatKey], args);
-                    Trace(resultString, null);
-                }
+                resultString = string.Format(Factory.SysLog.Formats[formatKey], args);
+                Trace(resultString, null);
             }
         }
 
@@ -728,23 +687,8 @@ namespace TickZoom.Logging
         {
             if (IsDebugEnabled)
             {
-                if (allowDebugging)
-                {
-                    resultString = string.Format(Factory.SysLog.Formats[formatKey], args);
-                    Debug(resultString, null);
-                }
-                else
-                {
-                    if (serialized)
-                    {
-                        LookForUniqueness(formatKey, args);
-                    }
-                    else
-                    {
-                        resultString = string.Format(Factory.SysLog.Formats[formatKey], args);
-                        Debug(resultString, null);
-                    }
-                }
+                resultString = string.Format(Factory.SysLog.Formats[formatKey], args);
+                Debug(resultString, null);
             }
         }
 		
@@ -782,7 +726,7 @@ namespace TickZoom.Logging
 
         public void DebugFormat(LogMessage format)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format);
             }
@@ -794,7 +738,7 @@ namespace TickZoom.Logging
 #region DebugFormat
         public void DebugFormat<T>(LogMessage format, T arg)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format, arg);
             }
@@ -806,7 +750,7 @@ namespace TickZoom.Logging
 
         public void DebugFormat<T1, T2>(LogMessage format, T1 arg1, T2 arg2)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format, arg1, arg2);
             }
@@ -819,7 +763,7 @@ namespace TickZoom.Logging
 
         public void DebugFormat<T1, T2, T3>(LogMessage format, T1 arg1, T2 arg2, T3 arg3)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format, arg1, arg2, arg3);
             }
@@ -833,7 +777,7 @@ namespace TickZoom.Logging
 
         public void DebugFormat<T1, T2, T3, T4>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format, arg1, arg2, arg3, arg4);
             }
@@ -848,7 +792,7 @@ namespace TickZoom.Logging
 
         public void DebugFormat<T1, T2, T3, T4, T5>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format, arg1, arg2, arg3, arg4, arg5);
             }
@@ -864,7 +808,7 @@ namespace TickZoom.Logging
 
         public void DebugFormat<T1, T2, T3, T4, T5, T6>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format, arg1, arg2, arg3, arg4, arg5, arg6);
             }
@@ -881,7 +825,7 @@ namespace TickZoom.Logging
 
         public void DebugFormat<T1, T2, T3, T4, T5, T6, T7>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
             }
@@ -899,7 +843,7 @@ namespace TickZoom.Logging
 
         public void DebugFormat<T1, T2, T3, T4, T5, T6, T7, T8>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
             }
@@ -918,7 +862,7 @@ namespace TickZoom.Logging
 
         public void DebugFormat(string format)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format);
             }
@@ -929,7 +873,7 @@ namespace TickZoom.Logging
 
         public void DebugFormat<T>(string format, T arg)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format, arg);
             }
@@ -941,7 +885,7 @@ namespace TickZoom.Logging
 
         public void DebugFormat<T1, T2>(string format, T1 arg1, T2 arg2)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format, arg1, arg2);
             }
@@ -954,7 +898,7 @@ namespace TickZoom.Logging
 
         public void DebugFormat<T1, T2, T3>(string format, T1 arg1, T2 arg2, T3 arg3)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format, arg1, arg2, arg3);
             }
@@ -968,7 +912,7 @@ namespace TickZoom.Logging
 
         public void DebugFormat<T1, T2, T3, T4>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format, arg1, arg2, arg3, arg4);
             }
@@ -983,7 +927,7 @@ namespace TickZoom.Logging
 
         public void DebugFormat<T1, T2, T3, T4, T5>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format, arg1, arg2, arg3, arg4, arg5);
             }
@@ -999,7 +943,7 @@ namespace TickZoom.Logging
 
         public void DebugFormat<T1, T2, T3, T4, T5, T6>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format, arg1, arg2, arg3, arg4, arg5, arg6);
             }
@@ -1016,7 +960,7 @@ namespace TickZoom.Logging
 
         public void DebugFormat<T1, T2, T3, T4, T5, T6, T7>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
             }
@@ -1034,7 +978,7 @@ namespace TickZoom.Logging
 
         public void DebugFormat<T1, T2, T3, T4, T5, T6, T7, T8>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 DebugInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
             }
@@ -1055,7 +999,7 @@ namespace TickZoom.Logging
 #region TraceFormat
         public void TraceFormat(LogMessage format)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format);
             }
@@ -1066,7 +1010,7 @@ namespace TickZoom.Logging
 
         public void TraceFormat<T>(LogMessage format, T arg)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format, arg);
             }
@@ -1078,7 +1022,7 @@ namespace TickZoom.Logging
 
         public void TraceFormat<T1, T2>(LogMessage format, T1 arg1, T2 arg2)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format, arg1, arg2);
             }
@@ -1091,7 +1035,7 @@ namespace TickZoom.Logging
 
         public void TraceFormat<T1, T2, T3>(LogMessage format, T1 arg1, T2 arg2, T3 arg3)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format, arg1, arg2, arg3);
             }
@@ -1105,7 +1049,7 @@ namespace TickZoom.Logging
 
         public void TraceFormat<T1, T2, T3, T4>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format, arg1, arg2, arg3, arg4);
             }
@@ -1120,7 +1064,7 @@ namespace TickZoom.Logging
 
         public void TraceFormat<T1, T2, T3, T4, T5>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format, arg1, arg2, arg3, arg4, arg5);
             }
@@ -1136,7 +1080,7 @@ namespace TickZoom.Logging
 
         public void TraceFormat<T1, T2, T3, T4, T5, T6>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format, arg1, arg2, arg3, arg4, arg5, arg6);
             }
@@ -1153,7 +1097,7 @@ namespace TickZoom.Logging
 
         public void TraceFormat<T1, T2, T3, T4, T5, T6, T7>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
             }
@@ -1171,7 +1115,7 @@ namespace TickZoom.Logging
 
         public void TraceFormat<T1, T2, T3, T4, T5, T6, T7, T8>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
             }
@@ -1190,7 +1134,7 @@ namespace TickZoom.Logging
 
         public void TraceFormat(string format)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format);
             }
@@ -1201,7 +1145,7 @@ namespace TickZoom.Logging
 
         public void TraceFormat<T>(string format, T arg)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format, arg);
             }
@@ -1213,7 +1157,7 @@ namespace TickZoom.Logging
 
         public void TraceFormat<T1, T2>(string format, T1 arg1, T2 arg2)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format, arg1, arg2);
             }
@@ -1226,7 +1170,7 @@ namespace TickZoom.Logging
 
         public void TraceFormat<T1, T2, T3>(string format, T1 arg1, T2 arg2, T3 arg3)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format, arg1, arg2, arg3);
             }
@@ -1240,7 +1184,7 @@ namespace TickZoom.Logging
 
         public void TraceFormat<T1, T2, T3, T4>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format, arg1, arg2, arg3, arg4);
             }
@@ -1255,7 +1199,7 @@ namespace TickZoom.Logging
 
         public void TraceFormat<T1, T2, T3, T4, T5>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format, arg1, arg2, arg3, arg4, arg5);
             }
@@ -1271,7 +1215,7 @@ namespace TickZoom.Logging
 
         public void TraceFormat<T1, T2, T3, T4, T5, T6>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format, arg1, arg2, arg3, arg4, arg5, arg6);
             }
@@ -1288,7 +1232,7 @@ namespace TickZoom.Logging
 
         public void TraceFormat<T1, T2, T3, T4, T5, T6, T7>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
             }
@@ -1306,7 +1250,7 @@ namespace TickZoom.Logging
 
         public void TraceFormat<T1, T2, T3, T4, T5, T6, T7, T8>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 TraceInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
             }
@@ -1327,7 +1271,7 @@ namespace TickZoom.Logging
 #region VerboseFormat
         public void VerboseFormat(LogMessage format)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format);
             }
@@ -1338,7 +1282,7 @@ namespace TickZoom.Logging
 
         public void VerboseFormat<T>(LogMessage format, T arg)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format, arg);
             }
@@ -1350,7 +1294,7 @@ namespace TickZoom.Logging
 
         public void VerboseFormat<T1, T2>(LogMessage format, T1 arg1, T2 arg2)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format, arg1, arg2);
             }
@@ -1363,7 +1307,7 @@ namespace TickZoom.Logging
 
         public void VerboseFormat<T1, T2, T3>(LogMessage format, T1 arg1, T2 arg2, T3 arg3)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format, arg1, arg2, arg3);
             }
@@ -1377,7 +1321,7 @@ namespace TickZoom.Logging
 
         public void VerboseFormat<T1, T2, T3, T4>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format, arg1, arg2, arg3, arg4);
             }
@@ -1392,7 +1336,7 @@ namespace TickZoom.Logging
 
         public void VerboseFormat<T1, T2, T3, T4, T5>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format, arg1, arg2, arg3, arg4, arg5);
             }
@@ -1408,7 +1352,7 @@ namespace TickZoom.Logging
 
         public void VerboseFormat<T1, T2, T3, T4, T5, T6>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format, arg1, arg2, arg3, arg4, arg5, arg6);
             }
@@ -1425,7 +1369,7 @@ namespace TickZoom.Logging
 
         public void VerboseFormat<T1, T2, T3, T4, T5, T6, T7>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
             }
@@ -1443,7 +1387,7 @@ namespace TickZoom.Logging
 
         public void VerboseFormat<T1, T2, T3, T4, T5, T6, T7, T8>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
             }
@@ -1462,7 +1406,7 @@ namespace TickZoom.Logging
 
         public void VerboseFormat(string format)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format);
             }
@@ -1473,7 +1417,7 @@ namespace TickZoom.Logging
 
         public void VerboseFormat<T>(string format, T arg)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format, arg);
             }
@@ -1485,7 +1429,7 @@ namespace TickZoom.Logging
 
         public void VerboseFormat<T1, T2>(string format, T1 arg1, T2 arg2)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format, arg1, arg2);
             }
@@ -1498,7 +1442,7 @@ namespace TickZoom.Logging
 
         public void VerboseFormat<T1, T2, T3>(string format, T1 arg1, T2 arg2, T3 arg3)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format, arg1, arg2, arg3);
             }
@@ -1512,7 +1456,7 @@ namespace TickZoom.Logging
 
         public void VerboseFormat<T1, T2, T3, T4>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format, arg1, arg2, arg3, arg4);
             }
@@ -1527,7 +1471,7 @@ namespace TickZoom.Logging
 
         public void VerboseFormat<T1, T2, T3, T4, T5>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format, arg1, arg2, arg3, arg4, arg5);
             }
@@ -1543,7 +1487,7 @@ namespace TickZoom.Logging
 
         public void VerboseFormat<T1, T2, T3, T4, T5, T6>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format, arg1, arg2, arg3, arg4, arg5, arg6);
             }
@@ -1560,7 +1504,7 @@ namespace TickZoom.Logging
 
         public void VerboseFormat<T1, T2, T3, T4, T5, T6, T7>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
             }
@@ -1578,7 +1522,7 @@ namespace TickZoom.Logging
 
         public void VerboseFormat<T1, T2, T3, T4, T5, T6, T7, T8>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8)
         {
-            if (allowDebugging || !serialized)
+            if (allowDebugging || !genericSerialized)
             {
                 VerboseInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
             }
