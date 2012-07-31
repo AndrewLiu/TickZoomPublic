@@ -146,17 +146,24 @@ namespace TickZoom.Api
 
         void Register(LogAware logAware);
 
-        Dictionary<Type, ArgumentHandler> UniqueTypes { get; }
-        Dictionary<string, FormatHandler> UniqueFormats { get; }
+        List<ArgumentHandler> UniqueTypes { get; }
+        List<FormatHandler> UniqueFormats { get; }
     }
     public class FormatHandler
     {
+        public string Format;
         public long Count = 1;
+    }
+    public enum ArgumentType
+    {
+        Actual,
+        ToString
     }
     public class ArgumentHandler
     {
+        public ArgumentType ArgumentType;
         public long Count = 1;
-        public Func<object, object> Preprocessor;
-        public bool UnknownType;
+        public bool IsUnknownType;
+        public Type Type;
     }
 }

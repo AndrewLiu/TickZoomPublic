@@ -156,11 +156,13 @@ namespace TickZoom.Provider.FIX
 		
 		public unsafe void CreateHeader(int counter) {
 		}
+
+        private GCHandle handle;
 		
 		private int FindSplitAt(MemoryStream buffer) {
 		    if( verbose) log.VerboseFormat(LogMessage.LOGMSG289, this);
 		    var position = (int) buffer.Position;
-		    var handle = GCHandle.Alloc(buffer.GetBuffer(), GCHandleType.Pinned);
+            handle = GCHandle.Alloc(buffer.GetBuffer(), GCHandleType.Pinned);
 		    var beg = ptr = (byte*) handle.AddrOfPinnedObject() + position;
             end = (byte*)handle.AddrOfPinnedObject() + buffer.Length;
             try
@@ -290,7 +292,10 @@ namespace TickZoom.Provider.FIX
 	        var length = (int) (ptr - (byte*) sptr);
 	        ++ptr;
             result = new string(sptr, 0, length);
-            if (verbose) log.VerboseFormat(LogMessage.LOGMSG296, result);
+            if (verbose)
+            {
+                log.VerboseFormat(LogMessage.LOGMSG296, result);
+            }
 			return true;
 		}
 	        

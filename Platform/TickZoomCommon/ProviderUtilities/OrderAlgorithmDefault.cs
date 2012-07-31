@@ -1178,7 +1178,7 @@ namespace TickZoom.Common
             {
                 isPositionSynced = false;
                 log.Info("SyncPosition() Issuing adjustment order because expected position is " + desiredPosition + " but actual is " + physicalOrderCache.GetActualPosition(symbol) + " plus pending adjustments " + pendingAdjustments);
-                if (debug) log.DebugFormat(LogMessage.LOGMSG455, tickSync);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG455, tickSync.State);
             }
             else if( positionDelta == 0)
             {
@@ -1575,7 +1575,7 @@ namespace TickZoom.Common
                             {
                                 log.DebugFormat(LogMessage.LOGMSG487, compareSuccess);
                             }
-                            if (trace) log.TraceFormat(LogMessage.LOGMSG488, tickSync);
+                            if (trace) log.TraceFormat(LogMessage.LOGMSG488, tickSync.State);
                         }
                         else
                         {
@@ -1592,7 +1592,7 @@ namespace TickZoom.Common
             }
             else
 			{
-			    if( debug) log.DebugFormat(LogMessage.LOGMSG490, count, tickSync);
+			    if( debug) log.DebugFormat(LogMessage.LOGMSG490, count, tickSync.State);
 			}
             if (compareSuccess)
             {

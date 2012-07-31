@@ -68,7 +68,8 @@ namespace TickZoom.Api
             generator.Emit(OpCodes.Ldloc, currentLocal);
             var valueMethod = firstMethod.ReturnType.GetMethod("get_Value");
             generator.Emit(OpCodes.Callvirt, valueMethod);
-            var itemLocal = generator.DeclareLocal(field.FieldType.GetGenericArguments()[0]);
+            var genericType = field.FieldType.GetGenericArguments()[0];
+            var itemLocal = generator.DeclareLocal(genericType);
             generator.Emit(OpCodes.Stloc, itemLocal);
 
             // Polymorphically encode the individual item.
@@ -78,8 +79,7 @@ namespace TickZoom.Api
                 generator.Emit(OpCodes.Ldarg_0);
                 generator.Emit(OpCodes.Ldloc_0);
                 generator.Emit(OpCodes.Ldloc,itemLocal);
-                var encodeMethod = helper .GetType().GetMethod("Encode", new Type[] { typeof(byte).MakePointerType(), typeof(object) });
-                generator.Emit(OpCodes.Call, encodeMethod);
+                helper.CallEncode(generator,genericType);
                 generator.Emit(OpCodes.Add);
                 generator.Emit(OpCodes.Stloc_0);
             }

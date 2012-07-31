@@ -12,28 +12,33 @@ namespace TickZoom.Api
         private static Log log = Factory.SysLog.GetLogger(typeof (EncodeHelper));
         internal Dictionary<Type, MetaType> metaTypes = new Dictionary<Type, MetaType>();
         internal TypeEncoderMap typeEncoders = new TypeEncoderMap();
+        internal TypeDecoderMap typeDecoders = new TypeDecoderMap();
         internal FieldEncoderMap fieldEncoders;
         internal Dictionary<Type, int> typeCodesByType = new Dictionary<Type, int>();
         internal Dictionary<int, Type> typeCodesByCode = new Dictionary<int, Type>();
         internal int maxCode = 0;
         private bool debug = false;
+        private bool isInitialized;
 
         public EncodeHelper()
         {
             fieldEncoders = new FieldEncoderMap(this);
-            DefineType(typeof(LogicalOrderBinary), 1);
-            DefineType(typeof(IntervalImpl), 2);
-            DefineType(typeof(PhysicalOrderDefault), 3);
-            DefineType(typeof(LogicalFillBinary), 4);
-            DefineType(typeof(PhysicalFillDefault), 5);
-            DefineType(typeof(LogicalFillBinaryBox), 6);
-            DefineType(typeof(TransactionPairBinary), 7);
-            DefineType(typeof(TimeStamp), 8);
-            DefineType(typeof(TickSync), 9);
-            DefineType(typeof(PositionChangeDetail), 10);
-            DefineType(typeof(TimeFrame), 11);
-            DefineType(typeof(LogicalOrderDefault), 12);
-            DefineType(typeof(PhysicalOrderBinary), 13);
+        }
+
+        public void Initialize()
+        {
+            isInitialized = true;
+            DefineType<LogicalOrderBinary>(1);
+            DefineType<IntervalImpl>(2);
+            DefineType<PhysicalOrderDefault>(3);
+            DefineType<LogicalFillBinary>(4);
+            DefineType<PhysicalFillDefault>(5);
+            DefineType<LogicalFillBinaryBox>(6);
+            //DefineType<TransactionPairBinary>(7);
+            DefineType<PositionChangeDetail>(8);
+            DefineType<TimeFrame>(9);
+            DefineType<LogicalOrderDefault>(10);
+            DefineType<PhysicalOrderBinary>(11);
         }
 
         public bool Debug
@@ -42,28 +47,36 @@ namespace TickZoom.Api
             set { debug = value; }
         }
 
-        public void DefineType( Type type, int code)
+        public void DefineType<T>(int code)
         {
+            var type = typeof (T);
             typeCodesByType.Add(type,code);
             typeCodesByCode.Add(code,type);
             if( code > maxCode)
             {
                 maxCode = code;
             }
+            CreateMeta(type);
+            CreateTypeEncoder<T>();
         }
 
-        public int DefineTemporaryType(Type type)
+        public int DefineTemporaryType<T>()
         {
+            var type = typeof (T);
             var code = ++maxCode;
             typeCodesByType.Add(type, code);
             typeCodesByCode.Add(code, type);
+            CreateMeta(type);
+            CreateTypeEncoder<T>();
             return code;
         }
 
         #region Private Methods
 
-        public unsafe void Encode(MemoryStream memory, object original)
+        public unsafe void Encode<T>(MemoryStream memory, T original)
         {
+            var type = original.GetType();
+            if( !isInitialized) Initialize();
             objects.Clear();
             objectsById.Clear();
             if (memory.Length < memory.Position + 1024)
@@ -73,7 +86,6 @@ namespace TickZoom.Api
             fixed (byte* bptr = &memory.GetBuffer()[0])
             {
                 var ptr = bptr + memory.Position;
-                var type = original.GetType();
                 var typeEncoder = GetTypeEncoder(type);
                 memory.Position += typeEncoder.Encode(ptr, original);
             }
@@ -103,6 +115,24 @@ namespace TickZoom.Api
         public unsafe long Encode(byte* ptr, object original)
         {
             int id;
+            if (objects.TryGetValue(original, out id))
+            {
+                var start = ptr;
+                ptr += sizeof(short); // skip length;
+                *ptr = (byte)id;
+                ptr++;
+                var length = (short)(ptr - start);
+                *(short*)start = length;
+                if (Debug) log.Info("Writing id " + id + " with length " + length);
+                return length;
+            }
+            var typeEncoder = GetTypeEncoder(original.GetType());
+            return typeEncoder.Encode(ptr, original);
+        }
+
+        public unsafe long Encode<T>(byte* ptr, T original)
+        {
+            int id;
             if( objects.TryGetValue(original, out id))
             {
                 var start = ptr;
@@ -116,8 +146,7 @@ namespace TickZoom.Api
             }
             else
             {
-                var type = original.GetType();
-                var typeEncoder = GetTypeEncoder(type);
+                var typeEncoder = GetTypeEncoder<T>();
                 return typeEncoder.Encode(ptr, original);
             }
         }
@@ -163,8 +192,8 @@ namespace TickZoom.Api
                 var typeCode = *ptr;
                 ptr++;
                 var type = GetTypeByCode(typeCode);
-                var typeEncoder = GetTypeEncoder(type);
-                return typeEncoder.Decode(start);
+                var typeDecoder = GetTypeDecoder(type);
+                return typeDecoder.Decode(start);
             }
             return GetObject(objectId);
         }
@@ -215,41 +244,72 @@ namespace TickZoom.Api
             MetaType meta;
             if (!metaTypes.TryGetValue(type, out meta))
             {
-                var typeCode = GetTypeCode(type);
-                meta = new MetaType(type,typeCode);
-                meta.Generate();
-                metaTypes.Add(type, meta);
+                meta = CreateMeta(type);
             }
             return meta;
         }
 
-        /// <summary>
-        /// Generic cloning method that clones an object using IL.
-        /// Only the first call of a certain type will hold back performance.
-        /// After the first call, the compiled IL is executed. 
-        /// </summary>
-        /// <param name="myObject">Type of object to clone</param>
-        /// <returns>Cloned object (deeply cloned)</returns>
+        private MetaType CreateMeta(Type type)
+        {
+            MetaType meta;
+            var typeCode = GetTypeCode(type);
+            meta = new MetaType(type,typeCode);
+            meta.Generate();
+            metaTypes.Add(type, meta);
+            return meta;
+        }
+
         public TypeEncoder GetTypeEncoder(Type type)
         {
             TypeEncoder encoder = null;
             if (!typeEncoders.TryGetValue(type, out encoder))
             {
-                encoder = new TypeEncoder(this,type);
-                typeEncoders.Add(type, encoder);
-                // Compile Encoder
-
-                var dynMethod = CreateDynamicEncode(type);
-                var genericFunc = typeof(Func<,,,>).MakeGenericType(typeof(EncodeHelper),typeof(IntPtr), type, typeof(long));
-                encoder.EncoderDelegate = dynMethod.CreateDelegate(genericFunc);
-
-                // Compile Decoder
-                dynMethod = CreateDynamicDecode(type);
-                genericFunc = typeof(Func<,,>).MakeGenericType(typeof(EncodeHelper),typeof(IntPtr),typeof(object));
-                encoder.DecoderDelegate = dynMethod.CreateDelegate(genericFunc);
-
+                throw new ApplicationException("Cannot find type encoder for " + type.FullName);
             }
             return encoder;
+        }
+
+        public TypeEncoder GetTypeEncoder<T>()
+        {
+            var type = typeof (T);
+            TypeEncoder encoder = null;
+            if (!typeEncoders.TryGetValue(type, out encoder))
+            {
+                encoder = CreateTypeEncoder<T>();
+            }
+            return encoder;
+        }
+
+        private TypeEncoder CreateTypeEncoder<T>()
+        {
+            var type = typeof (T);
+            TypeEncoder encoder;
+            var newEncoder = new TypeEncoder<T>(this);
+            encoder = newEncoder;
+            typeEncoders.Add(type, encoder);
+
+            // Compile Encoder
+            var dynMethod = CreateDynamicEncode(type);
+            var genericFunc = typeof(Func<,,,>).MakeGenericType(typeof(EncodeHelper),typeof(IntPtr), type, typeof(long));
+            newEncoder.EncoderDelegate = (Func<EncodeHelper, IntPtr, T, long>) dynMethod.CreateDelegate(genericFunc);
+            return encoder;
+        }
+
+        public TypeDecoder GetTypeDecoder(Type type)
+        {
+            TypeDecoder decoder = null;
+            if (!typeDecoders.TryGetValue(type, out decoder))
+            {
+                decoder = new TypeDecoder(this);
+                typeDecoders.Add(type, decoder);
+
+                // Compile Decoder
+                var dynMethod = CreateDynamicDecode(type);
+                var genericFunc = typeof(Func<,,>).MakeGenericType(typeof(EncodeHelper), typeof(IntPtr), typeof(object));
+                decoder.DecoderDelegate = (Func<EncodeHelper, IntPtr, object>)dynMethod.CreateDelegate(genericFunc);
+
+            }
+            return decoder;
         }
 
         public class ResultPointer
@@ -357,16 +417,6 @@ namespace TickZoom.Api
             }
             else
             {
-                //EmitLogMessage(generator, "*ptr = ++helper.nextObjectId;");
-                //generator.Emit(OpCodes.Ldloc_0);
-                //generator.Emit(OpCodes.Ldarg_0);
-                //var objectIdField = this.GetType().GetField("nextObjectId", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                //generator.Emit(OpCodes.Ldfld, objectIdField);
-                //generator.Emit(OpCodes.Ldc_I4_1);
-                //generator.Emit(OpCodes.Add);
-                //generator.Emit(OpCodes.Conv_U1);
-                //generator.Emit(OpCodes.Stind_I1);
-
                 EmitLogMessage(generator, "*ptr = helper.GetNextObjectId( obj);");
                 generator.Emit(OpCodes.Ldloc_0);
                 generator.Emit(OpCodes.Ldarg_0);
@@ -656,16 +706,54 @@ namespace TickZoom.Api
                     generator.Emit(OpCodes.Ldloc, resultLocal);
                 }
                 generator.Emit(OpCodes.Ldfld, field);
-                if (field.FieldType.IsValueType)
-                {
-                    generator.Emit(OpCodes.Box, field.FieldType);
-                }
-                var encodeMethod = this.GetType().GetMethod("Encode", new Type[] { typeof(byte).MakePointerType(), typeof(object) });
-                generator.Emit(OpCodes.Call,encodeMethod);
+                //if (field.FieldType.IsValueType)
+                //{
+                //    generator.Emit(OpCodes.Box, field.FieldType);
+                //}
+                CallEncode(generator, field.FieldType);
                 generator.Emit(OpCodes.Add);
                 generator.Emit(OpCodes.Stloc_0);
                 generator.MarkLabel(nullCheckLabel);
             }
+        }
+
+        public void CallEncode(ILGenerator generator, Type type)
+        {
+            if( type.IsValueType)
+            {
+                CallEncodeValue(type, generator);
+            }
+            else
+            {
+                var method = GetType().GetMethod("Encode", new [] { typeof (byte).MakePointerType(), typeof (object)});
+                generator.Emit(OpCodes.Call, method);
+            }
+        }
+
+        private void CallEncodeValue(Type type, ILGenerator generator)
+        {
+            MethodInfo methodInfo = null;
+            var methods = GetType().GetMethods();
+            var bytePtrType = typeof (byte).MakePointerType();
+            foreach (var method in methods)
+            {
+                var parms = method.GetParameters();
+                if (method.Name == "Encode" && method.IsGenericMethod)
+                {
+                    var parm0 = parms[0].ParameterType;
+                    if( parm0 == bytePtrType)
+                    {
+                        methodInfo = method;
+                        break;
+                    }
+                }
+            }
+            if( methodInfo == null)
+            {
+                throw new ApplicationException("Encode method was not found.");
+            }
+            var genericEncodeMethod = methodInfo.MakeGenericMethod(type);
+            generator.Emit(OpCodes.Call,genericEncodeMethod);
         }
 
         private void EmitFieldDecode(ILGenerator generator, LocalBuilder resultLocal, FieldInfo field)
