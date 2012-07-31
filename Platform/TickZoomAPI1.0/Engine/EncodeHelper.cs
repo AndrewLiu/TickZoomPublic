@@ -17,7 +17,7 @@ namespace TickZoom.Api
         internal Dictionary<Type, int> typeCodesByType = new Dictionary<Type, int>();
         internal Dictionary<int, Type> typeCodesByCode = new Dictionary<int, Type>();
         internal int maxCode = 0;
-        private bool debug = true;
+        private bool debug = false;
         private bool isInitialized;
 
         public EncodeHelper()
@@ -54,7 +54,7 @@ namespace TickZoom.Api
             {
                 typeCodesByType.Add(type, code);
             }
-            catch( ArgumentException ex)
+            catch( ArgumentException)
             {
                 throw new ArgumentException("The key " + type + " with code " + code + " already exists.");
             }
@@ -62,7 +62,7 @@ namespace TickZoom.Api
             {
                 typeCodesByCode.Add(code, type);
             }
-            catch( ArgumentException ex)
+            catch( ArgumentException)
             {
                 throw new ArgumentException("The key " + code + " with value " + type + " already exists.");
             }
