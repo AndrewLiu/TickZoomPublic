@@ -7,8 +7,8 @@ namespace TickZoom.Api
     {
         void SetOrder(PhysicalOrder order);
         PhysicalOrder RemoveOrder(long clientOrderId);
-        IEnumerable<PhysicalOrder> GetActiveOrders(SymbolInfo symbol);
-        IEnumerable<PhysicalOrder> GetOrders(Func<PhysicalOrder, bool> select);
+        void GetActiveOrders(List<PhysicalOrder> orders, SymbolInfo symbol);
+        void GetOrders(List<PhysicalOrder> orders, Func<PhysicalOrder, bool> select);
         bool TryGetOrderById(long brokerOrder, out PhysicalOrder order);
         bool TryGetOrderBySequence(int sequence, out PhysicalOrder order);
         PhysicalOrder GetOrderById(long brokerOrder);

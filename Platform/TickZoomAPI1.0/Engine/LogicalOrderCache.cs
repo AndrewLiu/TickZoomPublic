@@ -34,7 +34,7 @@ namespace TickZoom.Api
 		LogicalOrder FindLogicalOrder(int id);
 		void SetActiveOrders(Iterable<LogicalOrder> inputOrders);
 		void RemoveInactive(LogicalOrder order);
-        IEnumerable<LogicalOrder> GetActiveOrders();
+        Iterable<LogicalOrder> GetActiveOrders();
         LogicalOrder FindLogicalOrder(long serialNumber);
 	}
 }

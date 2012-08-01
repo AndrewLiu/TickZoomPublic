@@ -1678,16 +1678,13 @@ namespace TickZoom.Provider.FIX
         protected List<PhysicalOrder> GetOpenOrders()
         {
             openOrderList.Clear();
-            var list = OrderStore.GetOrders((x) => true);
-            foreach (var order in list)
-            {
-                openOrderList.Add(order);
-            }
+            OrderStore.GetOrders(openOrderList, (x) => true);
             return openOrderList;
         }
 
         protected abstract void SendLogin(int localSequence, bool b);
 
+        private List<PhysicalOrder> syntheticList = new List<PhysicalOrder>();
         public virtual bool OnLogin()
         {
             if (debug) log.DebugFormat(LogMessage.LOGMSG242);
@@ -1696,8 +1693,8 @@ namespace TickZoom.Provider.FIX
             {
                 // Reset the order algorithms
                 algorithms.Reset();
-                var synthetics = OrderStore.GetOrders((o) => o.IsSynthetic);
-                foreach (var order in synthetics)
+                OrderStore.GetOrders(syntheticList, (o) => o.IsSynthetic);
+                foreach (var order in syntheticList)
                 {
                     switch( order.OrderState)
                     {

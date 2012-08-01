@@ -28,6 +28,7 @@ namespace TickZoom.Common
         protected Dictionary<long, PhysicalOrder> ordersBySerial = new Dictionary<long, PhysicalOrder>();
         protected Dictionary<long, SymbolPosition> positions = new Dictionary<long, SymbolPosition>();
         protected Dictionary<int, StrategyPosition> strategyPositions = new Dictionary<int, StrategyPosition>();
+        private Func<PhysicalOrder,bool> matchSymbolFunc;
         private string name;
 
         protected class SymbolPosition
@@ -43,27 +44,36 @@ namespace TickZoom.Common
         {
             this.name = name;
             log = Factory.SysLog.GetLogger(typeof(PhysicalOrderCacheDefault).FullName + "." + name);
+            matchSymbolFunc = MatchSymbol;
             log.Register(this);
         }
 
-        public virtual void AssertAtomic() { }
+        public bool MatchSymbol(PhysicalOrder order)
+        {
+            return order.Symbol.BinaryIdentifier == temporarySymbol.BinaryIdentifier;
+        }
 
+        public virtual void AssertAtomic() { }
+        private SymbolInfo temporarySymbol;
         private const int sortTimesCount = 64;
         private PhysicalOrder[] sortTimesArray = new PhysicalOrder[sortTimesCount];
-        public IEnumerable<PhysicalOrder> GetActiveOrders(SymbolInfo symbol)
+        private List<PhysicalOrder> tempActiveOrders = new List<PhysicalOrder>();
+        public void GetActiveOrders(List<PhysicalOrder> orders, SymbolInfo symbol)
         {
+            orders.Clear();
             if (debug) log.DebugFormat(LogMessage.LOGMSG533, symbol);
             AssertAtomic();
             Array.Clear(sortTimesArray, 0, sortTimesArray.Length);
             var excludedCount = 0;
-            var list = GetOrders((o) => o.Symbol.BinaryIdentifier == symbol.BinaryIdentifier);
+            temporarySymbol = symbol;
+            GetOrders(tempActiveOrders, matchSymbolFunc);
 
-            foreach (var order in list)
+            foreach (var order in tempActiveOrders)
             {
                 if (order.OrderState != OrderState.Filled)
                 {
                     if (debug) log.DebugFormat(LogMessage.LOGMSG534, order);
-                    yield return order;
+                    orders.Add(order);
                 }
                 else
                 {
@@ -77,7 +87,7 @@ namespace TickZoom.Common
             if( excludedCount >= sortTimesCount >> 1)
             {
                 if( debug) log.DebugFormat("Found {0} filled orders.", excludedCount);
-                Array.Sort(sortTimesArray, (x, y) => (int)((y== null ? 0L : y.LastModifyTime.Internal) - (x == null ? 0L : x.LastModifyTime.Internal)));
+                Array.Sort(sortTimesArray, OnComparison);
                 if (trace) log.TraceFormat("Sorted orders by last modify time:");
                 var count = 0;
                 for (var x = 0; x < sortTimesArray.Length; x++)
@@ -98,6 +108,11 @@ namespace TickZoom.Common
                     }
                 }
             }
+        }
+
+        private int OnComparison(PhysicalOrder x, PhysicalOrder y)
+        {
+            return (int) ((y == null ? 0L : y.LastModifyTime.Internal) - (x == null ? 0L : x.LastModifyTime.Internal));
         }
 
         public void SyncPositions(Iterable<StrategyPosition> strategyPositions)
@@ -301,9 +316,11 @@ namespace TickZoom.Common
             return order;
         }
 
+        private List<PhysicalOrder> tempCreateOrders = new List<PhysicalOrder>();
         public bool HasCreateOrder(PhysicalOrder order)
         {
-            foreach (var queueOrder in GetActiveOrders(order.Symbol))
+            GetActiveOrders(tempCreateOrders, order.Symbol);
+            foreach (var queueOrder in tempCreateOrders)
             {
                 if (queueOrder.Action == OrderAction.Create && order.LogicalSerialNumber == queueOrder.LogicalSerialNumber)
                 {
@@ -314,9 +331,11 @@ namespace TickZoom.Common
             return false;
         }
 
+        private List<PhysicalOrder> tempCancelOrders = new List<PhysicalOrder>();
         public bool HasCancelOrder(PhysicalOrder order)
         {
-            foreach (var clientId in GetActiveOrders(order.Symbol))
+            GetActiveOrders(tempCancelOrders, order.Symbol);
+            foreach (var clientId in tempCancelOrders)
             {
                 if (clientId.OriginalOrder != null && order.OriginalOrder.BrokerOrder == clientId.OriginalOrder.BrokerOrder)
                 {
@@ -349,23 +368,20 @@ namespace TickZoom.Common
         public List<PhysicalOrder> GetOrdersList(Func<PhysicalOrder, bool> select)
         {
             var list = new List<PhysicalOrder>();
-            foreach (var order in GetOrders(select))
-            {
-                list.Add(order);
-            }
+            GetOrders(list, select);
             return list;
         }
 
-        public IEnumerable<PhysicalOrder> GetOrders(Func<PhysicalOrder, bool> select)
+        public void GetOrders(List<PhysicalOrder> orders, Func<PhysicalOrder, bool> select)
         {
             AssertAtomic();
-            var list = new List<PhysicalOrder>();
+            orders.Clear();
             foreach (var kvp in ordersByBrokerId)
             {
                 var order = kvp.Value;
                 if (select(order))
                 {
-                    yield return order;
+                    orders.Add(order);
                 }
             }
         }
