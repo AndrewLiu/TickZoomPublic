@@ -221,6 +221,8 @@ namespace TickZoom.Provider.FIX
                 {
                     socket.Connect();
                     log.Info("Requested Connect for " + socket);
+                    retryTimeout = Factory.Parallel.TickCount + retryDelay * 1000;
+                    log.Info("Connection will timeout and retry in " + retryDelay + " seconds.");
                     return;
                 }
                 catch (SocketErrorException ex)
@@ -534,8 +536,6 @@ namespace TickZoom.Provider.FIX
             if (debug) log.DebugFormat(LogMessage.LOGMSG184, taskTimer.StartTime);
 
             CreateNewSocket();
-            retryTimeout = Factory.Parallel.TickCount + retryDelay * 1000;
-            log.Info("Connection will timeout and retry in " + retryDelay + " seconds.");
             isStarted = true;
         }
         
