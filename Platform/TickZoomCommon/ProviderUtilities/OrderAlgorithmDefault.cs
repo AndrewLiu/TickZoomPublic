@@ -1074,12 +1074,14 @@ namespace TickZoom.Common
 			}
 		}
 		
+        private List<PhysicalOrder> tempActiveOrders = new List<PhysicalOrder>();
 		private int FindPendingAdjustments() {
             var positionDelta = desiredPosition - physicalOrderCache.GetActualPosition(symbol);
 			var pendingAdjustments = 0;
 
             originalPhysicals.Clear();
-            originalPhysicals.AddRange(physicalOrderCache.GetActiveOrders(symbol));
+		    physicalOrderCache.GetActiveOrders(tempActiveOrders, symbol);
+            originalPhysicals.AddRange(tempActiveOrders);
 
             for (var i = 0; i < originalPhysicals.Count; i++ )
             {
@@ -1228,7 +1230,12 @@ namespace TickZoom.Common
             }
             logicalOrderCache.SetActiveOrders(inputLogicals);
             bufferedLogicals.Clear();
-            bufferedLogicals.AddRange(logicalOrderCache.GetActiveOrders());
+            var list = logicalOrderCache.GetActiveOrders();
+            for (var current = list.First; current != null; current = current.Next )
+            {
+                var active = current.Value;
+                bufferedLogicals.Add(active);
+            }
             bufferedLogicalsChanged = true;
             if (debug) log.DebugFormat(LogMessage.LOGMSG458, bufferedLogicals.Count);
         }
@@ -1846,7 +1853,8 @@ namespace TickZoom.Common
 			}
 				
             originalPhysicals.Clear();
-            originalPhysicals.AddRange(physicalOrderCache.GetActiveOrders(symbol));
+		    physicalOrderCache.GetActiveOrders(tempActiveOrders, symbol);
+            originalPhysicals.AddRange(tempActiveOrders);
 
             TryFlushBufferedLogicals();
 

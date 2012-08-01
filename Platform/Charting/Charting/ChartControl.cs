@@ -505,31 +505,31 @@ namespace TickZoom.Charting
                 var orderPosition = order.Position;
                 var orderSerial = fill.OrderSerialNumber;
                 var bar = ChartBars.BarCount;
-                arrow.Tag = new TradeInfo( () =>
-                {
-                    StringBuilder sb = new StringBuilder();
-                    sb.Append("Bar ");
-                    sb.Append(bar);
-                    sb.Append(" ");
-                    sb.Append(order.TradeDirection);
-                    sb.Append(" ");
-                    sb.AppendLine(order.Side.ToString());
-                    sb.Append(" ");
-                    sb.AppendLine(order.Type.ToString());
-                    sb.AppendLine(orderSerial.ToString());
-                    if (order.Price > 0)
-                    {
-                        sb.Append("at ");
-                        sb.AppendLine(orderPrice.ToString());
-                    }
-                    sb.Append("size ");
-                    sb.AppendLine(orderPosition.ToString());
-                    sb.Append("filled ");
-                    sb.AppendLine(fillPrice.ToString());
-                    sb.Append("new positions ");
-                    sb.AppendLine(resultingPosition.ToString());
-                    return sb.ToString();
-                });
+                arrow.Tag = new TradeInfo(delegate()
+                                              {
+                                                  StringBuilder sb = new StringBuilder();
+                                                  sb.Append("Bar ");
+                                                  sb.Append(bar);
+                                                  sb.Append(" ");
+                                                  sb.Append(order.TradeDirection);
+                                                  sb.Append(" ");
+                                                  sb.AppendLine(order.Side.ToString());
+                                                  sb.Append(" ");
+                                                  sb.AppendLine(order.Type.ToString());
+                                                  sb.AppendLine(orderSerial.ToString());
+                                                  if (order.Price > 0)
+                                                  {
+                                                      sb.Append("at ");
+                                                      sb.AppendLine(orderPrice.ToString());
+                                                  }
+                                                  sb.Append("size ");
+                                                  sb.AppendLine(orderPosition.ToString());
+                                                  sb.Append("filled ");
+                                                  sb.AppendLine(fillPrice.ToString());
+                                                  sb.Append("new positions ");
+                                                  sb.AppendLine(resultingPosition.ToString());
+                                                  return sb.ToString();
+                                              });
             }
 
             var id = objectId++;

@@ -82,7 +82,8 @@ namespace Test
         {
             using (var store = Factory.Utility.PhyscalOrderStore("OrderStoreTest"))
             {
-                var list = store.GetOrders((x) => true);
+                var list = new System.Collections.Generic.List<PhysicalOrder>();
+                store.GetOrders(list,(x) => true);
                 foreach (var order in list)
                 {
                     log.Info(order.ToString());
@@ -126,7 +127,8 @@ namespace Test
                 order = Factory.Utility.PhysicalOrder(OrderAction.Create, OrderState.Active, symbolInfo, OrderSide.Sell, OrderType.Limit, OrderFlags.None,
                                                       124.34, 1234, 14, logicalSerial + 1, clientId, null, TimeStamp.UtcNow);
                 store.SetOrder(order);
-                var list = store.GetOrders((o) => o.Symbol.BaseSymbol == "EUR/USD");
+                var list = new System.Collections.Generic.List<PhysicalOrder>();
+                store.GetOrders(list,(o) => o.Symbol.BaseSymbol == "EUR/USD");
                 var enumerator = list.GetEnumerator();
                 var count = 0;
                 PhysicalOrder firstItem = null;
@@ -148,7 +150,8 @@ namespace Test
         {
             using (var store = Factory.Utility.PhyscalOrderStore("OrderStoreTest"))
             {
-                var list = store.GetOrders((x) => true);
+                var list = new System.Collections.Generic.List<PhysicalOrder>();
+                store.GetOrders(list,(x) => true);
                 foreach (var order in list)
                 {
                     log.Info(order.ToString());
