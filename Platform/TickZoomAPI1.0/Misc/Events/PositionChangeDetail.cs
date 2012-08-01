@@ -41,11 +41,17 @@ namespace TickZoom.Api
         [SerializeMember(4)]
         private long recency;
         [SerializeMember(5)]
-        private Iterable<LogicalOrder> orders;
+        private ActiveList<LogicalOrder> orders;
         //[SerializeMember(6)]
-        private Iterable<StrategyPosition> strategyPositions;
+        private ActiveList<StrategyPosition> strategyPositions;
 
-        public PositionChangeDetail(SymbolInfo symbol, int position, Iterable<LogicalOrder> orders, Iterable<StrategyPosition> strategyPositions, long utcTime, long recency)
+        public PositionChangeDetail()
+        {
+            this.orders = new ActiveList<LogicalOrder>();
+            this.strategyPositions = new ActiveList<StrategyPosition>();
+        }
+
+        public PositionChangeDetail(SymbolInfo symbol, int position, ActiveList<LogicalOrder> orders, ActiveList<StrategyPosition> strategyPositions, long utcTime, long recency)
         {
             this.symbol = symbol;
             this.position = position;
@@ -57,22 +63,27 @@ namespace TickZoom.Api
 
         public int Position
         {
-			get { return position; }
-		}
-		
-		public Iterable<LogicalOrder> Orders {
+            get { return position; }
+            set { position = value; }
+        }
+
+        public ActiveList<LogicalOrder> Orders {
 			get { return orders; }
 		}
 		
-		public SymbolInfo Symbol {
-			get { return symbol; }
-		}
-		
-		public long UtcTime {
-			get { return utcTime; }
+		public SymbolInfo Symbol
+		{
+		    get { return symbol; }
+		    set { symbol = value; }
 		}
 
-	    public Iterable<StrategyPosition> StrategyPositions
+        public long UtcTime
+        {
+            get { return utcTime; }
+            set { utcTime = value; }
+        }
+
+        public ActiveList<StrategyPosition> StrategyPositions
 	    {
 	        get { return strategyPositions; }
 	    }

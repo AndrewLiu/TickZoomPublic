@@ -54,7 +54,8 @@ namespace TickZoom.Api
 	
 	public interface Serializer  {
 		object Read(MemoryStream reader);
-		void Write(object eventDetail, MemoryStream memory);
+        void Read(MemoryStream reader, object result);
+        void Write(object eventDetail, MemoryStream memory);
         EventType EventType
         {
 			get;
