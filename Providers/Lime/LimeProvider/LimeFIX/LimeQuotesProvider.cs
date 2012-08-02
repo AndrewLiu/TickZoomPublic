@@ -166,8 +166,6 @@ namespace TickZoom.Provider.LimeQuotes
             }
         }
 
-        //UNDONE: Must change to match Lime quotes provider
-        static readonly string BATS = "BATS"; // Citirus Demo server
         private unsafe void RequestStartSymbol(SymbolInfo symbol, Agent symbolAgent)
         {
             var handler = StartSymbolHandler(symbol, symbolAgent);
@@ -179,17 +177,18 @@ namespace TickZoom.Provider.LimeQuotes
                 //StartSymbolOptionHandler(symbol, symbolAgent);
             }
 
-            LimeQuoteMessage message = (LimeQuoteMessage)Socket.MessageFactory.Create();
-            LimeQuotesInterop.subscription_request_msg* subRequest = (LimeQuotesInterop.subscription_request_msg*)message.Ptr;
+            var message = (LimeQuoteMessage)Socket.MessageFactory.Create();
+            var subRequest = (LimeQuotesInterop.subscription_request_msg*)message.Ptr;
 
             subRequest->msg_type = LimeQuotesInterop.limeq_message_type.SUBSCRIPTION_REQUEST;
             ushort msgLength = (ushort)(sizeof(LimeQuotesInterop.subscription_request_msg) - 64 + symbol.BaseSymbol.Length + 1);
             subRequest->msg_len = Reverse(msgLength);
             message.Length = msgLength;
 
-            //TODO: Fix to use user selected qsid
             for (int i = 0; i < 4; i++)
-                subRequest->qsid[i] = (byte)BATS[i];
+            {
+                subRequest->qsid[i] = (byte)quoteSourceId.Trim()[i];
+            }
             subRequest->flags = LimeQuotesInterop.subscription_flags.SUBSCRIPTION_FLAG_MARKET_DATA;
             subRequest->num_symbols = 1;
             for (int i = 0; i < symbol.BaseSymbol.Length; i++)
@@ -208,6 +207,37 @@ namespace TickZoom.Provider.LimeQuotes
 
             item = new EventItem(symbol, EventType.StartRealTime);
             symbolAgent.SendEvent(item);
+        }
+
+        protected override ConfigFile LoadProperties(string configFilePath)
+        {
+            var configFile = base.LoadProperties(configFilePath);
+            configFile.AssureValue("EquityDemo/UseLocalTickTime", "true");
+            configFile.AssureValue("EquityDemo/ServerAddress", "216.52.236.111");
+            configFile.AssureValue("EquityDemo/ServerPort", "5020");
+            configFile.AssureValue("EquityDemo/UserName", "CHANGEME");
+            configFile.AssureValue("EquityDemo/Password", "CHANGEME");
+            configFile.AssureValue("EquityDemo/QuoteSourceId", "BATS");
+            configFile.AssureValue("EquityLive/UseLocalTickTime", "true");
+            configFile.AssureValue("EquityLive/ServerAddress", "216.52.236.129");
+            configFile.AssureValue("EquityLive/ServerPort", "5020");
+            configFile.AssureValue("EquityLive/UserName", "CHANGEME");
+            configFile.AssureValue("EquityLive/Password", "CHANGEME");
+            configFile.AssureValue("EquityLive/QuoteSourceId", "BATS");
+            configFile.AssureValue("Simulate/UseLocalTickTime", "false");
+            configFile.AssureValue("Simulate/ServerAddress", "127.0.0.1");
+            configFile.AssureValue("Simulate/ServerPort", "6488");
+            configFile.AssureValue("Simulate/UserName", "simulate1");
+            configFile.AssureValue("Simulate/Password", "only4sim");
+            configFile.AssureValue("Simulate/QuoteSourceId", "BATS");
+            return configFile;
+        }
+
+        private string quoteSourceId;
+        protected override void ParseProperties(ConfigFile configFile)
+        {
+            base.ParseProperties(configFile);
+            quoteSourceId = GetField("QuoteSourceId", configFile, true);
         }
 
         public override void OnStopSymbol(SymbolInfo symbol, Agent agent)

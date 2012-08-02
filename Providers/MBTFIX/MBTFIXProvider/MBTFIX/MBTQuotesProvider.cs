@@ -196,7 +196,38 @@ namespace TickZoom.Provider.MBTQuotes
             }
         }
 
-	    private void Level1Update(MessageMbtQuotes message)
+        protected override ConfigFile LoadProperties(string configFilePath)
+        {
+            var configFile = base.LoadProperties(configFilePath);
+            configFile.AssureValue("EquityDemo/UseLocalTickTime", "true");
+            configFile.AssureValue("EquityDemo/ServerAddress", "216.52.236.111");
+            configFile.AssureValue("EquityDemo/ServerPort", "5020");
+            configFile.AssureValue("EquityDemo/UserName", "CHANGEME");
+            configFile.AssureValue("EquityDemo/Password", "CHANGEME");
+            configFile.AssureValue("ForexDemo/UseLocalTickTime", "true");
+            configFile.AssureValue("ForexDemo/ServerAddress", "216.52.236.111");
+            configFile.AssureValue("ForexDemo/ServerPort", "5020");
+            configFile.AssureValue("ForexDemo/UserName", "CHANGEME");
+            configFile.AssureValue("ForexDemo/Password", "CHANGEME");
+            configFile.AssureValue("EquityLive/UseLocalTickTime", "true");
+            configFile.AssureValue("EquityLive/ServerAddress", "216.52.236.129");
+            configFile.AssureValue("EquityLive/ServerPort", "5020");
+            configFile.AssureValue("EquityLive/UserName", "CHANGEME");
+            configFile.AssureValue("EquityLive/Password", "CHANGEME");
+            configFile.AssureValue("ForexLive/UseLocalTickTime", "true");
+            configFile.AssureValue("ForexLive/ServerAddress", "216.52.236.129");
+            configFile.AssureValue("ForexLive/ServerPort", "5020");
+            configFile.AssureValue("ForexLive/UserName", "CHANGEME");
+            configFile.AssureValue("ForexLive/Password", "CHANGEME");
+            configFile.AssureValue("Simulate/UseLocalTickTime", "false");
+            configFile.AssureValue("Simulate/ServerAddress", "127.0.0.1");
+            configFile.AssureValue("Simulate/ServerPort", "6488");
+            configFile.AssureValue("Simulate/UserName", "simulate1");
+            configFile.AssureValue("Simulate/Password", "only4sim");
+            return configFile;
+        }
+
+        private void Level1Update(MessageMbtQuotes message)
 		{
 		    SymbolHandler handler;
             try
