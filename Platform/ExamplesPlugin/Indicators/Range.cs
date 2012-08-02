@@ -35,7 +35,7 @@ namespace TickZoom.Common
 		public static Range Range(this Formula formula) {
 			Range range = new Range(formula.Model.Bars);
 			formula.Model.AddDependency(range);
-			return range;
+			return range; 
         }
     }
 

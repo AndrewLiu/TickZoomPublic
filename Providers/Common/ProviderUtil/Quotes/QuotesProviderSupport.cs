@@ -118,10 +118,11 @@ namespace TickZoom.Provider.FIX
             {
                 throw new ApplicationException("Sorry, AppDataFolder must be set in the app.config file.");
             }
-            var configFile = appDataFolder + @"/Providers/" + providerName + "/Default.config";
+            var configFilePath = appDataFolder + @"/Providers/" + providerName + "/Default.config";
             failedFile = appDataFolder + @"/Providers/" + providerName + "/LoginFailed.txt";
 
-            LoadProperties(configFile);
+            var configFile = LoadProperties(configFilePath);
+            ParseProperties(configFile);
 
             if (File.Exists(failedFile))
             {
@@ -564,44 +565,17 @@ namespace TickZoom.Provider.FIX
         public abstract void OnStopSymbol(SymbolInfo symbol, Agent symbolAgent);
 
 	    private bool alreadyLoggedSectionAndFile = false;
-	    private void LoadProperties(string configFilePath) {
+	    protected virtual ConfigFile LoadProperties(string configFilePath) {
 	        this.configFilePath = configFilePath;
             if( !alreadyLoggedSectionAndFile)
             {
                 log.Notice("Using section " + configSection + " in file: " + configFilePath);
                 alreadyLoggedSectionAndFile = true;
             }
-	        var configFile = new ConfigFile(configFilePath);
-        	configFile.AssureValue("EquityDemo/UseLocalTickTime","true");
-        	configFile.AssureValue("EquityDemo/ServerAddress","216.52.236.111");
-            configFile.AssureValue("EquityDemo/ServerPort","5020");
-        	configFile.AssureValue("EquityDemo/UserName","CHANGEME");
-            configFile.AssureValue("EquityDemo/Password","CHANGEME");
-        	configFile.AssureValue("ForexDemo/UseLocalTickTime","true");
-        	configFile.AssureValue("ForexDemo/ServerAddress","216.52.236.111");
-            configFile.AssureValue("ForexDemo/ServerPort","5020");
-        	configFile.AssureValue("ForexDemo/UserName","CHANGEME");
-            configFile.AssureValue("ForexDemo/Password","CHANGEME");
-        	configFile.AssureValue("EquityLive/UseLocalTickTime","true");
-            configFile.AssureValue("EquityLive/ServerAddress", "216.52.236.129");
-            configFile.AssureValue("EquityLive/ServerPort","5020");
-        	configFile.AssureValue("EquityLive/UserName","CHANGEME");
-            configFile.AssureValue("EquityLive/Password","CHANGEME");
-        	configFile.AssureValue("ForexLive/UseLocalTickTime","true");
-            configFile.AssureValue("ForexLive/ServerAddress", "216.52.236.129");
-            configFile.AssureValue("ForexLive/ServerPort","5020");
-        	configFile.AssureValue("ForexLive/UserName","CHANGEME");
-            configFile.AssureValue("ForexLive/Password","CHANGEME");
-        	configFile.AssureValue("Simulate/UseLocalTickTime","false");
-        	configFile.AssureValue("Simulate/ServerAddress","127.0.0.1");
-            configFile.AssureValue("Simulate/ServerPort","6488");
-        	configFile.AssureValue("Simulate/UserName","simulate1");
-            configFile.AssureValue("Simulate/Password","only4sim");
-			
-			ParseProperties(configFile);
+	        return new ConfigFile(configFilePath);
 		}
 	        
-        private void ParseProperties(ConfigFile configFile) {
+        protected virtual void ParseProperties(ConfigFile configFile) {
 			var value = GetField("UseLocalTickTime",configFile, false);
 			if( !string.IsNullOrEmpty(value)) {
 				useLocalTickTime = value.ToLower() != "false";
@@ -619,8 +593,8 @@ namespace TickZoom.Provider.FIX
 				throw new ApplicationException("Please correct the username or password error described in " + failedFile + ". Then delete the file before retrying, please.");
 			}
         }
-        
-        private string GetField( string field, ConfigFile configFile, bool required) {
+
+	    protected string GetField( string field, ConfigFile configFile, bool required) {
 			var result = configFile.GetValue(configSection + "/" + field);
 			if( required && string.IsNullOrEmpty(result)) {
 				Exception( field, configFile);
