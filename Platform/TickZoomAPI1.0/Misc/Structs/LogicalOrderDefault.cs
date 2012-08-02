@@ -44,6 +44,11 @@ namespace TickZoom.Api
         [SerializeMember(1)]
         private LogicalOrderBinary binary = new LogicalOrderBinary();
 
+        public LogicalOrderDefault()
+        {
+            
+        }
+
         public LogicalOrderDefault(SymbolInfo symbol)
         {
             Initialize(symbol, 0, 0);
@@ -84,7 +89,7 @@ namespace TickZoom.Api
             Initialize(symbol, orderId, 0L);
         }
 
-        private void Initialize(SymbolInfo symbol, int orderId, long serialNumber)
+        public void Initialize(SymbolInfo symbol, int orderId, long serialNumber)
         {
             binary.id = orderId;
             binary.symbol = symbol;

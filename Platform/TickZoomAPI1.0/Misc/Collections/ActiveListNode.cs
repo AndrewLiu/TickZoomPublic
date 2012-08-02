@@ -11,6 +11,11 @@ namespace TickZoom.Api
         internal ActiveListNode<T> next;
         internal ActiveListNode<T> prev;
 
+        public ActiveListNode()
+        {
+            
+        }
+
         // Methods
         public ActiveListNode(T value)
         {
