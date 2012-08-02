@@ -576,7 +576,7 @@ namespace TickZoom.Provider.FIX
                             }
                             if (!packetFIX.IsResetSeqNum && packetFIX.Sequence < RemoteSequence)
                             {
-                                var loginReject = "MsgSeqNum too low expecting " + RemoteSequence + " but was " + packetFIX.Sequence;
+                                var loginReject = "MsgSeqNum too low, expecting " + RemoteSequence + " but received " + packetFIX.Sequence;
                                 SendLoginReject(loginReject);
                                 return true;
                             }

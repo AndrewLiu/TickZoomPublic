@@ -767,7 +767,8 @@ namespace TickZoom.Common
                     var lastStateChange = new TimeStamp(reader.ReadInt64());
                     var sequence = reader.ReadInt32();
                     var symbolInfo = Factory.Symbol.LookupSymbol(symbol);
-                    var order = Factory.Utility.PhysicalOrder(action, orderState, symbolInfo, side, type, flags, price, remainingSize, cumulativeSize, completeSize,
+                    var order = Factory.Utility.PhysicalOrder();
+                    order.Initialize(action, orderState, symbolInfo, side, type, flags, price, remainingSize, cumulativeSize, completeSize,
                                                               logicalOrderId, logicalSerialNumber, brokerOrder, tag, utcCreateTime);
                     order.ResetLastChange(lastStateChange);
                     order.Sequence = sequence;

@@ -141,7 +141,7 @@ namespace TickZoom.Provider.LimeFIX
                 // telling us what we should be at.  So if we can, we just use that when we reconnect.
                 if (message42.Text.StartsWith("MsgSeqNum too low"))
                 {
-                    var match = Regex.Match(message42.Text, "but was (\\d+)");
+                    var match = Regex.Match(message42.Text, "but received (\\d+)");
                     int badSequenceNumber = 0;
                     if (match.Success && int.TryParse(match.Groups[1].Value, out badSequenceNumber))
                     {

@@ -78,6 +78,8 @@ namespace TickZoom.Interceptors
         private bool createActualFills;
         private TriggerController triggers;
         private Dictionary<long, long> serialTriggerMap = new Dictionary<long, long>();
+        private Pool<PhysicalOrderDefault> orderPool = Factory.Parallel.Pool<PhysicalOrderDefault>();
+        private int callerId;
 
         public void RefreshLogLevel()
         {
@@ -114,6 +116,7 @@ namespace TickZoom.Interceptors
             fillLogic = new FillSimulatorLogic(name, symbol, FillCallback);
             IsChanged = true;
             PartialFillSimulation = symbol.PartialFillSimulation;
+            callerId = orderPool.GetCallerId("FillSimulatorPhysical");
             Clear();
         }
 
@@ -144,7 +147,8 @@ namespace TickZoom.Interceptors
 
         public bool OnChangeBrokerOrder(PhysicalOrder other)
         {
-            var order = other.Clone();
+            var order = orderPool.Create(callerId);
+            other.Clone(order);
             if (debug) log.DebugFormat(LogMessage.LOGMSG594, order);
             if( order.OriginalOrder != null)
             {
@@ -266,6 +270,7 @@ namespace TickZoom.Interceptors
             }
         }
 
+
         private PhysicalOrder CancelBrokerOrder(long oldOrderId)
         {
             PhysicalOrder physicalOrder;
@@ -288,6 +293,7 @@ namespace TickZoom.Interceptors
                     serialTriggerMap.Remove(physicalOrder.LogicalSerialNumber);
                     triggers.RemoveTrigger(triggerId);
                 }
+                orderPool.Free((PhysicalOrderDefault)physicalOrder);
                 LogOpenOrders();
             }
             return physicalOrder;
@@ -295,7 +301,8 @@ namespace TickZoom.Interceptors
 
         public bool OnCreateBrokerOrder(PhysicalOrder other)
         {
-            var order = other.Clone();
+            var order = orderPool.Create(callerId);
+            other.Clone(order);
             if (debug) log.DebugFormat(LogMessage.LOGMSG599, order);
             if (order.RemainingSize <= 0)
             {

@@ -41,18 +41,9 @@ namespace TickZoom.Common
         {
             return new PhysicalOrderCacheDefault(name);
         }
-        public PhysicalOrder PhysicalOrder(OrderState orderState, SymbolInfo symbol, PhysicalOrder origOrder)
+        public PhysicalOrder PhysicalOrder()
         {
-            return new PhysicalOrderDefault(orderState, symbol, origOrder);
-        }
-        public PhysicalOrder PhysicalOrder(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type, OrderFlags flags, double price, int remainingSize, int cumulativeSize, int completeSize, int logicalOrderId, long logicalSerialNumber, long brokerOrder, object tag, TimeStamp utcCreateTime)
-        {
-            return new PhysicalOrderDefault(action, orderState, symbol, side, type, flags, price, remainingSize, cumulativeSize, completeSize, logicalOrderId, logicalSerialNumber, brokerOrder, (string)tag, utcCreateTime);
-        }
-
-        public PhysicalOrder PhysicalOrder(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type, OrderFlags flags, double price, int remainingSize, int logicalOrderId, long logicalSerialNumber, long brokerOrder, object tag, TimeStamp utcCreateTime)
-        {
-            return new PhysicalOrderDefault(action, orderState, symbol, side, type, flags, price, remainingSize, logicalOrderId, logicalSerialNumber, brokerOrder, (string)tag, utcCreateTime);
+            return new PhysicalOrderDefault();
         }
 
         public ProviderService CommandLineProcess()

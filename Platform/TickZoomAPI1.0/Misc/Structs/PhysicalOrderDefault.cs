@@ -15,7 +15,12 @@ namespace TickZoom.Api
         private long instanceId;
         private static long nextInstanceId;
 
-        public PhysicalOrderDefault(OrderState orderState, SymbolInfo symbol, PhysicalOrder origOrder)
+        public PhysicalOrderDefault()
+        {
+            instanceId = ++nextInstanceId;
+        }
+
+        public void Initialize(OrderState orderState, SymbolInfo symbol, PhysicalOrder origOrder)
         {
             binary.action = OrderAction.Cancel;
             OrderState = orderState;
@@ -43,41 +48,20 @@ namespace TickZoom.Api
             instanceId = ++nextInstanceId;
         }
 
-        public PhysicalOrder Clone()
+        public void Initialize(OrderState orderState, SymbolInfo symbol, long orderId)
         {
-            var clone = new PhysicalOrderDefault();
-            clone.binary = this.binary;
-            return clone;
-        }
-
-        private PhysicalOrderDefault()
-        {
-            instanceId = ++nextInstanceId;
-        }
-
-        public bool IsPending
-        {
-            get
-            {
-                return binary.orderState == OrderState.Pending || binary.orderState == OrderState.PendingNew ||
-                       binary.orderState == OrderState.Expired; 
-            }
-        }
-
-        public PhysicalOrderDefault(OrderState orderState, SymbolInfo symbol, long orderId)
-            : this(orderState, symbol, null, default(OrderSide), 0, 0, 0D)
-        {
+            Initialize(orderState, symbol, null, default(OrderSide), 0, 0, 0D);
             binary.action = OrderAction.Create;
             binary.brokerOrder = orderId;
         }
 
-        public PhysicalOrderDefault(OrderAction orderAction, SymbolInfo symbol, LogicalOrder logical, OrderSide side, int remainingSize, int cumulativeSize, double price)
-            : this(OrderState.Pending, symbol, logical, side, remainingSize, cumulativeSize, price)
+        public void Initialize(OrderAction orderAction, SymbolInfo symbol, LogicalOrder logical, OrderSide side, int remainingSize, int cumulativeSize, double price)
         {
+            Initialize(OrderState.Pending, symbol, logical, side, remainingSize, cumulativeSize, price);
             binary.action = orderAction;
         }
 
-        public PhysicalOrderDefault(OrderState orderState, SymbolInfo symbol, LogicalOrder logical, OrderSide side, int remainingSize, int cumulativeSize, double price)
+        public void Initialize(OrderState orderState, SymbolInfo symbol, LogicalOrder logical, OrderSide side, int remainingSize, int cumulativeSize, double price)
         {
             binary.action = OrderAction.Create;
             OrderState = orderState;
@@ -104,13 +88,13 @@ namespace TickZoom.Api
             instanceId = ++nextInstanceId;
         }
 
-        public PhysicalOrderDefault(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type, OrderFlags flags, double price, int remainingSize, int logicalOrderId, long logicalSerialNumber, long brokerOrder, string tag, TimeStamp utcCreateTime) 
-            : this( action, orderState, symbol, side, type, flags, price, remainingSize, 0, remainingSize, logicalOrderId, logicalSerialNumber, brokerOrder, tag, utcCreateTime)
+        public void Initialize(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type, OrderFlags flags, double price, int remainingSize, int logicalOrderId, long logicalSerialNumber, long brokerOrder, string tag, TimeStamp utcCreateTime)
         {
-            
+            Initialize(action, orderState, symbol, side, type, flags, price, remainingSize, 0, remainingSize,
+                       logicalOrderId, logicalSerialNumber, brokerOrder, tag, utcCreateTime);
         }
 
-        public PhysicalOrderDefault(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type, OrderFlags flags, double price, int remainingSize, int cumulativeSize, int completeSize, int logicalOrderId, long logicalSerialNumber, long brokerOrder, string tag, TimeStamp utcCreateTime)
+        public void Initialize(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type, OrderFlags flags, double price, int remainingSize, int cumulativeSize, int completeSize, int logicalOrderId, long logicalSerialNumber, long brokerOrder, string tag, TimeStamp utcCreateTime)
         {
             binary.action = action;
             OrderState = orderState;
@@ -135,6 +119,21 @@ namespace TickZoom.Api
             }
             binary.utcCreateTime = utcCreateTime;
             instanceId = ++nextInstanceId;
+        }
+
+        public void Clone(PhysicalOrder order)
+        {
+            var clone = (PhysicalOrderDefault) order;
+            clone.binary = this.binary;
+        }
+
+        public bool IsPending
+        {
+            get
+            {
+                return binary.orderState == OrderState.Pending || binary.orderState == OrderState.PendingNew ||
+                       binary.orderState == OrderState.Expired;
+            }
         }
 
         public object ToLog()

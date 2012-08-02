@@ -422,7 +422,8 @@ namespace TickZoom.Provider.LimeFIX
             }
             //var utcCreateTime = new TimeStamp(packet.TransactionTime);
             var utcCreateTime = new TimeStamp(packet.TimeStamp);
-            var physicalOrder = Factory.Utility.PhysicalOrder(
+            var physicalOrder = Factory.Utility.PhysicalOrder();
+            physicalOrder.Initialize(
                 OrderAction.Create, OrderState.Active, symbol, side, type, OrderFlags.None,
                 packet.Price, packet.OrderQuantity, logicalId, 0, clientId, null, utcCreateTime);
             if (debug) log.DebugFormat(LogMessage.LOGMSG138, physicalOrder);
@@ -449,7 +450,8 @@ namespace TickZoom.Provider.LimeFIX
                 clientId = 0;
             }
             var utcCreateTime = new TimeStamp(packet.TimeStamp);
-            var physicalOrder = Factory.Utility.PhysicalOrder(
+            var physicalOrder = Factory.Utility.PhysicalOrder();
+            physicalOrder.Initialize(
                 OrderAction.Cancel, OrderState.Active, symbol, side, type, OrderFlags.None,
                 0D, 0, logicalId, 0, clientId, null, utcCreateTime);
             physicalOrder.OriginalOrder = origOrder;
@@ -488,11 +490,12 @@ namespace TickZoom.Provider.LimeFIX
                 (order.Type == OrderType.Stop ))
             {
                 order.Type = OrderType.Market;
-                var marketOrder = Factory.Utility.PhysicalOrder(order.Action, order.OrderState,
-                                                                order.Symbol, order.Side, order.Type, OrderFlags.None, 0,
-                                                                order.RemainingSize, order.LogicalOrderId,
-                                                                order.LogicalSerialNumber,
-                                                                order.BrokerOrder, null, TimeStamp.UtcNow);
+                var marketOrder = Factory.Utility.PhysicalOrder();
+                marketOrder.Initialize(order.Action, order.OrderState,
+                    order.Symbol, order.Side, order.Type, OrderFlags.None, 0,
+                    order.RemainingSize, order.LogicalOrderId,
+                    order.LogicalSerialNumber,
+                    order.BrokerOrder, null, TimeStamp.UtcNow);
                 SendExecutionReport(marketOrder, "0", 0.0, 0, 0, 0, (int)marketOrder.RemainingSize, TimeStamp.UtcNow);
             }
             if (debug) log.DebugFormat(LogMessage.LOGMSG140, fill);
