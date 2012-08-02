@@ -1081,7 +1081,10 @@ namespace TickZoom.Common
 
             originalPhysicals.Clear();
 		    physicalOrderCache.GetActiveOrders(tempActiveOrders, symbol);
-            originalPhysicals.AddRange(tempActiveOrders);
+            for (var i = 0; i < tempActiveOrders.Count; i++ )
+            {
+                originalPhysicals.Add(tempActiveOrders[i]);
+            }
 
             for (var i = 0; i < originalPhysicals.Count; i++ )
             {
@@ -1854,7 +1857,10 @@ namespace TickZoom.Common
 				
             originalPhysicals.Clear();
 		    physicalOrderCache.GetActiveOrders(tempActiveOrders, symbol);
-            originalPhysicals.AddRange(tempActiveOrders);
+            for (var i = 0; i < tempActiveOrders.Count; i++ )
+            {
+                originalPhysicals.Add(tempActiveOrders[i]);
+            }
 
             TryFlushBufferedLogicals();
 
@@ -1883,11 +1889,17 @@ namespace TickZoom.Common
             }
 
             logicalOrders.Clear();
-			logicalOrders.AddRange(originalLogicals);
+            for (var i = 0; i < originalLogicals.Count; i++ )
+            {
+                logicalOrders.Add(originalLogicals[i]);
+            }
 			
 			physicalOrders.Clear();
 			if(originalPhysicals != null) {
-				physicalOrders.AddRange(originalPhysicals);
+                for (var i = 0; i < originalPhysicals.Count; i++ )
+                {
+                    physicalOrders.Add(originalPhysicals[i]);
+                }
 			}
 
 			PhysicalOrder physical;
@@ -1969,7 +1981,10 @@ namespace TickZoom.Common
                 originalLogicals.Clear();
                 if (bufferedLogicals != null)
                 {
-                    originalLogicals.AddRange(bufferedLogicals);
+                    for (var i = 0; i < bufferedLogicals.Count; i++ )
+                    {
+                        originalLogicals.Add(bufferedLogicals[i]);
+                    }
                 }
                 bufferedLogicalsChanged = false;
             }

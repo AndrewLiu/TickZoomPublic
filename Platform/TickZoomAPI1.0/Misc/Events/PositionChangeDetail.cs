@@ -67,11 +67,13 @@ namespace TickZoom.Api
             set { position = value; }
         }
 
-        public ActiveList<LogicalOrder> Orders {
-			get { return orders; }
-		}
-		
-		public SymbolInfo Symbol
+        public ActiveList<LogicalOrder> Orders
+        {
+            get { return orders; }
+            set { orders = value; }
+        }
+
+        public SymbolInfo Symbol
 		{
 		    get { return symbol; }
 		    set { symbol = value; }
@@ -84,11 +86,12 @@ namespace TickZoom.Api
         }
 
         public ActiveList<StrategyPosition> StrategyPositions
-	    {
-	        get { return strategyPositions; }
-	    }
+        {
+            get { return strategyPositions; }
+            set { strategyPositions = value; }
+        }
 
-	    public long Recency
+        public long Recency
 	    {
 	        get { return recency; }
 	        set { recency = value; }
