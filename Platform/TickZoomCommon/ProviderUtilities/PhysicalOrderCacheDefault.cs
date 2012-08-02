@@ -29,7 +29,9 @@ namespace TickZoom.Common
         protected Dictionary<long, SymbolPosition> positions = new Dictionary<long, SymbolPosition>();
         protected Dictionary<int, StrategyPosition> strategyPositions = new Dictionary<int, StrategyPosition>();
         private Func<PhysicalOrder,bool> matchSymbolFunc;
+        private Pool<PhysicalOrderDefault> orderPool = Factory.Parallel.Pool<PhysicalOrderDefault>();
         private string name;
+        private int callerId;
 
         protected class SymbolPosition
         {
@@ -46,6 +48,7 @@ namespace TickZoom.Common
             log = Factory.SysLog.GetLogger(typeof(PhysicalOrderCacheDefault).FullName + "." + name);
             matchSymbolFunc = MatchSymbol;
             log.Register(this);
+            callerId = orderPool.GetCallerId("PhysicalOrderCache");
         }
 
         public bool MatchSymbol(PhysicalOrder order)
@@ -261,7 +264,13 @@ namespace TickZoom.Common
             order.OriginalOrder = null;
         }
 
-        public PhysicalOrder RemoveOrder(long clientOrderId)
+        public PhysicalOrderDefault Create()
+        {
+            return orderPool.Create(callerId);
+        }
+
+
+        public void RemoveOrder(long clientOrderId)
         {
             if (trace) log.TraceFormat(LogMessage.LOGMSG539, clientOrderId);
             AssertAtomic();
@@ -270,7 +279,6 @@ namespace TickZoom.Common
             {
                 topOrder.OriginalOrder.ReplacedBy = null;
             }
-            return topOrder;
         }
 
         private PhysicalOrder RemoveOrderInternal(long clientOrderId)
@@ -294,6 +302,7 @@ namespace TickZoom.Common
                     }
                 }
                 ordersBySequence.Remove(order.Sequence);
+                orderPool.Free((PhysicalOrderDefault)order);
                 return order;
             }
             return null;

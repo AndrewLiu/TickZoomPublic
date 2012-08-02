@@ -111,7 +111,7 @@ namespace TickZoom.Api
 
 	    long LogicalSerialNumber { get; }
 
-	    PhysicalOrder Clone();
+	    void Clone(PhysicalOrder clone);
 	    void ResetLastChange(TimeStamp lastChange);
 
         int RemainingSize { get; set;  }
@@ -121,5 +121,22 @@ namespace TickZoom.Api
 	    int CompleteSize { get; set; }
 	    int CumulativeSize { get; set; }
 	    bool IsTouch { get; set; }
-	}
+        void Initialize(OrderState orderState, SymbolInfo symbol, PhysicalOrder origOrder);
+        void Initialize(OrderState orderState, SymbolInfo symbol, long orderId);
+
+        void Initialize(OrderAction orderAction, SymbolInfo symbol, LogicalOrder logical, OrderSide side,
+                        int remainingSize, int cumulativeSize, double price);
+
+        void Initialize(OrderState orderState, SymbolInfo symbol, LogicalOrder logical, OrderSide side,
+                        int remainingSize, int cumulativeSize, double price);
+
+        void Initialize(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type,
+                        OrderFlags flags, double price, int remainingSize, int logicalOrderId, long logicalSerialNumber,
+                        long brokerOrder, string tag, TimeStamp utcCreateTime);
+
+        void Initialize(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type,
+                        OrderFlags flags, double price, int remainingSize, int cumulativeSize, int completeSize,
+                        int logicalOrderId, long logicalSerialNumber, long brokerOrder, string tag,
+                        TimeStamp utcCreateTime);
+    }
 }

@@ -1546,7 +1546,8 @@ namespace Orders
 			
 			public void AddPhysicalOrder(OrderState orderState, OrderSide side, OrderType type, double price, int size, int logicalOrderId, long brokerOrder)
 			{
-                var order = Factory.Utility.PhysicalOrder(OrderAction.Create, orderState, symbol, side, type, OrderFlags.None, price,
+			    var order = Factory.Utility.PhysicalOrder();
+                order.Initialize(OrderAction.Create, orderState, symbol, side, type, OrderFlags.None, price,
                                                           size, logicalOrderId, 0, brokerOrder, null,
                                                           TimeStamp.UtcNow);
                 activeOrders.Add(order);
@@ -1555,7 +1556,8 @@ namespace Orders
 
             public void AddPhysicalOrder(OrderState orderState, OrderSide side, OrderType type, double price, int size, LogicalOrder logicalOrder, long brokerOrder)
             {
-                var order = Factory.Utility.PhysicalOrder(OrderAction.Create, orderState, symbol, side, type, OrderFlags.None, price, size, logicalOrder.Id, logicalOrder.SerialNumber, brokerOrder, null, TimeStamp.UtcNow);
+                var order = Factory.Utility.PhysicalOrder();
+                order.Initialize(OrderAction.Create, orderState, symbol, side, type, OrderFlags.None, price, size, logicalOrder.Id, logicalOrder.SerialNumber, brokerOrder, null, TimeStamp.UtcNow);
                 activeOrders.Add(order);
                 confirmOrders.ConfirmCreate(order.BrokerOrder, Origin.Provider, false);
             }

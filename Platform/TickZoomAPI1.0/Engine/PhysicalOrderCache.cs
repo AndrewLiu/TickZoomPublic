@@ -6,7 +6,7 @@ namespace TickZoom.Api
     public interface PhysicalOrderCache : IDisposable
     {
         void SetOrder(PhysicalOrder order);
-        PhysicalOrder RemoveOrder(long clientOrderId);
+        void RemoveOrder(long clientOrderId);
         void GetActiveOrders(List<PhysicalOrder> orders, SymbolInfo symbol);
         void GetOrders(List<PhysicalOrder> orders, Func<PhysicalOrder, bool> select);
         bool TryGetOrderById(long brokerOrder, out PhysicalOrder order);
@@ -29,6 +29,7 @@ namespace TickZoom.Api
         List<PhysicalOrder> GetOrdersList(Func<PhysicalOrder, bool> func);
         void PurgeOriginalOrder(PhysicalOrder order);
         int GetHighestSequence();
+        PhysicalOrderDefault Create();
     }
 
     public interface PhysicalOrderStore : PhysicalOrderCache

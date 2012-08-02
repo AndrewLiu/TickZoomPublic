@@ -37,8 +37,7 @@ namespace TickZoom.Api
 		ProviderService CommandLineProcess();
 		ProviderService WindowsService();
         OrderAlgorithm OrderAlgorithm(string name, SymbolInfo symbol, PhysicalOrderHandler handler, PhysicalOrderHandler synthetics, LogicalOrderCache logicalCache, PhysicalOrderCache physicalCache);
-	    PhysicalOrder PhysicalOrder(OrderState orderState, SymbolInfo symbol, PhysicalOrder origOrder);
-        PhysicalOrder PhysicalOrder(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type, OrderFlags flags, double price, int remainingSize, int cumulativeSize, int completeSize, int logicalOrderId, long logicalSerialNumber, long brokerOrder, object tag, TimeStamp utcCreateTime);
+	    PhysicalOrder PhysicalOrder();
         SymbolHandler SymbolHandler(string providerName, SymbolInfo symbol, Agent agent);
 		VerifyFeed VerifyFeed(SymbolInfo symbol);
 		FillHandler FillHandler();
@@ -49,6 +48,5 @@ namespace TickZoom.Api
         PhysicalFill PhysicalFill(SymbolInfo symbol, int size, double price, TimeStamp time, TimeStamp utcTime, long brokerOrder, bool isSimulated, int totalSize, int cumulativeSize, int remainingSize, bool isRealTime, bool isActual);
 		StrategyInterface Strategy();
 	    PhysicalOrderCache PhyscalOrderCache(string name);
-	    PhysicalOrder PhysicalOrder(OrderAction action, OrderState orderState, SymbolInfo symbol, OrderSide side, OrderType type, OrderFlags flags, double price, int remainingSize, int logicalOrderId, long logicalSerialNumber, long brokerOrder, object tag, TimeStamp utcCreateTime);
 	}
 }
