@@ -11,7 +11,12 @@ namespace TickZoom.Api
         private SymbolInfo _symbol;
         private long position;
 
-        public StrategyPositionDefault(int id, SymbolInfo symbol)
+        public StrategyPositionDefault()
+        {
+            
+        }
+
+        public void Initialize(int id, SymbolInfo symbol)
         {
             this._id = id;
             this._symbol = symbol;
