@@ -161,12 +161,13 @@ namespace TickZoom.Common
             }
             return true;
         }
-		
-		private List<PhysicalOrder> TryMatchId( IEnumerable<PhysicalOrder> list, LogicalOrder logical)
+
+        private void TryMatchId(List<PhysicalOrder> list, LogicalOrder logical, List<PhysicalOrder> physicalOrderMatches)
 		{
-            var physicalOrderMatches = new List<PhysicalOrder>();
-            foreach (var physical in list)
-		    {
+            physicalOrderMatches.Clear();
+            for(var i = 0; i < list.Count; i++)
+            {
+                var physical = list[i];
 				if( logical.SerialNumber == physical.LogicalSerialNumber ) {
                     switch( physical.OrderState)
                     {
@@ -185,7 +186,6 @@ namespace TickZoom.Common
                     }
 				}
 			}
-			return physicalOrderMatches;
 		}
 
         private bool TryCancelBrokerOrder(PhysicalOrder physical)
@@ -1870,6 +1870,7 @@ namespace TickZoom.Common
 		}
 
 		private int recursiveCounter;
+        private List<PhysicalOrder> physicalMatches = new List<PhysicalOrder>();
 		private bool PerformCompareInternal()
 		{
 		    var result = true;
@@ -1932,18 +1933,18 @@ namespace TickZoom.Common
 			while( logicalOrders.Count > 0)
 			{
 				var logical = logicalOrders[0];
-			    var matches = TryMatchId(physicalOrders, logical);
-                if( matches.Count > 0)
+			    TryMatchId(physicalOrders, logical, physicalMatches);
+                if( physicalMatches.Count > 0)
                 {
                     if( hasMarketOrders)
                     {
-                        foreach( var order in matches)
+                        foreach( var order in physicalMatches)
                         {
                             physicalOrders.Remove(order);
                         }
                         result = false;
                     }
-                    else if( !ProcessMatch( logical, matches))
+                    else if( !ProcessMatch( logical, physicalMatches))
                     {
                         if (debug) log.DebugFormat(LogMessage.LOGMSG513, logical);
                         result = false;
