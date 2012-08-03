@@ -33,7 +33,7 @@ namespace TickZoom.Api
 		
 	}
 	
-	public interface FastFillQueue : FastQueue<LogicalFillBinary> {
+	public interface FastFillQueue : FastQueue<LogicalFillDefault> {
 		
 	}
 	

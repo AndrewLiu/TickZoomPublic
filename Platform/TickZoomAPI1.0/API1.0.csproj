@@ -281,6 +281,7 @@
     <Compile Include="Provider\LimitOrderTradeSimulation.cs" />
     <Compile Include="Provider\LogicalFill.cs" />
     <Compile Include="Provider\LogicalFillBinary.cs" />
+    <Compile Include="Provider\LogicalFillDefault.cs" />
     <Compile Include="Provider\LogicalFillBinaryBox.cs" />
     <Compile Include="Provider\LogicalTouch.cs" />
     <Compile Include="Provider\LogicalTouchBinary.cs" />

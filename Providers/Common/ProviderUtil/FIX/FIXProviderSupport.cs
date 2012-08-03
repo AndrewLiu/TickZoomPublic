@@ -1511,7 +1511,7 @@ namespace TickZoom.Provider.FIX
             return 0;
         }
 
-        public virtual void ProcessFill(SymbolInfo symbol, LogicalFillBinary fill)
+        public virtual void ProcessFill(SymbolInfo symbol, LogicalFillDefault fill)
         {
             var symbolReceiver = symbolReceivers.GetSymbolRequest(symbol);
             var symbolAlgorithm = algorithms.CreateAlgorithm(symbol);

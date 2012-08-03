@@ -56,7 +56,7 @@ namespace TickZoom.Api
         void TrySyncPosition(Iterable<StrategyPosition> strategyPositions);
         bool HandleSimulatedExits { get; set; }
         PhysicalOrderHandler PhysicalOrderHandler { get; }
-        Action<SymbolInfo, LogicalFillBinary> OnProcessFill { get; set; }
+        Action<SymbolInfo, LogicalFillDefault> OnProcessFill { get; set; }
         long ActualPosition { get; }
         bool IsPositionSynced { get; set; }
 	    bool EnableSyncTicks { get; set; }

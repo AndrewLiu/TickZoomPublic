@@ -60,7 +60,7 @@ namespace Orders
             orders.Clear();
 		}
           
-        private void ProcessFill( SymbolInfo symbol, LogicalFillBinary fill)
+        private void ProcessFill( SymbolInfo symbol, LogicalFillDefault fill)
         {
             for( var current = orders.First; current != null; current = current.Next)
             {
@@ -1596,7 +1596,7 @@ namespace Orders
 			private SymbolInfo symbol;
 			private Strategy strategy;
 		    private PhysicalOrderCache physicalCache;
-			public TestOrderAlgorithm(SymbolInfo symbol, Strategy strategy, Action<SymbolInfo, LogicalFillBinary> onProcessFill, PhysicalOrderCache physicalOrderCache) {
+			public TestOrderAlgorithm(SymbolInfo symbol, Strategy strategy, Action<SymbolInfo, LogicalFillDefault> onProcessFill, PhysicalOrderCache physicalOrderCache) {
                 this.symbol = symbol;
                 this.strategy = strategy;
 			    this.physicalCache = physicalOrderCache;
