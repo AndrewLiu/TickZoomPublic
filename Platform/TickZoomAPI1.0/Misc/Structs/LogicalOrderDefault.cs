@@ -279,7 +279,7 @@ namespace TickZoom.Api
                 *(byte*)(ptr) = (byte)binary.side; ptr += sizeof(byte);
                 *(byte*)(ptr) = (byte)binary.type; ptr += sizeof(byte);
                 *(byte*)(ptr) = (byte)binary.tradeDirection; ptr += sizeof(byte);
-                *(byte*)(ptr) = Convert.ToByte(binary.status); ptr += sizeof(byte);
+                *(byte*)(ptr) = (byte)binary.status; ptr += sizeof(byte);
                 if (binary.strategy != null)
                 {
                     binary.strategyId = binary.strategy.Id;
