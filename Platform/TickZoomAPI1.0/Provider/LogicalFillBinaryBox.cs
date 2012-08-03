@@ -35,57 +35,57 @@ namespace TickZoom.Api
     [SerializeContract]
 	public class LogicalFillBinaryBox : LogicalFill {
         [SerializeMember(1)]
-        public LogicalFillBinary LogicalFillBinary;
+        public LogicalFillDefault LogicalFillDefault;
 		
 		public int OrderId {
-			get { return LogicalFillBinary.OrderId; }
+			get { return LogicalFillDefault.OrderId; }
 		}
 
 		public long OrderSerialNumber {
-			get { return LogicalFillBinary.OrderSerialNumber; }
+			get { return LogicalFillDefault.OrderSerialNumber; }
 		}
 
 		public int OrderPosition {
-			get { return LogicalFillBinary.OrderPosition; }
+			get { return LogicalFillDefault.OrderPosition; }
 		}
 
 		public TimeStamp Time {
-			get { return LogicalFillBinary.Time; }
+			get { return LogicalFillDefault.Time; }
 		}
 
 		public TimeStamp PostedTime {
-			get { return LogicalFillBinary.PostedTime; }
+			get { return LogicalFillDefault.PostedTime; }
 		}
 
 		public TimeStamp UtcTime {
-			get { return LogicalFillBinary.UtcTime; }
+			get { return LogicalFillDefault.UtcTime; }
 		}
 
 		public double Price {
-			get { return LogicalFillBinary.Price; }
+			get { return LogicalFillDefault.Price; }
 		}
 
 		public int Position {
-			get { return LogicalFillBinary.Position; }
+			get { return LogicalFillDefault.Position; }
 		}
 		
 		public bool IsExitStrategy {
-			get { return LogicalFillBinary.IsExitStrategy; }
+			get { return LogicalFillDefault.IsExitStrategy; }
 		}
 
 	    public long Recency
 	    {
-            get { return LogicalFillBinary.Recency; }
+            get { return LogicalFillDefault.Recency; }
 	    }
 
 		public override string ToString()
 		{
-			return LogicalFillBinary.ToString();
+			return LogicalFillDefault.ToString();
 		}
 
 	    public bool IsComplete
 	    {
-            get { return LogicalFillBinary.IsComplete; }
+            get { return LogicalFillDefault.IsComplete; }
 	    }
 	}
 }

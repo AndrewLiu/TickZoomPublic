@@ -488,7 +488,7 @@ namespace Loaders
 		
         public class TransactionInfo {
             public string Symbol;
-            public LogicalFillBinary Fill;
+            public LogicalFillDefault Fill;
         }
 		
         public class TradeInfo {
@@ -683,7 +683,7 @@ namespace Loaders
                     testInfo.Symbol = fields[fieldIndex++];
 					
                     line = string.Join(",",fields,fieldIndex,fields.Length-fieldIndex);
-                    testInfo.Fill = LogicalFillBinary.Parse(line);
+                    testInfo.Fill = LogicalFillDefault.Parse(line);
                     List<TransactionInfo> transactionList;
                     if( tempTransactions.TryGetValue(strategyName,out transactionList)) {
                         transactionList.Add(testInfo);
@@ -710,7 +710,7 @@ namespace Loaders
                     testInfo.Symbol = fields[fieldIndex++];
 					
                     line = string.Join(",",fields,fieldIndex,fields.Length-fieldIndex);
-                    testInfo.Fill = LogicalFillBinary.Parse(line);
+                    testInfo.Fill = LogicalFillDefault.Parse(line);
                     List<TransactionInfo> transactionList;
                     if( tempReconciliation.TryGetValue(testInfo.Symbol,out transactionList)) {
                         transactionList.Add(testInfo);
@@ -1011,7 +1011,7 @@ namespace Loaders
             }
         }
 		
-        private void AssertReconcile(ref bool assertFlag, LogicalFillBinary a, LogicalFillBinary b, string message) {
+        private void AssertReconcile(ref bool assertFlag, LogicalFillDefault a, LogicalFillDefault b, string message) {
             if( a.GetType() != b.GetType()) {
                 throw new ApplicationException("Expected type " + a.GetType() + " but was " + b.GetType() + ": " + message);
             }

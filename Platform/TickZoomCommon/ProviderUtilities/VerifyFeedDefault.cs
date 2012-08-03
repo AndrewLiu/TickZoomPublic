@@ -538,7 +538,7 @@ namespace TickZoom.Common
 			return actualPositions[symbol.BinaryIdentifier];
 		}
 
-		public bool OnLogicalFill(SymbolInfo symbol, LogicalFillBinary fill)
+		public bool OnLogicalFill(SymbolInfo symbol, LogicalFillDefault fill)
 		{
 			log.Info("Got Logical Fill of " + symbol + " at " + fill.Price + " for " + fill.Position);
 			actualPositions[symbol.BinaryIdentifier] = fill.Position;

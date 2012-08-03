@@ -576,7 +576,7 @@ namespace TickZoom.Logging
                     throw new ApplicationException("Use TickBinary property to log TickBinaryBox.");
                 case "TickZoom.Api.LogicalOrderDefault":
                 case "TickZoom.Api.PhysicalOrderDefault": // 36877
-                case "TickZoom.Api.LogicalFillBinary": // 15047
+                case "TickZoom.Api.LogicalFillDefault": // 15047
                 case "TickZoom.Api.PhysicalFillDefault": // 11285
                 case "TickZoom.Api.LogicalFillBinaryBox": // 3761
                 case "TickZoom.Api.TransactionPairBinary": // 3761

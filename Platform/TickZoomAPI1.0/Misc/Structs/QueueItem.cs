@@ -56,7 +56,7 @@ namespace TickZoom.Api
 	    public int OrdersCount;
 	    public int OrdersMemoryId;
 	    public int DetailMemoryId;
-        public LogicalFillBinary Fill;
+        public LogicalFillDefault Fill;
         public TimeStamp StartTime;
         public string Message;
         public PositionChangeDetail Detail;

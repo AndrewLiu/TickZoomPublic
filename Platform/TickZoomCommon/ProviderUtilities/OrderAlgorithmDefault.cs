@@ -64,7 +64,7 @@ namespace TickZoom.Common
         private List<LogicalOrder> logicalOrders;
         private List<LogicalOrder> extraLogicals;
 		private int desiredPosition;
-		private Action<SymbolInfo,LogicalFillBinary> onProcessFill;
+		private Action<SymbolInfo,LogicalFillDefault> onProcessFill;
         private Action<SymbolInfo,LogicalTouch> onProcessTouch;
         private bool handleSimulatedExits = false;
 		private TickSync tickSync;
@@ -1519,7 +1519,7 @@ namespace TickZoom.Common
                 throw new InvalidOperationException("Logical cannot be null");
             }
 
-		    LogicalFillBinary fill;
+		    LogicalFillDefault fill;
             desiredPosition += physical.Size;
             var strategyPosition = GetStrategyPosition(logical);
             if (debug) log.DebugFormat(LogMessage.LOGMSG480, desiredPosition, physical.Size);
@@ -1530,7 +1530,7 @@ namespace TickZoom.Common
                 if (debug) log.DebugFormat(LogMessage.LOGMSG482, position, strategyPosition, logical);
             }
             ++recency;
-            fill = new LogicalFillBinary(position, recency, physical.Price, physical.Time, physical.UtcTime, order.LogicalOrderId, order.LogicalSerialNumber, logical.Position, physical.IsExitStategy, physical.IsActual);
+            fill = new LogicalFillDefault(position, recency, physical.Price, physical.Time, physical.UtcTime, order.LogicalOrderId, order.LogicalSerialNumber, logical.Position, physical.IsExitStategy, physical.IsActual);
             if (debug) log.DebugFormat(LogMessage.LOGMSG483, fill);
             ProcessFill(fill, logical, isCompletePhysicalFill, physical.IsRealTime);
 		}
@@ -1655,7 +1655,7 @@ namespace TickZoom.Common
             if (DoSyncTicks) tickSync.RemovePhysicalFill(fill);
 		}
 		
-		private void ProcessFill( LogicalFillBinary fill, LogicalOrder filledOrder, bool isCompletePhysicalFill, bool isRealTime) {
+		private void ProcessFill( LogicalFillDefault fill, LogicalOrder filledOrder, bool isCompletePhysicalFill, bool isRealTime) {
 			if( debug) log.DebugFormat(LogMessage.LOGMSG492, fill + (!isRealTime ? " NOTE: This is NOT a real time fill." : ""));
 			int orderId = fill.OrderId;
 			if( orderId == 0) {
@@ -1742,7 +1742,7 @@ namespace TickZoom.Common
             originalLogicals.Remove(order);
         }
 
-		private void CleanupAfterFill(LogicalOrder filledOrder, LogicalFillBinary fill) {
+		private void CleanupAfterFill(LogicalOrder filledOrder, LogicalFillDefault fill) {
 			bool clean = false;
 			bool cancelAllEntries = false;
 			bool cancelAllExits = false;
@@ -2064,7 +2064,7 @@ namespace TickZoom.Common
 			get { return physicalOrderHandler; }
 		}
 		
-		public Action<SymbolInfo,LogicalFillBinary> OnProcessFill {
+		public Action<SymbolInfo,LogicalFillDefault> OnProcessFill {
 			get { return onProcessFill; }
 			set { onProcessFill = value; }
 		}
