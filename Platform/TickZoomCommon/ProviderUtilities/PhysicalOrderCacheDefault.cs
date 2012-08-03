@@ -135,12 +135,13 @@ namespace TickZoom.Common
                 StrategyPosition strategyPosition;
                 if (!this.strategyPositions.TryGetValue(position.Id, out strategyPosition))
                 {
-                    strategyPosition = new StrategyPositionDefault(position.Id, position.Symbol);
-                    this.strategyPositions.Add(position.Id, strategyPosition);
+                    var newStrategyPosition = new StrategyPositionDefault();
+                    newStrategyPosition.Initialize(position.Id, position.Symbol);
+                    this.strategyPositions.Add(position.Id, newStrategyPosition);
+                    strategyPosition = newStrategyPosition;
                 }
                 strategyPosition.TrySetPosition(position.ExpectedPosition);
             }
-//            if( debug) log.Debug("SyncPositions() strategy positions:\n" + StrategyPositionsToString());
         }
 
         public void SetActualPosition(SymbolInfo symbol, long position)
@@ -184,12 +185,14 @@ namespace TickZoom.Common
                 StrategyPosition strategyPosition;
                 if (!this.strategyPositions.TryGetValue(strategyId, out strategyPosition))
                 {
-                    strategyPosition = new StrategyPositionDefault(strategyId, symbol);
-                    this.strategyPositions.Add(strategyId, strategyPosition);
+                    var newStrategyPosition = new StrategyPositionDefault();
+                    newStrategyPosition.Initialize(strategyId, symbol);
+                    this.strategyPositions.Add(strategyId, newStrategyPosition);
+                    strategyPosition = newStrategyPosition;
+
                 }
                 strategyPosition.SetExpectedPosition(position);
             }
-//            if (debug) log.Debug("SetStrategyPosition() strategy positions:\n" + StrategyPositionsToString());
         }
 
         public long GetStrategyPosition(int strategyId)
