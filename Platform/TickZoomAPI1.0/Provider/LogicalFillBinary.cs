@@ -33,7 +33,7 @@ using TickZoom.Api;
 namespace TickZoom.Api
 {
     [SerializeContract]
-    public struct LogicalFillBinary : LogicalFill
+    public class LogicalFillBinary : LogicalFill
 	{
         [SerializeMember(1)]
         private int position;
@@ -44,7 +44,7 @@ namespace TickZoom.Api
         [SerializeMember(4)]
         private TimeStamp utcTime;
         [SerializeMember(5)]
-        private TimeStamp postedTime;
+        private TimeStamp postedTime; 
         [SerializeMember(6)]
         private int orderId;
         [SerializeMember(7)]
