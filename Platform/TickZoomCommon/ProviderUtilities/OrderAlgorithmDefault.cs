@@ -1119,6 +1119,7 @@ namespace TickZoom.Common
                 switch (order.OrderState)
                 {
                     case OrderState.Filled:
+                    case OrderState.Lost:
                         continue;
                     case OrderState.Active:
                     case OrderState.Pending:
