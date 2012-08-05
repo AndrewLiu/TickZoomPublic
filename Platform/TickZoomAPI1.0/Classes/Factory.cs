@@ -50,7 +50,12 @@ namespace TickZoom.Api
 		private static UtilityFactory utilityFactory;
 		private static FactoryLoader factoryLoader;
 	    private static bool isAutomatedTest;
-		
+
+	    private static Pool<PhysicalFillDefault> physicalFillPool;
+	    public static int PhysicalFillPoolCallerId;
+	    private static Pool<LogicalFillDefault> logicalFillPool;
+	    public static int IogicalFillPoolCallerId;
+
 		private static object Locker {
 			get {
 				if( locker == null) {
@@ -145,6 +150,10 @@ namespace TickZoom.Api
 					lock(Locker) {
 						if( parallel == null) {
 							parallel = Engine.Parallel();
+	                        physicalFillPool = parallel.Pool<PhysicalFillDefault>();
+	                        PhysicalFillPoolCallerId = PhysicalFillPool.GetCallerId("Factory");
+                            logicalFillPool = parallel.Pool<LogicalFillDefault>();
+                            LogicalFillPool.GetCallerId("Factory");
 						}
 					}
 				}
@@ -240,6 +249,16 @@ namespace TickZoom.Api
 	    {
 	        get { return isAutomatedTest; }
 	        set { isAutomatedTest = value; }
+	    }
+
+	    public static Pool<PhysicalFillDefault> PhysicalFillPool
+	    {
+	        get { return physicalFillPool; }
+	    }
+
+	    public static Pool<LogicalFillDefault> LogicalFillPool
+	    {
+	        get { return logicalFillPool; }
 	    }
 
 	    public static void Release()

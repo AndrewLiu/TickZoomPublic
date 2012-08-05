@@ -83,8 +83,10 @@ namespace TickZoom.Common
 
         public PhysicalFill PhysicalFill(SymbolInfo symbol, int size, double price, TimeStamp time, TimeStamp utcTime, long brokerOrder, bool isSimulated, int totalSize, int cumulativeSize, int remainingSize, bool isRealTime, bool isActual)
         {
-            return new PhysicalFillDefault(symbol, size, price, time, utcTime, brokerOrder, isSimulated, totalSize, cumulativeSize, remainingSize, isRealTime, isActual);
-		}
+            var fill = new PhysicalFillDefault();
+            fill.Initialize(symbol, size, price, time, utcTime, brokerOrder, isSimulated, totalSize, cumulativeSize, remainingSize, isRealTime, isActual);
+            return fill;
+        }
 		
 		public StrategyInterface Strategy() {
 			return new Strategy();

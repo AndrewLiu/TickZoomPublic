@@ -35,7 +35,16 @@ namespace TickZoom.Api
     {
         private LogicalFillBinary binary;
 
+        public LogicalFillDefault()
+        {
+        }
+
         public LogicalFillDefault(int position, long recency, double price, TimeStamp time, TimeStamp utcTime, int orderId, long orderSerialNumber, int orderPosition, bool isExitStrategy, bool isActual)
+        {
+            binary.Initialize(position, recency, price, time, utcTime, orderId, orderSerialNumber, orderPosition, isExitStrategy, isActual);
+        }
+
+        public void Initialize(int position, long recency, double price, TimeStamp time, TimeStamp utcTime, int orderId, long orderSerialNumber, int orderPosition, bool isExitStrategy, bool isActual)
         {
             binary.Initialize(position,recency,price,time,utcTime,orderId,orderSerialNumber,orderPosition,isExitStrategy,isActual);
         }
@@ -52,7 +61,8 @@ namespace TickZoom.Api
             var time = TimeStamp.Parse(fields[field++]);
             var utcTime = TimeStamp.Parse(fields[field++]);
             var postedTime = TimeStamp.Parse(fields[field++]);
-            var fill = new LogicalFillDefault(position, 0, price, time, utcTime, orderId, orderSerialNumber, orderPosition, false, false);
+            var fill = new LogicalFillDefault();
+            fill.Initialize(position, 0, price, time, utcTime, orderId, orderSerialNumber, orderPosition, false, false);
             fill.binary.postedTime = postedTime;
             return fill;
         }

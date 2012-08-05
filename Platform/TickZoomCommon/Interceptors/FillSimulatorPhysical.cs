@@ -80,6 +80,7 @@ namespace TickZoom.Interceptors
         private Dictionary<long, long> serialTriggerMap = new Dictionary<long, long>();
         private Pool<PhysicalOrderDefault> orderPool = Factory.Parallel.Pool<PhysicalOrderDefault>();
         private int callerId;
+        private Action<long> triggerCallback;
 
         public void RefreshLogLevel()
         {
@@ -117,6 +118,7 @@ namespace TickZoom.Interceptors
             IsChanged = true;
             PartialFillSimulation = symbol.PartialFillSimulation;
             callerId = orderPool.GetCallerId("FillSimulatorPhysical");
+            triggerCallback = TriggerCallback;
             Clear();
         }
 
@@ -201,7 +203,6 @@ namespace TickZoom.Interceptors
             return order;
         }
 
-
         private bool CreateBrokerOrder(PhysicalOrder order)
         {
 #if VERIFYSIDE
@@ -246,7 +247,7 @@ namespace TickZoom.Interceptors
             }
             if (triggers != null)
             {
-                var triggerId = triggers.AddTrigger(order.LogicalSerialNumber, TriggerData.Price, operation, order.Price, TriggerCallback);
+                var triggerId = triggers.AddTrigger(order.LogicalSerialNumber, TriggerData.Price, operation, order.Price, triggerCallback);
                 serialTriggerMap[order.LogicalSerialNumber] = triggerId;
             }
             SortAdjust(order);
@@ -788,7 +789,8 @@ namespace TickZoom.Interceptors
         {
             if (debug) log.DebugFormat(LogMessage.LOGMSG618, this.actualPosition, (actualPosition + size), size);
             this.actualPosition += size;
-            var fill = new PhysicalFillDefault(symbol, size, price, time, utcTime, order.BrokerOrder, createExitStrategyFills, totalSize, cumulativeSize, remainingSize, false, createActualFills);
+            var fill = Factory.PhysicalFillPool.Create(Factory.PhysicalFillPoolCallerId);
+            fill.Initialize(symbol, size, price, time, utcTime, order.BrokerOrder, createExitStrategyFills, totalSize, cumulativeSize, remainingSize, false, createActualFills);
             if (debug) log.DebugFormat(LogMessage.LOGMSG619, isOnline, fill);
             var wrapper = new FillWrapper
                               {
