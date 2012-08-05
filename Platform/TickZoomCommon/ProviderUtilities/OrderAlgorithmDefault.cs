@@ -1519,7 +1519,6 @@ namespace TickZoom.Common
                 throw new InvalidOperationException("Logical cannot be null");
             }
 
-		    LogicalFillDefault fill;
             desiredPosition += physical.Size;
             var strategyPosition = GetStrategyPosition(logical);
             if (debug) log.DebugFormat(LogMessage.LOGMSG480, desiredPosition, physical.Size);
@@ -1530,7 +1529,9 @@ namespace TickZoom.Common
                 if (debug) log.DebugFormat(LogMessage.LOGMSG482, position, strategyPosition, logical);
             }
             ++recency;
-            fill = new LogicalFillDefault(position, recency, physical.Price, physical.Time, physical.UtcTime, order.LogicalOrderId, order.LogicalSerialNumber, logical.Position, physical.IsExitStategy, physical.IsActual);
+            Factory.PhysicalFillPool.Free((PhysicalFillDefault)physical);
+            var fill = Factory.LogicalFillPool.Create(Factory.PhysicalFillPoolCallerId);
+            fill.Initialize(position, recency, physical.Price, physical.Time, physical.UtcTime, order.LogicalOrderId, order.LogicalSerialNumber, logical.Position, physical.IsExitStategy, physical.IsActual);
             if (debug) log.DebugFormat(LogMessage.LOGMSG483, fill);
             ProcessFill(fill, logical, isCompletePhysicalFill, physical.IsRealTime);
 		}

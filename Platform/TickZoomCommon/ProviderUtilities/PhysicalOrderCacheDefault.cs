@@ -32,6 +32,8 @@ namespace TickZoom.Common
         private Pool<PhysicalOrderDefault> orderPool = Factory.Parallel.Pool<PhysicalOrderDefault>();
         private string name;
         private int callerId;
+        private Comparison<PhysicalOrder> physicalComparison;
+
 
         protected class SymbolPosition
         {
@@ -49,6 +51,7 @@ namespace TickZoom.Common
             matchSymbolFunc = MatchSymbol;
             log.Register(this);
             callerId = orderPool.GetCallerId("PhysicalOrderCache");
+            physicalComparison = OnComparison;
         }
 
         public bool MatchSymbol(PhysicalOrder order)
@@ -90,7 +93,7 @@ namespace TickZoom.Common
             if( excludedCount >= sortTimesCount >> 1)
             {
                 if( debug) log.DebugFormat("Found {0} filled orders.", excludedCount);
-                Array.Sort(sortTimesArray, OnComparison);
+                Array.Sort(sortTimesArray, physicalComparison);
                 if (trace) log.TraceFormat("Sorted orders by last modify time:");
                 var count = 0;
                 for (var x = 0; x < sortTimesArray.Length; x++)

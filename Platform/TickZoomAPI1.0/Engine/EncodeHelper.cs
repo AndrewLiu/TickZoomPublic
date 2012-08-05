@@ -33,7 +33,6 @@ namespace TickZoom.Api
             DefineType<PhysicalOrderDefault>(3);
             DefineType<LogicalFillDefault>(4);
             DefineType<PhysicalFillDefault>(5);
-            DefineType<LogicalFillBinaryBox>(6);
             //DefineType<TransactionPairBinary>(7);
             DefineType<PositionChangeDetail>(8);
             DefineType<TimeFrame>(9);

@@ -61,18 +61,18 @@ namespace TickZoom.Api
 
         public void Initialize(int position, long recency, double price, TimeStamp time, TimeStamp utcTime, int orderId, long orderSerialNumber, int orderPosition, bool isExitStrategy, bool isActual)
         {
-            this.isActual = isActual;
             this.position = position;
-            this.recency = recency;
-            this.orderPosition = orderPosition;
             this.price = price;
             this.time = time;
             this.utcTime = utcTime;
+            this.postedTime = new TimeStamp(1800, 1, 1);
             this.orderId = orderId;
             this.orderSerialNumber = orderSerialNumber;
-            postedTime = new TimeStamp(1800,1,1);
+            this.orderPosition = orderPosition;
             this.isExitStrategy = isExitStrategy;
+            this.recency = recency;
             isComplete = false;
+            this.isActual = isActual;
         }
 
         public int OrderId {

@@ -105,7 +105,7 @@ namespace TickZoom.Statistics
 			}
 			context.Invoke();
 			if( EventType.LogicalFill == eventType ) {
-				OnProcessFill((LogicalFill) eventDetail);
+				OnProcessFill((LogicalFillDefault) eventDetail);
 			}
             if (EventType.NotifyTrade == eventType)
             {
@@ -123,7 +123,7 @@ namespace TickZoom.Statistics
 
 		}
 
-		public bool OnProcessFill(LogicalFill fill)
+		public bool OnProcessFill(LogicalFillDefault fill)
 		{
 			if( debug) log.DebugFormat(LogMessage.LOGMSG414, model, fill);
 			if( fill.IsExitStrategy) {
@@ -133,8 +133,11 @@ namespace TickZoom.Statistics
 			if( model is Portfolio) {
 				var portfolio = (Portfolio) model;
 				var portfolioPosition = portfolio.Result.Position;
-				fill = new LogicalFillDefault( portfolioPosition.Current, fill.Recency, portfolioPosition.Price, fill.Time, fill.UtcTime, fill.OrderId, fill.OrderSerialNumber,fill.OrderPosition,false,false);
-				if( debug) log.DebugFormat(LogMessage.LOGMSG416, fill);
+                //fill = new LogicalFillDefault( portfolioPosition.Current, fill.Recency, portfolioPosition.Price, fill.Time, fill.UtcTime, fill.OrderId, fill.OrderSerialNumber,fill.OrderPosition,false,false);
+			    var newFill = new LogicalFillDefault();
+                newFill.Initialize(portfolioPosition.Current, fill.Recency, portfolioPosition.Price, fill.Time, fill.UtcTime, fill.OrderId, fill.OrderSerialNumber, fill.OrderPosition, false, false);
+			    fill = newFill;
+                if (debug) log.DebugFormat(LogMessage.LOGMSG416, fill);
 			}
 			if( transactionDebug && !model.QuietMode && !(model is PortfolioInterface) ) {
 				transactionLog.DebugFormat(LogMessage.LOGMSG417, model.Name, model.Data.SymbolInfo, fill);

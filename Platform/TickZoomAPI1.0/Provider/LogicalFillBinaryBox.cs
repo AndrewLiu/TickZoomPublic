@@ -33,7 +33,7 @@ using TickZoom.Api;
 namespace TickZoom.Api
 {
     [SerializeContract]
-	public class LogicalFillBinaryBox : LogicalFill {
+	public class LogicalFillBinaryBoxX : LogicalFill {
         [SerializeMember(1)]
         public LogicalFillDefault LogicalFillDefault;
 		

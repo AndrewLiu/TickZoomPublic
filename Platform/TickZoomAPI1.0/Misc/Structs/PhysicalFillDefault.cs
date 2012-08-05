@@ -58,7 +58,7 @@ namespace TickZoom.Api
         [SerializeMember(12)]
         private bool isActual;
 
-	    public PhysicalFillDefault(SymbolInfo symbol, int size, double price, TimeStamp time, TimeStamp utcTime, long brokerOrder, 
+	    public void Initialize(SymbolInfo symbol, int size, double price, TimeStamp time, TimeStamp utcTime, long brokerOrder, 
 	                               bool isExitStategy, int completeSize, int cumulativeSize, int remainingSize, bool isRealTime, bool isActual)
 	    {
 	        this.symbol = symbol;
