@@ -596,7 +596,8 @@ namespace TickZoom.Common
             using (var readFS = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 var count = 0;
-                var memory = new MemoryStream((int) (snapshotRolloverSize << 2));
+                var memory = new MemoryStream();
+                memory.SetLength((int)(snapshotRolloverSize << 1));
                 memory.Position = 0;
                 do
                 {

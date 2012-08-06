@@ -31,7 +31,7 @@ namespace TickZoom.Api
             DefineType<LogicalOrderBinary>(1);
             DefineType<IntervalImpl>(2);
             DefineType<PhysicalOrderDefault>(3);
-            DefineType<LogicalFillDefault>(4);
+            DefineType<LogicalFillBinary>(4);
             DefineType<PhysicalFillDefault>(5);
             //DefineType<TransactionPairBinary>(7);
             DefineType<PositionChangeDetail>(8);

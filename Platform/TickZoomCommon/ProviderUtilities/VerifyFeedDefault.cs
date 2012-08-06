@@ -105,7 +105,7 @@ namespace TickZoom.Common
             var result = false;
             if( filter.Receive(out eventItem))
             {
-                var eventType = (EventType)eventItem.EventType;
+                var eventType = eventItem.EventType;
                 switch( eventType)
                 {
                     case EventType.Tick:

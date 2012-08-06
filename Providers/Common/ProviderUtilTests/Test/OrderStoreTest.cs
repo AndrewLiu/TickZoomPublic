@@ -184,7 +184,7 @@ namespace Test
             var logicalId = 14;
             var state = OrderState.Active;
             var side = OrderSide.Sell;
-            var type = OrderType.Limit;
+            var type = OrderType.Limit; 
             var order1 = Factory.Utility.PhysicalOrder();
             order1.Initialize(OrderAction.Create, state, symbolInfo, side,
                 type, OrderFlags.None,
@@ -204,11 +204,13 @@ namespace Test
 
             using (var store = Factory.Utility.PhyscalOrderStore("OrderStoreTest"))
             {
+                store.SetSequences(1,1);
                 store.SetOrder(order1);
                 store.TrySnapshot();
                 store.WaitForSnapshot();
 
                 // Replace order in store to make new snapshot.
+                store.SetSequences(2, 2);
                 store.SetOrder(order2);
                 store.TrySnapshot();
                 store.WaitForSnapshot();
@@ -287,6 +289,7 @@ namespace Test
             {
                 using( store.BeginTransaction())
                 {
+                    store.SetSequences(1,1);
                     store.SnapshotRolloverSize = 1000;
                     store.SetOrder(order1);
                 }
