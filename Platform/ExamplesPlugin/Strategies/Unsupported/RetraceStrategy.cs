@@ -37,15 +37,7 @@ namespace TickZoom.Examples
 
             if (state.AnySet(StrategyState.ProcessOrders))
             {
-                var elapsed = Position.HasPosition ? Performance.ComboTrades.Tail.ExitTime - Performance.ComboTrades.Tail.EntryTime : 0;
-                if (elapsed.TotalSeconds >= 300)
-                {
-                    Reset();
-                }
-                else
-                {
-                    ProcessOrders(tick);
-                }
+                ProcessOrders(tick);
             }
 
             UpdateIndicators(tick);
@@ -95,6 +87,10 @@ namespace TickZoom.Examples
             if( lots > maxLots)
             {
                 maxLots = lots;
+                if( TryTimeStop())
+                {
+                    return;
+                }
             }
             if( comboTrade.CurrentPosition > 0)
             {
@@ -121,6 +117,18 @@ namespace TickZoom.Examples
                 }
             }
             SetBidOffer();
+        }
+
+        private bool TryTimeStop()
+        {
+            var result = false;
+            var elapsed = Position.HasPosition ? Performance.ComboTrades.Tail.ExitTime - Performance.ComboTrades.Tail.EntryTime : 0;
+            if (elapsed.TotalSeconds >= 300)
+            {
+                Reset();
+                result = true;
+            }
+            return result;
         }
 
         public override void OnEnterTrade(TransactionPairBinary comboTrade, LogicalFill fill, LogicalOrder filledOrder)
