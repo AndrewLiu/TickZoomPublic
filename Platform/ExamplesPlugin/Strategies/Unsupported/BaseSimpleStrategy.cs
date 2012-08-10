@@ -11,7 +11,6 @@ namespace TickZoom.Examples
         protected IndicatorCommon askLine;
         private IndicatorCommon position;
         private IndicatorCommon averagePrice;
-        protected bool filterIndifference = false;
         protected double ask;
         private double marketAsk;
         protected double bid;
@@ -46,6 +45,7 @@ namespace TickZoom.Examples
 
             bidLine = Formula.Indicator();
             bidLine.Name = "Bid";
+            bidLine.Drawing.Color = Color.Blue;
             bidLine.Drawing.IsVisible = isVisible;
 
             averagePrice = Formula.Indicator();
@@ -73,26 +73,11 @@ namespace TickZoom.Examples
         protected virtual void UpdateIndicators(Tick tick)
         {
             var comboTrades = Performance.ComboTrades;
-            if (comboTrades.Count > 0)
+            if (Position.HasPosition)
             {
                 var comboTrade = comboTrades.Tail;
                 breakEvenPrice = CalcIndifferencePrice(comboTrade);
-                if (filterIndifference)
-                {
-                    var avgDivergence = Math.Abs(tick.Bid - breakEvenPrice) / minimumTick;
-                    if (avgDivergence > 150 || Position.IsFlat)
-                    {
-                        averagePrice[0] = double.NaN;
-                    }
-                    else
-                    {
-                        averagePrice[0] = breakEvenPrice;
-                    }
-                }
-                else
-                {
-                    averagePrice[0] = breakEvenPrice;
-                }
+                averagePrice[0] = breakEvenPrice;
             }
             else
             {
@@ -155,7 +140,14 @@ namespace TickZoom.Examples
 
         protected void SetupBidAsk(double price)
         {
-            if (Performance.ComboTrades.Count > 0)
+            UpdateBreakEven(price);
+            lastMidPoint = midPoint;
+            SetupBidAsk();
+        }
+
+        private void UpdateBreakEven(double price)
+        {
+            if (Position.HasPosition)
             {
                 breakEvenPrice = CalcIndifferencePrice(Performance.ComboTrades.Tail);
             }
@@ -163,8 +155,6 @@ namespace TickZoom.Examples
             {
                 breakEvenPrice = price;
             }
-            lastMidPoint = midPoint;
-            SetupBidAsk();
         }
 
         protected virtual void SetupBidAsk()
@@ -324,14 +314,14 @@ namespace TickZoom.Examples
                 {
                     Orders.Exit.ActiveNow.SellLimit(ask);
                 }
+                else if( SellSize > lots)
+                {
+                    Orders.Reverse.ActiveNow.SellLimit(ask, lotSize);
+                }
                 else
                 {
                     Orders.Change.ActiveNow.SellLimit(ask, SellSize * lotSize);
                 }
-            }
-            else
-            {
-                Orders.Reverse.ActiveNow.SellLimit(breakEvenPrice + closeProfitInTicks * minimumTick, SellSize * lotSize);
             }
         }
 
@@ -348,14 +338,14 @@ namespace TickZoom.Examples
                 {
                     Orders.Exit.ActiveNow.BuyLimit(bid);
                 }
+                else if( BuySize > lots)
+                {
+                    Orders.Reverse.ActiveNow.BuyLimit(bid, lotSize);
+                }
                 else
                 {
                     Orders.Change.ActiveNow.BuyLimit(bid, BuySize * lotSize);
                 }
-            }
-            else
-            {
-                Orders.Reverse.ActiveNow.BuyLimit(breakEvenPrice - closeProfitInTicks * minimumTick, BuySize * lotSize);
             }
         }
         public bool IsVisible
@@ -367,7 +357,14 @@ namespace TickZoom.Examples
         public int BuySize
         {
             get { return buySize; }
-            set { buySize = value; }
+            set
+            {
+                if( value > 100)
+                {
+                    int x = 0;
+                }
+                buySize = value;
+            }
         }
 
         public int SellSize
