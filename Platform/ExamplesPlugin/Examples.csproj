@@ -153,6 +153,7 @@
     <Compile Include="Loaders\ExampleCustomBarsLoader.cs" />
     <Compile Include="Loaders\ExampleLimitOrderLoader.cs" />
     <Compile Include="Loaders\ExampleLimitTruePartialLoader.cs" />
+    <Compile Include="Loaders\SRRetraceLoader.cs" />
     <Compile Include="Loaders\TestDataOnlyLoader.cs" />
     <Compile Include="Loaders\TestManySymbolLoader.cs" />
     <Compile Include="Loaders\ExampleMixedLoader.cs" />
@@ -221,7 +222,7 @@
     <Compile Include="Strategies\Unsupported\SRLongDayHigh.cs" />
     <Compile Include="Strategies\Unsupported\SRLongHourly.cs" />
     <Compile Include="Strategies\Unsupported\SRLongIntraday.cs" />
-    <Compile Include="Strategies\Unsupported\SRRetraceHourly.cs" />
+    <Compile Include="Strategies\Unsupported\SRRetrace.cs" />
     <Compile Include="Strategies\Unsupported\SRRetraceMinutes.cs" />
     <Compile Include="Strategies\Unsupported\SRShortBreakout.cs" />
     <Compile Include="Strategies\Unsupported\SRShortChannel.cs" />
