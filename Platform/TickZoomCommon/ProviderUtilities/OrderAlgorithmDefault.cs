@@ -56,11 +56,9 @@ namespace TickZoom.Common
 		private SymbolInfo symbol;
 		private PhysicalOrderHandler physicalOrderHandler;
         private PhysicalOrderHandler syntheticOrderHandler;
-        private volatile bool bufferedLogicalsChanged = false;
         private List<PhysicalOrder> originalPhysicals;
         private List<PhysicalOrder> physicalOrders;
-        private Iterable<LogicalOrder> bufferedLogicals;
-        private List<LogicalOrder> originalLogicals;
+        private ActiveList<LogicalOrder> originalLogicals;
         private List<LogicalOrder> logicalOrders;
         private List<LogicalOrder> extraLogicals;
 		private int desiredPosition;
@@ -81,6 +79,8 @@ namespace TickZoom.Common
         private bool isBrokerOnline;
         private bool receivedDesiredPosition;
         private bool disableChangeOrders;
+        private bool forceSyntheticStops;
+        private bool forceSyntheticLimits;
 
         public class OrderArray<T>
         {
@@ -109,8 +109,7 @@ namespace TickZoom.Common
 			tickSync = SyncTicks.GetTickSync(symbol.BinaryIdentifier);
 			this.physicalOrderHandler = brokerOrders;
             this.syntheticOrderHandler = syntheticOrders;
-            this.originalLogicals = new List<LogicalOrder>();
-            this.bufferedLogicals = new ActiveList<LogicalOrder>();
+            this.originalLogicals = new ActiveList<LogicalOrder>();
             this.logicalOrders = new List<LogicalOrder>();
             this.originalPhysicals = new List<PhysicalOrder>();
             this.physicalOrders = new List<PhysicalOrder>();
@@ -388,6 +387,39 @@ namespace TickZoom.Common
             return ProcessMatchPhysicalEntry(logical, matches[0], logical.Position, logical.Price);
 		}
 
+        private bool CheckSynthetic(LogicalOrder order)
+        {
+            var result = false;
+            switch( order.Type)
+            {
+                case OrderType.Stop:
+                    if( ForceSyntheticStops)
+                    {
+                        result = true;
+                    }
+                    break;
+                case OrderType.Limit:
+                    if( ForceSyntheticLimits)
+                    {
+                        result = true;
+                    }
+                    break;
+                case OrderType.StopLoss:
+                    if( ForceSyntheticStops)
+                    {
+                        result = true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            if( result)
+            {
+                order.IsSynthetic = true;
+            }
+            return result;
+        }
+
         protected bool ProcessMatchPhysicalEntry(LogicalOrder logical, PhysicalOrder physical, int position, double price)
         {
             var result = true;
@@ -636,7 +668,7 @@ namespace TickZoom.Common
 			    result = false;
 			    TryCancelBrokerOrder(physical);
 			}
-			else if (logical.IsSynthetic && !physical.IsSynthetic)
+            else if (logical.IsSynthetic && !physical.IsSynthetic)
             {
                 // This is a synthetic fill which means a market order waiting to fill
                 // so the order in cannot change in below conditions.
@@ -800,7 +832,7 @@ namespace TickZoom.Common
         private SimpleLock matchLocker = new SimpleLock();
 		private bool ProcessMatch(LogicalOrder logical, List<PhysicalOrder> matches)
 		{
-		    var result = false;
+            var result = false;
 		    if( !matchLocker.TryLock()) return false;
             try
 		    {
@@ -1250,7 +1282,7 @@ namespace TickZoom.Common
             physicalOrderCache.SyncPositions(strategyPositions);
 		}
 
-        public void SetLogicalOrders(Iterable<LogicalOrder> inputLogicals)
+        public void SetLogicalOrders(ActiveList<LogicalOrder> inputLogicals)
         {
             if (trace)
             {
@@ -1258,9 +1290,8 @@ namespace TickZoom.Common
                 log.TraceFormat(LogMessage.LOGMSG457, count);
             }
             logicalOrderCache.SetActiveOrders(inputLogicals);
-            bufferedLogicals = inputLogicals;
-            bufferedLogicalsChanged = true;
-            if (debug) log.DebugFormat(LogMessage.LOGMSG458, bufferedLogicals.Count);
+            originalLogicals = inputLogicals;
+            if (debug) log.DebugFormat(LogMessage.LOGMSG458, originalLogicals.Count);
         }
 		
 		public void SetDesiredPosition(	int position)
@@ -1389,9 +1420,9 @@ namespace TickZoom.Common
 
         private LogicalOrder FindActiveLogicalOrder(long serialNumber)
         {
-            for(var i=0; i<originalLogicals.Count; i++)
+            for(var current = originalLogicals.First; current != null; current = current.Next)
             {
-                var order = originalLogicals[i];
+                var order = current.Value;
                 if (order.SerialNumber == serialNumber)
                 {
                     return order;
@@ -1720,7 +1751,7 @@ namespace TickZoom.Common
             try
             {
                 if (debug) log.DebugFormat(LogMessage.LOGMSG500, filledOrder.Id);
-                originalLogicals.Remove(filledOrder);
+                originalLogicals.Remove(filledOrder.Node);
             }
             catch (ApplicationException ex)
             {
@@ -1735,7 +1766,7 @@ namespace TickZoom.Common
         private void CancelLogical(LogicalOrder order)
         {
             if( debug) log.DebugFormat(LogMessage.LOGMSG501, order);
-            originalLogicals.Remove(order);
+            originalLogicals.Remove(order.Node);
         }
 
 		private void CleanupAfterFill(LogicalOrder filledOrder, LogicalFillDefault fill) {
@@ -1802,46 +1833,48 @@ namespace TickZoom.Common
                 }
             }
 			if( clean) {
-			    for(var i = 0; i<originalLogicals.Count; i++)
-			    {
-			        var order = originalLogicals[i];
-					if( order.StrategyId == filledOrder.StrategyId) {
-						switch( order.TradeDirection) {
-							case TradeDirection.Entry:
-								if( cancelAllEntries)
-								{
-								    CancelLogical(order);
-								}
-								break;
-							case TradeDirection.Change:
+                for (var current = originalLogicals.First; current != null; current = current.Next)
+                {
+                    var order = current.Value;
+                    if (order.StrategyId == filledOrder.StrategyId)
+                    {
+                        switch (order.TradeDirection)
+                        {
+                            case TradeDirection.Entry:
+                                if (cancelAllEntries)
+                                {
+                                    CancelLogical(order);
+                                }
+                                break;
+                            case TradeDirection.Change:
                                 if (cancelAllChanges)
                                 {
                                     CancelLogical(order);
                                 }
-								break;
-							case TradeDirection.Exit:
+                                break;
+                            case TradeDirection.Exit:
                                 if (cancelAllExits)
                                 {
                                     CancelLogical(order);
                                 }
-								break;
-							case TradeDirection.ExitStrategy:
+                                break;
+                            case TradeDirection.ExitStrategy:
                                 if (cancelAllExitStrategies)
                                 {
                                     CancelLogical(order);
                                 }
-								break;
-							case TradeDirection.Reverse:
+                                break;
+                            case TradeDirection.Reverse:
                                 if (cancelAllReverse)
                                 {
                                     CancelLogical(order);
                                 }
-								break;
-							default:
-								throw new ApplicationException("Unknown trade direction: " + filledOrder.TradeDirection);
-						}
-					}
-				}
+                                break;
+                            default:
+                                throw new ApplicationException("Unknown trade direction: " + filledOrder.TradeDirection);
+                        }
+                    }
+                }
 			}
 		}
 	
@@ -1884,8 +1917,6 @@ namespace TickZoom.Common
                 originalPhysicals.Add(tempActiveOrders[i]);
             }
 
-            TryFlushBufferedLogicals();
-
             if (debug)
             {
                 log.DebugFormat(LogMessage.LOGMSG510, originalLogicals.Count, originalPhysicals.Count);
@@ -1911,9 +1942,9 @@ namespace TickZoom.Common
             }
 
             logicalOrders.Clear();
-            for (var i = 0; i < originalLogicals.Count; i++ )
+            for (var current = originalLogicals.First; current != null; current = current.Next)
             {
-                logicalOrders.Add(originalLogicals[i]);
+                logicalOrders.Add(current.Value);
             }
 			
 			physicalOrders.Clear();
@@ -1929,7 +1960,8 @@ namespace TickZoom.Common
 			while( logicalOrders.Count > 0)
 			{
 				var logical = logicalOrders[0];
-			    TryMatchId(physicalOrders, logical, physicalMatches);
+                CheckSynthetic(logical);
+                TryMatchId(physicalOrders, logical, physicalMatches);
                 if( physicalMatches.Count > 0)
                 {
                     if( hasMarketOrders)
@@ -1995,24 +2027,15 @@ namespace TickZoom.Common
             return result;
         }
 
-        private void TryFlushBufferedLogicals()
+        private void LogOrders(Iterable<LogicalOrder> orders, string name)
         {
-            if (bufferedLogicalsChanged)
+            for (var current = orders.First; current != null; current = current.Next )
             {
-                if (debug) log.DebugFormat(LogMessage.LOGMSG518);
-                originalLogicals.Clear();
-                if (bufferedLogicals != null)
-                {
-                    for (var current = bufferedLogicals.First; current != null; current = current.Next)
-                    {
-                        originalLogicals.Add(current.Value);
-                    }
-                }
-                bufferedLogicalsChanged = false;
+                log.DebugFormat(LogMessage.LOGMSG519, current.Value);
             }
         }
 
-        private void LogOrders( IEnumerable<LogicalOrder> orders, string name)
+        private void LogOrders(IEnumerable<LogicalOrder> orders, string name)
         {
             foreach(var order in orders)
             {
@@ -2124,6 +2147,18 @@ namespace TickZoom.Common
         {
             get { return disableChangeOrders; }
             set { disableChangeOrders = value; }
+        }
+
+        public bool ForceSyntheticStops
+        {
+            get { return forceSyntheticStops; }
+            set { forceSyntheticStops = value; }
+        }
+
+        public bool ForceSyntheticLimits
+        {
+            get { return forceSyntheticLimits; }
+            set { forceSyntheticLimits = value; }
         }
 
         // This is a callback to confirm order was properly placed.

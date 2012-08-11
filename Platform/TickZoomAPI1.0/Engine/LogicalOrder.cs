@@ -159,6 +159,7 @@ namespace TickZoom.Api
 	    bool IsTouched { get; }
 	    bool OffsetTooLateToChange { get; set; }
 	    TimeStamp UtcTouchTime { get; }
+	    ActiveListNode<LogicalOrder> Node { get; set; }
 	    void SetTouched(TimeStamp utcTime);
 	    void SetPartialFill(TimeStamp utcTime);
 	    object ToLog();

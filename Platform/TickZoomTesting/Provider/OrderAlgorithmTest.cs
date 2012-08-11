@@ -1623,14 +1623,14 @@ namespace Orders
 				orderAlgorithm.SetDesiredPosition(position);
 			}
 
-            public void ProcessOrders(Iterable<LogicalOrder> orders)
+            public void ProcessOrders(ActiveList<LogicalOrder> orders)
             {
                 SetLogicalOrders(orders);
                 orderAlgorithm.ProcessOrders();
                 FillCreatedOrders();
             }
 
-            public void SetLogicalOrders(Iterable<LogicalOrder> logicalOrders)
+            public void SetLogicalOrders(ActiveList<LogicalOrder> logicalOrders)
             {
                 orderAlgorithm.SetStrategyPositions(strategyPositions);
                 orderAlgorithm.SetLogicalOrders(logicalOrders);

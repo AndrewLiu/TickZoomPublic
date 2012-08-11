@@ -137,6 +137,10 @@ namespace TickZoom.Provider.LimeFIX
         {
             var symbol = Factory.Symbol.LookupSymbol(packet.Symbol);
             var order = ConstructOrder(packet, packet.ClientOrderId);
+            if( order == null)
+            {
+                int x = 0;
+            }
             if (!ProviderSimulator.IsOrderServerOnline)
             {
                 throw new LimeException("Order server offline testing for Lime not yet implemeneted");
@@ -315,6 +319,10 @@ namespace TickZoom.Provider.LimeFIX
             if (debug) log.DebugFormat(LogMessage.LOGMSG136, packet.Symbol, packet.ClientOrderId);
             var symbol = Factory.Symbol.LookupSymbol(packet.Symbol);
             var order = ConstructOrder(packet, packet.ClientOrderId);
+            if( order == null)
+            {
+                int x = 0;
+            }
             if (!ProviderSimulator.IsOrderServerOnline)
             {
                 if (debug) log.DebugFormat(LogMessage.LOGMSG137, symbol, packet.ClientOrderId);

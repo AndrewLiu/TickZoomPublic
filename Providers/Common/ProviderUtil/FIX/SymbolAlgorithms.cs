@@ -10,6 +10,9 @@ namespace TickZoom.Provider.FIX
         private Dictionary<long, SymbolAlgorithm> algorithms = new Dictionary<long, SymbolAlgorithm>();
         private FIXProviderSupport providerSupport;
         private bool disableChangeOrders;
+        private bool forceSyntheticLimits;
+        private bool forceSyntheticStops;
+
         public SymbolAlgorithms(FIXProviderSupport providerSupport)
         {
             this.providerSupport = providerSupport;
@@ -19,6 +22,18 @@ namespace TickZoom.Provider.FIX
         {
             get { return disableChangeOrders; }
             set { disableChangeOrders = value; }
+        }
+
+        public bool ForceSyntheticLimits
+        {
+            get { return forceSyntheticLimits; }
+            set { forceSyntheticLimits = value; }
+        }
+
+        public bool ForceSyntheticStops
+        {
+            get { return forceSyntheticStops; }
+            set { forceSyntheticStops = value; }
         }
 
         private SymbolInfo GetSource( SymbolInfo symbol)
@@ -50,6 +65,8 @@ namespace TickZoom.Provider.FIX
                     var orderCache = Factory.Engine.LogicalOrderCache(symbol, false);
                     var syntheticRouter = new SyntheticOrderRouter(GetSource(symbol), providerSupport.Agent, providerSupport.Receiver);
                     var algorithm = Factory.Utility.OrderAlgorithm(providerSupport.ProviderName, symbol, providerSupport, syntheticRouter, orderCache, providerSupport.OrderStore);
+                    algorithm.ForceSyntheticLimits = ForceSyntheticLimits;
+                    algorithm.ForceSyntheticStops = ForceSyntheticStops;
                     algorithm.DisableChangeOrders = disableChangeOrders;
                     algorithm.EnableSyncTicks = SyncTicks.Enabled;
                     symbolAlgorithm = new SymbolAlgorithm { OrderAlgorithm = algorithm, Synthetics = syntheticRouter };
@@ -59,28 +76,6 @@ namespace TickZoom.Provider.FIX
                 }
             }
             return symbolAlgorithm;
-        }
-
-        private SymbolAlgorithm GetAlgorithm(SymbolInfo symbol)
-        {
-            SymbolAlgorithm symbolAlgorithm;
-            lock (algorithmsLocker)
-            {
-                var source = GetSource(symbol);
-                if (!algorithms.TryGetValue(source.BinaryIdentifier, out symbolAlgorithm))
-                {
-                    throw new ApplicationException("OrderAlgorirhm was not found for " + symbol);
-                }
-            }
-            return symbolAlgorithm;
-        }
-
-        private bool TryGetAlgorithm(SymbolInfo symbol, out SymbolAlgorithm algorithm)
-        {
-            lock (algorithmsLocker)
-            {
-                return algorithms.TryGetValue(GetSource(symbol).BinaryIdentifier, out algorithm);
-            }
         }
 
         public void Reset()
