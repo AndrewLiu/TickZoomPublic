@@ -49,7 +49,7 @@ namespace TickZoom.Api
         bool PositionChange(PositionChangeDetail change, bool isRecovered);
         void SetDesiredPosition(int position);
         void SetStrategyPositions(Iterable<StrategyPosition> strategyPositions);
-        void SetLogicalOrders(Iterable<LogicalOrder> logicalOrders);
+        void SetLogicalOrders(ActiveList<LogicalOrder> logicalOrders);
         void ProcessFill(PhysicalFill fill);
 		void SetActualPosition(long position);
         void IncreaseActualPosition(int position);
@@ -70,6 +70,8 @@ namespace TickZoom.Api
 	    Action<SymbolInfo, LogicalTouch> OnProcessTouch { get; set; }
 	    SymbolInfo Symbol { get; }
 	    bool DisableChangeOrders { get; set; }
+	    bool ForceSyntheticStops { get; set; }
+	    bool ForceSyntheticLimits { get; set; }
 	    void SyntheticFill(PhysicalFill fill);
 	    void Clear();
 	}

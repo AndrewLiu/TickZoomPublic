@@ -508,7 +508,7 @@ namespace TickZoom.Logging
                 collection.Add( LogMessage.LOGMSG446,"(Price) Changing {0} to {1}");
                 collection.Add( LogMessage.LOGMSG447,"(Price) Canceling wrong side{0}");
                 collection.Add( LogMessage.LOGMSG448,"Process Match()");
-                collection.Add( LogMessage.LOGMSG449,"ProcessMissingPhysicalEntry({0})");
+                collection.Add( LogMessage.LOGMSG449,"ProcessMissingPhysical({0})");
                 collection.Add( LogMessage.LOGMSG450,"ProcessMissingChange({0})");
                 collection.Add( LogMessage.LOGMSG451,"ProcessMissingReverse({0})");
                 collection.Add( LogMessage.LOGMSG452,"ProcessMissingExit( strategy position {0}, {1})");

@@ -70,21 +70,9 @@ namespace TickZoom.Provider.LimeFIX
 			if( name.Contains(".config")) {
                 throw new ApplicationException("Please remove .config from config section name.");
             }
-        }
-
-        public override void PositionChange(PositionChangeDetail positionChange)
-        {
-            for( var current = positionChange.Orders.First; current != null; current = current.Next)
-            {
-                var order = current.Value;
-                switch (order.Type)
-                {
-                    case OrderType.Stop:
-                        order.IsSynthetic = true;
-                        break;
-                }
-            }
-            base.PositionChange(positionChange);
+            // Lime only support market and limit orders so force stops to get treated
+            // synthetically as market orders when the price gets touched.
+            algorithms.ForceSyntheticStops = true;
         }
 
         protected override MessageFactory CreateMessageFactory()
@@ -656,9 +644,7 @@ namespace TickZoom.Provider.LimeFIX
                     //fixMsg.SetTimeInForce(0);
                     break;
                 case OrderType.Stop:
-                   // throw new LimeException("Lime does not accept Buy Stop Orders");
-                    log.Error("Lime: Stops not supproted");
-                    break;
+                    throw new LimeException("Lime does not accept Buy Stop Orders: " + order);
                 default:
                     throw new LimeException("Unknown OrderType");
             }
