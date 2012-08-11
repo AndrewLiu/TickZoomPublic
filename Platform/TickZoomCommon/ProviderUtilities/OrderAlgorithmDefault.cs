@@ -59,7 +59,7 @@ namespace TickZoom.Common
         private volatile bool bufferedLogicalsChanged = false;
         private List<PhysicalOrder> originalPhysicals;
         private List<PhysicalOrder> physicalOrders;
-        private List<LogicalOrder> bufferedLogicals;
+        private Iterable<LogicalOrder> bufferedLogicals;
         private List<LogicalOrder> originalLogicals;
         private List<LogicalOrder> logicalOrders;
         private List<LogicalOrder> extraLogicals;
@@ -110,7 +110,7 @@ namespace TickZoom.Common
 			this.physicalOrderHandler = brokerOrders;
             this.syntheticOrderHandler = syntheticOrders;
             this.originalLogicals = new List<LogicalOrder>();
-            this.bufferedLogicals = new List<LogicalOrder>();
+            this.bufferedLogicals = new ActiveList<LogicalOrder>();
             this.logicalOrders = new List<LogicalOrder>();
             this.originalPhysicals = new List<PhysicalOrder>();
             this.physicalOrders = new List<PhysicalOrder>();
@@ -1258,13 +1258,7 @@ namespace TickZoom.Common
                 log.TraceFormat(LogMessage.LOGMSG457, count);
             }
             logicalOrderCache.SetActiveOrders(inputLogicals);
-            bufferedLogicals.Clear();
-            var list = logicalOrderCache.GetActiveOrders();
-            for (var current = list.First; current != null; current = current.Next )
-            {
-                var active = current.Value;
-                bufferedLogicals.Add(active);
-            }
+            bufferedLogicals = inputLogicals;
             bufferedLogicalsChanged = true;
             if (debug) log.DebugFormat(LogMessage.LOGMSG458, bufferedLogicals.Count);
         }
@@ -1458,7 +1452,7 @@ namespace TickZoom.Common
 		    physicalOrderCache.IncreaseActualPosition(symbol, physical.Size);
             if (debug) log.DebugFormat(LogMessage.LOGMSG469, beforePosition, physicalOrderCache.GetActualPosition(symbol), physical.Size);
 			var isCompletePhysicalFill = physical.RemainingSize == 0;
-            TryFlushBufferedLogicals();
+            //TryFlushBufferedLogicals();
 
 		    if( isCompletePhysicalFill) {
                 CleanupFilledPhysicalOrder(order);
@@ -2009,9 +2003,9 @@ namespace TickZoom.Common
                 originalLogicals.Clear();
                 if (bufferedLogicals != null)
                 {
-                    for (var i = 0; i < bufferedLogicals.Count; i++ )
+                    for (var current = bufferedLogicals.First; current != null; current = current.Next)
                     {
-                        originalLogicals.Add(bufferedLogicals[i]);
+                        originalLogicals.Add(current.Value);
                     }
                 }
                 bufferedLogicalsChanged = false;
