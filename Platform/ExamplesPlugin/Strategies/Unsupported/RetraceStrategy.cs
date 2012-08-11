@@ -40,9 +40,7 @@ namespace TickZoom.Examples
                 ProcessOrders(tick);
             }
 
-            UpdateIndicators(tick);
             UpdateIndicators();
-
             return true;
         }
 
@@ -65,12 +63,14 @@ namespace TickZoom.Examples
             {
                 bid = midPoint - bidSpread;
                 ask = BreakEvenPrice + offerSpread;
+                BuySize = Math.Max(lots / 5, 1);
                 SellSize = lots + baseLots;
             }
             if( Position.IsShort)
             {
                 ask = midPoint + offerSpread;
                 bid = BreakEvenPrice - offerSpread;
+                SellSize = Math.Max(lots / 5, 1);
                 BuySize = lots + baseLots;
             }
         }
@@ -83,7 +83,9 @@ namespace TickZoom.Examples
 
         private void ProcessChange(TransactionPairBinary comboTrade)
         {
-            var lots = (Math.Abs(comboTrade.CurrentPosition)/baseLots);
+            var tick = Ticks[0];
+            UpdateBreakEven((tick.Ask + tick.Bid) / 2);
+            var lots = (Math.Abs(comboTrade.CurrentPosition) / baseLots);
             if( lots > maxLots)
             {
                 maxLots = lots;
@@ -97,7 +99,7 @@ namespace TickZoom.Examples
                 BuySize = SellSize = baseLots;
                 if (comboTrade.ExitPrice < BreakEvenPrice)
                 {
-                    offerSpread = bidSpread = startingSpread + addInventorySpread;
+                    offerSpread = bidSpread = startingSpread;
                 }
                 else
                 {
@@ -109,7 +111,7 @@ namespace TickZoom.Examples
                 BuySize = SellSize = baseLots;
                 if (comboTrade.ExitPrice > BreakEvenPrice)
                 {
-                    bidSpread = offerSpread = startingSpread + addInventorySpread;
+                    bidSpread = offerSpread = startingSpread;
                 }
                 else
                 {
@@ -117,6 +119,8 @@ namespace TickZoom.Examples
                 }
             }
             SetBidOffer();
+            UpdateIndicators(tick);
+            UpdateIndicators();
         }
 
         private bool TryTimeStop()
@@ -133,16 +137,29 @@ namespace TickZoom.Examples
 
         public override void OnEnterTrade(TransactionPairBinary comboTrade, LogicalFill fill, LogicalOrder filledOrder)
         {
+            var tick = Ticks[0];
+            UpdateBreakEven((tick.Ask + tick.Bid)/2);
             ProcessChange(comboTrade);
+            UpdateIndicators(tick);
+            UpdateIndicators();
         }
 
         public override void OnExitTrade(TransactionPairBinary comboTrade, LogicalFill fill, LogicalOrder filledOrder)
         {
+            ProcessExit();
+        }
+
+        private void ProcessExit()
+        {
+            var tick = Ticks[0];
+            UpdateBreakEven((tick.Ask + tick.Bid) / 2);
             maxLots = 0;
             bidSpread = startingSpread;
             offerSpread = startingSpread;
             BuySize = SellSize = baseLots;
-            ProcessChange(comboTrade);
+            SetBidOffer();
+            UpdateIndicators(tick);
+            UpdateIndicators();
         }
 
         public override void  OnChangeTrade(TransactionPairBinary comboTrade, LogicalFill fill, LogicalOrder filledOrder)
