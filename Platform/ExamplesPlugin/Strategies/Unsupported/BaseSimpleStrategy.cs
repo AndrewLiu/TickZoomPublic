@@ -72,19 +72,9 @@ namespace TickZoom.Examples
 
         protected virtual void UpdateIndicators(Tick tick)
         {
-            var comboTrades = Performance.ComboTrades;
-            if (Position.HasPosition)
-            {
-                var comboTrade = comboTrades.Tail;
-                breakEvenPrice = CalcIndifferencePrice(comboTrade);
-                averagePrice[0] = breakEvenPrice;
-            }
-            else
-            {
-                breakEvenPrice = (tick.Ask + tick.Bid) / 2;
-                averagePrice[0] = breakEvenPrice;
-            }
+            UpdateBreakEven((tick.Ask + tick.Bid) / 2);
 
+            averagePrice[0] = breakEvenPrice;
             if (bidLine.Count > 0)
             {
                 position[0] = Position.Current / lotSize;
@@ -97,31 +87,6 @@ namespace TickZoom.Examples
             marketAsk = Math.Max(tick.Ask, tick.Bid);
             marketBid = Math.Min(tick.Ask, tick.Bid);
             midPoint = (tick.Ask + tick.Bid) / 2;
-        }
-
-        protected void HandlePegging(Tick tick)
-        {
-            if (marketAsk < bid || marketBid > ask)
-            {
-                SetupBidAsk(midPoint);
-            }
-            if (marketAsk < lastMarketAsk)
-            {
-                lastMarketAsk = marketAsk;
-                if (marketAsk < ask - increaseSpread && midPoint > lastMidPoint)
-                {
-                    SetupAsk(midPoint);
-                }
-            }
-
-            if (marketBid > lastMarketBid)
-            {
-                lastMarketBid = marketBid;
-                if (marketBid > bid + increaseSpread && midPoint < lastMidPoint)
-                {
-                    SetupBid(midPoint);
-                }
-            }
         }
 
         protected virtual void SetFlatBidAsk()
@@ -145,7 +110,7 @@ namespace TickZoom.Examples
             SetupBidAsk();
         }
 
-        private void UpdateBreakEven(double price)
+        protected void UpdateBreakEven(double price)
         {
             if (Position.HasPosition)
             {

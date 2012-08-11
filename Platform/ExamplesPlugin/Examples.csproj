@@ -171,7 +171,6 @@
     <Compile Include="Loaders\LimitBracketLoader.cs" />
     <Compile Include="Loaders\LimitChangeLoader.cs" />
     <Compile Include="Loaders\LimitReversalLoader.cs" />
-    <Compile Include="Loaders\SimpleLoader.cs" />
     <Compile Include="Loaders\SimplexLoader.cs" />
     <Compile Include="Loaders\Test5000Strategies.cs" />
     <Compile Include="Loaders\MarketOrderLoader.cs" />
@@ -193,7 +192,6 @@
     <Compile Include="Strategies\LimitChangeStrategy.cs" />
     <Compile Include="Strategies\LimitReversalStrategy.cs" />
     <Compile Include="Portfolios\SimplePortfolio.cs" />
-    <Compile Include="Strategies\Unsupported\OtherStrategy.cs" />
     <Compile Include="Strategies\Unsupported\RetraceStrategy.cs" />
     <Compile Include="Strategies\Unsupported\SimplexOrigStrategy.cs" />
     <Compile Include="Strategies\Unsupported\SimplexStrategy.cs" />
@@ -231,6 +229,7 @@
     <Compile Include="Strategies\Unsupported\SRShortDayLow.cs" />
     <Compile Include="Strategies\Unsupported\SRShortIntraday.cs" />
     <Compile Include="Strategies\Unsupported\SRTraverseMinutes.cs" />
+    <Compile Include="Strategies\Unsupported\StrategyState.cs" />
     <Compile Include="Strategies\Unsupported\TEMACounterDaily.cs" />
     <Compile Include="Strategies\Unsupported\TEMATrendDaily.cs" />
     <Compile Include="Strategies\Unsupported\TrendStrategy.cs" />
