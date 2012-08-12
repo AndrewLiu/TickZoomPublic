@@ -1129,21 +1129,19 @@ namespace TickZoom.Common
 			}
 		}
 		
-        private List<PhysicalOrder> tempActiveOrders = new List<PhysicalOrder>();
 		private int FindPendingAdjustments() {
             var positionDelta = desiredPosition - physicalOrderCache.GetActualPosition(symbol);
 			var pendingAdjustments = 0;
 
-            originalPhysicals.Clear();
-		    physicalOrderCache.GetActiveOrders(tempActiveOrders, symbol);
-            for (var i = 0; i < tempActiveOrders.Count; i++ )
+		    ActiveList<PhysicalOrder> tempActiveOrders;
+            if( !physicalOrderCache.TryGetOrders(symbol, out tempActiveOrders))
             {
-                originalPhysicals.Add(tempActiveOrders[i]);
+                return pendingAdjustments;
             }
 
-            for (var i = 0; i < originalPhysicals.Count; i++ )
+            for (var current = tempActiveOrders.First; current != null; current = current.Next )
             {
-                PhysicalOrder order = originalPhysicals[i];
+                var order = current.Value;
                 if (order.Type != OrderType.Market)
                 {
                     continue;
@@ -1909,12 +1907,18 @@ namespace TickZoom.Common
                 var mismatch = physicalOrderCache.GetActualPosition(symbol) == desiredPosition ? "match" : "MISMATCH";
 			    log.DebugFormat(LogMessage.LOGMSG509, symbol, physicalOrderCache.GetActualPosition(symbol), desiredPosition, mismatch);
 			}
-				
+
+		    physicalOrderCache.TryClearFilledOrders(symbol);
             originalPhysicals.Clear();
-		    physicalOrderCache.GetActiveOrders(tempActiveOrders, symbol);
-            for (var i = 0; i < tempActiveOrders.Count; i++ )
-            {
-                originalPhysicals.Add(tempActiveOrders[i]);
+		    ActiveList<PhysicalOrder> tempActiveOrders;
+		    if( physicalOrderCache.TryGetOrders(symbol, out tempActiveOrders))
+		    {
+                for (var current = tempActiveOrders.First; current != null; current = current.Next)
+                {
+                    var order = current.Value;
+                    if (order.OrderState == OrderState.Filled) continue;
+                    originalPhysicals.Add(current.Value);
+                }
             }
 
             if (debug)
@@ -2332,7 +2336,12 @@ namespace TickZoom.Common
             if (debug) log.DebugFormat(LogMessage.LOGMSG532, (isRealTime ? "RealTime" : "Recovery"), originalOrderId);
             if( cancelOrder != null)
             {
+                if (debug) log.DebugFormat("Removing replaced by order: {0}", cancelOrder);
                 physicalOrderCache.RemoveOrder(cancelOrder.BrokerOrder);
+            }
+            else
+            {
+                if( debug) log.DebugFormat("ReplacedBy was null so can't remove cancel order for: {0}", origOrder);
             }
             physicalOrderCache.RemoveOrder(origOrder.BrokerOrder);
             if (isRealTime)

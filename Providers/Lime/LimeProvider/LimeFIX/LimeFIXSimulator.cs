@@ -415,9 +415,9 @@ namespace TickZoom.Provider.LimeFIX
                     }
                     break;
                 default:
-                    //throw new LimeException("Unsupported Order Type");
-                    log.Error("Unsupported order type");
-                    return null;
+                    throw new LimeException("Unsupported Order Type");
+                    //log.Error("Unsupported order type");
+                    //return null;
             }
       
             long clientId;

@@ -798,15 +798,14 @@ namespace TickZoom.Common
                     uniqueIds[orderId].OriginalOrder = uniqueIds[originalId];
                 }
 
-                ordersByBrokerId.Clear();
-                ordersBySequence.Clear();
-                ordersBySerial.Clear();
+                Clear();
                 
                 foreach (var kvp in uniqueIds)
                 {
                     var order = kvp.Value;
                     ordersByBrokerId[order.BrokerOrder] = order;
                     ordersBySequence[order.Sequence] = order;
+                    SetOrderBySymbol(order);
                     if( order.Action == OrderAction.Cancel && order.OriginalOrder == null)
                     {
                         throw new ApplicationException("Cancel order w/o any original order setting: " + order);
@@ -852,6 +851,7 @@ namespace TickZoom.Common
             ordersByBrokerId.Clear();
             ordersBySequence.Clear();
             ordersBySerial.Clear();
+            ordersBySymbol.Clear();
         }
 
         public void UpdateLocalSequence(int localSequence)
