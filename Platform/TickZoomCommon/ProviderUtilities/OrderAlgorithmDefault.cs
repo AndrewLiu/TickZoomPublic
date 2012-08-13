@@ -26,11 +26,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Diagnostics;
-using System.IO;
 using System.Text;
-using System.Threading;
 
 using TickZoom.Api;
 
@@ -56,7 +52,7 @@ namespace TickZoom.Common
 		private SymbolInfo symbol;
 		private PhysicalOrderHandler physicalOrderHandler;
         private PhysicalOrderHandler syntheticOrderHandler;
-        private List<PhysicalOrder> originalPhysicals;
+        private ActiveList<PhysicalOrder> originalPhysicals;
         private List<PhysicalOrder> physicalOrders;
         private ActiveList<LogicalOrder> originalLogicals;
         private List<LogicalOrder> logicalOrders;
@@ -111,7 +107,6 @@ namespace TickZoom.Common
             this.syntheticOrderHandler = syntheticOrders;
             this.originalLogicals = new ActiveList<LogicalOrder>();
             this.logicalOrders = new List<LogicalOrder>();
-            this.originalPhysicals = new List<PhysicalOrder>();
             this.physicalOrders = new List<PhysicalOrder>();
             this.extraLogicals = new List<LogicalOrder>();
             this.minimumTick = symbol.MinimumTick.ToLong();
@@ -1299,25 +1294,31 @@ namespace TickZoom.Common
 			this.desiredPosition = position;
 		}
 
-		private bool CheckForPendingInternal() {
-			var result = false;
-		    for(var i=0; i< originalPhysicals.Count; i++)
+		private void CheckForPendingAndMarket(out bool pending, out bool market) {
+			pending = false;
+		    market = false;
+		    for(var current = originalPhysicals.First; current != null; current = current.Next)
 		    {
-		        var order = originalPhysicals[i];
+		        var order = current.Value;
 				if( order.IsPending)
 				{
-					result = true;	
+					pending = true;
+                    if (market) return;
 				}
+                if( order.Type == OrderType.Market)
+                {
+                    market = true;
+                    if (pending) return;
+                }
             }
-			return result;
 		}
 
         private bool CheckForMarketOrdersInternal()
         {
             var result = false;
-            for (var i = 0; i < originalPhysicals.Count; i++)
+            for (var current = originalPhysicals.First; current != null; current = current.Next)
             {
-                var order = originalPhysicals[i];
+                var order = current.Value;
                 if (order.Type == OrderType.Market)
                 {
                     if (debug) log.DebugFormat(LogMessage.LOGMSG459, order);
@@ -1588,7 +1589,6 @@ namespace TickZoom.Common
         {
             if (debug) log.DebugFormat(LogMessage.LOGMSG485, order);
             order.OrderState = OrderState.Filled;
-            originalPhysicals.Remove(order);
             physicalOrders.Remove(order);
             physicalOrderCache.MoveToFilled(order);
             // Leave it in the cache so a too late to cancel or too late to change order can find it.
@@ -1910,19 +1910,10 @@ namespace TickZoom.Common
 			    log.DebugFormat(LogMessage.LOGMSG509, symbol, physicalOrderCache.GetActualPosition(symbol), desiredPosition, mismatch);
 			}
 
-            originalPhysicals.Clear();
-		    ActiveList<PhysicalOrder> tempActiveOrders;
-		    if( physicalOrderCache.TryGetOrders(symbol, out tempActiveOrders))
+            
+            if (! physicalOrderCache.TryGetOrders(symbol, out originalPhysicals))
 		    {
-                for (var current = tempActiveOrders.First; current != null; current = current.Next)
-                {
-                    var order = current.Value;
-                    if (order.OrderState == OrderState.Filled)
-                    {
-                        throw new ApplicationException("Filled order in active order list: " + order);
-                    }
-                    originalPhysicals.Add(current.Value);
-                }
+                throw new ApplicationException("Can't fine physical orders for " + symbol);
             }
 
             if (debug)
@@ -1936,14 +1927,14 @@ namespace TickZoom.Common
                 LogOrders(originalPhysicals, "Original Physical");
             }
 
-            var hasPendingOrders = CheckForPendingInternal();
+		    var hasPendingOrders = false;
+		    var hasMarketOrders = false;
+            CheckForPendingAndMarket(out hasPendingOrders, out hasMarketOrders);
             if (hasPendingOrders)
             {
                 if (debug) log.DebugFormat(LogMessage.LOGMSG511);
                 return false;
             }
-
-            var hasMarketOrders = CheckForMarketOrdersInternal();
             if (hasMarketOrders)
             {
                 if (debug) log.DebugFormat(LogMessage.LOGMSG512);
@@ -1957,9 +1948,9 @@ namespace TickZoom.Common
 			
 			physicalOrders.Clear();
 			if(originalPhysicals != null) {
-                for (var i = 0; i < originalPhysicals.Count; i++ )
+                for (var current = originalPhysicals.First; current != null; current = current.Next)
                 {
-                    physicalOrders.Add(originalPhysicals[i]);
+                    physicalOrders.Add(current.Value);
                 }
 			}
 
@@ -1970,7 +1961,7 @@ namespace TickZoom.Common
 				var logical = logicalOrders[0];
                 CheckSynthetic(logical);
                 TryMatchId(physicalOrders, logical, physicalMatches);
-                if( physicalMatches.Count > 0)
+                if( physicalMatches.Count > 0) 
                 {
                     if( hasMarketOrders)
                     {
@@ -2043,22 +2034,15 @@ namespace TickZoom.Common
             }
         }
 
-        private void LogOrders(IEnumerable<LogicalOrder> orders, string name)
-        {
-            foreach(var order in orders)
-            {
-                log.DebugFormat(LogMessage.LOGMSG519, order);
-            }
-        }
-
-        private void LogOrders( IEnumerable<PhysicalOrder> orders, string name)
+        private void LogOrders( Iterable<PhysicalOrder> orders, string name)
         {
             if( debug)
             {
                 var first = true;
-                foreach (var order in orders)
+                for (var current = orders.First; current != null; current = current.Next )
                 {
-                    if( first)
+                    var order = current.Value;
+                    if (first)
                     {
                         log.DebugFormat(LogMessage.LOGMSG520, name);
                         first = false;

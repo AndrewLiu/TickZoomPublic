@@ -56,7 +56,11 @@ namespace TickZoom.Common
 
         public bool TryGetOrders( SymbolInfo symbol, out ActiveList<PhysicalOrder> orders)
         {
-            return ordersBySymbol.TryGetValue(symbol.BinaryIdentifier, out orders);
+            if( ! ordersBySymbol.TryGetValue(symbol.BinaryIdentifier, out orders))
+            {
+                orders = ordersBySymbol[symbol.BinaryIdentifier] = new ActiveList<PhysicalOrder>();
+            }
+            return true;
         }
 
         public virtual void AssertAtomic() { }
