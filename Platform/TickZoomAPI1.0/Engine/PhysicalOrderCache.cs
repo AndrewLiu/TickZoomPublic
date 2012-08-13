@@ -30,7 +30,7 @@ namespace TickZoom.Api
         void PurgeOriginalOrder(PhysicalOrder order);
         int GetHighestSequence();
         PhysicalOrderDefault Create();
-        void TryClearFilledOrders(SymbolInfo symbol);
+        void MoveToFilled(PhysicalOrder order);
     }
 
     public interface PhysicalOrderStore : PhysicalOrderCache

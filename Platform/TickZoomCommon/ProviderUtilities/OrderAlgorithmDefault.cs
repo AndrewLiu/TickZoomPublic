@@ -1149,6 +1149,7 @@ namespace TickZoom.Common
                 switch (order.OrderState)
                 {
                     case OrderState.Filled:
+                        throw new ApplicationException("Filled order in active order list: " + order);
                     case OrderState.Lost:
                         continue;
                     case OrderState.Active:
@@ -1589,6 +1590,7 @@ namespace TickZoom.Common
             order.OrderState = OrderState.Filled;
             originalPhysicals.Remove(order);
             physicalOrders.Remove(order);
+            physicalOrderCache.MoveToFilled(order);
             // Leave it in the cache so a too late to cancel or too late to change order can find it.
             // physicalOrderCache.RemoveOrder(order.BrokerOrder);
             var replacedBy = order.ReplacedBy;
@@ -1908,7 +1910,6 @@ namespace TickZoom.Common
 			    log.DebugFormat(LogMessage.LOGMSG509, symbol, physicalOrderCache.GetActualPosition(symbol), desiredPosition, mismatch);
 			}
 
-		    physicalOrderCache.TryClearFilledOrders(symbol);
             originalPhysicals.Clear();
 		    ActiveList<PhysicalOrder> tempActiveOrders;
 		    if( physicalOrderCache.TryGetOrders(symbol, out tempActiveOrders))
@@ -1916,7 +1917,10 @@ namespace TickZoom.Common
                 for (var current = tempActiveOrders.First; current != null; current = current.Next)
                 {
                     var order = current.Value;
-                    if (order.OrderState == OrderState.Filled) continue;
+                    if (order.OrderState == OrderState.Filled)
+                    {
+                        throw new ApplicationException("Filled order in active order list: " + order);
+                    }
                     originalPhysicals.Add(current.Value);
                 }
             }

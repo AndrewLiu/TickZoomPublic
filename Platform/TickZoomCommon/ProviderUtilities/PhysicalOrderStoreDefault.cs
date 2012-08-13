@@ -413,9 +413,19 @@ namespace TickZoom.Common
             writer.Write(remoteSequence);
             writer.Write(LocalSequence);
             writer.Write(lastSequenceReset.Internal);
-            if (debug)
-                log.DebugFormat(LogMessage.LOGMSG551, localSequence, remoteSequence);
+            if (debug) log.DebugFormat(LogMessage.LOGMSG551, localSequence, remoteSequence);
             foreach (var kvp in ordersByBrokerId)
+            {
+                var order = kvp.Value;
+                AddUniqueOrder(order);
+                if (trace) log.TraceFormat(LogMessage.LOGMSG552, order);
+                foreach (var reference in OrderReferences(order))
+                {
+                    AddUniqueOrder(reference);
+                }
+            }
+
+            foreach (var kvp in filledOrdersByBrokerId)
             {
                 var order = kvp.Value;
                 AddUniqueOrder(order);
@@ -803,9 +813,16 @@ namespace TickZoom.Common
                 foreach (var kvp in uniqueIds)
                 {
                     var order = kvp.Value;
-                    ordersByBrokerId[order.BrokerOrder] = order;
-                    ordersBySequence[order.Sequence] = order;
-                    SetOrderBySymbol(order);
+                    if( order.OrderState == OrderState.Filled)
+                    {
+                        filledOrdersByBrokerId[order.BrokerOrder] = order;
+                    }
+                    else
+                    {
+                        ordersByBrokerId[order.BrokerOrder] = order;
+                        ordersBySequence[order.Sequence] = order;
+                        SetOrderBySymbol(order);
+                    }
                     if( order.Action == OrderAction.Cancel && order.OriginalOrder == null)
                     {
                         throw new ApplicationException("Cancel order w/o any original order setting: " + order);
