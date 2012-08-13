@@ -26,10 +26,10 @@ namespace TickZoom.Common
         protected Dictionary<int, PhysicalOrder> ordersBySequence = new Dictionary<int, PhysicalOrder>();
         protected Dictionary<long, ActiveList<PhysicalOrder>> ordersBySymbol = new Dictionary<long, ActiveList<PhysicalOrder>>();
         protected Dictionary<long, PhysicalOrder> ordersByBrokerId = new Dictionary<long, PhysicalOrder>();
+        protected Dictionary<long, PhysicalOrder> filledOrdersByBrokerId = new Dictionary<long, PhysicalOrder>();
         protected Dictionary<long, PhysicalOrder> ordersBySerial = new Dictionary<long, PhysicalOrder>();
         protected Dictionary<long, SymbolPosition> positions = new Dictionary<long, SymbolPosition>();
         protected Dictionary<int, StrategyPosition> strategyPositions = new Dictionary<int, StrategyPosition>();
-        private Func<PhysicalOrder,bool> matchSymbolFunc;
         private Pool<PhysicalOrderDefault> orderPool = Factory.Parallel.Pool<PhysicalOrderDefault>();
         private string name;
         private int callerId;
@@ -49,15 +49,9 @@ namespace TickZoom.Common
         {
             this.name = name;
             log = Factory.SysLog.GetLogger(typeof(PhysicalOrderCacheDefault).FullName + "." + name);
-            matchSymbolFunc = MatchSymbol;
             log.Register(this);
             callerId = orderPool.GetCallerId("PhysicalOrderCache");
             physicalComparison = OnComparison;
-        }
-
-        public bool MatchSymbol(PhysicalOrder order)
-        {
-            return order.Symbol.BinaryIdentifier == temporarySymbol.BinaryIdentifier;
         }
 
         public bool TryGetOrders( SymbolInfo symbol, out ActiveList<PhysicalOrder> orders)
@@ -66,59 +60,73 @@ namespace TickZoom.Common
         }
 
         public virtual void AssertAtomic() { }
-        private SymbolInfo temporarySymbol;
-        private const int sortTimesCount = 64;
-        private PhysicalOrder[] sortTimesArray = new PhysicalOrder[sortTimesCount];
-        public void TryClearFilledOrders(SymbolInfo symbol)
+        private int sortTimesCount = 64;
+        private PhysicalOrder[] sortTimesArray;
+        private int filledCounter;
+        public void TryClearFilledOrders()
         {
-            if (debug) log.DebugFormat(LogMessage.LOGMSG533, symbol);
-            AssertAtomic();
-            ActiveList<PhysicalOrder> orderList;
-            if( !ordersBySymbol.TryGetValue(symbol.BinaryIdentifier,out orderList))
+            ++filledCounter;
+            if (filledCounter < (sortTimesCount >> 1) * ordersBySymbol.Count)
             {
                 return;
             }
+            filledCounter = 0;
+            if (filledOrdersByBrokerId.Count < (sortTimesCount >> 1) * ordersBySymbol.Count)
+            {
+                return;
+            }
+            if (debug) log.DebugFormat("TryClearFilledOrders() {0} orders", filledOrdersByBrokerId.Count);
+            AssertAtomic();
 
-            Array.Clear(sortTimesArray, 0, sortTimesArray.Length);
+            if( sortTimesArray == null || sortTimesArray.Length < sortTimesCount * ordersBySymbol.Count)
+            {
+                sortTimesArray = new PhysicalOrder[sortTimesCount * ordersBySymbol.Count];
+            }
+            else
+            {
+                Array.Clear(sortTimesArray, 0, sortTimesArray.Length);
+            }
             var filledCount = 0;
-            temporarySymbol = symbol;
 
-            for (var current = orderList.First; current != null; current = current.Next )
+            foreach (var kvp in filledOrdersByBrokerId)
             {
-                var order = current.Value;
-                if (order.OrderState == OrderState.Filled)
+                var order = kvp.Value;
+                if (filledCount >= sortTimesArray.Length)
                 {
-                    if (filledCount < sortTimesArray.Length)
+                    break;
+                }
+                sortTimesArray[filledCount] = order;
+                ++filledCount;
+            }
+
+            if (debug) log.DebugFormat("Found {0} filled orders.", filledCount);
+            Array.Sort(sortTimesArray, physicalComparison);
+            if (trace) log.TraceFormat("Sorted orders by last modify time:");
+            var count = 0;
+            for (var x = 0; x < sortTimesArray.Length; x++)
+            {
+                var order = sortTimesArray[x];
+                if (order != null)
+                {
+                    if (count >= filledCount >> 1)
                     {
-                        sortTimesArray[filledCount] = order;
+                        if (debug) log.DebugFormat("Removing order: {0}", sortTimesArray[x]);
+                        RemoveOrderInternal(order.BrokerOrder);
                     }
-                    ++filledCount;
+                    else
+                    {
+                        if (debug) log.DebugFormat("Keeping order: {0}", sortTimesArray[x]);
+                    }
+                    count++;
                 }
             }
-            if( filledCount >= sortTimesCount >> 1)
-            {
-                if( debug) log.DebugFormat("Found {0} filled orders.", filledCount);
-                Array.Sort(sortTimesArray, physicalComparison);
-                if (trace) log.TraceFormat("Sorted orders by last modify time:");
-                var count = 0;
-                for (var x = 0; x < sortTimesArray.Length; x++)
-                {
-                    var order = sortTimesArray[x];
-                    if (order != null)
-                    {
-                        if (count >= filledCount >> 1)
-                        {
-                            if (debug) log.DebugFormat("Removing order: {0}", sortTimesArray[x]);
-                            RemoveOrderInternal(order.BrokerOrder);
-                        }
-                        else
-                        {
-                            if (debug) log.DebugFormat("Keeping order: {0}", sortTimesArray[x]);
-                        }
-                        count++;
-                    }
-                }
-            }
+        }
+
+        public void MoveToFilled(PhysicalOrder order)
+        {
+            RemoveOrderInternal(order.BrokerOrder);
+            filledOrdersByBrokerId[order.BrokerOrder] = order;
+            TryClearFilledOrders();
         }
 
         private int OnComparison(PhysicalOrder x, PhysicalOrder y)
@@ -240,7 +248,15 @@ namespace TickZoom.Common
         public bool TryGetOrderById(long brokerOrder, out PhysicalOrder order)
         {
             AssertAtomic();
-            return ordersByBrokerId.TryGetValue(brokerOrder, out order);
+            if( ordersByBrokerId.TryGetValue(brokerOrder, out order))
+            {
+                return true;
+            }
+            if (filledOrdersByBrokerId.TryGetValue(brokerOrder, out order))
+            {
+                return true;
+            }
+            return false;
         }
 
         public bool TryGetOrderBySequence(int sequence, out PhysicalOrder order)
@@ -258,7 +274,7 @@ namespace TickZoom.Common
         {
             AssertAtomic();
             PhysicalOrder order;
-            if (!ordersByBrokerId.TryGetValue(brokerOrder, out order))
+            if (!TryGetOrderById(brokerOrder, out order))
             {
                 throw new ApplicationException("Unable to find order for id: " + brokerOrder);
             }
@@ -299,6 +315,7 @@ namespace TickZoom.Common
                 return null;
             }
             PhysicalOrder order = null;
+            filledOrdersByBrokerId.Remove(clientOrderId);
             if (ordersByBrokerId.TryGetValue(clientOrderId, out order))
             {
                 var result = ordersByBrokerId.Remove(clientOrderId);
@@ -358,7 +375,10 @@ namespace TickZoom.Common
             for (var current = tempCreateOrders.First; current != null; current = current.Next )
             {
                 var queueOrder = current.Value;
-                if (queueOrder.OrderState == OrderState.Filled) continue;
+                if (queueOrder.OrderState == OrderState.Filled)
+                {
+                    throw new ApplicationException("Filled order in active order list: " + order);
+                }
                 if (queueOrder.Action == OrderAction.Create && order.LogicalSerialNumber == queueOrder.LogicalSerialNumber)
                 {
                     if (debug) log.DebugFormat(LogMessage.LOGMSG542, queueOrder);
@@ -378,7 +398,10 @@ namespace TickZoom.Common
             for (var current = tempCreateOrders.First; current != null; current = current.Next)
             {
                 var queueOrder = current.Value;
-                if (queueOrder.OrderState == OrderState.Filled) continue;
+                if (queueOrder.OrderState == OrderState.Filled)
+                {
+                    throw new ApplicationException("Filled order in active order list: " + order);
+                }
                 if (queueOrder.OriginalOrder != null && order.OriginalOrder.BrokerOrder == queueOrder.OriginalOrder.BrokerOrder)
                 {
                     if (debug) log.DebugFormat(LogMessage.LOGMSG543, order);
