@@ -54,6 +54,7 @@ namespace TickZoom
 			AddIndicator(retrace);
 			
 			stretch = new IndicatorCommon();
+		    stretch.Name = "Stretch";
 			stretch.Drawing.Color = Color.Red;
 			stretch.Drawing.PaneType = PaneType.Secondary;
 			stretch.IntervalDefault = Intervals.Hour1;

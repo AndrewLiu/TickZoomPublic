@@ -59,6 +59,7 @@ namespace TickZoom
         public override void OnInitialize()
         {
             minimumTick = Data.SymbolInfo.MinimumTick*10;
+            Name = "Retrace";
         }
 
         public Retrace()
@@ -113,6 +114,7 @@ namespace TickZoom
 
 	    private void UpdateStretch(double value)
 	    {
+            var elapsed = lastTick.UtcTime - startTime;
             var valueTicks = value / minimumTick;
             var stretchTicks = stretch / minimumTick;
             if (valueTicks > 50)
@@ -121,7 +123,6 @@ namespace TickZoom
                 {
                     limitTime = lastTick.UtcTime;
                 }
-                //Reset();
             }
 	        stretch = value;
 	    }
@@ -146,12 +147,12 @@ namespace TickZoom
 	    private void TryTimeStop()
 	    {
             var elapsed = lastTick.UtcTime - startTime;
-            if (elapsed.TotalSeconds > 300)
-            {
-                AddStretchRecord(losingStretch);
-                Reset();
-                ++timeStopCount;
-            }
+            //if (elapsed.TotalSeconds > 300 && stretch > 20 * minimumTick)
+            //{
+            //    AddStretchRecord(losingStretch);
+            //    Reset();
+            //    ++timeStopCount;
+            //}
 	    }
 
 	    public double Stretch {
@@ -243,11 +244,11 @@ namespace TickZoom
 
 	    private void ReportStretch(List<RetraceStretch> stretchList)
 	    {
-	        var maxTicks = 0;
-	        var maxMinutes = 0;
+	        var maxTicks = 0L;
+	        var maxMinutes = 0L;
 	        foreach (var rs in stretchList)
 	        {
-	            var ticks = (int)(rs.Stretch / minimumTick);
+	            var ticks = (long)(rs.Stretch / minimumTick);
 	            if( ticks > maxTicks)
 	            {
 	                maxTicks = ticks;
@@ -262,7 +263,7 @@ namespace TickZoom
 	        var ticksArray = new long[maxTicks+1];
 	        foreach( var rs in stretchList)
 	        {
-	            var ticks = (int) (rs.Stretch/minimumTick);
+	            var ticks = (long) (rs.Stretch/minimumTick);
 	            if( ticks > 50)
 	            {
 	                Log.Info(ticks + "," + rs.Elapsed.TotalMinutes + "," + rs.LimitElapsed.TotalMinutes);
