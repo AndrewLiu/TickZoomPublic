@@ -113,10 +113,17 @@ namespace TickZoom.Examples
 			ask = Ticks[0].Ask + spread;
 			bid = Ticks[0].Bid - spread;
 		}
+
 		public override void OnExitTrade()
 		{
 			ask = Ticks[0].Ask + spread;
 			bid = Ticks[0].Bid - spread;
 		}
-	}
+
+        public override void OnReverseTrade()
+        {
+            ask = Ticks[0].Ask + spread;
+            bid = Ticks[0].Bid - spread;
+        }
+    }
 }

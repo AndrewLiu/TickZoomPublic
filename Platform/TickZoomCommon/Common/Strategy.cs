@@ -355,8 +355,18 @@ namespace TickZoom.Common
 		
 		public virtual void OnExitTrade() {
 		}
-		
-		public PositionInterface Position {
+
+        public virtual void OnReverseTrade(TransactionPairBinary pair, TransactionPairBinary reversedPair, LogicalFill fill, LogicalOrder order)
+        {
+            OnReverseTrade();
+        }
+
+        public virtual void OnReverseTrade()
+        {
+        }
+
+        public PositionInterface Position
+        {
 			get { return position; }
 			set { position = value; }
 		}

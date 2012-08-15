@@ -134,6 +134,7 @@ namespace TickZoom.Examples
 			bid = Ticks[0].Bid - spread;
 		    changeCount++;
 		}
+
 		public override void OnExitTrade()
 		{
             var trades = Performance.ComboTrades;
@@ -143,5 +144,15 @@ namespace TickZoom.Examples
 			bid = Ticks[0].Bid - spread;
 		    changeCount = 0;
 		}
-	}
+
+        public override void OnReverseTrade()
+        {
+            var trades = Performance.ComboTrades;
+            var trade = trades.Tail;
+            if (IsDebug) Log.DebugFormat(LogMessage.LOGMSG717, trade.Completed, Ticks[0]);
+            ask = Ticks[0].Ask + spread;
+            bid = Ticks[0].Bid - spread;
+            changeCount = 0;
+        }
+    }
 }

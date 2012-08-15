@@ -328,10 +328,6 @@ namespace TickZoom.Common
 			}
 		}
 		
-		public virtual void OnExitTrade() {
-			
-		}
-		
 		private NodePool<LogicalOrder> nodePool = new NodePool<LogicalOrder>();
 		
 		public void OrderModified( LogicalOrder order) {
