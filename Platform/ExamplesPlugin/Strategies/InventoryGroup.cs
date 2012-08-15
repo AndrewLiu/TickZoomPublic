@@ -35,5 +35,6 @@ namespace TickZoom.Examples
         double CurrentProfitLoss(double price);
         string ToHeader();
         void UpdateBidAsk(double marketBid, double marketAsk);
+        void Clear();
     }
 }

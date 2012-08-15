@@ -69,18 +69,17 @@ namespace TickZoom.Common
         }
 
         [Test]
-        public void TestLongAddPrice()
+        public void TestShortAddPrice()
         {
             var inventory = new InventoryGroupDefault(symbol);
-            inventory.Change(10, 1000);
-            Assert.AreEqual(inventory.BreakEven, 10);
-            inventory.Change(9, 666);
-            Assert.AreEqual(Math.Round(inventory.BreakEven, 2), 9.6);
-            var howManyToAdd = 740;
-            var priceToAdd = inventory.PriceToChange(howManyToAdd,inventory.BreakEven);
-            Assert.AreEqual(7, Math.Round(priceToAdd));
-            inventory.Change(7, howManyToAdd);
-            Assert.AreEqual(Math.Round(inventory.BreakEven, 2), 8.8);
+            inventory.Retrace = 0.75D;
+            inventory.Change(100, -7500);
+            Assert.AreEqual(inventory.BreakEven, 100);
+            inventory.Change(140, -2500);
+            Assert.AreEqual(inventory.BreakEven, 110);
+            var howManyToAdd = -1000;
+            var priceToAdd = inventory.PriceToChange(howManyToAdd);
+            Assert.AreEqual(157.14, Math.Round(priceToAdd,2));
         }
 
         [Test]
@@ -98,18 +97,17 @@ namespace TickZoom.Common
         }
 
         [Test]
-        public void TestShortAddPrice()
+        public void TestLongAddPrice()
         {
             var inventory = new InventoryGroupDefault(symbol);
-            inventory.Change(10, -1000);
-            Assert.AreEqual(inventory.BreakEven, 10);
-            inventory.Change(11, -666);
-            Assert.AreEqual(Math.Round(inventory.BreakEven, 2), 10.4);
-            var howManyToAdd = -740;
-            var priceToAdd = inventory.PriceToChange(howManyToAdd,inventory.BreakEven);
-            Assert.AreEqual(13, Math.Round(priceToAdd));
-            inventory.Change(13, howManyToAdd);
-            Assert.AreEqual(Math.Round(inventory.BreakEven, 2), 11.2);
+            inventory.Retrace = 0.75D;
+            inventory.Change(140, 7500);
+            Assert.AreEqual(inventory.BreakEven, 140);
+            inventory.Change(100, 2500);
+            Assert.AreEqual(inventory.BreakEven, 130);
+            var howManyToAdd = 1000;
+            var priceToAdd = inventory.PriceToChange(howManyToAdd);
+            Assert.AreEqual(82.86, Math.Round(priceToAdd,2));
         }
 
         [Test]

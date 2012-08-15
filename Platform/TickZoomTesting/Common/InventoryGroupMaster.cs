@@ -352,5 +352,11 @@ namespace TickZoom.Common
         {
             throw new NotImplementedException();
         }
+
+
+        public void Clear()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

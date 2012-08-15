@@ -1,14 +1,15 @@
 using System;
 using TickZoom.Api;
+using TickZoom.Common;
 
 namespace TickZoom.Examples
 {
     public class RetraceStrategy : BaseSimpleStrategy
     {
         private double startingSpread;
-        private double addInventorySpread;
         private double bidSpread;
         private double offerSpread;
+        private double profitSpread;
         private int maxLots;
         private int baseLots = 1;
 
@@ -16,8 +17,8 @@ namespace TickZoom.Examples
         {
             lotSize = 1000;
             base.OnInitialize();
-            bidSpread = offerSpread = startingSpread = 3 * Data.SymbolInfo.MinimumTick;
-            addInventorySpread = 3 * Data.SymbolInfo.MinimumTick;
+            bidSpread = offerSpread = startingSpread = 5 * Data.SymbolInfo.MinimumTick;
+            profitSpread = 3 * Data.SymbolInfo.MinimumTick;
             BuySize = SellSize = baseLots;
         }
 
@@ -46,7 +47,9 @@ namespace TickZoom.Examples
 
         protected override void SetFlatBidAsk()
         {
-            SetBidOffer();
+            bid = Math.Min(midPoint - bidSpread, MarketBid);
+            ask = Math.Max(midPoint + offerSpread, MarketAsk);
+            BuySize = SellSize = 1;
         }
 
         protected override void SetupBidAsk()
@@ -56,23 +59,25 @@ namespace TickZoom.Examples
 
         private void SetBidOffer()
         {
-            bid = midPoint - bidSpread;
-            ask = midPoint + offerSpread;
-            var lots = Position.Size/lotSize;
-            if( Position.IsLong)
+            var lots = Math.Abs(Position.Size / lotSize);
+            inventory.Retrace = 0.60D;
+            inventory.IncreaseSpread = inventory.DecreaseSpread = startingSpread;
+            inventory.CalculateBidOffer(MarketBid,MarketAsk);
+            bid = Math.Min(inventory.Bid,MarketBid);
+            ask = Math.Max(inventory.Offer,MarketAsk);
+            if (Position.IsLong)
             {
-                bid = midPoint - bidSpread;
-                ask = BreakEvenPrice + offerSpread;
-                BuySize = Math.Max(lots / 5, 1);
-                SellSize = lots + baseLots;
+                BuySize = inventory.BidSize / lotSize;
+                SellSize = lots + 1;
+                ask = Math.Max(BreakEvenPrice + profitSpread, MarketAsk);
             }
-            if( Position.IsShort)
+            if (Position.IsShort)
             {
-                ask = midPoint + offerSpread;
-                bid = BreakEvenPrice - offerSpread;
-                SellSize = Math.Max(lots / 5, 1);
-                BuySize = lots + baseLots;
+                SellSize = - inventory.OfferSize / lotSize;
+                BuySize = lots + 1;
+                bid = Math.Min(BreakEvenPrice - profitSpread, MarketBid);
             }
+            return;
         }
 
         private void UpdateIndicators()
@@ -81,65 +86,40 @@ namespace TickZoom.Examples
             askLine[0] = ask.Round();
         }
 
-        private void ProcessChange(TransactionPairBinary comboTrade)
+        private int previousPosition;
+        private void ProcessChange(TransactionPairBinary comboTrade, LogicalFill fill)
         {
+            var positionChange = fill.Position - previousPosition;
+            previousPosition = fill.Position;
+            inventory.Change(fill.Price, positionChange);
             var tick = Ticks[0];
             UpdateBreakEven((tick.Ask + tick.Bid) / 2);
-            var lots = (Math.Abs(comboTrade.CurrentPosition) / baseLots);
+            var lots = (Math.Abs(comboTrade.CurrentPosition) / lotSize);
             if( lots > maxLots)
             {
                 maxLots = lots;
-                if( TryTimeStop())
-                {
-                    return;
-                }
             }
-            if( comboTrade.CurrentPosition > 0)
-            {
-                BuySize = SellSize = baseLots;
-                if (comboTrade.ExitPrice < BreakEvenPrice)
-                {
-                    offerSpread = bidSpread = startingSpread;
-                }
-                else
-                {
-                    bidSpread = offerSpread = startingSpread;
-                }
-            }
-            else if( comboTrade.CurrentPosition < 0)
-            {
-                BuySize = SellSize = baseLots;
-                if (comboTrade.ExitPrice > BreakEvenPrice)
-                {
-                    bidSpread = offerSpread = startingSpread;
-                }
-                else
-                {
-                    bidSpread = offerSpread = startingSpread;
-                }
-            }
+            BuySize = SellSize = baseLots;
+            offerSpread = bidSpread = startingSpread;
             SetBidOffer();
             UpdateIndicators(tick);
             UpdateIndicators();
         }
 
-        private bool TryTimeStop()
+        private void ProcessExit()
         {
-            var result = false;
-            var elapsed = Position.HasPosition ? Performance.ComboTrades.Tail.ExitTime - Performance.ComboTrades.Tail.EntryTime : 0;
-            if (elapsed.TotalSeconds >= 300)
-            {
-                Reset();
-                result = true;
-            }
-            return result;
+            inventory.Clear();
+            previousPosition = 0;
+            maxLots = 0;
+            bidSpread = startingSpread;
+            offerSpread = startingSpread;
+            BuySize = SellSize = baseLots;
         }
 
         public override void OnEnterTrade(TransactionPairBinary comboTrade, LogicalFill fill, LogicalOrder filledOrder)
         {
             var tick = Ticks[0];
-            UpdateBreakEven((tick.Ask + tick.Bid)/2);
-            ProcessChange(comboTrade);
+            ProcessChange(comboTrade, fill);
             UpdateIndicators(tick);
             UpdateIndicators();
         }
@@ -147,24 +127,26 @@ namespace TickZoom.Examples
         public override void OnExitTrade(TransactionPairBinary comboTrade, LogicalFill fill, LogicalOrder filledOrder)
         {
             ProcessExit();
-        }
-
-        private void ProcessExit()
-        {
             var tick = Ticks[0];
             UpdateBreakEven((tick.Ask + tick.Bid) / 2);
-            maxLots = 0;
-            bidSpread = startingSpread;
-            offerSpread = startingSpread;
-            BuySize = SellSize = baseLots;
-            SetBidOffer();
             UpdateIndicators(tick);
             UpdateIndicators();
+            SetFlatBidAsk();
         }
 
         public override void  OnChangeTrade(TransactionPairBinary comboTrade, LogicalFill fill, LogicalOrder filledOrder)
         {
-            ProcessChange(comboTrade);
+            ProcessChange(comboTrade, fill);
+        }
+
+        public override void OnReverseTrade(TransactionPairBinary comboTrade, TransactionPairBinary reversedCombo, LogicalFill fill, LogicalOrder order)
+        {
+            ProcessExit();
+            ProcessChange(comboTrade, fill);
+            var tick = Ticks[0];
+            UpdateBreakEven((tick.Ask + tick.Bid) / 2);
+            UpdateIndicators(tick);
+            UpdateIndicators();
         }
     }
 }

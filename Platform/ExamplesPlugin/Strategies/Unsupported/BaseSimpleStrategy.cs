@@ -32,10 +32,12 @@ namespace TickZoom.Examples
         bool isFirstTick = true;
         private int buySize = 1;
         private int sellSize = 1;
-        private int closeProfitInTicks = 20;
+        protected InventoryGroupDefault inventory;
 
         public override void OnInitialize()
         {
+            inventory = new InventoryGroupDefault(Data.SymbolInfo);
+            inventory.MinimumLotSize = lotSize;
             Performance.Equity.GraphEquity = true; // Graphed by portfolio.
             Performance.GraphTrades = IsVisible;
 
@@ -58,6 +60,8 @@ namespace TickZoom.Examples
             position.Drawing.PaneType = PaneType.Secondary;
             position.Drawing.GroupName = "Position";
             position.Drawing.IsVisible = IsVisible;
+
+            minimumTick = Data.SymbolInfo.MinimumTick;
         }
 
         protected void Reset()
@@ -114,7 +118,7 @@ namespace TickZoom.Examples
         {
             if (Position.HasPosition)
             {
-                breakEvenPrice = CalcIndifferencePrice(Performance.ComboTrades.Tail);
+                breakEvenPrice = inventory.BreakEven;
             }
             else
             {
@@ -142,23 +146,23 @@ namespace TickZoom.Examples
             bidLine[0] = bid;
         }
 
-        protected double CalcIndifferencePrice(TransactionPairBinary comboTrade)
-        {
-            var size = Math.Abs(comboTrade.CurrentPosition);
-            if (size == 0)
-            {
-                return midPoint;
-            }
-            var sign = -Math.Sign(comboTrade.CurrentPosition);
-            var openPoints = comboTrade.AverageEntryPrice.ToLong() * size;
-            var closedPoints = comboTrade.ClosedPoints.ToLong() * sign;
-            var grossProfit = openPoints + closedPoints;
-            var transaction = 0; // size * commission * sign;
-            var expectedTransaction = 0; // size * commission * sign;
-            var result = (grossProfit - transaction - expectedTransaction) / size;
-            result = ((result + 5000) / 10000) * 10000;
-            return result.ToDouble();
-        }
+        //protected double CalcIndifferencePrice(TransactionPairBinary comboTrade)
+        //{
+        //    var size = Math.Abs(comboTrade.CurrentPosition);
+        //    if (size == 0)
+        //    {
+        //        return midPoint;
+        //    }
+        //    var sign = -Math.Sign(comboTrade.CurrentPosition);
+        //    var openPoints = comboTrade.AverageEntryPrice.ToLong() * size;
+        //    var closedPoints = comboTrade.ClosedPoints.ToLong() * sign;
+        //    var grossProfit = openPoints + closedPoints;
+        //    var transaction = 0; // size * commission * sign;
+        //    var expectedTransaction = 0; // size * commission * sign;
+        //    var result = (grossProfit - transaction - expectedTransaction) / size;
+        //    result = ((result + 5000) / 10000) * 10000;
+        //    return result.ToDouble();
+        //}
 
         protected void HandleWeekendRollover(Tick tick)
         {
