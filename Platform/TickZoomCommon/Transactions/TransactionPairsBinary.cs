@@ -94,8 +94,15 @@ namespace TickZoom.Transactions
 			get { return this[count-1]; }
 			set { this[count-1] = value; }
 		}
-		
-		public int Count { 
+
+        public TransactionPairBinary Previous
+        {
+            get { return this[count - 1]; }
+            set { this[count - 1] = value; }
+        }
+
+        public int Count
+        { 
 			get { return count; }
 		}
 		

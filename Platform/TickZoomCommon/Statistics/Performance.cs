@@ -109,7 +109,11 @@ namespace TickZoom.Statistics
 			}
             if (EventType.NotifyTrade == eventType)
             {
-                NotifyTrade();
+                var strategy = model as Strategy;
+                if( strategy != null)
+                {
+                    NotifyTrade();
+                }
             }
         }
 		
@@ -145,19 +149,32 @@ namespace TickZoom.Statistics
 			
 			if( fill.Position != position.Current) {
 				if( position.IsFlat) {
-					if( model is Strategy && comboTradesBinary.Count > 0) {
-						var comboTrade = comboTradesBinary.Tail;
-						var strategy = model as Strategy;
-						LogicalOrder filledOrder;
-						strategy.TryGetOrderById( fill.OrderId, out filledOrder);
-						if( !comboTrade.Completed && filledOrder.TradeDirection == TradeDirection.Change) {
-							ChangeComboSize(fill);
-						} else {
-							EnterComboTrade(fill);
-						}
+					if( model is Strategy)
+					{
+                        if (comboTradesBinary.Count > 0)
+                        {
+                            var comboTrade = comboTradesBinary.Tail;
+                            var strategy = model as Strategy;
+                            LogicalOrder filledOrder;
+                            strategy.TryGetOrderById(fill.OrderId, out filledOrder);
+                            if (!comboTrade.Completed && filledOrder.TradeDirection == TradeDirection.Change)
+                            {
+                                ChangeComboSize(fill);
+                            }
+                            else
+                            {
+                                EnterComboTrade(fill);
+                                SetupNotifyEnter(fill);
+                            }
+                        }
+                        else
+                        {
+                            EnterComboTrade(fill);
+                            SetupNotifyEnter(fill);
+                        }
 					} else {
 						EnterComboTrade(fill);
-					}
+                    }
 				} else if( fill.Position == 0) {
 					if( model is Strategy) {
 						var strategy = model as Strategy;
@@ -165,13 +182,15 @@ namespace TickZoom.Statistics
 						strategy.TryGetOrderById( fill.OrderId, out filledOrder);
 						if( filledOrder.TradeDirection != TradeDirection.Change) {
 							ExitComboTrade(fill);
-						} else
+                            SetupNotifyExit(fill);
+                        }
+                        else
 						{
 						    ChangeComboSize(fill);
 						}
 					} else {
 						ExitComboTrade(fill);
-					}
+                    }
 				} else if( (fill.Position > 0 && position.IsShort) || (fill.Position < 0 && position.IsLong)) {
 					// The signal must be opposite. Either -1 / 1 or 1 / -1
 					if( model is Strategy) {
@@ -183,6 +202,7 @@ namespace TickZoom.Statistics
 						} else {
 							ExitComboTrade(fill);
 							EnterComboTrade(fill);
+                            SetupNotifyReverse(fill);
 						}
 					} else {
 						ExitComboTrade(fill);
@@ -204,23 +224,30 @@ namespace TickZoom.Statistics
 		}
 		
 		public void EnterComboTrade(LogicalFill fill) {
-			TransactionPairBinary pair = TransactionPairBinary.Create();
-			pair.Enter(fill.Position, fill.Price, fill.Time, fill.PostedTime, model.Chart.ChartBars.BarCount, fill.OrderId, fill.OrderSerialNumber);
+            var pair = TransactionPairBinary.Create();
+            pair.Enter(fill.Position, fill.Price, fill.Time, fill.PostedTime, model.Chart.ChartBars.BarCount, fill.OrderId, fill.OrderSerialNumber);
 			comboTradesBinary.Add(pair);
             if (debug) log.DebugFormat(LogMessage.LOGMSG419, pair);
-            if (model is Strategy)
-            {
-				Strategy strategy = (Strategy) model;
-				LogicalOrder filledOrder;
-				if( !strategy.TryGetOrderById( fill.OrderId, out filledOrder)) {
-					throw new ApplicationException("A fill for order id: " + fill.OrderId + " was incorrectly routed to: " + strategy.Name);
-				}
-			    notifyTradeInfo = new NotifyTradeInfo {Type = NotifyTradeType.Enter, Pair = pair, Fill = fill, Order = filledOrder};
-			}
 		}
 
-		private void ChangeComboSize(LogicalFill fill) {
-			TransactionPairBinary pair = comboTradesBinary.Tail;
+	    private void SetupNotifyEnter(LogicalFill fill)
+	    {
+            var strategy = model as Strategy;
+            if (strategy == null)
+            {
+                throw new ApplicationException("Can only notify trades on strategies");
+            }
+            var pair = comboTradesBinary.Tail;
+            LogicalOrder filledOrder;
+	        if( !strategy.TryGetOrderById( fill.OrderId, out filledOrder)) {
+	            throw new ApplicationException("A fill for order id: " + fill.OrderId + " was incorrectly routed to: " + strategy.Name);
+	        }
+	        notifyTradeInfo[notifyTradeCount] = new NotifyTradeInfo {Type = NotifyTradeType.Enter, Pair = pair, Fill = fill, Order = filledOrder};
+	        ++notifyTradeCount;
+	    }
+
+	    private void ChangeComboSize(LogicalFill fill) {
+			var pair = comboTradesBinary.Tail;
 			pair.ChangeSize(fill.Position,fill.Price);
 			comboTradesBinary.Tail = pair;
             if (debug) log.DebugFormat(LogMessage.LOGMSG420, pair);
@@ -231,8 +258,9 @@ namespace TickZoom.Statistics
 				if( !strategy.TryGetOrderById( fill.OrderId, out filledOrder)) {
 					throw new ApplicationException("A fill for order id: " + fill.OrderId + " was incorrectly routed to: " + strategy.Name);
 				}
-			    notifyTradeInfo = new NotifyTradeInfo {Type = NotifyTradeType.Change, Pair = pair, Fill = fill, Order = filledOrder};
-			}
+			    notifyTradeInfo[notifyTradeCount] = new NotifyTradeInfo {Type = NotifyTradeType.Change, Pair = pair, Fill = fill, Order = filledOrder};
+                ++notifyTradeCount;
+            }
 		}
 		
 		public void ExitComboTrade(LogicalFill fill) {
@@ -258,21 +286,48 @@ namespace TickZoom.Statistics
 				log.TraceFormat(LogMessage.LOGMSG421, pair);
 			}
 			if( tradeDebug && !model.QuietMode) tradeLog.DebugFormat(LogMessage.LOGMSG422, model.Name, Equity.ClosedEquity, pnl, pair);
-			if( model is Strategy) {
-				var strategy = (Strategy) model;
-				LogicalOrder filledOrder;
-				if( !strategy.TryGetOrderById( fill.OrderId, out filledOrder)) {
-					throw new ApplicationException("A fill for order id: " + fill.OrderId + " was incorrectly routed to: " + strategy.Name);
-				}
-			    notifyTradeInfo = new NotifyTradeInfo {Type = NotifyTradeType.Exit, Pair = pair, Fill = fill, Order = filledOrder};
-			}
 		}
+
+	    private void SetupNotifyExit(LogicalFill fill)
+	    {
+            var strategy = model as Strategy;
+            if (strategy == null)
+            {
+                throw new ApplicationException("Can only notify trades on strategies");
+            }
+            TransactionPairBinary pair = comboTradesBinary.Tail;
+	        LogicalOrder filledOrder;
+	        if( !strategy.TryGetOrderById( fill.OrderId, out filledOrder)) {
+	            throw new ApplicationException("A fill for order id: " + fill.OrderId + " was incorrectly routed to: " + strategy.Name);
+	        }
+	        notifyTradeInfo[notifyTradeCount] = new NotifyTradeInfo {Type = NotifyTradeType.Exit, Pair = pair, Fill = fill, Order = filledOrder};
+	        ++notifyTradeCount;
+	    }
+
+        private void SetupNotifyReverse(LogicalFill fill)
+        {
+            var strategy = model as Strategy;
+            if (strategy == null)
+            {
+                throw new ApplicationException("Can only notify trades on strategies");
+            }
+            var pair = comboTradesBinary.Tail;
+            var reversePair = comboTradesBinary.Previous;
+            LogicalOrder filledOrder;
+            if (!strategy.TryGetOrderById(fill.OrderId, out filledOrder))
+            {
+                throw new ApplicationException("A fill for order id: " + fill.OrderId + " was incorrectly routed to: " + strategy.Name);
+            }
+            notifyTradeInfo[notifyTradeCount] = new NotifyTradeInfo { Type = NotifyTradeType.Reverse, Pair = pair, Fill = fill, Order = filledOrder, ReversePair = reversePair };
+            ++notifyTradeCount;
+        }
 
         private enum NotifyTradeType
         {
             Enter,
             Exit,
-            Change
+            Change,
+            Reverse
         }
         private struct NotifyTradeInfo
         {
@@ -280,46 +335,41 @@ namespace TickZoom.Statistics
             public TransactionPairBinary Pair;
             public LogicalFill Fill;
             public LogicalOrder Order;
-
+            public TransactionPairBinary ReversePair;
         }
 
-	    private NotifyTradeInfo notifyTradeInfo;
+	    private int notifyTradeCount;
+	    private NotifyTradeInfo[] notifyTradeInfo = new NotifyTradeInfo[4];
 
         private void NotifyTrade()
         {
             var strategy = model as Strategy;
-            if( strategy != null)
+            if (strategy == null)
             {
-                switch (notifyTradeInfo.Type)
+                throw new ApplicationException("Can only notify trades on strategies");
+            }
+            for (var i = 0; i < notifyTradeCount; i++ )
+            {
+                var info = notifyTradeInfo[i];
+                switch (info.Type)
                 {
                     case NotifyTradeType.Enter:
-                        strategy.OnEnterTrade(notifyTradeInfo.Pair, notifyTradeInfo.Fill, notifyTradeInfo.Order);
+                        strategy.OnEnterTrade(info.Pair, info.Fill, info.Order);
                         break;
                     case NotifyTradeType.Exit:
-                        strategy.OnExitTrade(notifyTradeInfo.Pair, notifyTradeInfo.Fill, notifyTradeInfo.Order);
+                        strategy.OnExitTrade(info.Pair, info.Fill, info.Order);
                         break;
                     case NotifyTradeType.Change:
-                        strategy.OnChangeTrade(notifyTradeInfo.Pair, notifyTradeInfo.Fill, notifyTradeInfo.Order);
+                        strategy.OnChangeTrade(info.Pair, info.Fill, info.Order);
+                        break;
+                    case NotifyTradeType.Reverse:
+                        strategy.OnReverseTrade(info.Pair, info.ReversePair, info.Fill, info.Order);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException("Unknown notify trade type: " + notifyTradeInfo.Type);
+                        throw new ArgumentOutOfRangeException("Unknown notify trade type: " + info.Type);
                 }
             }
-            var portfolio = model as Portfolio;
-            if( portfolio != null)
-            {
-                switch (notifyTradeInfo.Type)
-                {
-                    case NotifyTradeType.Enter:
-                    case NotifyTradeType.Change:
-                        break;
-                    case NotifyTradeType.Exit:
-                        portfolio.OnExitTrade();
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException("Unknown notify trade type: " + notifyTradeInfo.Type);
-                }
-            }
+            notifyTradeCount = 0;
         }
 		
 		public bool OnIntervalClose()

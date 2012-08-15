@@ -181,5 +181,8 @@ namespace TickZoom.Examples
         {
         }
 
+        public override void OnReverseTrade()
+        {
+        }
     }
 }

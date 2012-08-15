@@ -66,6 +66,11 @@ namespace TickZoom.Examples
             SetupBidAsk();
         }
 
+        public override void OnReverseTrade()
+        {
+            SetupBidAsk();
+        }
+
         public override bool OnWriteReport(string folder)
         {
             return false;

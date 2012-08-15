@@ -148,13 +148,6 @@ namespace TickZoom.Interceptors
 	        ///  use PositionSize.Size.</param>
 	
 	        public void BuyLimit( double price, double lots, int levels, int increment) {
-                //if( Strategy.Performance.ComboTrades.Count == 0) {
-                //    throw new TickZoomException("Strategy must have an open combo trade to set a change sell limit.");
-                //}
-                //var trade = Strategy.Performance.ComboTrades.Tail;
-                //if( trade.Completed ) {
-                //    throw new TickZoomException("A current combo trade must be open to set a change sell limit.");
-                //}
 	        	orders.BuyLimit.Price = price;
                 orders.BuyLimit.SetMultiLevels((int) lots, levels,increment);
 	        	if( isNextBar && !orders.BuyLimit.IsActive) {
@@ -181,13 +174,6 @@ namespace TickZoom.Interceptors
 	        ///  use PositionSize.Size.</param>
 	
 	        public void SellLimit( double price, double lots, int levels, int increment) {
-                //if( Strategy.Performance.ComboTrades.Count == 0) {
-                //    throw new TickZoomException("Strategy must have an open combo trade to set a change sell limit.");
-                //}
-                //var trade = Strategy.Performance.ComboTrades[Strategy.Performance.ComboTrades.Current];
-                //if( trade.Completed ) {
-                //    throw new TickZoomException("Strategy must have an open combo trade to set a change sell limit.");
-                //}
 	        	orders.SellLimit.Price = price;
                 orders.SellLimit.SetMultiLevels((int)lots, levels,increment);
 	        	if( isNextBar && !orders.SellLimit.IsActive) {
@@ -209,9 +195,6 @@ namespace TickZoom.Interceptors
 	        ///  use PositionSize.Size.</param>
 	
 	        public void BuyStop( double price, double lots) {
-	        	if( !Strategy.Position.HasPosition) {
-	        		throw new TickZoomException("Strategy must have a position before a change buy market.");
-	        	}
 	        	orders.BuyStop.Price = price;
 	        	orders.BuyStop.Position = (int) lots;
 	        	if( isNextBar && !orders.BuyStop.IsActive) {
@@ -233,9 +216,6 @@ namespace TickZoom.Interceptors
 	        ///  use PositionSize.Size.</param>
 	        
 	        public void SellStop( double price, double lots) {
-	        	if( !Strategy.Position.HasPosition) {
-	        		throw new TickZoomException("Strategy must have a position before a change buy market.");
-	        	}
 	        	orders.SellStop.Price = price;
 	        	orders.SellStop.Position = (int) lots;
 	        	if( isNextBar && !orders.SellStop.IsActive) {
