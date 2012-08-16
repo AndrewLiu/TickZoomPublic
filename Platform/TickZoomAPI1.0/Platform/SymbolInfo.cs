@@ -140,18 +140,36 @@ namespace TickZoom.Api
  		
  		/// <summary>
  		/// Determines whether Level1 or Level2 or both types of data should
- 		/// be used to build the data for this symbol.
+ 		/// be captured and recorded to disk for this symbol.
  		/// </summary>
- 		QuoteType QuoteType {
+ 		QuoteType CaptureQuoteType {
  			get;
  		}
- 		
- 		/// <summary>
- 		/// What type of time and sales data to capture and stream.
+
+        /// <summary>
+        /// Determines whether Level1 or Level2 or both types of data should
+        /// be available to the strategy and chart for this symbol.
+        /// </summary>
+        QuoteType StrategyQuoteType
+        {
+            get;
+        }
+
+        /// <summary>
+ 		/// What type of time and sales data to capture and record to disk.
  		/// </summary>
- 		TimeAndSales TimeAndSales {
+ 		TimeAndSales CaptureTimeAndSales {
  			get;
  		}
+
+        /// <summary>
+        /// What type of time and sales data to make available to the strategy
+        /// and chart for the symbol.
+        /// </summary>
+        TimeAndSales StrategyTimeAndSales
+        {
+            get;
+        }
 
         /// <summary>
         /// What type of option data to capture and stream.
@@ -292,7 +310,7 @@ namespace TickZoom.Api
         /// None, means to ignore bid/ask quotes for filling orders which is useful
         /// if you want to simulate fills based on trades alone.
         /// </summary>
-	    LimitOrderQuoteSimulation LimitOrderQuoteSimulation { get; }
+        LimitOrderQuoteSimulation LimitOrderQuoteSimulation { get; }
 
         /// <summary>
         /// Controls how to simulate fills for ticks with trade data of price and size.
@@ -363,5 +381,24 @@ namespace TickZoom.Api
         /// historical data--never to real time data.
         /// </summary>
         bool SimulateSpread { get; set;  }
+
+        /// <summary>
+        /// Sets a base size to use in strategies that run on different symbols. So it can
+        /// be set to 10,000 for a mini lot on Forex symbols but 1 for a single contract
+        /// on futures symbols or 100 for equities. This properties is never used in the
+        /// TickZoom platform but only for users to use in strategies.
+        /// </summary>
+	    int LotSize { get; }
+
+        /// <summary>
+        /// This property is similar to minimum tick for use in strategies. Users typically
+        /// use MinimumMove in place of MinimumTick in strategies. This property is never
+        /// used by the TickZoom platform. So this allows users to normalize strategies
+        /// which run in different symbols. So it can be set to 0.125 for E-mini S&P which
+        /// is the same as MinimumTick but can be set to 0.01 for 2 digit Forex symbols
+        /// instead of MinimumTick which must be set to 0.001 for brokers that support
+        /// 1/10 pip pricing.
+        /// </summary>
+	    double MinimumMove { get;  }
 	}
 }

@@ -25,11 +25,7 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing.Design;
 using System.IO;
-using System.Linq.Expressions;
 using System.Runtime.Serialization.Formatters.Binary;
 
 using TickZoom.Api;
@@ -54,9 +50,11 @@ namespace TickZoom.Symbols
 		private int level2LotSizeMinimum;
 		private long binaryIdentifier;
 		private int chartGroup;
-		private QuoteType quoteType = QuoteType.Level1;
-		private TimeAndSales timeAndSales = TimeAndSales.ActualTrades;
-		private string displayTimeZone;
+		private QuoteType captureQuoteType = QuoteType.Level1;
+        private QuoteType strategyQuoteType = QuoteType.Level1;
+        private TimeAndSales captureTimeAndSales = TimeAndSales.ActualTrades;
+        private TimeAndSales strategyTimeAndSales = TimeAndSales.ActualTrades;
+        private string displayTimeZone;
 		private string timeZone;
 		private bool useSyntheticMarkets = true;
 		private bool useSyntheticLimits = true;
@@ -84,6 +82,8 @@ namespace TickZoom.Symbols
 	    private bool offsetTooLateToChange = true;
 	    private long iceBergOrderSize = 0;
 	    private bool simulateSpread;
+	    private int lotSize;
+	    private double minimumMove;
 
 	    public SymbolProperties()
         {
@@ -212,9 +212,9 @@ namespace TickZoom.Symbols
 			return binaryIdentifier.GetHashCode();
 		}
 		
-		public QuoteType QuoteType {
-			get { return quoteType; }
-			set { quoteType = value; }
+		public QuoteType CaptureQuoteType {
+			get { return captureQuoteType; }
+			set { captureQuoteType = value; }
 		}
 		
 		public string DisplayTimeZone {
@@ -277,9 +277,9 @@ namespace TickZoom.Symbols
 			set { maxOrderSize = value; }
 		}
 		
-		public TimeAndSales TimeAndSales {
-			get { return timeAndSales; }
-			set { timeAndSales = value; }
+		public TimeAndSales CaptureTimeAndSales {
+			get { return captureTimeAndSales; }
+			set { captureTimeAndSales = value; }
 		}
 
 		public int ChartGroup {
@@ -395,6 +395,30 @@ namespace TickZoom.Symbols
 	    {
 	        get { return simulateSpread; }
 	        set { simulateSpread = value; }
+	    }
+
+	    public QuoteType StrategyQuoteType
+	    {
+	        get { return strategyQuoteType; }
+	        set { strategyQuoteType = value; }
+	    }
+
+	    public TimeAndSales StrategyTimeAndSales
+	    {
+	        get { return strategyTimeAndSales; }
+	        set { strategyTimeAndSales = value; }
+	    }
+
+	    public int LotSize
+	    {
+	        get { return lotSize; }
+	        set { lotSize = value; }
+	    }
+
+	    public double MinimumMove
+	    {
+	        get { return minimumMove; }
+	        set { minimumMove = value; }
 	    }
 	}
 }

@@ -41,12 +41,12 @@ namespace TickZoom
 		PivotLowVs pivotLow;
 		PivotHighVs pivotHigh;
 		Interval pivotTimeFrame;
-		int leftStrength = 2; // Weeks
-		int rightStrength = 10; // Days
-		int length = 0;
-		Color pivotColor = Color.Blue;
-		int trendStrength = 5;
-		int lastBreakOut = 0;
+	    private int leftStrength = 2;
+	    private int rightStrength = 10;
+	    private int length = 0;
+	    private Color pivotColor = Color.Blue;
+	    private int trendStrength = 5;
+	    private int lastBreakOut = 0;
 		
 		public PivotTrend()
 		{
@@ -66,12 +66,28 @@ namespace TickZoom
 		}
 		
 		public override bool OnIntervalClose() {
+            Orders.SetAutoCancel();
+
 			if( pivotHigh.Count > 1 && pivotLow.Count > 1 ) {
 				if( Bars.High[0] > pivotHigh[0]) {
-					Orders.Enter.ActiveNow.BuyMarket();
+                    if( Position.IsFlat)
+                    {
+                        Orders.Enter.ActiveNow.BuyMarket();
+                    }
+                    else if( Position.IsShort)
+                    {
+    				    Orders.Reverse.ActiveNow.BuyMarket();
+                    }
 					lastBreakOut = Bars.CurrentBar;
 				} else if( Bars.Low[0] < pivotLow[0]) {
-					Orders.Enter.ActiveNow.SellMarket();
+                    if( Position.IsFlat)
+                    {
+                        Orders.Enter.ActiveNow.SellMarket();
+                    }
+                    else if( Position.IsShort)
+                    {
+                        Orders.Reverse.ActiveNow.SellMarket();
+                    }
 					lastBreakOut = Bars.CurrentBar;
 				}
 			}

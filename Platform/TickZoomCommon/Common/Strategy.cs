@@ -51,17 +51,8 @@ namespace TickZoom.Common
 		private bool isActiveOrdersChanged = false;
 		private NodePool<LogicalOrder> nodePool = new NodePool<LogicalOrder>();
 				
-		OrderHandlers orders;
-		ReverseCommon reverseActiveNow;
-		ReverseCommon reverseNextBar;
-		ChangeCommon changeActiveNow;
-		ChangeCommon changeNextBar;
-		ExitCommon exitActiveNow;
-		EnterCommon enterActiveNow;
-		ExitCommon exitNextBar;
-		EnterCommon enterNextBar;
-		Performance performance;
-		ExitStrategy exitStrategy;
+		List<OrderHandlers> orderGroups = new List<OrderHandlers>();
+        Performance performance;
 		FillManager preFillManager;
 		FillManager postFillManager;
 		
@@ -76,36 +67,14 @@ namespace TickZoom.Common
 
             // Interceptors.
             performance = new Performance(this);
-            exitStrategy = new ExitStrategy(this);
 
-            exitActiveNow = new ExitCommon(this);
-			enterActiveNow = new EnterCommon(this);
-		    enterActiveNow.processExitStrategy = exitStrategy.OnProcessPosition;
-			reverseActiveNow = new ReverseCommon(this);
-			changeActiveNow = new ChangeCommon(this);
-			changeNextBar = new ChangeCommon(this);
-			changeNextBar.Orders = changeActiveNow.Orders;
-			changeNextBar.IsNextBar = true;
-			reverseNextBar = new ReverseCommon(this);
-			reverseNextBar.Orders = reverseActiveNow.Orders;
-			reverseNextBar.IsNextBar = true;
-			exitNextBar = new ExitCommon(this);
-			exitNextBar.Orders = exitActiveNow.Orders;
-			exitNextBar.IsNextBar = true;
-			enterNextBar = new EnterCommon(this);
-            enterNextBar.processExitStrategy = exitStrategy.OnProcessPosition;
-            enterNextBar.Orders = enterActiveNow.Orders;
-			enterNextBar.IsNextBar = true;
-			orders = new OrderHandlers(enterActiveNow,enterNextBar,
-			                           exitActiveNow,exitNextBar,
-			                           reverseActiveNow,reverseNextBar,
-			                           changeActiveNow,changeNextBar);
-			
+			var orders = new OrderHandlers(this);
+		    orderGroups.Add(orders);
 			
 		    preFillManager = new FillManager(this);
 			postFillManager = new FillManager(this);
 			postFillManager.PostProcess = true;
-			postFillManager.ChangePosition = exitStrategy.Position.Change;
+			postFillManager.ChangePosition = orders.ExitStrategy.Position.Change;
 			postFillManager.DoStrategyOrders = false;
 			postFillManager.DoStrategyOrders = false;
 			postFillManager.DoExitStrategyOrders = true;
@@ -132,22 +101,13 @@ namespace TickZoom.Common
 		
 		public override void OnConfigure()
 		{
-			changeActiveNow.OnInitialize();
-			changeNextBar.OnInitialize();
-			reverseActiveNow.OnInitialize();
-			reverseNextBar.OnInitialize();
-			exitActiveNow.OnInitialize();
-			enterActiveNow.OnInitialize();
-			exitNextBar.OnInitialize();
-			enterNextBar.OnInitialize();
-			exitNextBar.OnInitialize();
 			base.OnConfigure();
 
 			BreakPoint.TrySetStrategy(this);
 			AddInterceptor(preFillManager);
 			AddInterceptor(performance.Equity);
 			AddInterceptor(performance);
-			AddInterceptor(exitStrategy);
+            AddInterceptor(orderGroups[0].ExitStrategy);
 			AddInterceptor(postFillManager);
 		}
 		
@@ -181,28 +141,6 @@ namespace TickZoom.Common
 		public override bool OnWriteReport(string folder)
 		{
 			return performance.WriteReport(Name,folder);
-		}
-		
-		private void ActiveOrdersChanged(LogicalOrder order) {
-			if( trace) {
-				StringBuilder sb = new StringBuilder();
-				sb.AppendLine("Active Orders:");
-			    var next = activeOrders.First;
-			    for (var current = next; current != null; current = next)
-			    {
-			        next = current.Next;
-			        var item = current.Value;
-					sb.Append("        ");
-					sb.AppendLine( item.ToString());
-				}
-				sb.AppendLine("NextBar Orders:");
-				foreach( var item in nextBarOrders) {
-					sb.Append("        ");
-					sb.AppendLine( item.ToString());
-				}
-				instanceLog.TraceFormat(LogMessage.LOGMSG647, order.Id, position.Current, sb);
-				sb.AppendLine();
-			}
 		}
 		
 		public void OrderModified( LogicalOrder order) {
@@ -246,7 +184,6 @@ namespace TickZoom.Common
 					nextBarOrders.Remove(order);
 				}
 			}
-			ActiveOrdersChanged(order);
 		}
 		
 		[Browsable(true)]
@@ -279,24 +216,24 @@ namespace TickZoom.Common
             }
 		}
 
+        public OrderHandlers OrderGroup( int index)
+        {
+            while( orderGroups.Count <= index)
+            {
+                var orders = new OrderHandlers(this);
+                orderGroups.Add(orders);
+            }
+            return orderGroups[index];
+        }
+
 		public OrderHandlers Orders {
-			get { return orders; }
-		}
-		
-		[Obsolete("Please user Orders.Exit instead.",true)]
-		public ExitCommon ExitActiveNow {
-			get { return exitActiveNow; }
-		}
-		
-		[Obsolete("Please user Orders.Enter instead.",true)]
-		public EnterCommon EnterActiveNow {
-			get { return enterActiveNow; }
+			get { return orderGroups[0]; }
 		}
 		
 		[Category("Strategy Settings")]
 		public ExitStrategy ExitStrategy {
-			get { return exitStrategy; }
-			set { exitStrategy = value; }
+			get { return orderGroups[0].ExitStrategy; }
+			set { orderGroups[0].ExitStrategy = value; }
 		}
 		
 		[Category("Strategy Settings")]
@@ -375,7 +312,6 @@ namespace TickZoom.Common
 			get { return result; }
 		}
 
-		[Diagram(AttributeExclude=true)]
 		public void AddOrder(LogicalOrder order)
 		{
             if (OrderManager != null)
@@ -385,8 +321,19 @@ namespace TickZoom.Common
 			allOrders.AddLast(order);
 			ordersHash.Add(order.Id,order);
 		}
-		
-		public Iterable<LogicalOrder> AllOrders {
+
+        public LogicalOrder CreateOrder(OrderSide side, OrderType type, TradeDirection direction)
+        {
+            var order = Factory.Engine.LogicalOrder(Data.SymbolInfo, this);
+            order.TradeDirection = direction;
+            order.Side = side;
+            order.Type = type;
+            AddOrder(order);
+            return order;
+        }
+
+        public Iterable<LogicalOrder> AllOrders
+        {
 			get {
 				return allOrders;
 			}
@@ -408,17 +355,12 @@ namespace TickZoom.Common
 			set { isActiveOrdersChanged = value; }
 		}
 		
-		public bool IsExitStrategyFlat {
-			get { return exitStrategy.Position.IsFlat && position.HasPosition; }
-		}
-
         public OrderManager OrderManager
         {
             get { return orderManager; }
             set { orderManager = value; }
         }
-
-    }
+	}
 	
 	/// <summary>
 	/// Obsolete. Please use the Level2LotSize property in the symbol dictionary instead.

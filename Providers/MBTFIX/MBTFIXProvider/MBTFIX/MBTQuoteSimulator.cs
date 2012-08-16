@@ -62,27 +62,27 @@ namespace TickZoom.Provider.MBTFIX
             switch (message.FeedType)
             {
                 case "20000": // Level 1
-                    if (symbolInfo.QuoteType != QuoteType.Level1)
+                    if (symbolInfo.CaptureQuoteType != QuoteType.Level1)
                     {
-                        throw new ApplicationException("Requested data feed of Level1 but Symbol.QuoteType is " + symbolInfo.QuoteType);
+                        throw new ApplicationException("Requested data feed of Level1 but Symbol.CaptureQuoteType is " + symbolInfo.CaptureQuoteType);
                     }
                     break;
                 case "20001": // Level 2
-                    if (symbolInfo.QuoteType != QuoteType.Level2)
+                    if (symbolInfo.CaptureQuoteType != QuoteType.Level2)
                     {
-                        throw new ApplicationException("Requested data feed of Level2 but Symbol.QuoteType is " + symbolInfo.QuoteType);
+                        throw new ApplicationException("Requested data feed of Level2 but Symbol.CaptureQuoteType is " + symbolInfo.CaptureQuoteType);
                     }
                     break;
                 case "20002": // Level 1 & Level 2
-                    if (symbolInfo.QuoteType != QuoteType.Level2)
+                    if (symbolInfo.CaptureQuoteType != QuoteType.Level2)
                     {
-                        throw new ApplicationException("Requested data feed of Level1 and Level2 but Symbol.QuoteType is " + symbolInfo.QuoteType);
+                        throw new ApplicationException("Requested data feed of Level1 and Level2 but Symbol.CaptureQuoteType is " + symbolInfo.CaptureQuoteType);
                     }
                     break;
                 case "20003": // Trades
-                    if (symbolInfo.TimeAndSales != TimeAndSales.ActualTrades)
+                    if (symbolInfo.CaptureTimeAndSales != TimeAndSales.ActualTrades)
                     {
-                        throw new ApplicationException("Requested data feed of Trades but Symbol.TimeAndSale is " + symbolInfo.TimeAndSales);
+                        throw new ApplicationException("Requested data feed of Trades but Symbol.TimeAndSale is " + symbolInfo.CaptureTimeAndSales);
                     }
                     break;
                 case "20004": // Option Chains

@@ -514,12 +514,15 @@ namespace TickZoom.Interceptors
             if (debug)
             {
                 log.DebugFormat(LogMessage.LOGMSG610, orderMap.Count, symbol);
-                lock (orderMapLocker)
+            }
+            lock (orderMapLocker)
+            {
+                if( trace)
                 {
                     foreach (var kvp in orderMap)
                     {
                         var order = kvp.Value;
-                        log.DebugFormat(LogMessage.LOGMSG611,order);
+                        log.TraceFormat(LogMessage.LOGMSG611, order);
                     }
                     LogOrderList(touchOrders, "Touch orders");
                     LogOrderList(marketOrders, "Market orders");
@@ -531,13 +534,16 @@ namespace TickZoom.Interceptors
 
         private void LogOrderList(ActiveList<PhysicalOrder> list, string name)
         {
-            if( list.Count > 0)
+            if( trace)
             {
-                log.DebugFormat(LogMessage.LOGMSG612, name, list.Count);
-            }
-            for( var current = list.First; current != null; current = current.Next)
-            {
-                log.DebugFormat(LogMessage.LOGMSG613, current.Value);
+                if (list.Count > 0)
+                {
+                    log.TraceFormat(LogMessage.LOGMSG612, name, list.Count);
+                }
+                for (var current = list.First; current != null; current = current.Next)
+                {
+                    log.TraceFormat(LogMessage.LOGMSG613, current.Value);
+                }
             }
         }
 

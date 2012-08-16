@@ -749,7 +749,7 @@ namespace TickZoom.Presentation
             {
                 try
                 {
-                    var time = new TimeStamp(endTimeStr).DateTime.AddDays(1).AddSeconds(-1);
+                    var time = new TimeStamp(endTimeStr).DateTime;
                     EndDateTime = time;
                 }
                 catch
@@ -915,7 +915,8 @@ namespace TickZoom.Presentation
             starterInstance.RealTimePriority = realTimePriority;
             starterInstance.ProjectProperties.ConfigFile = projectConfig;
             starterInstance.ProjectProperties.Starter.StartTime = (TimeStamp) startDateTime;
-            starterInstance.ProjectProperties.Starter.EndTime = (TimeStamp)endDateTime;
+            var end = endDateTime.AddDays(1).AddMilliseconds(-1);
+            starterInstance.ProjectProperties.Starter.EndTime = (TimeStamp) end;
             starterInstance.ProjectProperties.Starter.TestFinishedTimeout = TestFinishedTimeout;
             if( simulatorProperties != null)
             {

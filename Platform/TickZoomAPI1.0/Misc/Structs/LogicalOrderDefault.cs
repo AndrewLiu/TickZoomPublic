@@ -25,7 +25,6 @@
 #endregion
 
 using System;
-using System.IO;
 
 namespace TickZoom.Api
 {
@@ -39,7 +38,7 @@ namespace TickZoom.Api
         private readonly bool debug = log.IsDebugEnabled;
         private readonly bool trace = log.IsTraceEnabled;
         [SerializeMember(1)]
-        private LogicalOrderBinary binary = new LogicalOrderBinary();
+        internal LogicalOrderBinary binary = new LogicalOrderBinary();
 
         public LogicalOrderDefault()
         {
@@ -231,69 +230,6 @@ namespace TickZoom.Api
             }
         }
 
-
-        unsafe public int FromReader(MemoryStream reader)
-        {
-            fixed (byte* fptr = reader.GetBuffer())
-            {
-                byte* sptr = fptr + reader.Position;
-                byte* ptr = sptr;
-                binary.id = *(int*)ptr; ptr += sizeof(int);
-                long binaryId = *(long*)(ptr); ptr += sizeof(long);
-                binary.symbol = Factory.Symbol.LookupSymbol(binaryId);
-                binary.price = *(double*)(ptr); ptr += sizeof(double);
-                binary.position = *(int*)(ptr); ptr += sizeof(int);
-                binary.side = (OrderSide)(*(byte*)(ptr)); ptr += sizeof(byte);
-                binary.type = (OrderType)(*(byte*)(ptr)); ptr += sizeof(byte);
-                binary.tradeDirection = (TradeDirection)(*(byte*)(ptr)); ptr += sizeof(byte);
-                binary.status = (OrderStatus)(*(byte*)(ptr)); ptr += sizeof(byte);
-                binary.strategyId = *(int*)ptr; ptr += sizeof(int);
-                binary.strategyPosition = *(int*)(ptr); ptr += sizeof(int);
-                binary.serialNumber = *(long*)ptr; ptr += sizeof(long);
-                binary.utcChangeTime.Internal = *(long*)ptr; ptr += sizeof(long);
-                binary.utcTouchTime.Internal = *(long*)ptr; ptr += sizeof(long);
-                binary.levels = *(int*)ptr; ptr += sizeof(int);
-                binary.levelSize = *(int*)ptr; ptr += sizeof(int);
-                binary.levelIncrement = *(int*)ptr; ptr += sizeof(int);
-                binary.orderFlags = (OrderFlags)(*(int*)ptr); ptr += sizeof(int);
-                reader.Position += (int)(ptr - sptr);
-            }
-            return 1;
-        }
-
-        private const int minOrderSize = 128;
-        unsafe public void ToWriter(MemoryStream writer)
-        {
-            writer.SetLength(writer.Position + minOrderSize);
-            byte[] buffer = writer.GetBuffer();
-            fixed (byte* fptr = &buffer[writer.Position])
-            {
-                byte* ptr = fptr;
-                *(int*)(ptr) = binary.id; ptr += sizeof(int);
-                *(long*)(ptr) = binary.symbol.BinaryIdentifier; ptr += sizeof(long);
-                *(double*)(ptr) = binary.price; ptr += sizeof(double);
-                *(int*)(ptr) = binary.position; ptr += sizeof(int);
-                *(byte*)(ptr) = (byte)binary.side; ptr += sizeof(byte);
-                *(byte*)(ptr) = (byte)binary.type; ptr += sizeof(byte);
-                *(byte*)(ptr) = (byte)binary.tradeDirection; ptr += sizeof(byte);
-                *(byte*)(ptr) = (byte)binary.status; ptr += sizeof(byte);
-                if (binary.strategy != null)
-                {
-                    binary.strategyId = binary.strategy.Id;
-                }
-                *(int*)(ptr) = binary.strategyId; ptr += sizeof(int);
-                *(int*)(ptr) = binary.strategyPosition; ptr += sizeof(int);
-                *(long*)(ptr) = binary.serialNumber; ptr += sizeof(long);
-                *(long*)(ptr) = binary.utcChangeTime.Internal; ptr += sizeof(long);
-                *(long*)(ptr) = UtcTouchTime.Internal; ptr += sizeof(long);
-                *(int*)(ptr) = binary.levels; ptr += sizeof(int);
-                *(int*)(ptr) = binary.levelSize; ptr += sizeof(int);
-                *(int*)(ptr) = binary.levelIncrement; ptr += sizeof(int);
-                *(int*)(ptr) = (int)binary.orderFlags; ptr += sizeof(int);
-                writer.Position += ptr - fptr;
-                writer.SetLength(writer.Position);
-            }
-        }
 
         public int CompareTo(object obj)
         {

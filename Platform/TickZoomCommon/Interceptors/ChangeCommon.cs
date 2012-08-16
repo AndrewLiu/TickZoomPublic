@@ -253,7 +253,7 @@ namespace TickZoom.Interceptors
 			}
 		}
 		
-		internal InternalOrders Orders {
+		public InternalOrders Orders {
 			get { return orders; }
 			set { orders = value; }
 		}

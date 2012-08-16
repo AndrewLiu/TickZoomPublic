@@ -45,7 +45,6 @@ namespace TickZoom.Api
             binary.originalOrder = origOrder;
             binary.replacedBy = null;
             binary.orderFlags = origOrder.OrderFlags;
-            instanceId = ++nextInstanceId;
         }
 
         public void Initialize(OrderState orderState, SymbolInfo symbol, long orderId)
@@ -118,7 +117,6 @@ namespace TickZoom.Api
                 binary.brokerOrder = CreateBrokerOrderId();
             }
             binary.utcCreateTime = utcCreateTime;
-            instanceId = ++nextInstanceId;
         }
 
         public void Clone(PhysicalOrder order)
@@ -150,7 +148,9 @@ namespace TickZoom.Api
             }
             sb.Append(binary.action);
             sb.Append(" ");
-            switch( binary.orderState)
+            sb.Append(instanceId);
+            sb.Append(" ");
+            switch (binary.orderState)
             {
                 case OrderState.Lost:
                     sb.Append(binary.orderState);

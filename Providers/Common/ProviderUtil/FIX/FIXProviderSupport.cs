@@ -967,7 +967,7 @@ namespace TickZoom.Provider.FIX
             configFile.SetValue("Simulate/DisableChangeOrders", "false");
         }
 
-        private void ParseProperties(ConfigFile configFile)
+        protected virtual void ParseProperties(ConfigFile configFile)
         {
 			var value = GetField("UseLocalFillTime",configFile, false);
 			if( !string.IsNullOrEmpty(value)) {
@@ -984,16 +984,16 @@ namespace TickZoom.Provider.FIX
 			accountNumber = GetField("AccountNumber",configFile, true);
             destination = GetField("Destination", configFile, false);
             var disableChangeString = GetField("DisableChangeOrders", configFile, false);
-            symbolSuffix = GetField("SymbolSuffix", configFile, false);
             disableChangeOrders = string.IsNullOrEmpty(disableChangeString) ? false : disableChangeString.ToLower() == "true";
+            symbolSuffix = GetField("SymbolSuffix", configFile, false);
             var includeString = GetField("SessionIncludes", configFile, false);
             var excludeString = GetField("SessionExcludes", configFile, false);
             sessionMatcher = new IncludeExcludeMatcher(includeString, excludeString);
         }
 
         private IncludeExcludeMatcher sessionMatcher;
-        
-        private string GetField( string field, ConfigFile configFile, bool required) {
+
+        protected string GetField( string field, ConfigFile configFile, bool required) {
 			var result = configFile.GetValue(configSection + "/" + field);
 			if( required && string.IsNullOrEmpty(result)) {
 				Exception( field, configFile);

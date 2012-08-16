@@ -301,6 +301,14 @@ namespace TickZoom.Provider.FIX
         }
 
         /// <summary>
+        ///	9100 SORT or exclude tag for proprietary Lime field for algorithm to trade.
+        /// </summary>
+        public void SetAlgorithm(string value)
+        {
+            Append(9100, value);
+        }
+
+        /// <summary>
         ///	150 Execution type.
         /// </summary>
         public void SetExecutionType(string value)

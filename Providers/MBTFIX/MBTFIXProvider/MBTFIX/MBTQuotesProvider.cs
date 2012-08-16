@@ -377,7 +377,7 @@ namespace TickZoom.Provider.MBTQuotes
                 StartSymbolOptionHandler(symbol, symbolAgent);
             }
 			string quoteType = "";
-			switch( symbol.QuoteType) {
+			switch( symbol.CaptureQuoteType) {
 				case QuoteType.Level1:
 					quoteType = "20000";
 					break;
@@ -388,12 +388,12 @@ namespace TickZoom.Provider.MBTQuotes
 					quoteType = null;
 					break;
 				default:
-					SendError("Unknown QuoteType " + symbol.QuoteType + " for symbol " + symbol + ".");
+					SendError("Unknown CaptureQuoteType " + symbol.CaptureQuoteType + " for symbol " + symbol + ".");
 					return;
 			}
 			
 			string tradeType = "";
-			switch( symbol.TimeAndSales) {
+			switch( symbol.CaptureTimeAndSales) {
 				case TimeAndSales.ActualTrades:
 					tradeType = "20003";
 					break;
@@ -404,7 +404,7 @@ namespace TickZoom.Provider.MBTQuotes
 					tradeType = null;
 					break;
 				default:
-					SendError("Unknown TimeAndSales " + symbol.TimeAndSales + " for symbol " + symbol + ".");
+					SendError("Unknown CaptureTimeAndSales " + symbol.CaptureTimeAndSales + " for symbol " + symbol + ".");
 					return;
 			}
 
