@@ -409,6 +409,13 @@ namespace TickZoom.Examples
             var result = (grossProfit - transaction - expectedTransaction)/size;
             result = ((result + 5000)/10000)*10000;
             breakEven = result.ToDouble();
+            var startPrice = binary.CurrentPosition > 0 ? binary.MaxPrice : binary.MinPrice;
+            var endPrice = binary.CurrentPosition > 0 ? binary.MinPrice : binary.MaxPrice;
+            var range = endPrice - startPrice;
+            //var upper = breakEven - startPrice;
+            //var retracePercent = range == 0 ? 1 : 1 - upper/range;
+            //retracePercent += 0.10;
+            ProfitTarget = (1 - profitRetrace)*range + startPrice;
         }
 
         public double PriceToClose()
@@ -621,10 +628,24 @@ namespace TickZoom.Examples
             get { return binary.MaxPrice; }
         }
 
+        public double ProfitTarget
+        {
+            get { return profitTarget; }
+            set { profitTarget = value; }
+        }
+
+        public double ProfitRetrace
+        {
+            get { return profitRetrace; }
+            set { profitRetrace = value; }
+        }
+
         private double bid;
         private double offer;
         private int offerSize;
         private int bidSize;
+        private double profitTarget;
+        private double profitRetrace;
 
         public void CalculateBidOffer(double marketBid, double marketOffer)
         {
