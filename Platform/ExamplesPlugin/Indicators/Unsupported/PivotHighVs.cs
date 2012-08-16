@@ -50,6 +50,7 @@ namespace TickZoom
 		bool pivotPassed = false;
 		bool leftPassed = false;
 		protected double lowest;
+	    private double minimumTick;
 		
 		public PivotHighVs( ) : this ( 2, 2, 5) {
 		}
@@ -67,7 +68,8 @@ namespace TickZoom
 		}
 
 		public override void OnInitialize() {
-		}
+            minimumTick = Data.SymbolInfo.MinimumTick;
+        }
 		
 		public override bool OnIntervalClose() {
 			double currLow = Bars.Low[0];
@@ -86,7 +88,7 @@ namespace TickZoom
 			for( int mainLoop = rightStrength; mainLoop < length; mainLoop ++) {
 				pivotPassed = true;
 				leftPassed = true;
-				pivotHigh = Bars.High[mainLoop] + 1;
+				pivotHigh = Bars.High[mainLoop] + minimumTick;
 			
 				for( int i = mainLoop - rightStrength; i < mainLoop; i++) {
 				    if( pivotHigh < Bars.High[i]) {
@@ -110,10 +112,10 @@ namespace TickZoom
 				}
 			}
 			if( leftPassed && pivotPassed && (pivotHighs.Count == 0 || pivot != pivotHighs[0])) {
-				if( pivot > this[pivotBar]) {
+				if( this.Count > pivotBar && pivot > this[pivotBar]) {
 					lowest = pivot;
 					pivotHighs.Add(pivot);
-					int bar = Bars.CurrentBar-pivotBar;
+					int bar = Bars.BarCount-pivotBar;
 					pivotBars.Add(bar);
 					Elapsed elapsed = default(Elapsed);
 					if( pivotBars.Count>1) {

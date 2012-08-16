@@ -111,18 +111,18 @@ namespace TickZoom.Common
 		public void SendQuote() {
 			if( isQuoteInitialized || VerifyQuote()) {
 				if( isRunning) {
-                    if (DisableQuotes && Symbol.QuoteType != QuoteType.None && !SyncTicks.Enabled)
+                    if (DisableQuotes && Symbol.CaptureQuoteType != QuoteType.None && !SyncTicks.Enabled)
                     {
                         if (!errorWrongLevel1Type)
                         {
-                            log.Warn("Received " + Symbol.QuoteType + " quote but quotes not supported in Lime quotes provider.");
+                            log.Warn("Received " + Symbol.CaptureQuoteType + " quote but quotes not supported in Lime quotes provider.");
                             errorWrongLevel1Type = true;
                         }
                     }
-                    else if( Symbol.QuoteType != QuoteType.Level1)
+                    else if( Symbol.CaptureQuoteType != QuoteType.Level1)
                     {
 						if( !errorWrongLevel1Type) {
-							log.Warn( "Received " + QuoteType.Level1 + " quote but " + Symbol + " is configured for QuoteType = " + Symbol.QuoteType + " in the symbol dictionary.");
+							log.Warn( "Received " + QuoteType.Level1 + " quote but " + Symbol + " is configured for CaptureQuoteType = " + Symbol.CaptureQuoteType + " in the symbol dictionary.");
 							errorWrongLevel1Type = true;
 						}
 					}
@@ -192,7 +192,7 @@ namespace TickZoom.Common
             {
                 if (!errorOptionChainType)
                 {
-                    log.Warn("Received option price but " + Symbol + " is configured for TimeAndSales = " + Symbol.OptionChain + " in the symbol dictionary.");
+                    log.Warn("Received option price but " + Symbol + " is configured for CaptureTimeAndSales = " + Symbol.OptionChain + " in the symbol dictionary.");
                     errorOptionChainType = true;
                 }
                 return;
@@ -245,9 +245,9 @@ namespace TickZoom.Common
 			if( !isRunning ) {
 				return;
 			}
-			if( Symbol.TimeAndSales != TimeAndSales.ActualTrades) {
+			if( Symbol.CaptureTimeAndSales != TimeAndSales.ActualTrades) {
 				if( !errorWrongTimeAndSalesType) {
-					log.Warn( "Received " + TimeAndSales.ActualTrades + " trade but " + Symbol + " is configured for TimeAndSales = " + Symbol.TimeAndSales + " in the symbol dictionary.");
+					log.Warn( "Received " + TimeAndSales.ActualTrades + " trade but " + Symbol + " is configured for CaptureTimeAndSales = " + Symbol.CaptureTimeAndSales + " in the symbol dictionary.");
 					errorWrongTimeAndSalesType = true;
 				}
 				return;
@@ -255,12 +255,12 @@ namespace TickZoom.Common
 			if( !isTradeInitialized && !VerifyTrade()) {
 				return;
 			}
-			if( Symbol.QuoteType == QuoteType.Level1) {
+			if( Symbol.CaptureQuoteType == QuoteType.Level1) {
 				if( !isQuoteInitialized && !VerifyQuote()) {
 					if( !errorNeverAnyLevel1Tick)
 					{
 					    var message = "Found a Trade tick w/o any " + QuoteType.Level1 + " quote yet but " + Symbol +
-					                  " is configured for QuoteType = " + Symbol.QuoteType + " in the symbol dictionary.";
+					                  " is configured for CaptureQuoteType = " + Symbol.CaptureQuoteType + " in the symbol dictionary.";
                         if( Factory.IsAutomatedTest)
                         {
                             log.Notice(message);
@@ -280,12 +280,12 @@ namespace TickZoom.Common
 				log.Error("Found last trade price was set to " + Last + " so skipping this tick.");
 				return;
 			}
-			if( Symbol.TimeAndSales == TimeAndSales.ActualTrades) {
+			if( Symbol.CaptureTimeAndSales == TimeAndSales.ActualTrades) {
 				tickIO.Initialize();
 				tickIO.SetSymbol(Symbol.BinaryIdentifier);
 				tickIO.SetTime(Time);
 				tickIO.SetTrade(Last,LastSize);
-				if( Symbol.QuoteType == QuoteType.Level1 && isQuoteInitialized && VerifyQuote()) {
+				if( Symbol.CaptureQuoteType == QuoteType.Level1 && isQuoteInitialized && VerifyQuote()) {
 					tickIO.SetQuote(Bid,Ask,(short)BidSize,(short)AskSize);
 				}
 				var box = tickPool.Create(tickPoolCallerId);

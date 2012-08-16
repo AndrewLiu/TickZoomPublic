@@ -215,8 +215,8 @@ ExampleOrderStrategy-ER!default,2010-03-02 01:00:00.000000,11600,-900,10700
 ExampleOrderStrategy-NG!default,2010-03-02 01:00:00.000000,18100,500,18600
 ExampleOrderStrategy-ES!default,2010-03-01 23:30:00.000000,10000,2375,12375
 ExampleOrderStrategy-NG!default,2010-03-02 02:00:00.000000,18100,-300,17800
-ExampleOrderStrategy-ER!default,2010-03-02 02:00:00.000000,11600,-700,10900
 ExampleOrderStrategy-NQ!default,2010-03-02 00:30:00.000000,13000,-300,12700
+ExampleOrderStrategy-ER!default,2010-03-02 02:00:00.000000,11600,-700,10900
 ExampleOrderStrategy-NG!default,2010-03-02 03:00:00.000000,18100,1500,19600
 ExampleOrderStrategy-JY!default,2010-03-02 00:00:00.000000,10000,0,10000
 ExampleOrderStrategy-NG!default,2010-03-02 04:00:00.000000,18100,3000,21100
@@ -229,8 +229,8 @@ ExampleOrderStrategy-NG!default,2010-03-02 05:00:00.000000,18100,2800,20900
 ExampleOrderStrategy-BP!default,2010-03-02 00:00:00.000000,4687.5,-812.5,3875
 ExampleOrderStrategy-ER!default,2010-03-02 03:00:00.000000,11600,-1100,10500
 ExampleOrderStrategy-NG!default,2010-03-02 06:00:00.000000,18100,2400,20500
-ExampleOrderStrategy-NG!default,2010-03-02 07:00:00.000000,18100,2500,20600
 ExampleOrderStrategy-ER!default,2010-03-02 04:00:00.000000,11600,-100,11500
+ExampleOrderStrategy-NG!default,2010-03-02 07:00:00.000000,18100,2500,20600
 ExampleOrderStrategy-JY!default,2010-03-02 01:00:00.000000,10000,0,10000
 ExampleOrderStrategy-ER!default,2010-03-02 05:00:00.000000,11600,1000,12600
 ExampleOrderStrategy-NQ!default,2010-03-02 02:30:00.000000,13000,-250,12750
@@ -273,8 +273,8 @@ ExampleOrderStrategy-ES!default,2010-03-02 06:30:00.000000,10000,5250,15250
 ExampleOrderStrategy-GC!default,2010-03-02 04:00:00.000000,4600,700,5300
 ExampleOrderStrategy-JY!default,2010-03-02 07:00:00.000000,11125,0,11125
 ExampleOrderStrategy-AD!default,2010-03-02 07:00:00.000000,2300,1100,3400
-ExampleOrderStrategy-ER!default,2010-03-02 09:00:00.000000,13500,0,13500
 ExampleOrderStrategy-ES!default,2010-03-02 07:30:00.000000,10000,5750,15750
+ExampleOrderStrategy-ER!default,2010-03-02 09:00:00.000000,13500,0,13500
 ExampleOrderStrategy-NG!default,2010-03-02 10:00:00.000000,20200,0,20200
 ExampleOrderStrategy-JY!default,2010-03-02 08:00:00.000000,11125,0,11125
 ExampleOrderStrategy-BP!default,2010-03-02 03:00:00.000000,3750,0,3750

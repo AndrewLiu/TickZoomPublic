@@ -1418,12 +1418,12 @@ namespace TickZoom.Common
             return foundAny;
         }
 
-        private LogicalOrder FindActiveLogicalOrder(long serialNumber)
+        private LogicalOrder FindActiveLogicalOrder(long id)
         {
             for(var current = originalLogicals.First; current != null; current = current.Next)
             {
                 var order = current.Value;
-                if (order.SerialNumber == serialNumber)
+                if (order.Id == id)
                 {
                     return order;
                 }
@@ -1478,7 +1478,8 @@ namespace TickZoom.Common
 		    {
 		        throw new ApplicationException("Cannot find physical order for id " + physical.BrokerOrder + " in fill: " + physical);
 		    }
-		    var adjustment = order.LogicalOrderId == 0;
+            ++confirmedOrderCount;
+            var adjustment = order.LogicalOrderId == 0;
             var beforePosition = physicalOrderCache.GetActualPosition(symbol);
 		    physicalOrderCache.IncreaseActualPosition(symbol, physical.Size);
             if (debug) log.DebugFormat(LogMessage.LOGMSG469, beforePosition, physicalOrderCache.GetActualPosition(symbol), physical.Size);
@@ -1508,11 +1509,20 @@ namespace TickZoom.Common
 
             var isFilledAfterCancel = false;
 
-            var logical = FindActiveLogicalOrder(order.LogicalSerialNumber);
+            var logical = FindActiveLogicalOrder(order.LogicalOrderId);
             if (logical == null)
             {
                 if (debug) log.DebugFormat(LogMessage.LOGMSG474, physical);
                 isFilledAfterCancel = true;
+            }
+            else if( logical.SerialNumber != order.LogicalSerialNumber)
+            {
+                if (debug) log.DebugFormat("Expected logical serial {0}, so this order was filled too late to cancel: {1}", order.LogicalSerialNumber, order);
+                if (debug) log.DebugFormat(LogMessage.LOGMSG476, order.OffsetTooLateToChange);
+                if (order.OffsetTooLateToChange)
+                {
+                    isFilledAfterCancel = true;
+                }
             }
             else
             {
@@ -1532,11 +1542,11 @@ namespace TickZoom.Common
             {
                 TryRemovePhysicalFill(physical);
                 if (debug) log.DebugFormat(LogMessage.LOGMSG478, order.OffsetTooLateToChange);
-                    if (ReceivedDesiredPosition)
-                    {
-                        if (debug) log.DebugFormat(LogMessage.LOGMSG479, order.ReplacedBy);
-                        SyncPosition();
-                    }
+                if (ReceivedDesiredPosition)
+                {
+                    if (debug) log.DebugFormat(LogMessage.LOGMSG479, order.ReplacedBy);
+                    SyncPosition();
+                }
                 return;
             } 
 
@@ -1778,13 +1788,15 @@ namespace TickZoom.Common
 			bool cancelAllChanges = false;
             if( fill.IsComplete)
             {
-                var strategyPosition = GetStrategyPosition(filledOrder);
-                if (strategyPosition == 0)
-                {
-                    cancelAllChanges = true;
-                    clean = true;
-                    if (debug) log.DebugFormat(LogMessage.LOGMSG502, strategyPosition);
-                }
+                ///  Don't cancel change orders just because the position goes flat.
+                ///
+                //var strategyPosition = GetStrategyPosition(filledOrder);
+                //if (strategyPosition == 0)
+                //{
+                //    cancelAllChanges = true;
+                //    clean = true;
+                //    if (debug) log.DebugFormat(LogMessage.LOGMSG502, strategyPosition);
+                //}
                 switch (filledOrder.TradeDirection)
                 {
                     case TradeDirection.Change:

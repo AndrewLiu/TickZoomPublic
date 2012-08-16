@@ -122,8 +122,8 @@ namespace TickZoom.Statistics
 				equity.Drawing.PaneType = PaneType.Secondary;
 				equity.Drawing.GraphType = GraphType.FilledLine;
 				equity.Drawing.Color = Color.Green;
-				equity.Drawing.GroupName = "SimpleEquity";
-				equity.Name = "SimpleEquity";
+                equity.Drawing.GroupName = model.Name + "Equity";
+                equity.Name = model.Name + "Equity";
 				model.AddIndicator(equity);
 			}
 			

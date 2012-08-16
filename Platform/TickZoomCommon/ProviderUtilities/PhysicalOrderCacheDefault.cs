@@ -115,7 +115,11 @@ namespace TickZoom.Common
                     if (count >= filledCount >> 1)
                     {
                         if (debug) log.DebugFormat("Removing order: {0}", sortTimesArray[x]);
-                        RemoveOrderInternal(order.BrokerOrder);
+                        var removed = RemoveOrderInternal(order.BrokerOrder);
+                        if( removed != null)
+                        {
+                            orderPool.Free((PhysicalOrderDefault)removed);
+                        }
                     }
                     else
                     {
@@ -130,6 +134,7 @@ namespace TickZoom.Common
         {
             RemoveOrderInternal(order.BrokerOrder);
             filledOrdersByBrokerId[order.BrokerOrder] = order;
+            if (debug) log.DebugFormat("Moved to filled orders list {0}", order);
             TryClearFilledOrders();
         }
 
@@ -291,7 +296,11 @@ namespace TickZoom.Common
             var clientOrderId = order.OriginalOrder.BrokerOrder;
             if (trace) log.TraceFormat(LogMessage.LOGMSG538, clientOrderId);
             AssertAtomic();
-            RemoveOrderInternal(order.OriginalOrder.BrokerOrder);
+            var removed = RemoveOrderInternal(order.OriginalOrder.BrokerOrder);
+            if( removed != null)
+            {
+                orderPool.Free((PhysicalOrderDefault)removed);
+            }
             order.OriginalOrder = null;
         }
 
@@ -305,10 +314,14 @@ namespace TickZoom.Common
         {
             if (trace) log.TraceFormat(LogMessage.LOGMSG539, clientOrderId);
             AssertAtomic();
-            var topOrder = RemoveOrderInternal(clientOrderId);
-            if( topOrder != null && topOrder.OriginalOrder != null)
+            var removed = RemoveOrderInternal(clientOrderId);
+            if( removed != null)
             {
-                topOrder.OriginalOrder.ReplacedBy = null;
+                orderPool.Free((PhysicalOrderDefault)removed);
+            }
+            if (removed != null && removed.OriginalOrder != null)
+            {
+                removed.OriginalOrder.ReplacedBy = null;
             }
         }
 
@@ -346,7 +359,6 @@ namespace TickZoom.Common
                     }
                 }
                 ordersBySequence.Remove(order.Sequence);
-                orderPool.Free((PhysicalOrderDefault)order);
                 return order;
             }
             return null;

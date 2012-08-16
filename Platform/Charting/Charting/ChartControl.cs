@@ -403,7 +403,7 @@ namespace TickZoom.Charting
 		
 		public int DrawBox(Color color, int bar, double y) {
             double width = 0.25;
-            double height = 10;
+            double height = symbol.MinimumTick;
             double x = barToXAxis(bar);
             double xwidth = barToXAxis(x + width) - barToXAxis(x);
             BoxObj box = new BoxObj(x - xwidth/2, y + height/2, xwidth, height, color, color);
@@ -1325,7 +1325,10 @@ namespace TickZoom.Charting
                         var sb = new StringBuilder();
                         foreach (var match in matches)
                         {
-                            sb.AppendLine(match.Tag.ToString());
+                            if( match.Tag != null)
+                            {
+                                sb.AppendLine(match.Tag.ToString());
+                            }
                         }
                         dataGraph.PointToolTip.SetToolTip(dataGraph, sb.ToString());
                         currentToolTipIndex = dragIndex;

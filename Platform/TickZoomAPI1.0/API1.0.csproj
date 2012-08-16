@@ -163,6 +163,7 @@
     <Compile Include="Misc\Structs\DaylightSavings.cs" />
     <Compile Include="Misc\Structs\LogicalOrderBinary.cs" />
     <Compile Include="Misc\Structs\LogicalOrderDefault.cs" />
+    <Compile Include="Misc\Structs\LogicalOrderSerializer.cs" />
     <Compile Include="Misc\Structs\PhysicalFillDefault.cs" />
     <Compile Include="Misc\Structs\PhysicalOrderBinary.cs" />
     <Compile Include="Misc\Structs\PhysicalOrderDefault.cs" />

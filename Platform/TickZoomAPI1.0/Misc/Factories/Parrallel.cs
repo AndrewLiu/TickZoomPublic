@@ -47,7 +47,7 @@ namespace TickZoom.Api
 		Pause,
 		Terminate,
 	}
-	
+
 	public delegate Yield YieldMethod();
 	
 	public struct Yield {

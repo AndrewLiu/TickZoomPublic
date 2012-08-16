@@ -38,10 +38,6 @@ namespace TickZoom.Api
 			get;
 		}
 		
-		bool IsExitStrategyFlat {
-			get;
-		}
-		
 		PositionInterface Position {
 			get;
 		}

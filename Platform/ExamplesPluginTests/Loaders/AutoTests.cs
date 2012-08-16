@@ -51,7 +51,7 @@ namespace Loaders
 					Symbols = primarySymbol + ",EUR/USD,USD/CHF",
 					StoreKnownGood = storeKnownGood,
 					ShowCharts = showCharts,
-					EndTime = new TimeStamp( 2009, 6, 10),
+					EndTime = new TimeStamp( 2009, 6, 9),
 					IntervalDefault = Intervals.Minute1,
 				});
 			} catch( ApplicationException ex) {
@@ -69,7 +69,7 @@ namespace Loaders
 				    Symbols = "/NQU0",
 					StoreKnownGood = storeKnownGood,
 					ShowCharts = showCharts,
-					EndTime = new TimeStamp( "2010-08-25 15:00:00"),
+					EndTime = new TimeStamp( "2010-08-24 15:00:00"),
 					IntervalDefault = Intervals.Second10,
 				});
 			} catch( ApplicationException ex) {
@@ -88,7 +88,7 @@ namespace Loaders
 					StoreKnownGood = storeKnownGood,
 					ShowCharts = showCharts,
 					StartTime = new TimeStamp( 1800, 1, 1),
-					EndTime = new TimeStamp( "2010-09-22 15:00:00"),
+					EndTime = new TimeStamp( "2010-09-21 15:00:00"),
 					IntervalDefault = Intervals.Second10,
 				});
 			} catch( ApplicationException ex) {
@@ -105,7 +105,7 @@ namespace Loaders
                 Symbols = primarySymbol,
                 StoreKnownGood = storeKnownGood,
                 ShowCharts = showCharts,
-                EndTime = new TimeStamp(2009, 6, 22),
+                EndTime = new TimeStamp(2009, 6, 21),
                 IntervalDefault = Intervals.Minute1,
             });
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.ServerOfflineReject] = 0;
@@ -140,7 +140,7 @@ namespace Loaders
 				Symbols = primarySymbol + ",EUR/USD",
 				StoreKnownGood = storeKnownGood,
 				ShowCharts = showCharts,
-                EndTime = new TimeStamp(2009, 6, 10),
+                EndTime = new TimeStamp(2009, 6, 9),
 				IntervalDefault = Intervals.Minute1,
 			});
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.CancelBlackHole] = 0;
@@ -157,7 +157,7 @@ namespace Loaders
 				Symbols = "Daily4Sim",
 				StoreKnownGood = storeKnownGood,
 				ShowCharts = showCharts,
-				EndTime = new TimeStamp( 1990, 1, 1),
+				EndTime = new TimeStamp( 1989, 12, 31),
 				IntervalDefault = Intervals.Day1,
 			});
 
@@ -170,7 +170,7 @@ namespace Loaders
                 StoreKnownGood = storeKnownGood,
                 ShowCharts = showCharts,
                 WarmStartTime = new TimeStamp("2009-06-09 16:00"),
-				EndTime = new TimeStamp( 2009, 6, 10),
+				EndTime = new TimeStamp( 2009, 6, 9),
 				IntervalDefault = Intervals.Minute1,
 			});
 		    next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.RejectSymbol] = 0;
@@ -191,7 +191,7 @@ namespace Loaders
                 Symbols = primarySymbol,
                 StoreKnownGood = storeKnownGood,
                 ShowCharts = showCharts,
-                EndTime = new TimeStamp(2009, 6, 10),
+                EndTime = new TimeStamp(2009, 6, 9),
                 IntervalDefault = Intervals.Minute1,
             });
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.RejectSymbol] = 0;
@@ -211,7 +211,7 @@ namespace Loaders
 				Symbols = primarySymbol,
 				StoreKnownGood = storeKnownGood,
 				ShowCharts = showCharts,
-				EndTime = new TimeStamp( 2009, 6, 10),
+				EndTime = new TimeStamp( 2009, 6, 9),
 				IntervalDefault = Intervals.Minute1,
 			});
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.CancelBlackHole] = 0;
@@ -228,7 +228,7 @@ namespace Loaders
 				Symbols = "USD/JPY_Synthetic",
 				StoreKnownGood = storeKnownGood,
 				ShowCharts = showCharts,
-				EndTime = new TimeStamp( 2009, 6, 10),
+				EndTime = new TimeStamp( 2009, 6, 9),
 				IntervalDefault = Intervals.Minute1,
 			});
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.CancelBlackHole] = 0;
@@ -247,7 +247,7 @@ namespace Loaders
 				Symbols = "Daily4Sim",
 				StoreKnownGood = storeKnownGood,
 				ShowCharts = showCharts,
-				EndTime = new TimeStamp(1990,1,1),
+				EndTime = new TimeStamp(1989,12,31),
 				IntervalDefault = Intervals.Day1,
 			});
 			
@@ -259,7 +259,7 @@ namespace Loaders
 				Symbols = "FullTick,Daily4Sim",
 				StoreKnownGood = storeKnownGood,
 				ShowCharts = showCharts,
-				EndTime = new TimeStamp(1990,1,1),
+				EndTime = new TimeStamp(1989,12,31),
 				IntervalDefault = Intervals.Day1,
 			});
 
@@ -271,7 +271,7 @@ namespace Loaders
                 Symbols = primarySymbol + ",EUR/USD,USD/CHF",
                 StoreKnownGood = storeKnownGood,
                 ShowCharts = showCharts,
-                EndTime = new TimeStamp(2009, 6, 10),
+                EndTime = new TimeStamp(2009, 6, 9),
                 IntervalDefault = Intervals.Minute1,
                 PartialFillSimulation = PartialFillSimulation.PartialFillsIncomplete
             });
@@ -284,7 +284,7 @@ namespace Loaders
 				Symbols = primarySymbol + ",EUR/USD,USD/CHF",
 				StoreKnownGood = storeKnownGood,
 				ShowCharts = showCharts,
-				EndTime = new TimeStamp( 2009, 6, 10),
+				EndTime = new TimeStamp( 2009, 6, 9),
 				IntervalDefault = Intervals.Minute1,
                 Categories = { "ClientEnvironment" },
             });
@@ -303,7 +303,7 @@ namespace Loaders
                 StoreKnownGood = storeKnownGood,
                 ShowCharts = showCharts,
                 StartTime = new TimeStamp(2009, 6, 20),
-                EndTime = TimeStamp.MaxValue,
+                EndTime = new TimeStamp(2020, 6, 20),
                 IntervalDefault = Intervals.Minute1,
             });
 
@@ -317,7 +317,7 @@ namespace Loaders
                 KnownGoodName = "ExampleMixedTest",
                 IgnoreMissingKnownGood = true,
                 ShowCharts = showCharts,
-                EndTime = new TimeStamp(2009, 6, 10),
+                EndTime = new TimeStamp(2009, 6, 9),
                 IntervalDefault = Intervals.Minute1,
             });
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.ReceiveDisconnect] = 0;
@@ -335,7 +335,7 @@ namespace Loaders
                 Symbols = "USD/CHF",
                 StoreKnownGood = storeKnownGood,
                 ShowCharts = showCharts,
-                EndTime = new TimeStamp(2009, 6, 10),
+                EndTime = new TimeStamp(2009, 6, 9),
                 IntervalDefault = Intervals.Minute1,
             });
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.CancelBlackHole] = 0;
@@ -354,7 +354,7 @@ namespace Loaders
                 Symbols = "USD/CHF",
                 StoreKnownGood = storeKnownGood,
                 ShowCharts = showCharts,
-                EndTime = new TimeStamp(2009, 6, 10),
+                EndTime = new TimeStamp(2009, 6, 9),
                 IntervalDefault = Intervals.Minute1,
                 PartialFillSimulation = PartialFillSimulation.PartialFillsIncomplete
             });
@@ -367,7 +367,7 @@ namespace Loaders
 				Symbols = primarySymbol,
 				StoreKnownGood = storeKnownGood,
 				ShowCharts = showCharts,
-				EndTime = new TimeStamp( 2009, 6, 10),
+				EndTime = new TimeStamp( 2009, 6, 9),
 				IntervalDefault = Intervals.Minute1,
 			});
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.CancelBlackHole] = 0;
@@ -386,7 +386,7 @@ namespace Loaders
 				Symbols = primarySymbol,
 				StoreKnownGood = storeKnownGood,
 				ShowCharts = showCharts,
-				EndTime = new TimeStamp( 2009, 6, 10),
+				EndTime = new TimeStamp( 2009, 6, 9),
 				IntervalDefault = Intervals.Minute1,
             });
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.CancelBlackHole] = 0;
@@ -403,7 +403,7 @@ namespace Loaders
                 Symbols = primarySymbol,
                 StoreKnownGood = storeKnownGood,
                 ShowCharts = showCharts,
-                EndTime = new TimeStamp(2009, 6, 10),
+                EndTime = new TimeStamp(2009, 6, 9),
                 IntervalDefault = Intervals.Minute1,
             });
 
@@ -416,7 +416,7 @@ namespace Loaders
 				Symbols = "CSCO",
 				StoreKnownGood = storeKnownGood,
 				ShowCharts = showCharts,
-				EndTime = new TimeStamp( 2011,1,15,1,30,0),
+				EndTime = new TimeStamp( 2011,1,14,1,30,0),
 				IntervalDefault = Intervals.Minute1,
 			});
             next.SimulatorProperties.NegativeSimulatorMinimums[SimulatorType.CancelBlackHole] = 0;
@@ -441,7 +441,7 @@ namespace Loaders
 				Symbols = "SPYTradeOnly",
 				StoreKnownGood = storeKnownGood,
 				ShowCharts = showCharts,
-				EndTime = new TimeStamp( 2011,2,17),
+				EndTime = new TimeStamp( 2011,2,16),
 				IntervalDefault = Intervals.Second10,
 			});
 			
@@ -459,7 +459,7 @@ namespace Loaders
 				Symbols = "SPYQuoteOnly",
 				StoreKnownGood = storeKnownGood,
 				ShowCharts = showCharts,
-				EndTime = new TimeStamp( 2021,2,17),
+				EndTime = new TimeStamp( 2021,2,16),
 				IntervalDefault = Intervals.Second10,
 			});
 			
@@ -484,7 +484,7 @@ namespace Loaders
                     TY.1month, US.1month, WC.1month, XB.1month",
 				StoreKnownGood = storeKnownGood,
 				ShowCharts = showCharts,
-				EndTime = new TimeStamp( 2010,3,3), 
+				EndTime = new TimeStamp( 2010,3,2), 
 				IntervalDefault = Intervals.Hour1,
 			});
 
@@ -497,7 +497,7 @@ namespace Loaders
                 StoreKnownGood = storeKnownGood,
                 ShowCharts = showCharts,
                 WarmStartTime = new TimeStamp("2010-03-02"),
-                EndTime = new TimeStamp(2010, 3, 3),
+                EndTime = new TimeStamp(2010, 3, 2),
                 IntervalDefault = Intervals.Hour1,
                 Categories = { "MultiSymbolOrders" },
             });

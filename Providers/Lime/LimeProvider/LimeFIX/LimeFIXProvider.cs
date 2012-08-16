@@ -41,6 +41,7 @@ namespace TickZoom.Provider.LimeFIX
         private volatile bool verbose;
         private Dictionary<int, int> physicalToLogicalOrderMap = new Dictionary<int, int>();
         private string fixDestination = "LIME";
+        private string algorithmName;
 
         public override void RefreshLogLevel()
         {
@@ -560,6 +561,7 @@ namespace TickZoom.Provider.LimeFIX
             foreach (var section in sections)
             {
                 configFile.AssureValue(section + "/DisableChangeOrders", "true");
+                configFile.AssureValue(section + "/Algorithm", "SORT");
             }
             configFile.AssureValue("Simulate/DisableChangeOrders", "true");
             base.SetupDefaultProperties(sections, configFile);
@@ -626,6 +628,7 @@ namespace TickZoom.Provider.LimeFIX
 				} else {
                     fixMsg.SetDestination(order.Symbol.Destination);
                 }
+                fixMsg.SetAlgorithm( algorithmName);
             }
             fixMsg.SetSymbol(order.Symbol.BaseSymbol+SymbolSuffix);
             fixMsg.SetSide(order.Side == OrderSide.Buy ? 1 : 5);
@@ -663,6 +666,12 @@ namespace TickZoom.Provider.LimeFIX
             }
             fixMsg.SetSendTime(order.UtcCreateTime);
             SendMessage(fixMsg);
+        }
+
+        protected override void ParseProperties(ConfigFile configFile)
+        {
+            base.ParseProperties(configFile);
+            algorithmName = GetField("Algorithm", configFile, false);
         }
 
         protected override void ResendOrder(PhysicalOrder order)

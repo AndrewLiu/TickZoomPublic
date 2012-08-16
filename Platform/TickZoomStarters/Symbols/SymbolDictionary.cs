@@ -322,48 +322,52 @@ namespace TickZoom.Symbols
     <property name=""Level2LotSize"" value=""100"" />
     <property name=""Level2LotSizeMinimum"" value=""1"" />
     <property name=""Level2Increment"" value=""0.01"" />
+    <property name=""LotSize"" value=""100"" />
     <property name=""FullPointValue"" value=""1"" />
     <property name=""MinimumTick"" value=""0.01"" />
+    <property name=""MinimumMove"" value=""0.01"" />
     <property name=""SessionStart"" value=""08:00:00"" />
     <property name=""SessionEnd"" value=""16:30:00"" />
-    <property name=""TimeAndSales"" value=""ActualTrades"" />
-    <property name=""QuoteType"" value=""Level1"" />
+    <property name=""CaptureTimeAndSales"" value=""ActualTrades"" />
+    <property name=""CaptureQuoteType"" value=""Level2"" />
+    <property name=""StrategyTimeAndSales"" value=""ActualTrades"" />
+    <property name=""StrategyQuoteType"" value=""Level1"" />
     <symbol name=""SPY"">
       <property name=""MaxPositionSize"" value=""1000"" />
       <property name=""MaxOrderSize"" value=""1000"" />
-      <property name=""TimeAndSales"" value=""ActualTrades"" />
-      <property name=""QuoteType"" value=""None"" />
+      <property name=""StrategyTimeAndSales"" value=""ActualTrades"" />
+      <property name=""StrategyQuoteType"" value=""None"" />
     </symbol>
     <symbol name=""SPYTest"">
-      <property name=""TimeAndSales"" value=""ActualTrades"" />
-      <property name=""QuoteType"" value=""None"" />
+      <property name=""StrategyTimeAndSales"" value=""ActualTrades"" />
+      <property name=""StrategyQuoteType"" value=""None"" />
     </symbol>
     <symbol name=""SPYTradeOnly"">
-      <property name=""TimeAndSales"" value=""ActualTrades"" />
-      <property name=""QuoteType"" value=""None"" />
+      <property name=""StrategyTimeAndSales"" value=""ActualTrades"" />
+      <property name=""StrategyQuoteType"" value=""None"" />
     </symbol>
     <symbol name=""SPYQuoteOnly"">
-      <property name=""TimeAndSales"" value=""None"" />
-      <property name=""QuoteType"" value=""Level1"" />
+      <property name=""StrategyTimeAndSales"" value=""None"" />
+      <property name=""StrategyQuoteType"" value=""Level1"" />
     </symbol>
     <category name=""Testing"">
       <symbol name=""CSCO"">
-        <property name=""TimeAndSales"" value=""ActualTrades"" />
-        <property name=""QuoteType"" value=""None"" />
+        <property name=""StrategyTimeAndSales"" value=""ActualTrades"" />
+        <property name=""StrategyQuoteType"" value=""None"" />
       </symbol>
       <symbol name=""MSFT"">
-        <property name=""TimeAndSales"" value=""ActualTrades"" />
-        <property name=""QuoteType"" value=""Level2"" />
+        <property name=""StrategyTimeAndSales"" value=""ActualTrades"" />
+        <property name=""StrategyQuoteType"" value=""Level2"" />
       </symbol>
       <symbol name=""IBM"">
         <property name=""MaxPositionSize"" value=""5"" />
         <property name=""MaxOrderSize"" value=""5"" />
-        <property name=""TimeAndSales"" value=""None"" />
-        <property name=""QuoteType"" value=""Level1"" />
+        <property name=""StrategyTimeAndSales"" value=""None"" />
+        <property name=""StrategyQuoteType"" value=""Level1"" />
       </symbol>
       <symbol name=""GOOG"">
-        <property name=""TimeAndSales"" value=""ActualTrades"" />
-        <property name=""QuoteType"" value=""Level1"" />
+        <property name=""StrategyTimeAndSales"" value=""ActualTrades"" />
+        <property name=""StrategyQuoteType"" value=""Level1"" />
       </symbol>
       <symbol name=""GE"" />
       <symbol name=""INTC"" />
@@ -389,6 +393,7 @@ namespace TickZoom.Symbols
     <property name=""DisplayTimeZone"" value=""Exchange"" />
     <property name=""FullPointValue"" value=""1"" />
     <property name=""MinimumTick"" value=""0.01"" />
+    <property name=""MinimumMove"" value=""0.01"" />
     <category name=""Testing"">
       <property name=""TimeZone"" value=""UTC-4"" />
       <symbol name=""FullTick"" />
@@ -407,16 +412,18 @@ namespace TickZoom.Symbols
     <property name=""Level2LotSize"" value=""10000"" />
     <property name=""Level2LotSizeMinimum"" value=""100"" />
     <property name=""Level2Increment"" value=""10"" />
+    <property name=""LotSize"" value=""10000"" />
     <property name=""FullPointValue"" value=""1"" />
-    <property name=""TimeAndSales"" value=""Extrapolated"" />
-    <property name=""QuoteType"" value=""Level1"" />
+    <property name=""CaptureTimeAndSales"" value=""Extrapolated"" />
+    <property name=""CaptureQuoteType"" value=""Level1"" />
+    <property name=""StrategyTimeAndSales"" value=""Extrapolated"" />
+    <property name=""StrategyQuoteType"" value=""Level1"" />
     <property name=""FIXSimulationType"" value=""BrokerHeldStopOrder"" />
     <property name=""TimeInForce"" value=""GTC"" />
     <category name=""4 Pip"">
       <property name=""MinimumTick"" value=""0.00001"" />
-      <symbol name=""USD/CHF"" universal=""USDCHF"">
-        <property name=""TimeAndSales"" value=""Extrapolated"" />
-      </symbol>
+      <property name=""MinimumMove"" value=""0.0001"" />
+      <symbol name=""USD/CHF"" universal=""USDCHF""/>
       <symbol name=""USD/CAD"" universal=""USDCAD"" />
       <symbol name=""AUD/USD"" universal=""AUDUSD"" />
       <symbol name=""USD/NOK"" universal=""USDNOK"" />
@@ -440,8 +447,12 @@ namespace TickZoom.Symbols
     </category>
     <category name=""2 Pip"">
       <property name=""MinimumTick"" value=""0.001"" />
+      <property name=""MinimumMove"" value=""0.01"" />
       <property name=""FullPointValue"" value=""0.001"" />
       <symbol name=""USD/JPY"">
+        <property name=""LimitOrderQuoteSimulation"" value=""OppositeQuoteThrough"" />
+        <property name=""LimitOrderTradeSimulation"" value=""None"" />
+        <property name=""StrategyTimeAndSales"" value=""None"" />
         <property name=""UseSyntheticLimits"" value=""false"" />
         <property name=""UseSyntheticStops"" value=""false"" />
         <property name=""UseSyntheticMarkets"" value=""false"" />
@@ -475,6 +486,7 @@ namespace TickZoom.Symbols
         </symbol>
         <category name=""TCK file testing"">
           <property name=""MinimumTick"" value=""0.0001"" />
+          <property name=""MinimumTick"" value=""0.0001"" />
           <symbol name=""TEST"" />
           <symbol name=""TST_TST"" />
           <symbol name=""TST_VR2"" />
@@ -501,10 +513,14 @@ namespace TickZoom.Symbols
     <property name=""Level2LotSize"" value=""1"" />
     <property name=""Level2LotSizeMinimum"" value=""1"" />
     <property name=""Level2Increment"" value=""1"" />
+    <property name=""LotSize"" value=""1"" />
     <property name=""FullPointValue"" value=""50"" />
     <property name=""MinimumTick"" value=""0.25"" />
-    <property name=""TimeAndSales"" value=""ActualTrades"" />
-    <property name=""QuoteType"" value=""Level1"" />
+    <property name=""MinimumMove"" value=""0.25"" />
+    <property name=""CaptureTimeAndSales"" value=""ActualTrades"" />
+    <property name=""CaptureQuoteType"" value=""Level1"" />
+    <property name=""StrategyTimeAndSales"" value=""ActualTrades"" />
+    <property name=""StrategyQuoteType"" value=""Level1"" />
     <category name=""Testing"">
       <symbol name=""/ESZ9"">
         <property name=""Commission"" value=""CustomCommission"" />
@@ -519,8 +535,8 @@ namespace TickZoom.Symbols
       <symbol name=""TestException"" />
       <symbol name=""TestPending"" />
       <category name=""TradeOnly"">
-        <property name=""TimeAndSales"" value=""ActualTrades"" />
-        <property name=""QuoteType"" value=""None"" />
+        <property name=""StrategyTimeAndSales"" value=""ActualTrades"" />
+        <property name=""StrategyQuoteType"" value=""None"" />
         <symbol name=""/ESH0"" />
         <symbol name=""/ESH0TradeBar"" />
       </category>
@@ -528,6 +544,7 @@ namespace TickZoom.Symbols
     <category name=""Coffee"">
       <property name=""FullPointValue"" value=""375"" />
       <property name=""MinimumTick"" value=""0.05"" />
+      <property name=""MinimumMove"" value=""0.05"" />
       <property name=""TimeZone"" value=""Eastern Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""3:30:00"" />
@@ -537,6 +554,7 @@ namespace TickZoom.Symbols
     <category name=""Cotton"">
       <property name=""FullPointValue"" value=""500"" />
       <property name=""MinimumTick"" value=""0.01"" />
+      <property name=""MinimumMove"" value=""0.01"" />
       <property name=""TimeZone"" value=""Eastern Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""21:00:00"" />
@@ -546,6 +564,7 @@ namespace TickZoom.Symbols
     <category name=""Cocoa"">
       <property name=""FullPointValue"" value=""10"" />
       <property name=""MinimumTick"" value=""1"" />
+      <property name=""MinimumMove"" value=""1"" />
       <property name=""TimeZone"" value=""Eastern Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""4:00:00"" />
@@ -555,6 +574,7 @@ namespace TickZoom.Symbols
     <category name=""Orange juice"">
       <property name=""FullPointValue"" value=""150"" />
       <property name=""MinimumTick"" value=""0.05"" />
+      <property name=""MinimumMove"" value=""0.05"" />
       <property name=""TimeZone"" value=""Eastern Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""8:00:00"" />
@@ -564,6 +584,7 @@ namespace TickZoom.Symbols
     <category name=""Lumber"">
       <property name=""FullPointValue"" value=""110"" />
       <property name=""MinimumTick"" value=""0.1"" />
+      <property name=""MinimumMove"" value=""0.1"" />
       <property name=""TimeZone"" value=""Eastern Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""9:00:00"" />
@@ -573,6 +594,7 @@ namespace TickZoom.Symbols
     <category name=""Copper"">
       <property name=""FullPointValue"" value=""250"" />
       <property name=""MinimumTick"" value=""0.05"" />
+      <property name=""MinimumMove"" value=""0.05"" />
       <property name=""TimeZone"" value=""Eastern Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""18:00:00"" />
@@ -582,6 +604,7 @@ namespace TickZoom.Symbols
     <category name=""Nymex crude"">
       <property name=""FullPointValue"" value=""1000"" />
       <property name=""MinimumTick"" value=""0.01"" />
+      <property name=""MinimumMove"" value=""0.01"" />
       <property name=""TimeZone"" value=""Eastern Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""18:00:00"" />
@@ -591,6 +614,7 @@ namespace TickZoom.Symbols
     <category name=""Heating oil"">
       <property name=""FullPointValue"" value=""42000"" />
       <property name=""MinimumTick"" value=""0.0001"" />
+      <property name=""MinimumMove"" value=""0.0001"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""18:00:00"" />
@@ -600,6 +624,7 @@ namespace TickZoom.Symbols
     <category name=""Feeder cattle"">
       <property name=""FullPointValue"" value=""500"" />
       <property name=""MinimumTick"" value=""0.025"" />
+      <property name=""MinimumMove"" value=""0.025"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""17:00:00"" />
@@ -609,6 +634,7 @@ namespace TickZoom.Symbols
     <category name=""Live cattle"">
       <property name=""FullPointValue"" value=""400"" />
       <property name=""MinimumTick"" value=""0.025"" />
+      <property name=""MinimumMove"" value=""0.025"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""17:00:00"" />
@@ -618,6 +644,7 @@ namespace TickZoom.Symbols
     <category name=""Lean hog"">
       <property name=""FullPointValue"" value=""400"" />
       <property name=""MinimumTick"" value=""0.025"" />
+      <property name=""MinimumMove"" value=""0.025"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""17:00:00"" />
@@ -627,6 +654,7 @@ namespace TickZoom.Symbols
     <category name=""Pork bellie"">
       <property name=""FullPointValue"" value=""400"" />
       <property name=""MinimumTick"" value=""0.025"" />
+      <property name=""MinimumMove"" value=""0.025"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""17:00:00"" />
@@ -636,6 +664,7 @@ namespace TickZoom.Symbols
     <category name=""Eurodollar"">
       <property name=""FullPointValue"" value=""1000"" />
       <property name=""MinimumTick"" value=""0.005"" />
+      <property name=""MinimumMove"" value=""0.005"" />
       <property name=""TimeZone"" value=""Eastern Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""18:00:00"" />
@@ -645,6 +674,7 @@ namespace TickZoom.Symbols
     <category name=""Comex palladium"">
       <property name=""FullPointValue"" value=""100"" />
       <property name=""MinimumTick"" value=""0.05"" />
+      <property name=""MinimumMove"" value=""0.05"" />
       <property name=""TimeZone"" value=""Eastern Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""18:00:00"" />
@@ -654,6 +684,7 @@ namespace TickZoom.Symbols
     <category name=""Comex platinum"">
       <property name=""FullPointValue"" value=""50"" />
       <property name=""MinimumTick"" value=""0.10"" />
+      <property name=""MinimumMove"" value=""0.10"" />
       <property name=""TimeZone"" value=""Eastern Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""18:00:00"" />
@@ -663,6 +694,7 @@ namespace TickZoom.Symbols
     <category name=""Comex silver"">
       <property name=""FullPointValue"" value=""50"" />
       <property name=""MinimumTick"" value=""0.005"" />
+      <property name=""MinimumMove"" value=""0.005"" />
       <property name=""TimeZone"" value=""Eastern Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""18:00:00"" />
@@ -672,6 +704,7 @@ namespace TickZoom.Symbols
     <category name=""Comex Gold"">
       <property name=""FullPointValue"" value=""100"" />
       <property name=""MinimumTick"" value=""0.10"" />
+      <property name=""MinimumMove"" value=""0.10"" />
       <property name=""TimeZone"" value=""Eastern Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""18:00:00"" />
@@ -682,6 +715,7 @@ namespace TickZoom.Symbols
     <category name=""CME currency 125k variants"">
       <property name=""FullPointValue"" value=""125000"" />
       <property name=""MinimumTick"" value=""0.0001"" />
+      <property name=""MinimumMove"" value=""0.0001"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""17:00:00"" />
@@ -695,6 +729,7 @@ namespace TickZoom.Symbols
     <category name=""CME currency 100k variants"">
       <property name=""FullPointValue"" value=""100000"" />
       <property name=""MinimumTick"" value=""0.0001"" />
+      <property name=""MinimumMove"" value=""0.0001"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""17:00:00"" />
@@ -705,6 +740,7 @@ namespace TickZoom.Symbols
     <category name=""British Pound variants"">
       <property name=""FullPointValue"" value=""62500"" />
       <property name=""MinimumTick"" value=""0.0001"" />
+      <property name=""MinimumMove"" value=""0.0001"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""17:00:00"" />
@@ -714,6 +750,7 @@ namespace TickZoom.Symbols
     <category name=""Mexican Peso variants"">
       <property name=""FullPointValue"" value=""500000"" />
       <property name=""MinimumTick"" value=""0.000025"" />
+      <property name=""MinimumMove"" value=""0.000025"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""17:00:00"" />
@@ -723,6 +760,7 @@ namespace TickZoom.Symbols
     <category name=""Dollar Index variants"">
       <property name=""FullPointValue"" value=""1000"" />
       <property name=""MinimumTick"" value=""0.005"" />
+      <property name=""MinimumMove"" value=""0.005"" />
       <property name=""TimeZone"" value=""Eastern Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""18:00:00"" />
@@ -732,6 +770,7 @@ namespace TickZoom.Symbols
     <category name=""Nasdaq full size variants"">
       <property name=""FullPointValue"" value=""100"" />
       <property name=""MinimumTick"" value=""0.25"" />
+      <property name=""MinimumMove"" value=""0.25"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""15:30:00"" />
@@ -741,6 +780,7 @@ namespace TickZoom.Symbols
     <category name=""Natural gas variants"">
       <property name=""FullPointValue"" value=""10000"" />
       <property name=""MinimumTick"" value=""0.001"" />
+      <property name=""MinimumMove"" value=""0.001"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""17:00:00"" />
@@ -750,6 +790,7 @@ namespace TickZoom.Symbols
     <category name=""Nikkei variants"">
       <property name=""FullPointValue"" value=""5"" />
       <property name=""MinimumTick"" value=""5"" />
+      <property name=""MinimumMove"" value=""5"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""15:30:00"" />
@@ -759,6 +800,7 @@ namespace TickZoom.Symbols
     <category name=""Sugar variants"">
       <property name=""FullPointValue"" value=""1120"" />
       <property name=""MinimumTick"" value=""0.01"" />
+      <property name=""MinimumMove"" value=""0.01"" />
       <property name=""TimeZone"" value=""Eastern Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""3:30:00"" />
@@ -768,6 +810,7 @@ namespace TickZoom.Symbols
     <category name=""Mini Russell variants"">
       <property name=""FullPointValue"" value=""100"" />
       <property name=""MinimumTick"" value=""0.10"" />
+      <property name=""MinimumMove"" value=""0.10"" />
       <property name=""TimeZone"" value=""Eastern Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""20:00:00"" />
@@ -777,6 +820,7 @@ namespace TickZoom.Symbols
     <category name=""Full size S and P Symbol SP variants"">
       <property name=""FullPointValue"" value=""250"" />
       <property name=""MinimumTick"" value=""0.05"" />
+      <property name=""MinimumMove"" value=""0.05"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""15:30:00"" />
@@ -786,23 +830,28 @@ namespace TickZoom.Symbols
     <category name=""Emini S and P Symbol ES variants"">
       <property name=""FullPointValue"" value=""50"" />
       <property name=""MinimumTick"" value=""0.25"" />
+      <property name=""MinimumMove"" value=""0.25"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""15:30:00"" />
       <property name=""SessionEnd"" value=""15:15:00"" />
-      <symbol name=""ES"" />
-      <symbol name=""/ESM1"">
-        <property name=""TimeAndSales"" value=""ActualTrades"" />
-        <property name=""QuoteType"" value=""Level1"" />
+      <property name=""LimitOrderQuoteSimulation"" value=""OppositeQuoteThrough"" />
+      <property name=""LimitOrderTradeSimulation"" value=""None"" />
+      <property name=""StrategyTimeAndSales"" value=""None"" />
+      <property name=""StrategyQuoteType"" value=""Level1"" />
+      <symbol name=""ES"" >
+        <property name=""StrategyTimeAndSales"" value=""ActualTrades"" />
         <property name=""LimitOrderQuoteSimulation"" value=""OppositeQuoteTouch"" />
-        <property name=""LimitOrderTradeSimulation"" value=""None"" />
+        <property name=""LimitOrderTradeSimulation"" value=""TradeTouch"" />
       </symbol>
+      <symbol name=""/ESM1"" />
       <symbol name=""/ESH2"" />
       <symbol name=""/ESU2"" />
     </category>
     <category name=""Emini NASDAQ Symbol NQ variants"">
       <property name=""FullPointValue"" value=""20"" />
       <property name=""MinimumTick"" value=""0.25"" />
+      <property name=""MinimumMove"" value=""0.25"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""15:30:00"" />
@@ -815,6 +864,7 @@ namespace TickZoom.Symbols
     <category name=""Mini Dow Jones Futures contract"">
       <property name=""FullPointValue"" value=""5"" />
       <property name=""MinimumTick"" value=""1"" />
+      <property name=""MinimumMove"" value=""1"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""17:00:00"" />
@@ -826,6 +876,7 @@ namespace TickZoom.Symbols
     <category name=""Full size S and P 400 MidCap variants"">
       <property name=""FullPointValue"" value=""500"" />
       <property name=""MinimumTick"" value=""0.05"" />
+      <property name=""MinimumMove"" value=""0.05"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""15:30:00"" />
@@ -835,6 +886,7 @@ namespace TickZoom.Symbols
     <category name=""Emini S and P 400 MidCap variants"">
       <property name=""FullPointValue"" value=""100"" />
       <property name=""MinimumTick"" value=""0.10"" />
+      <property name=""MinimumMove"" value=""0.10"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""15:30:00"" />
@@ -844,6 +896,7 @@ namespace TickZoom.Symbols
     <category name=""Emini MSCI EAFE variants"">
       <property name=""FullPointValue"" value=""50"" />
       <property name=""MinimumTick"" value=""0.10"" />
+      <property name=""MinimumMove"" value=""0.10"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""15:30:00"" />
@@ -853,6 +906,7 @@ namespace TickZoom.Symbols
     <category name=""Full size Dow DJIA ($10) variants"">
       <property name=""FullPointValue"" value=""10"" />
       <property name=""MinimumTick"" value=""1"" />
+      <property name=""MinimumMove"" value=""1"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""15:30:00"" />
@@ -862,6 +916,7 @@ namespace TickZoom.Symbols
     <!--category name=""Mini Dow variants"">
       <property name=""FullPointValue"" value=""5"" />
       <property name=""MinimumTick"" value=""1"" />
+      <property name=""MinimumMove"" value=""1"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""15:30:00"" />
@@ -871,6 +926,7 @@ namespace TickZoom.Symbols
     <category name=""CBT grain $50 variants"">
       <property name=""FullPointValue"" value=""50"" />
       <property name=""MinimumTick"" value=""0.25"" />
+      <property name=""MinimumMove"" value=""0.25"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""9:30:00"" />
@@ -883,6 +939,7 @@ namespace TickZoom.Symbols
     <category name=""Soybean meal variants"">
       <property name=""FullPointValue"" value=""100"" />
       <property name=""MinimumTick"" value=""0.1"" />
+      <property name=""MinimumMove"" value=""0.1"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""18:00:00"" />
@@ -892,6 +949,7 @@ namespace TickZoom.Symbols
     <category name=""Soybean oil variants"">
       <property name=""FullPointValue"" value=""600"" />
       <property name=""MinimumTick"" value=""0.01"" />
+      <property name=""MinimumMove"" value=""0.01"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""18:00:00"" />
@@ -902,6 +960,7 @@ namespace TickZoom.Symbols
       <property name=""FullPointValue"" value=""2000"" />
       <!-- 32nds and quarters from CME.com as of 1/6/2011 -->
       <property name=""MinimumTick"" value=""0.0078125"" />
+      <property name=""MinimumMove"" value=""0.0078125"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""17:30:00"" />
@@ -912,6 +971,7 @@ namespace TickZoom.Symbols
       <property name=""FullPointValue"" value=""1000"" />
       <!-- 32nds and quarters from CME.com as of 1/6/2011 -->
       <property name=""MinimumTick"" value=""0.0078125"" />
+      <property name=""MinimumMove"" value=""0.0078125"" />
       <property name=""SessionStart"" value=""17:30:00"" />
       <property name=""SessionEnd"" value=""16:00:00"" />
       <symbol name=""FV"" />
@@ -920,6 +980,7 @@ namespace TickZoom.Symbols
       <property name=""FullPointValue"" value=""1000"" />
       <!-- 32nds and halves from CME.com as of 1/6/2011 -->
       <property name=""MinimumTick"" value=""0.015625"" />
+      <property name=""MinimumMove"" value=""0.015625"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""17:30:00"" />
@@ -930,6 +991,7 @@ namespace TickZoom.Symbols
       <property name=""FullPointValue"" value=""1000"" />
       <!-- 32nds from CME.com as of 1/6/2011, tick data in 32nds and halves -->
       <property name=""MinimumTick"" value=""0.015625"" />
+      <property name=""MinimumMove"" value=""0.015625"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""17:30:00"" />
@@ -945,6 +1007,7 @@ namespace TickZoom.Symbols
     <category name=""Mini gold variants"">
       <property name=""FullPointValue"" value=""33.20"" />
       <property name=""MinimumTick"" value=""0.1"" />
+      <property name=""MinimumMove"" value=""0.1"" />
       <property name=""TimeZone"" value=""Eastern Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""19:16:00"" />
@@ -954,6 +1017,7 @@ namespace TickZoom.Symbols
     <category name=""Mini silver variants"">
       <property name=""FullPointValue"" value=""5"" />
       <property name=""MinimumTick"" value=""1"" />
+      <property name=""MinimumMove"" value=""1"" />
       <property name=""TimeZone"" value=""Eastern Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""19:16:00"" />
@@ -963,6 +1027,7 @@ namespace TickZoom.Symbols
     <category name=""RBOB Gasoline variants"">
       <property name=""FullPointValue"" value=""42000"" />
       <property name=""MinimumTick"" value=""0.0001"" />
+      <property name=""MinimumMove"" value=""0.0001"" />
       <property name=""TimeZone"" value=""Central Standard Time"" />
       <property name=""DisplayTimeZone"" value=""Local"" />
       <property name=""SessionStart"" value=""18:00:00"" />

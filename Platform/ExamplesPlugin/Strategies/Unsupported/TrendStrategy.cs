@@ -39,6 +39,7 @@ namespace TickZoom
 		bool isActivated = false;
 		DynamicSR sr;
 		IndicatorCommon paint;
+	    private int lotSize;
 		
 		public TrendStrategy()
 		{
@@ -48,6 +49,7 @@ namespace TickZoom
 		
 		public override void OnInitialize()
 		{
+		    lotSize = Data.SymbolInfo.LotSize;
 			
 			#region DOM indicator
 //			dom = new DOMRatio();
@@ -170,12 +172,12 @@ namespace TickZoom
 				if( isActivated && IsValidWeekDay) {
 					if( sr.Trend == Trend.Up) {
 						if( Position.IsFlat && !LongExitSignal) {
-							Orders.Enter.ActiveNow.BuyMarket();
+							Orders.Enter.ActiveNow.BuyMarket(lotSize);
 							Log.Notice(Ticks[0].Time + ", bar=" + Chart.ChartBars.CurrentBar + ", Long");
 						}
 					} else if( sr.Trend == Trend.Down) {
 						if( Position.IsFlat && !ShortExitSignal) {
-							Orders.Enter.ActiveNow.SellMarket();
+							Orders.Enter.ActiveNow.SellMarket(lotSize);
 							Log.Notice(Ticks[0].Time + ", bar=" + Chart.ChartBars.CurrentBar + ", Short");
 						}
 					}

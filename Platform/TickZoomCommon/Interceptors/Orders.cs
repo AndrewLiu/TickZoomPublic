@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using TickZoom.Common;
 
 namespace TickZoom.Interceptors
 {
@@ -33,21 +34,61 @@ namespace TickZoom.Interceptors
 	/// </summary>
 	public class OrderHandlers
 	{
-		EnterTiming enter;
+        ReverseCommon reverseActiveNow;
+        ReverseCommon reverseNextBar;
+        ChangeCommon changeActiveNow;
+        ChangeCommon changeNextBar;
+        ExitCommon exitActiveNow;
+        EnterCommon enterActiveNow;
+        ExitCommon exitNextBar;
+        EnterCommon enterNextBar;
+	    ExitStrategy exitStrategy;
+
+        EnterTiming enter;
 		ExitTiming exit;
 		ReverseTiming reverse;
 		ChangeTiming change;
 		
-		public OrderHandlers(EnterCommon enterNow, EnterCommon enterNextBar,
-		                     ExitCommon exitNow, ExitCommon exitNextBar,
-		                     ReverseCommon reverseNow, ReverseCommon reverseNextBar,
-		                     ChangeCommon changeNow, ChangeCommon changeNextBar)
+		public OrderHandlers(Strategy strategy)
 		{
-			this.enter = new EnterTiming(enterNow,enterNextBar);
-			this.exit = new ExitTiming(exitNow,exitNextBar);
-			this.reverse = new ReverseTiming(reverseNow,reverseNextBar);
-			this.change = new ChangeTiming(changeNow,changeNextBar);
+            exitStrategy = new ExitStrategy(strategy);
+            exitActiveNow = new ExitCommon(strategy);
+            enterActiveNow = new EnterCommon(strategy);
+            enterActiveNow.processExitStrategy = ExitStrategy.OnProcessPosition;
+            reverseActiveNow = new ReverseCommon(strategy);
+            changeActiveNow = new ChangeCommon(strategy);
+            changeNextBar = new ChangeCommon(strategy);
+            changeNextBar.Orders = changeActiveNow.Orders;
+            changeNextBar.IsNextBar = true;
+            reverseNextBar = new ReverseCommon(strategy);
+            reverseNextBar.Orders = reverseActiveNow.Orders;
+            reverseNextBar.IsNextBar = true;
+            exitNextBar = new ExitCommon(strategy);
+            exitNextBar.Orders = exitActiveNow.Orders;
+            exitNextBar.IsNextBar = true;
+            enterNextBar = new EnterCommon(strategy);
+            enterNextBar.processExitStrategy = ExitStrategy.OnProcessPosition;
+            enterNextBar.Orders = enterActiveNow.Orders;
+            enterNextBar.IsNextBar = true;
+            
+            this.enter = new EnterTiming(enterActiveNow, enterNextBar);
+			this.exit = new ExitTiming(exitActiveNow,exitNextBar);
+			this.reverse = new ReverseTiming(reverseActiveNow,reverseNextBar);
+			this.change = new ChangeTiming(changeActiveNow,changeNextBar);
 		}
+
+        public void OnConfigure()
+        {
+            changeActiveNow.OnInitialize();
+            changeNextBar.OnInitialize();
+            reverseActiveNow.OnInitialize();
+            reverseNextBar.OnInitialize();
+            exitActiveNow.OnInitialize();
+            enterActiveNow.OnInitialize();
+            exitNextBar.OnInitialize();
+            enterNextBar.OnInitialize();
+            exitNextBar.OnInitialize();
+        }
 		
 		public EnterTiming Enter {
 			get { return enter; }
@@ -64,8 +105,14 @@ namespace TickZoom.Interceptors
 		public OrderHandlers.ChangeTiming Change {
 			get { return change; }
 		}
-		
-		public class EnterTiming {
+
+	    public ExitStrategy ExitStrategy
+	    {
+	        get { return exitStrategy; }
+            set { exitStrategy = value; }
+	    }
+
+	    public class EnterTiming {
 			EnterCommon activeNow;
 			EnterCommon nextBar;
 			

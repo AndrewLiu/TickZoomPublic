@@ -4,15 +4,15 @@ using TickZoom.Common;
 
 namespace TickZoom.Examples
 {
-    public class RetraceLoader : ModelLoaderCommon
+    public class PivotLoader : ModelLoaderCommon
     {
-        public RetraceLoader()
+        public PivotLoader()
         {
             /// <summary>
             /// IMPORTANT: You can personalize the name of each model loader.
             /// </summary>
             category = "Example";
-            name = "Retrace Multi-Symbol";
+            name = "Pivot Trend Multi-Symbol";
         }
 
         public override void OnInitialize(ProjectProperties properties)
@@ -25,8 +25,7 @@ namespace TickZoom.Examples
             foreach (var symbol in properties.Starter.SymbolInfo)
             {
                 symbol.SimulateSpread = true;
-                CreateRetraceStrategy(symbol, strategies, RetraceDirection.LongOnly);
-                //CreateRetraceStrategy(symbol, strategies, RetraceDirection.ShortOnly);
+                CreateStrategy(symbol, strategies);
             }
 
             var portfolio = new Portfolio();
@@ -36,15 +35,14 @@ namespace TickZoom.Examples
                 portfolio.AddDependency(strategy);
             }
             TopModel = portfolio;
-         }
+        }
 
-        private void CreateRetraceStrategy(SymbolInfo symbol, List<Strategy> strategies, RetraceDirection direction)
+        private void CreateStrategy(SymbolInfo symbol, List<Strategy> strategies)
         {
-            var strategy = new Retrace2Strategy();
-            strategy.Direction = direction;
+            var strategy = new PivotTrend();
             strategy.SymbolDefault = symbol.ExpandedSymbol;
             strategy.IsActive = true;
-            strategy.IsVisible = false;
+            //strategy.IsVisible = false;
             strategies.Add(strategy);
         }
     }

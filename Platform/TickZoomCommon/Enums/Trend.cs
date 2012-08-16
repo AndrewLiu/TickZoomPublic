@@ -32,9 +32,9 @@ using TickZoom.Api;
 namespace TickZoom.Common
 {
 	public enum Trend {
+		None,
 		Up,
 		Down,
 		Flat,
-		None
 	}
 }
