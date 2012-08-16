@@ -59,8 +59,16 @@ namespace TickZoom.Examples
 
         private void SetBidOffer()
         {
+            var totalHours = 0;
+            if( Position.HasPosition)
+            {
+                var combo = Performance.ComboTrades.Tail;
+                var elapsed = combo.ExitTime - combo.EntryTime;
+                totalHours = elapsed.TotalHours;
+            }
             var lots = Math.Abs(Position.Size / lotSize);
-            inventory.Retrace = 0.60D;
+            inventory.Retrace = 0.55D; // Math.Max(0.50, 0.60 - 0.01 * totalHours);
+            inventory.ProfitRetrace = Math.Max(0.20, 0.90 - 0.01*totalHours);
             inventory.IncreaseSpread = inventory.DecreaseSpread = startingSpread;
             inventory.CalculateBidOffer(MarketBid,MarketAsk);
             bid = Math.Min(inventory.Bid,MarketBid);
@@ -69,13 +77,15 @@ namespace TickZoom.Examples
             {
                 BuySize = inventory.BidSize / lotSize;
                 SellSize = lots + 1;
-                ask = Math.Max(BreakEvenPrice + profitSpread, MarketAsk);
+                //ask = Math.Max(BreakEvenPrice + profitSpread, MarketAsk);
+                ask = Math.Max(inventory.ProfitTarget, MarketAsk);
             }
             if (Position.IsShort)
             {
                 SellSize = - inventory.OfferSize / lotSize;
                 BuySize = lots + 1;
-                bid = Math.Min(BreakEvenPrice - profitSpread, MarketBid);
+                //bid = Math.Min(BreakEvenPrice - profitSpread, MarketBid);
+                bid = Math.Min(inventory.ProfitTarget, MarketBid);
             }
             return;
         }
@@ -131,6 +141,7 @@ namespace TickZoom.Examples
             UpdateBreakEven((tick.Ask + tick.Bid) / 2);
             UpdateIndicators(tick);
             UpdateIndicators();
+            inventory.Retrace = 0.60D;
             SetFlatBidAsk();
         }
 
