@@ -392,7 +392,7 @@ namespace TickZoom.Examples
             }
         }
 
-        private void CalcBreakEven()
+        public void CalcBreakEven()
         {
             var size = Math.Abs(binary.CurrentPosition);
             if (size == 0)
@@ -412,10 +412,21 @@ namespace TickZoom.Examples
             var startPrice = binary.CurrentPosition > 0 ? binary.MaxPrice : binary.MinPrice;
             var endPrice = binary.CurrentPosition > 0 ? binary.MinPrice : binary.MaxPrice;
             var range = endPrice - startPrice;
-            //var upper = breakEven - startPrice;
-            //var retracePercent = range == 0 ? 1 : 1 - upper/range;
-            //retracePercent += 0.10;
-            ProfitTarget = (1 - profitRetrace)*range + startPrice;
+            if( range == 0D)
+            {
+                if (binary.CurrentPosition > 0)
+                {
+                    profitTarget = breakEven + decreaseSpread;
+                }
+                else
+                {
+                    profitTarget = breakEven - decreaseSpread;
+                }
+            }
+            else
+            {
+                profitTarget = (1 - profitRetrace) * range + startPrice;
+            }
         }
 
         public double PriceToClose()

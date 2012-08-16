@@ -25,7 +25,7 @@ namespace TickZoom.Examples
         protected bool isVisible = false;
         protected int sequentialIncreaseCount;
         protected double minimumTick;
-        protected int lotSize = 1000;
+        protected int lotSize = 10000;
         protected volatile StrategyState beforeWeekendState = StrategyState.Active;
         protected StrategyState state = StrategyState.Active;
         protected int positionPriorToWeekend = 0;

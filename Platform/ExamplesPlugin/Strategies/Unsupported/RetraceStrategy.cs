@@ -1,6 +1,5 @@
 using System;
 using TickZoom.Api;
-using TickZoom.Common;
 
 namespace TickZoom.Examples
 {
@@ -17,7 +16,7 @@ namespace TickZoom.Examples
         {
             lotSize = 1000;
             base.OnInitialize();
-            bidSpread = offerSpread = startingSpread = 5 * Data.SymbolInfo.MinimumTick;
+            bidSpread = offerSpread = startingSpread = 3 * Data.SymbolInfo.MinimumTick;
             profitSpread = 3 * Data.SymbolInfo.MinimumTick;
             BuySize = SellSize = baseLots;
         }
@@ -34,7 +33,7 @@ namespace TickZoom.Examples
 
             SetupBidAsk();
 
-            //HandleWeekendRollover(tick);
+            TryUpdateTarget();
 
             if (state.AnySet(StrategyState.ProcessOrders))
             {
@@ -57,34 +56,74 @@ namespace TickZoom.Examples
 
         }
 
-        private void SetBidOffer()
+        private double CalcProfitRetrace()
         {
-            var totalHours = 0;
-            if( Position.HasPosition)
+            var combo = Performance.ComboTrades.Tail;
+            var tick = Ticks[0];
+            var elapsed = tick.Time - combo.EntryTime;
+            var totalMinutes = elapsed.TotalMinutes;
+            //return Math.Max(0.05, 0.90 - 0.01*(totalMinutes/100));
+            var profitDefaultRetrace = 0.95;
+            var profitUpdateFrequency = 10;
+            var profitUpdatePercent = 0.01;
+            var profitMinimumPercent = 0.05;
+            return Math.Max(profitMinimumPercent, profitDefaultRetrace - profitUpdatePercent * (totalMinutes / profitUpdateFrequency));
+            return totalMinutes > 30
+                       ? Math.Max(profitMinimumPercent, profitDefaultRetrace - profitUpdatePercent*(totalMinutes/profitUpdateFrequency))
+                       : profitDefaultRetrace;
+        }
+
+        private void TryUpdateTarget()
+        {
+            if (!Position.HasPosition)
             {
-                var combo = Performance.ComboTrades.Tail;
-                var elapsed = combo.ExitTime - combo.EntryTime;
-                totalHours = elapsed.TotalHours;
+                return;
             }
             var lots = Math.Abs(Position.Size / lotSize);
             inventory.Retrace = 0.55D; // Math.Max(0.50, 0.60 - 0.01 * totalHours);
-            inventory.ProfitRetrace = Math.Max(0.20, 0.90 - 0.01*totalHours);
+            inventory.ProfitRetrace = CalcProfitRetrace();
+            inventory.IncreaseSpread = inventory.DecreaseSpread = startingSpread;
+            inventory.CalculateBidOffer(MarketBid, MarketAsk);
+            inventory.CalcBreakEven();
+            if (Position.IsLong)
+            {
+                BuySize = inventory.BidSize / lotSize;
+                SellSize = lots + 1;
+                ask = inventory.ProfitTarget;
+            }
+            if (Position.IsShort)
+            {
+                SellSize = -inventory.OfferSize / lotSize;
+                BuySize = lots + 1;
+                bid = inventory.ProfitTarget;
+            }
+            return;
+        }
+
+        private void SetBidOffer()
+        {
+            if( !Position.HasPosition)
+            {
+                return;
+            }
+            var lots = Math.Abs(Position.Size / lotSize);
+            inventory.Retrace = 0.55D; // Math.Max(0.50, 0.60 - 0.01 * totalHours);
+            inventory.ProfitRetrace = CalcProfitRetrace();
             inventory.IncreaseSpread = inventory.DecreaseSpread = startingSpread;
             inventory.CalculateBidOffer(MarketBid,MarketAsk);
+            inventory.CalcBreakEven();
             bid = Math.Min(inventory.Bid,MarketBid);
             ask = Math.Max(inventory.Offer,MarketAsk);
             if (Position.IsLong)
             {
                 BuySize = inventory.BidSize / lotSize;
                 SellSize = lots + 1;
-                //ask = Math.Max(BreakEvenPrice + profitSpread, MarketAsk);
                 ask = Math.Max(inventory.ProfitTarget, MarketAsk);
             }
             if (Position.IsShort)
             {
                 SellSize = - inventory.OfferSize / lotSize;
                 BuySize = lots + 1;
-                //bid = Math.Min(BreakEvenPrice - profitSpread, MarketBid);
                 bid = Math.Min(inventory.ProfitTarget, MarketBid);
             }
             return;
