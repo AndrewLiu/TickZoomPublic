@@ -24,26 +24,27 @@ namespace TickZoom.Examples
             var strategies = new List<Strategy>();
             foreach (var symbol in properties.Starter.SymbolInfo)
             {
-                var strategy = new RetraceStrategy();
-                strategy.SymbolDefault = symbol.ExpandedSymbol;
-                strategy.IsActive = true;
-                strategy.IsVisible = true;
-                strategies.Add(strategy);
+                CreateRetraceStrategy(symbol, strategies, RetraceDirection.LongOnly);
+                CreateRetraceStrategy(symbol, strategies, RetraceDirection.ShortOnly);
             }
 
-            if (strategies.Count == 1)
+            var portfolio = new Portfolio();
+            portfolio.Performance.Equity.GraphEquity = true;
+            foreach (var strategy in strategies)
             {
-                TopModel = strategies[0];
+                portfolio.AddDependency(strategy);
             }
-            else
-            {
-                var portfolio = new Portfolio();
-                foreach (var strategy in strategies)
-                {
-                    portfolio.AddDependency(strategy);
-                }
-                TopModel = portfolio;
-            }
+            TopModel = portfolio;
+         }
+
+        private void CreateRetraceStrategy(SymbolInfo symbol, List<Strategy> strategies, RetraceDirection direction)
+        {
+            var strategy = new RetraceStrategy();
+            strategy.Direction = direction;
+            strategy.SymbolDefault = symbol.ExpandedSymbol;
+            strategy.IsActive = true;
+            strategy.IsVisible = false;
+            strategies.Add(strategy);
         }
     }
 }
