@@ -338,8 +338,14 @@ namespace TickZoom.Examples
 
         public int SellSize
         {
-            get { return sellSize; }
-            set { sellSize = value; }
+            get
+            {
+                return sellSize;
+            }
+            set
+            {
+                sellSize = value;
+            }
         }
 
         public double BreakEvenPrice

@@ -3,6 +3,11 @@ using TickZoom.Api;
 
 namespace TickZoom.Examples
 {
+    public enum RetraceDirection
+    {
+        LongOnly,
+        ShortOnly,
+    }
     public class RetraceStrategy : BaseSimpleStrategy
     {
         private double startingSpread;
@@ -11,6 +16,7 @@ namespace TickZoom.Examples
         private double profitSpread;
         private int maxLots;
         private int baseLots = 1;
+        private RetraceDirection direction = RetraceDirection.LongOnly;
 
         public override void OnInitialize()
         {
@@ -33,7 +39,11 @@ namespace TickZoom.Examples
 
             SetupBidAsk();
 
-            TryUpdateTarget();
+            inventory.UpdateBidAsk(MarketBid, MarketAsk);
+
+            SetBidOffer(true);
+
+            TryUpdatePegging();
 
             if (state.AnySet(StrategyState.ProcessOrders))
             {
@@ -44,11 +54,44 @@ namespace TickZoom.Examples
             return true;
         }
 
+        protected  void TryUpdatePegging()
+        {
+            switch( direction)
+            {
+                case RetraceDirection.LongOnly:
+                    if( Position.IsFlat)
+                    {
+                        bid = Math.Max(bid, MarketBid);
+                    }
+                    break;
+                case RetraceDirection.ShortOnly:
+                    if( Position.IsFlat)
+                    {
+                        ask = Math.Min(ask, MarketAsk);
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         protected override void SetFlatBidAsk()
         {
             bid = Math.Min(midPoint - bidSpread, MarketBid);
             ask = Math.Max(midPoint + offerSpread, MarketAsk);
-            BuySize = SellSize = 1;
+            switch( direction)
+            {
+                case RetraceDirection.LongOnly:
+                    BuySize = 1;
+                    SellSize = 0;
+                    break;
+                case RetraceDirection.ShortOnly:
+                    BuySize = 0;
+                    SellSize = 1;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         protected override void SetupBidAsk()
@@ -62,69 +105,58 @@ namespace TickZoom.Examples
             var tick = Ticks[0];
             var elapsed = tick.Time - combo.EntryTime;
             var totalMinutes = elapsed.TotalMinutes;
-            //return Math.Max(0.05, 0.90 - 0.01*(totalMinutes/100));
             var profitDefaultRetrace = 0.95;
             var profitUpdateFrequency = 10;
             var profitUpdatePercent = 0.01;
             var profitMinimumPercent = 0.05;
             return Math.Max(profitMinimumPercent, profitDefaultRetrace - profitUpdatePercent * (totalMinutes / profitUpdateFrequency));
-            return totalMinutes > 30
-                       ? Math.Max(profitMinimumPercent, profitDefaultRetrace - profitUpdatePercent*(totalMinutes/profitUpdateFrequency))
-                       : profitDefaultRetrace;
         }
 
-        private void TryUpdateTarget()
-        {
-            if (!Position.HasPosition)
-            {
-                return;
-            }
-            var lots = Math.Abs(Position.Size / lotSize);
-            inventory.Retrace = 0.55D; // Math.Max(0.50, 0.60 - 0.01 * totalHours);
-            inventory.ProfitRetrace = CalcProfitRetrace();
-            inventory.IncreaseSpread = inventory.DecreaseSpread = startingSpread;
-            inventory.CalculateBidOffer(MarketBid, MarketAsk);
-            inventory.CalcBreakEven();
-            if (Position.IsLong)
-            {
-                BuySize = inventory.BidSize / lotSize;
-                SellSize = lots + 1;
-                ask = inventory.ProfitTarget;
-            }
-            if (Position.IsShort)
-            {
-                SellSize = -inventory.OfferSize / lotSize;
-                BuySize = lots + 1;
-                bid = inventory.ProfitTarget;
-            }
-            return;
-        }
-
-        private void SetBidOffer()
+        private void SetBidOffer(bool onlyUpdateTarget)
         {
             if( !Position.HasPosition)
             {
                 return;
             }
             var lots = Math.Abs(Position.Size / lotSize);
-            inventory.Retrace = 0.55D; // Math.Max(0.50, 0.60 - 0.01 * totalHours);
+            if( lots == 2 && ! onlyUpdateTarget)
+            {
+                var x = 0;
+            }
+            inventory.Retrace = 0.55D;
             inventory.ProfitRetrace = CalcProfitRetrace();
             inventory.IncreaseSpread = inventory.DecreaseSpread = startingSpread;
             inventory.CalculateBidOffer(MarketBid,MarketAsk);
             inventory.CalcBreakEven();
-            bid = Math.Min(inventory.Bid,MarketBid);
-            ask = Math.Max(inventory.Offer,MarketAsk);
             if (Position.IsLong)
             {
-                BuySize = inventory.BidSize / lotSize;
-                SellSize = lots + 1;
-                ask = Math.Max(inventory.ProfitTarget, MarketAsk);
+                if( onlyUpdateTarget)
+                {
+                    ask = inventory.ProfitTarget;
+                    SellSize = lots; // +1;
+                }
+                else
+                {
+                    bid = Math.Min(inventory.Bid, midPoint);
+                    BuySize = inventory.BidSize / lotSize;
+                    ask = Math.Max(inventory.ProfitTarget, midPoint);
+                    SellSize = lots; // +1;
+                }
             }
             if (Position.IsShort)
             {
-                SellSize = - inventory.OfferSize / lotSize;
-                BuySize = lots + 1;
-                bid = Math.Min(inventory.ProfitTarget, MarketBid);
+                if( onlyUpdateTarget)
+                {
+                    bid = inventory.ProfitTarget;
+                    BuySize = lots; // +1;
+                }
+                else
+                {
+                    ask = Math.Max(inventory.Offer, midPoint);
+                    SellSize = -inventory.OfferSize / lotSize;
+                    bid = Math.Min(inventory.ProfitTarget, midPoint);
+                    BuySize = lots; // +1;
+                }
             }
             return;
         }
@@ -150,7 +182,7 @@ namespace TickZoom.Examples
             }
             BuySize = SellSize = baseLots;
             offerSpread = bidSpread = startingSpread;
-            SetBidOffer();
+            SetBidOffer(false);
             UpdateIndicators(tick);
             UpdateIndicators();
         }
