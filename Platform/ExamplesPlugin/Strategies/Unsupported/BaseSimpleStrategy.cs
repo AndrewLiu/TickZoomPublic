@@ -33,33 +33,35 @@ namespace TickZoom.Examples
         private int buySize = 1;
         private int sellSize = 1;
         protected InventoryGroupDefault inventory;
+        protected RetraceDirection direction = RetraceDirection.LongOnly;
 
         public override void OnInitialize()
         {
             inventory = new InventoryGroupDefault(Data.SymbolInfo);
             inventory.MinimumLotSize = lotSize;
-            Performance.Equity.GraphEquity = true; // Graphed by portfolio.
+            Performance.Equity.GraphEquity = isVisible; // Graphed by portfolio.
             Performance.GraphTrades = IsVisible;
 
             askLine = Formula.Indicator();
-            askLine.Name = "Ask";
-            askLine.Drawing.IsVisible = isVisible;
+            askLine.Name = direction == RetraceDirection.LongOnly ? "LAsk" : "SAsk";
+            askLine.Drawing.IsVisible = direction == RetraceDirection.LongOnly;
 
             bidLine = Formula.Indicator();
-            bidLine.Name = "Bid";
+            bidLine.Name = direction == RetraceDirection.LongOnly ? "LBid" : "SAsk";
             bidLine.Drawing.Color = Color.Blue;
-            bidLine.Drawing.IsVisible = isVisible;
+            bidLine.Drawing.IsVisible = direction == RetraceDirection.ShortOnly;
 
             averagePrice = Formula.Indicator();
-            averagePrice.Name = "BE";
-            averagePrice.Drawing.IsVisible = isVisible;
+            averagePrice.Name = direction == RetraceDirection.LongOnly ? "LBE" : "SBE";
+            averagePrice.Drawing.IsVisible = true;
             averagePrice.Drawing.Color = Color.Black;
 
             position = Formula.Indicator();
-            position.Name = "Position";
+            position.Name = direction == RetraceDirection.LongOnly ? "LPos" : "SPos";
             position.Drawing.PaneType = PaneType.Secondary;
             position.Drawing.GroupName = "Position";
-            position.Drawing.IsVisible = IsVisible;
+            position.Drawing.Color = direction == RetraceDirection.LongOnly ? Color.Green : Color.Red;
+            position.Drawing.IsVisible = true;
 
             minimumTick = Data.SymbolInfo.MinimumTick;
         }
