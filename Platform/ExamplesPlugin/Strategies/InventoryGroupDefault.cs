@@ -94,20 +94,21 @@ namespace TickZoom.Examples
 
         public void CalculateLongBidOffer(double marketBid, double marketOffer)
         {
-            bid = Math.Min(marketBid, binary.MinPrice - IncreaseSpread);
+            var midPoint = (marketBid + marketOffer)/2;
+            bid = Math.Min(midPoint, binary.MinPrice - IncreaseSpread);
             bidSize = QuantityToChange(bid);
             if( bidSize < minimumLotSize)
             {
                 bidSize = minimumLotSize;
                 bid = PriceToChange(bidSize);
-                bid = Math.Min(bid, marketBid);
+                bid = Math.Min(bid, midPoint);
             }
             bidSize = Math.Max(bidSize, minimumLotSize);
             bidSize = Math.Min(bidSize, maximumLotSize);
 
             offerSize = minimumLotSize;
             offer = PriceToChange(-offerSize);
-            offer = Math.Max(offer, marketOffer);
+            offer = Math.Max(offer, midPoint);
 
             var priceToClose = PriceToClose();
             if (offer >= priceToClose)
@@ -227,7 +228,7 @@ namespace TickZoom.Examples
             }
             var retraceComplement = 1 - retrace;
             var totalValue = (binary.CurrentPosition*breakEven);
-            var startingPrice = binary.CurrentPosition > 0 ? binary.MaxPrice : binary.MinPrice;
+            var startingPrice = binary.EntryPrice;
             var upper = retrace*startingPrice*quantity + retrace*startingPrice*binary.CurrentPosition - totalValue;
             var lower = retrace*quantity - retraceComplement*binary.CurrentPosition;
             if( lower == 0D)
@@ -409,10 +410,10 @@ namespace TickZoom.Examples
             var result = (grossProfit - transaction - expectedTransaction)/size;
             result = ((result + 5000)/10000)*10000;
             breakEven = result.ToDouble();
-            var startPrice = binary.CurrentPosition > 0 ? binary.MaxPrice : binary.MinPrice;
+            var startPrice = binary.EntryPrice;
             var endPrice = binary.CurrentPosition > 0 ? binary.MinPrice : binary.MaxPrice;
             var range = endPrice - startPrice;
-            if( range == 0D)
+            if( startPrice == breakEven)
             {
                 if (binary.CurrentPosition > 0)
                 {
