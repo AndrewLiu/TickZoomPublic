@@ -205,7 +205,7 @@ namespace TickZoom.Common
 			expected.Enter(1,105.660,new TimeStamp(2005,2,8,11,57,22,429),emptyTime,1,0,0);
 			expected.Exit(105.670,new TimeStamp(2005,2,8,11,57,51,479),emptyTime,1,0,0);
 			TransactionPairs rts = manager.ComboTrades;
-			Assert.AreEqual(-0.034D,Math.Round(rts.CalcProfitLoss(0),3),"First Trade PnL");
+			Assert.AreEqual(-0.034D,Math.Round(rts.CalcProfitLoss(0),6),"First Trade PnL");
 		}
 		
 		[Test]

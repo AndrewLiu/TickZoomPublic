@@ -44,7 +44,8 @@ namespace TickZoom.Common
 		Elapsed sessionStart = new Elapsed(8,0,0);
 		private static readonly Log log = Factory.SysLog.GetLogger(typeof(RandomCommon));
 		private readonly bool debug = log.IsDebugEnabled;
-		private readonly bool trace = log.IsTraceEnabled;		
+		private readonly bool trace = log.IsTraceEnabled;
+	    private int size = 1000;
 		
 		public RandomCommon()
 		{
@@ -70,18 +71,18 @@ namespace TickZoom.Common
 						} else {
 							if( Position.IsFlat) {
 								if( sig > 0) {
-									Orders.Enter.ActiveNow.BuyMarket(sig);
+									Orders.Enter.ActiveNow.BuyMarket(sig * size);
 								} else if( sig < 0) {
-									Orders.Enter.ActiveNow.SellMarket(Math.Abs(sig));
+									Orders.Enter.ActiveNow.SellMarket(Math.Abs(sig) * size);
 								}
 							} else {
 								if( sig > 0) {
 									if( !Position.IsLong) {
-										Orders.Reverse.ActiveNow.BuyMarket(sig);
+										Orders.Reverse.ActiveNow.BuyMarket(sig * size);
 									}
 								} else if( sig < 0) {
 									if( !Position.IsShort) {
-										Orders.Reverse.ActiveNow.SellMarket(Math.Abs(sig));
+										Orders.Reverse.ActiveNow.SellMarket(Math.Abs(sig) * size);
 									}
 								}
 							}
