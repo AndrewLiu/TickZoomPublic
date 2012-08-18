@@ -68,7 +68,7 @@ namespace Loaders
         Dictionary<string,List<TransactionInfo>> goodTransactionMap = new Dictionary<string,List<TransactionInfo>>();
         Dictionary<string,List<TransactionInfo>> testTransactionMap = new Dictionary<string,List<TransactionInfo>>();
         public bool ShowCharts = false;
-        private bool storeKnownGood = false;
+        private bool storeKnownGood = true;
         public CreateStarterCallback createStarterCallback;
         protected bool testFailed = false;		
         private TimeStamp startTime = new TimeStamp(1800,1,1);

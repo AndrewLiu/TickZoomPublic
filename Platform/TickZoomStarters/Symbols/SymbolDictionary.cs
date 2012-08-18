@@ -438,6 +438,7 @@ namespace TickZoom.Symbols
     </category>
     <category name=""2 Pip"">
       <property name=""MinimumTick"" value=""0.001"" />
+      <property name=""FullPointValue"" value=""0.001"" />
       <symbol name=""USD/JPY"">
         <property name=""UseSyntheticLimits"" value=""false"" />
         <property name=""UseSyntheticStops"" value=""false"" />

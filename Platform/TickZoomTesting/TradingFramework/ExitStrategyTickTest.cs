@@ -75,7 +75,7 @@ namespace TickZoom.TradingFramework
 			}
 			Assert.Greater(strategy.Performance.ComboTrades.Count,4,"Number of signal Changes");
 			Assert.AreEqual(expected,strategy.Performance.ComboTrades[1].EntryTime,"Long entry time");
-			Assert.AreEqual(1,strategy.Performance.ComboTrades[1].Direction,"Long entry signal");
+			Assert.AreEqual(1000,strategy.Performance.ComboTrades[1].Direction,"Long entry signal");
 		}
 			
 		[Test]
@@ -89,7 +89,7 @@ namespace TickZoom.TradingFramework
 		public void ShortEntry() {
 			TimeStamp expected = new TimeStamp(2004,1,2,10,40,04,991);
 			Assert.Greater(strategy.Performance.ComboTrades.Count,10,"count of signal direction");
-			Assert.AreEqual(-1,strategy.Performance.ComboTrades[4].Direction,"Short entry signal");
+			Assert.AreEqual(-1000,strategy.Performance.ComboTrades[4].Direction,"Short entry signal");
 			Assert.AreEqual(expected,strategy.Performance.ComboTrades[4].EntryTime,"Short entry time");
 		}
 	}
