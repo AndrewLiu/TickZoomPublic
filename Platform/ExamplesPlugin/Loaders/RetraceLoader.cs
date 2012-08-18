@@ -25,7 +25,7 @@ namespace TickZoom.Examples
             foreach (var symbol in properties.Starter.SymbolInfo)
             {
                 CreateRetraceStrategy(symbol, strategies, RetraceDirection.LongOnly);
-                CreateRetraceStrategy(symbol, strategies, RetraceDirection.ShortOnly);
+                //CreateRetraceStrategy(symbol, strategies, RetraceDirection.ShortOnly);
             }
 
             var portfolio = new Portfolio();
@@ -39,7 +39,7 @@ namespace TickZoom.Examples
 
         private void CreateRetraceStrategy(SymbolInfo symbol, List<Strategy> strategies, RetraceDirection direction)
         {
-            var strategy = new RetraceStrategy();
+            var strategy = new Retrace2Strategy();
             strategy.Direction = direction;
             strategy.SymbolDefault = symbol.ExpandedSymbol;
             strategy.IsActive = true;

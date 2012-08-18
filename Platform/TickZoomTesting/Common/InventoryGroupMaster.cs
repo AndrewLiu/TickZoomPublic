@@ -358,5 +358,22 @@ namespace TickZoom.Common
         {
             throw new NotImplementedException();
         }
+
+
+        public double FavorableExcursion
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public double AdverseExcursion
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+
+        public double Excursion
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }

@@ -53,6 +53,8 @@ namespace TickZoom.Examples
 
             averagePrice = Formula.Indicator();
             averagePrice.Name = direction == RetraceDirection.LongOnly ? "LBE" : "SBE";
+            //averagePrice.Drawing.PaneType = PaneType.Secondary;
+            //averagePrice.Drawing.GroupName = "BreakEven";
             averagePrice.Drawing.IsVisible = true;
             averagePrice.Drawing.Color = Color.Black;
 
