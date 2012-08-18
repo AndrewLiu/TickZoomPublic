@@ -28,8 +28,10 @@ namespace TickZoom.Examples
         int BidSize { get; }
         InventoryType Type { get; set; }
         double ExtremePrice { get; }
-        double BeginningPrice { get; }
         double BreakEven { get; }
+        double FavorableExcursion { get; }
+        double AdverseExcursion { get; }
+        double Excursion { get; }
         void CalculateBidOffer(double bid, double offer);
         void Change( double price, int positionChange);
         double CurrentProfitLoss(double price);

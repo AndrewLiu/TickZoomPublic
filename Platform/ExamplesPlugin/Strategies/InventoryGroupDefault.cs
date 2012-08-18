@@ -10,7 +10,6 @@ namespace TickZoom.Examples
         private bool trace = log.IsTraceEnabled;
         private int id;
         private TransactionPairBinary binary;
-        private TransactionPairBinary counter;
         private double breakEven = double.NaN;
         private double retrace = 0.60D;
         private int profitTicks = 20;
@@ -25,10 +24,11 @@ namespace TickZoom.Examples
         private double cumulativeProfit;
         private InventoryType type = InventoryType.Either;
         private InventoryStatus status = InventoryStatus.Flat;
-        private double beginningPrice;
         private double maxSpread;
         private double increaseSpread;
         private double decreaseSpread;
+        private double favorableExcursion;
+        private double adverseExcursion;
 
         public InventoryGroupDefault(SymbolInfo symbol) : this(symbol, 1)
         {
@@ -52,14 +52,13 @@ namespace TickZoom.Examples
         public void Clear()
         {
             binary = default(TransactionPairBinary);
-            counter = default(TransactionPairBinary);
             breakEven = double.NaN;
             currentProfit = 0D;
             cumulativeProfit = 0D;
             type = InventoryType.Either;
             status = InventoryStatus.Flat;
-            beginningPrice = 0D;
             maxSpread = 0D;
+            adverseExcursion = favorableExcursion = 0D;
         }
 
         public void UpdateBidAsk(double marketBid, double marketAsk)
@@ -67,12 +66,12 @@ namespace TickZoom.Examples
             if (binary.CurrentPosition > 0)
             {
                 binary.UpdatePrice(marketAsk);
-                TrackExcursions(marketAsk);
+                TrackExcursion(marketAsk);
             }
             if (binary.CurrentPosition < 0)
             {
                 binary.UpdatePrice(marketBid);
-                TrackExcursions(marketBid);
+                TrackExcursion(marketBid);
             }
         }
 
@@ -121,11 +120,9 @@ namespace TickZoom.Examples
             offer = Math.Max(offer, bid + DecreaseSpread);
 
             if (trace)
-                log.TraceFormat(LogMessage.LOGMSG712, BeginningPrice, BreakEven, binary.MinPrice, bid, offer,
-                                binary.CurrentPosition);
+                log.TraceFormat(LogMessage.LOGMSG712, BreakEven, binary.MinPrice, bid, offer, binary.CurrentPosition);
             if (binary.CurrentPosition != 0)
             {
-                AssertGreaterOrEqual(BeginningPrice, BreakEven, "beginning >= break even");
                 AssertGreaterOrEqual(Round(BreakEven), Round(bid), "break even >= bid");
                 AssertGreater(offer, bid, "offer > bid");
             }
@@ -199,13 +196,12 @@ namespace TickZoom.Examples
             bid = Math.Min(bid, offer - DecreaseSpread);
 
             if (trace)
-                log.TraceFormat(LogMessage.LOGMSG713, BeginningPrice, BreakEven, binary.MaxPrice, bid, offer,
+                log.TraceFormat(LogMessage.LOGMSG713, BreakEven, binary.MaxPrice, bid, offer,
                                 binary.CurrentPosition, marketBid, marketOffer);
             if (binary.CurrentPosition != 0)
             {
                 AssertGreaterOrEqual(Round(offer), Round(BreakEven), "break even > bid");
                 AssertGreater(offer, bid, "offer > bid");
-                AssertGreaterOrEqual(BreakEven, BeginningPrice, "break even > beginning");
                 //AssertGreaterOrEqual(binary.MaxPrice, breakEven, "MaxPrice >= break even");
             }
             var spread = offer - bid;
@@ -277,37 +273,17 @@ namespace TickZoom.Examples
             get { return breakEven; }
         }
 
-        private void TrackExcursions(double price)
+        private void TrackExcursion(double price)
         {
-            if (binary.CurrentPosition == 0)
+            var signedExcursion = (price - breakEven) * Math.Sign(binary.CurrentPosition);
+            excursion = Math.Abs(signedExcursion);
+            if( signedExcursion > favorableExcursion)
             {
-                beginningPrice = 0D;
+                favorableExcursion = excursion;
             }
-            else if (BeginningPrice == 0D)
+            if (-signedExcursion > adverseExcursion)
             {
-                beginningPrice = price;
-            }
-            else if (binary.CurrentPosition > 0)
-            {
-                if (price > BeginningPrice)
-                {
-                    beginningPrice = price;
-                }
-                if (BreakEven > BeginningPrice)
-                {
-                    beginningPrice = BreakEven + 10*symbol.MinimumTick;
-                }
-            }
-            else if (binary.CurrentPosition < 0)
-            {
-                if (BreakEven < BeginningPrice)
-                {
-                    beginningPrice = BreakEven - 10*symbol.MinimumTick;
-                }
-                if (price < BeginningPrice)
-                {
-                    beginningPrice = price;
-                }
+                adverseExcursion = excursion;
             }
         }
 
@@ -319,8 +295,7 @@ namespace TickZoom.Examples
             binary.Change(price, positionChange);
             if (trace) log.TraceFormat(LogMessage.LOGMSG714, positionChange, price, binary.CurrentPosition);
             CalcBreakEven();
-            TrackExcursions(price);
-            TryChangeCounter(price, positionChange);
+            TrackExcursion(price);
             if (newPosition == 0)
             {
                 breakEven = double.NaN;
@@ -328,7 +303,6 @@ namespace TickZoom.Examples
                 cumulativeProfit = CumulativeProfit + pandl;
                 currentProfit = 0D;
                 binary = default(TransactionPairBinary);
-                counter = default(TransactionPairBinary);
                 breakEven = double.NaN;
             }
             else
@@ -337,60 +311,6 @@ namespace TickZoom.Examples
             }
             binary.UpdatePrice(price);
             SetStatus();
-        }
-
-        private void TryChangeCounter(double price, int positionChange)
-        {
-            if (Status == InventoryStatus.Long)
-            {
-                if (positionChange < 0)
-                {
-                    counter.Change(price, positionChange);
-                }
-                else if (counter.CurrentPosition < 0)
-                {
-                    positionChange = Math.Min(positionChange, -counter.CurrentPosition);
-                    counter.Change(price, positionChange);
-                    var closedPoints = counter.ClosedPoints;
-                    if (closedPoints > 0)
-                    {
-                        var positionSize = Math.Abs(binary.CurrentPosition);
-                        var points = BeginningPrice*positionSize;
-                        points -= closedPoints;
-                        var newExtreme = points/positionSize;
-                        beginningPrice = newExtreme;
-                        counter.ClosedPoints = 0;
-                    }
-                    if (counter.Completed)
-                    {
-                        counter = default(TransactionPairBinary);
-                    }
-                }
-            }
-            if (Status == InventoryStatus.Short)
-            {
-                if (positionChange > 0)
-                {
-                    counter.Change(price, positionChange);
-                }
-                else if (counter.CurrentPosition > 0)
-                {
-                    positionChange = Math.Max(positionChange, -counter.CurrentPosition);
-                    counter.Change(price, positionChange);
-                    if (counter.Completed)
-                    {
-                        var closedPoints = counter.ClosedPoints;
-                        if (closedPoints > 0)
-                        {
-                            var positionSize = Math.Abs(binary.CurrentPosition);
-                            var points = BeginningPrice*positionSize;
-                            points += closedPoints;
-                            beginningPrice = points/positionSize;
-                        }
-                        counter = default(TransactionPairBinary);
-                    }
-                }
-            }
         }
 
         public void CalcBreakEven()
@@ -483,7 +403,7 @@ namespace TickZoom.Examples
         {
             return Type + "," + Status + "," + Round(bid) + "," + Round(offer) + "," + Round(offer - bid) + "," +
                    bidSize + "," + offerSize + "," +
-                   binary.CurrentPosition + "," + Round(BeginningPrice) + "," + Round(BreakEven) + "," +
+                   binary.CurrentPosition + "," + Round(BreakEven) + "," +
                    Round(currentProfit) + "," + Round(cumulativeProfit);
         }
 
@@ -613,11 +533,6 @@ namespace TickZoom.Examples
             set { type = value; }
         }
 
-        public double BeginningPrice
-        {
-            get { return beginningPrice; }
-        }
-
         public double IncreaseSpread
         {
             get { return increaseSpread; }
@@ -652,12 +567,28 @@ namespace TickZoom.Examples
             set { profitRetrace = value; }
         }
 
+        public double AdverseExcursion
+        {
+            get { return adverseExcursion; }
+        }
+
+        public double FavorableExcursion
+        {
+            get { return favorableExcursion; }
+        }
+
+        public double Excursion
+        {
+            get { return excursion; }
+        }
+
         private double bid;
         private double offer;
         private int offerSize;
         private int bidSize;
         private double profitTarget;
         private double profitRetrace;
+        private double excursion;
 
         public void CalculateBidOffer(double marketBid, double marketOffer)
         {

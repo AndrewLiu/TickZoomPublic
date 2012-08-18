@@ -771,8 +771,8 @@ namespace TickZoom.Logging
                 collection.Add( LogMessage.LOGMSG709,"close: {0} {1} {2}");
                 collection.Add( LogMessage.LOGMSG710,"isFlat {0}, Position.IsFlat {1}, trades.Count {2}, Completed {3}");
                 collection.Add( LogMessage.LOGMSG711,"Close {0}, Open {1}");
-                collection.Add( LogMessage.LOGMSG712,"Long: Beginning {0}, break even {1}, min price {2}, bid {3}, offer {4}, position {5}");
-                collection.Add( LogMessage.LOGMSG713,"Short: Beginning {0}, break even {1}, max price {2}, bid {3}/ offer {4}, position {5}, market bid {6}/ offer {7}");
+                collection.Add( LogMessage.LOGMSG712,"Long: break even {0}, min price {1}, bid {2}, offer {3}, position {4}");
+                collection.Add( LogMessage.LOGMSG713,"Short: Break even {0}, max price {1}, bid {2}/ offer {3}, position {4}, market bid {5}/ offer {6}");
                 collection.Add( LogMessage.LOGMSG714,"Changed {0} at {1}, position {2}");
                 collection.Add( LogMessage.LOGMSG715,"OnEnterTrade() completed={0} {1}");
                 collection.Add( LogMessage.LOGMSG716,"OnChangeTrade() completed={0} {1}");
