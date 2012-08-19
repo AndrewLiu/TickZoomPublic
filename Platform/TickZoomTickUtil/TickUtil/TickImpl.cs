@@ -377,10 +377,12 @@ namespace TickZoom.TickUtil
 		
 		public long lBid {
 			get { return binary.Bid; }
+			set { binary.Bid = value; }
 		}
 
 		public long lAsk {
 			get { return binary.Ask; }
+            set { binary.Ask = value; }
 		}
 		
 		public long lPrice {
