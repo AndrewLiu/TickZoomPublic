@@ -1109,8 +1109,10 @@ namespace TickZoom.TickUtil
             return position;
         }
 
+        private TickBinary previous;
         public int FromReader(ref TickBinary binary, MemoryStream reader)
         {
+            previous.Symbol = binary.Symbol;
             fixed (byte* fptr = reader.GetBuffer())
             {
                 byte* sptr = fptr + reader.Position;
@@ -1120,20 +1122,21 @@ namespace TickZoom.TickUtil
                 switch (dataVersion)
                 {
                     case 8:
-                        ptr += FromFileVersion8(ref binary, ptr);
+                        ptr += FromFileVersion8(ref previous, ptr);
                         break;
                     case 9:
-                        ptr += FromFileVersion9(ref binary, ptr, (short)(size - 1));
+                        ptr += FromFileVersion9(ref previous, ptr, (short)(size - 1));
                         break;
                     case 10:
-                        ptr += FromFileVersion10(ref binary, ptr, (short)(size - 1));
+                        ptr += FromFileVersion10(ref previous, ptr, (short)(size - 1));
                         break;
                     case 11:
-                        ptr += FromFileVersion11(ref binary, ptr, (short)(size - 1));
+                        ptr += FromFileVersion11(ref previous, ptr, (short)(size - 1));
                         break;
                     default:
                         throw new ApplicationException("Unknown Tick Version Number " + dataVersion);
                 }
+                binary = previous;
                 reader.Position += (int)(ptr - sptr);
                 return dataVersion;
             }

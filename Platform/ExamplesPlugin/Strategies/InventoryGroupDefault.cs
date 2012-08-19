@@ -75,6 +75,11 @@ namespace TickZoom.Examples
             }
         }
 
+        public double EntryPrice
+        {
+            get { return binary.EntryPrice; }
+        }
+
         public double ExtremePrice
         {
             get
