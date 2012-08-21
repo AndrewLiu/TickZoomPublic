@@ -17,7 +17,11 @@ namespace TickZoom.Examples
         private IndicatorCommon offerSpreadLine;
         private IndicatorCommon bidSpreadLine;
         private IndicatorCommon targetLine;
+        private IndicatorCommon excursionLine;
         private double target;
+        private int previousPosition;
+        private int increaseCurveTicks = 160;
+
 
         public RetraceDirection Direction
         {
@@ -31,11 +35,29 @@ namespace TickZoom.Examples
             CreateIndicators();
             base.OnInitialize();
             minimumTick = Data.SymbolInfo.MinimumTick;
-            bidSpread = offerSpread = startingSpread = 1 * minimumTick;
+            bidSpread = offerSpread = startingSpread = 5 * minimumTick;
             BuySize = SellSize = baseLots;
             askLine.Drawing.IsVisible = true;
             bidLine.Drawing.IsVisible = true;
 
+            for( var x = 10; x < 100; x+=10)
+            {
+                var y = Calc5LogisticsCurve(x);
+                Log.InfoFormat("x,y = {0},{1}", x, y);
+            }
+
+            for (var highx = 10; highx < 100; highx += 10)
+            {
+                Log.InfoFormat("High X = {0}", highx);
+                var sum = 0D;
+                for (var x = 0; x < highx; x ++)
+                {
+                    var y = CalcDecreaseFactor(x, highx);
+                    Log.InfoFormat("x,y = {0},{1}", x, y);
+                    sum += y;
+                }
+                Log.InfoFormat("Sum Y = {0}", sum);
+            }
         }
 
         private void CreateIndicators()
@@ -44,6 +66,13 @@ namespace TickZoom.Examples
             targetLine.Name = "Target";
             targetLine.Drawing.IsVisible = true;
             targetLine.Drawing.Color = Color.Orange;
+
+            excursionLine = Formula.Indicator();
+            excursionLine.Name = "Excursion";
+            excursionLine.Drawing.IsVisible = true;
+            excursionLine.Drawing.Color = Color.Orange;
+            excursionLine.Drawing.PaneType = PaneType.Secondary;
+            excursionLine.Drawing.GroupName = "Excursion";
 
             offerSpreadLine = Formula.Indicator();
             offerSpreadLine.Name = "Offer Spread";
@@ -81,6 +110,11 @@ namespace TickZoom.Examples
                 ProcessOrders(tick);
             }
 
+            //if (Position.HasPosition && inventory.AdverseExcursion / minimumTick > 500)
+            //{
+            //    Orders.Exit.ActiveNow.GoFlat();
+            //}
+
             UpdateIndicators();
             return true;
         }
@@ -106,95 +140,131 @@ namespace TickZoom.Examples
 
         }
 
-        private double CalcProfitRetrace()
+        private double CalcProfitRetrace(int totalMinutes)
+        {
+            var profitDefaultRetrace = 0.20;
+            var profitUpdateFrequency = 10;
+            var profitUpdatePercent = 0.01;
+            var profitMinimumPercent = -1.00;
+            return Math.Max(profitMinimumPercent, profitDefaultRetrace - profitUpdatePercent * (totalMinutes / profitUpdateFrequency));
+        }
+
+        private int CalcMinutesInPosition()
         {
             var combo = Performance.ComboTrades.Tail;
             var tick = Ticks[0];
             var elapsed = tick.Time - combo.EntryTime;
-            var totalMinutes = elapsed.TotalMinutes;
-            var profitDefaultRetrace = 1;
-            var profitUpdateFrequency = 10;
-            var profitUpdatePercent = 0.01;
-            var profitMinimumPercent = 0.01;
-            return Math.Max(profitMinimumPercent, profitDefaultRetrace - profitUpdatePercent * (totalMinutes / profitUpdateFrequency));
+            return elapsed.TotalMinutes;
         }
 
+        private double CalcIncreaseSpread( int x)
+        {
+            var result = x*x*0.001*increaseCurveTicks + x + 0;
+            return result;
+        }
+
+        private int retracePercent;
         private void SetBidOffer()
         {
+            if( !Position.HasPosition)
+            {
+                return;
+            }
+            var minutes = CalcMinutesInPosition();
+            var completeDistance = Math.Abs(inventory.MaxPrice - inventory.MinPrice);
+            var targetPercent = CalcProfitRetrace(minutes);
+            var targetPoints = completeDistance*targetPercent;
+
+            target = Position.IsLong ? inventory.BreakEven + targetPoints : inventory.BreakEven - targetPoints;
             var lots = Position.Size/lotSize;
             highLots = lots > highLots ? lots : highLots;
             SellSize = 1;
             BuySize = 1;
-            var ae = inventory.AdverseExcursion;
+            retracePercent = 0;
+            bidSpread = startingSpread;
+            offerSpread = startingSpread;
             if (Position.IsLong)
             {
-                bidSpread = minimumTick*lots;
-                if( inventory.BreakEven == inventory.EntryPrice)
+                if (midPoint < target)
                 {
-                    target = inventory.BreakEven + 5 * minimumTick;
-                    offerSpread = Math.Max(minimumTick, target - inventory.BreakEven);
-                    SellSize = lots + 1;
-                }
-                else if( midPoint > target)
-                {
-                    target = (inventory.BreakEven - ae) + 2 * ae * CalcProfitRetrace();
-                    offerSpread = minimumTick;
-                    SellSize = lots + 1;
-                }
-                else if (midPoint > inventory.BreakEven)
-                {
-                    target = (inventory.BreakEven - ae) + 2 * ae * CalcProfitRetrace();
-                    offerSpread = minimumTick;
-                    SellSize = 1;
+                    //bidSpread = minimumTick*Math.Max(1, (50 - lots)/10);
+                    bidSpread += (inventory.AdverseExcursion - inventory.Excursion)/ 10;
+                    offerSpread = CalcDecreaseSpread(lots);
                 }
                 else
                 {
-                    target = (inventory.BreakEven - ae) + 2 * ae * CalcProfitRetrace();
-                    offerSpread = 5 * Math.Max(minimumTick, inventory.Excursion / lots);
+                    SellSize = (int) Math.Max(1,Math.Min(lots,(inventory.Excursion / minimumTick)/10));
                 }
+                Orders.Exit.ActiveNow.SellLimit(target);
             }
-            if( Position.IsShort)
+            if (Position.IsShort)
             {
-                offerSpread = minimumTick*lots;
-                if (inventory.BreakEven == inventory.EntryPrice)
+                if (midPoint > target)
                 {
-                    target = inventory.EntryPrice - 5 * minimumTick;
-                    bidSpread = Math.Max(minimumTick, inventory.BreakEven - target);
-                    BuySize = lots + 1;
-                }
-                else if (midPoint < target)
-                {
-                    target = (inventory.BreakEven + ae) - 2 * ae * CalcProfitRetrace();
-                    bidSpread = minimumTick;
-                    BuySize = lots + 1;
-                }
-                else if (midPoint < inventory.BreakEven)
-                {
-                    target = (inventory.BreakEven + ae) - 2 * ae * CalcProfitRetrace();
-                    bidSpread = minimumTick;
-                    BuySize = 1;
+                    //offerSpread = minimumTick * Math.Max(1, (50 - lots)/10);
+                    offerSpread += (inventory.AdverseExcursion - inventory.Excursion) / 10;
+                    bidSpread = CalcDecreaseSpread(lots);
                 }
                 else
                 {
-                    target = (inventory.BreakEven + ae) - 2 * ae * CalcProfitRetrace();
-                    bidSpread = Math.Max(minimumTick, inventory.Excursion / lots);
+                    BuySize = (int) Math.Max(1,Math.Min(lots, (inventory.Excursion / minimumTick) / 10));
                 }
+                Orders.Exit.ActiveNow.BuyLimit(target);
             }
             bid = midPoint - bidSpread;
             ask = midPoint + offerSpread;
             return;
         }
 
+        private double Calc5LogisticsCurve(int x)
+        {
+            var a = -1.44476096837362;
+            var b = 0.575858698581167;
+            var y = Math.Pow(10, b + (Math.Log10(x)) * a);
+            return y;
+        }
+
+        private double CalcDecreaseFactor( int x, int highx)
+        {
+            var a = Calc5LogisticsCurve(highx);
+            var b = 1.5;
+            var c = 0D;
+            var d = 0.10;
+
+            var y = a*Math.Pow(x, b) + c*x + d;
+            return y;
+        }
+
+
+        private double CalcDecreaseSpread( int lots)
+        {
+            var retraceLots = lots;
+            var factor = CalcDecreaseFactor(retraceLots, highLots);
+            var increment = Math.Max(minimumTick, (inventory.AdverseExcursion/highLots) * factor);
+            return increment;
+        }
+
         private void UpdateIndicators()
         {
             bidLine[0] = bid.Round();
             askLine[0] = ask.Round();
-            offerSpreadLine[0] = offerSpread;
-            bidSpreadLine[0] = - bidSpread;
-            targetLine[0] = target;
+            offerSpreadLine[0] = Math.Round(offerSpread, Data.SymbolInfo.MinimumTickPrecision);
+            bidSpreadLine[0] = -Math.Round(bidSpread, Data.SymbolInfo.MinimumTickPrecision);
+            excursionLine[0] = Math.Round(inventory.Excursion, Data.SymbolInfo.MinimumTickPrecision);
+            if (Position.IsLong && midPoint < target)
+            {
+                targetLine[0] = Math.Round(target, Data.SymbolInfo.MinimumTickPrecision);
+            }
+            else if (Position.IsShort && midPoint > target)
+            {
+                targetLine[0] = Math.Round(target, Data.SymbolInfo.MinimumTickPrecision);
+            }
+            else
+            {
+                targetLine[0] = double.NaN;
+            }
         }
 
-        private int previousPosition;
         private void ProcessChange(TransactionPairBinary comboTrade, LogicalFill fill)
         {
             var positionChange = fill.Position - previousPosition;
@@ -259,4 +329,4 @@ namespace TickZoom.Examples
             UpdateIndicators();
         }
     }
-}
+ }

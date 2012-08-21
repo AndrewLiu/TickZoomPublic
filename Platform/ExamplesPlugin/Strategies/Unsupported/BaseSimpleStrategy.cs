@@ -43,23 +43,21 @@ namespace TickZoom.Examples
             Performance.GraphTrades = IsVisible;
 
             askLine = Formula.Indicator();
-            askLine.Name = direction == RetraceDirection.LongOnly ? "LAsk" : "SAsk";
+            askLine.Name = "Ask";
             askLine.Drawing.IsVisible = direction == RetraceDirection.LongOnly;
 
             bidLine = Formula.Indicator();
-            bidLine.Name = direction == RetraceDirection.LongOnly ? "LBid" : "SAsk";
+            bidLine.Name = "Bid";
             bidLine.Drawing.Color = Color.Blue;
             bidLine.Drawing.IsVisible = direction == RetraceDirection.ShortOnly;
 
             averagePrice = Formula.Indicator();
-            averagePrice.Name = direction == RetraceDirection.LongOnly ? "LBE" : "SBE";
-            //averagePrice.Drawing.PaneType = PaneType.Secondary;
-            //averagePrice.Drawing.GroupName = "BreakEven";
+            averagePrice.Name = "BE";
             averagePrice.Drawing.IsVisible = true;
             averagePrice.Drawing.Color = Color.Black;
 
             position = Formula.Indicator();
-            position.Name = direction == RetraceDirection.LongOnly ? "LPos" : "SPos";
+            position.Name = "Position";
             position.Drawing.PaneType = PaneType.Secondary;
             position.Drawing.GroupName = "Position";
             position.Drawing.Color = direction == RetraceDirection.LongOnly ? Color.Green : Color.Red;
@@ -82,7 +80,18 @@ namespace TickZoom.Examples
         {
             UpdateBreakEven((tick.Ask + tick.Bid) / 2);
 
-            averagePrice[0] = breakEvenPrice;
+            if (Position.IsLong && midPoint < inventory.BreakEven)
+            {
+                averagePrice[0] = breakEvenPrice;
+            }
+            else if (Position.IsShort && midPoint > inventory.BreakEven)
+            {
+                averagePrice[0] = breakEvenPrice;
+            }
+            else
+            {
+                averagePrice[0] = double.NaN;
+            }
             if (bidLine.Count > 0)
             {
                 position[0] = Position.Current / lotSize;
@@ -107,8 +116,8 @@ namespace TickZoom.Examples
             marketBid = Math.Min(tick.Ask, tick.Bid);
             ask = Math.Max(myAsk, marketAsk);
             bid = Math.Min(myBid, marketBid);
-            bidLine[0] = bid;
-            askLine[0] = ask;
+            bidLine[0] = Math.Round(bid,Data.SymbolInfo.MinimumTickPrecision);
+            askLine[0] = Math.Round(ask, Data.SymbolInfo.MinimumTickPrecision);
         }
 
         protected void SetupBidAsk(double price)
