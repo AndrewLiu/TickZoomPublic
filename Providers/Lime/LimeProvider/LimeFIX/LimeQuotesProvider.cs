@@ -438,11 +438,20 @@ namespace TickZoom.Provider.LimeQuotes
                 bookUpdate = true;
             if (isTopOfBook) {
                 SymbolHandler handler;
+                SymbolInfo symbolInfo;
                 try {
-                    SymbolInfo symbolInfo = Factory.Symbol.LookupSymbol(symbol);
+                    symbolInfo = Factory.Symbol.LookupSymbol(symbol);
+                } catch (Exception) {
+                    log.InfoFormat("Failed to lookup symbol for {0}", symbol);
+                    throw;
+                }
+                try
+                {
                     handler = symbolHandlers[symbolInfo.BinaryIdentifier];
-                } catch (ApplicationException) {
-                    log.Info("Received tick: " + new string(message.DataIn.ReadChars(message.Remaining)));
+                }
+                catch (Exception)
+                {
+                    log.InfoFormat("Failed to find symbol handler for {0}, id {1}", symbolInfo, symbolInfo.BinaryIdentifier);
                     throw;
                 }
 

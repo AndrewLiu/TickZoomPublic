@@ -785,12 +785,17 @@ namespace TickZoom.Provider.FIX
 	    protected SymbolHandler StartSymbolHandler(SymbolInfo symbol, Agent agent) {
 	        lock( symbolHandlersLocker) {
 	            SymbolHandler symbolHandler;
-	            if( symbolHandlers.TryGetValue(symbol.BinaryIdentifier,out symbolHandler)) {
+                if (symbolHandlers.TryGetValue(symbol.CommonSymbol.BinaryIdentifier, out symbolHandler))
+                {
 	                symbolHandler.Start();
-	            } else {
+                    log.InfoFormat("Found symbol handler for {0}, id {1}, common {1}, id {2}", symbol, symbol.BinaryIdentifier, symbol.CommonSymbol, symbol.CommonSymbol.BinaryIdentifier);
+                }
+                else
+                {
 	                symbolHandler = Factory.Utility.SymbolHandler(providerName, symbol,agent);
-	                symbolHandlers.Add(symbol.BinaryIdentifier,symbolHandler);
+	                symbolHandlers.Add(symbol.CommonSymbol.BinaryIdentifier,symbolHandler);
 	                symbolHandler.Start();
+                    log.InfoFormat("Added symbol handler for {0}, id {1}, common {1}, id {2}", symbol, symbol.BinaryIdentifier, symbol.CommonSymbol, symbol.CommonSymbol.BinaryIdentifier);
 	            }
 	            return symbolHandler;
 	        }
