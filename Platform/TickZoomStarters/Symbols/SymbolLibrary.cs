@@ -40,7 +40,10 @@ namespace TickZoom.Symbols
 {
 	public class SymbolLibrary 
 	{
-		Dictionary<string,SymbolProperties> symbolMap;
+        private static readonly Log log = Factory.SysLog.GetLogger(typeof(SymbolLibrary));
+        private readonly bool trace = log.IsTraceEnabled;
+        private readonly bool debug = log.IsDebugEnabled;
+        Dictionary<string, SymbolProperties> symbolMap;
 		Dictionary<long,SymbolProperties> universalMap;
         long universalIdentifier = 1;
         public SymbolLibrary()
@@ -53,10 +56,11 @@ namespace TickZoom.Symbols
 
         public void AddSymbol(SymbolProperties properties)
         {
-            if (properties.Account == "default")
+            if (properties.Account == "default" && properties.Source == "default")
             {
                 symbolMap[properties.ExpandedSymbol] = properties;
                 properties.CommonSymbol = properties;
+                log.InfoFormat("Assigned common {0} to {1}", properties.CommonSymbol, properties);
             }
             else
             {
@@ -194,7 +198,14 @@ namespace TickZoom.Symbols
                 if( source != "default")
                 {
                     properties = properties.Copy();
+                    expandedSymbol = brokerSymbol + Symbol.AccountSeparator + "default";
+                    SymbolProperties commonProperties;
+                    if( !GetSymbolProperties(expandedSymbol, out commonProperties))
+                    {
+                        throw new ApplicationException("Can't find common symbol " + expandedSymbol + " for " + properties);
+                    }
                     properties.Source = source;
+                    properties.CommonSymbol = commonProperties;
                     AddSymbol(properties);
                 }
                 return true;

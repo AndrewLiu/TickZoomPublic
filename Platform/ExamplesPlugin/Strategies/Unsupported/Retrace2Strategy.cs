@@ -40,24 +40,24 @@ namespace TickZoom.Examples
             askLine.Drawing.IsVisible = true;
             bidLine.Drawing.IsVisible = true;
 
-            for( var x = 10; x < 100; x+=10)
-            {
-                var y = Calc5LogisticsCurve(x);
-                Log.InfoFormat("x,y = {0},{1}", x, y);
-            }
+            //for( var x = 10; x < 100; x+=10)
+            //{
+            //    var y = Calc5LogisticsCurve(x);
+            //    Log.InfoFormat("x,y = {0},{1}", x, y);
+            //}
 
-            for (var highx = 10; highx < 100; highx += 10)
-            {
-                Log.InfoFormat("High X = {0}", highx);
-                var sum = 0D;
-                for (var x = 0; x < highx; x ++)
-                {
-                    var y = CalcDecreaseFactor(x, highx);
-                    Log.InfoFormat("x,y = {0},{1}", x, y);
-                    sum += y;
-                }
-                Log.InfoFormat("Sum Y = {0}", sum);
-            }
+            //for (var highx = 10; highx < 100; highx += 10)
+            //{
+            //    Log.InfoFormat("High X = {0}", highx);
+            //    var sum = 0D;
+            //    for (var x = 0; x < highx; x ++)
+            //    {
+            //        var y = CalcDecreaseFactor(x, highx);
+            //        Log.InfoFormat("x,y = {0},{1}", x, y);
+            //        sum += y;
+            //    }
+            //    Log.InfoFormat("Sum Y = {0}", sum);
+            //}
         }
 
         private void CreateIndicators()
@@ -69,7 +69,7 @@ namespace TickZoom.Examples
 
             excursionLine = Formula.Indicator();
             excursionLine.Name = "Excursion";
-            excursionLine.Drawing.IsVisible = true;
+            excursionLine.Drawing.IsVisible = false;
             excursionLine.Drawing.Color = Color.Orange;
             excursionLine.Drawing.PaneType = PaneType.Secondary;
             excursionLine.Drawing.GroupName = "Excursion";
