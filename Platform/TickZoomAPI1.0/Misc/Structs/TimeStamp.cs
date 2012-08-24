@@ -347,6 +347,7 @@ namespace TickZoom.Api
                         break;
                     }
                 }
+                var countPM = 0;
                 // Analyze the string.
                 for (var i = 0; i < endPos; i++)
                 {
@@ -375,6 +376,10 @@ namespace TickZoom.Api
                             break;
                         case '/':
                             slashCount++;
+                            break;
+                        case 'p':
+                        case 'P':
+                            countPM++;
                             break;
                     }
                 }
@@ -408,7 +413,16 @@ namespace TickZoom.Api
                 if (dateEndPos > 0)
                 {
                     var timePos = dateEndPos + 1;
-                    hour = (timeString[timePos++] - '0') * 10 + (timeString[timePos++] - '0');
+                    if( timeString[timePos+1] == ':')
+                    {
+                        hour = (timeString[timePos++] - '0');
+                    }
+                    else
+                    {
+                        hour = (timeString[timePos++] - '0') * 10 + (timeString[timePos++] - '0');
+                    }
+                    if (hour == 12 && countPM == 0) hour = 0; 
+                    if (hour < 12 && countPM == 1) hour += 12;
                     if (timeString[timePos] != ':') Error(timeString, timePos);
                     timePos++; // skip the :
                     minute = (timeString[timePos++] - '0') * 10 + (timeString[timePos++] - '0');

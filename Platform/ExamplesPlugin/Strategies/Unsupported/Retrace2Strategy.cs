@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using TickZoom.Api;
 using TickZoom.Common;
@@ -21,7 +22,8 @@ namespace TickZoom.Examples
         private double target;
         private int previousPosition;
         private int increaseCurveTicks = 160;
-
+        private TimeStamp suspendTradingTime = TimeStamp.MaxValue;
+        private TimeStamp continueTradingTime = TimeStamp.MinValue;
 
         public RetraceDirection Direction
         {
@@ -35,30 +37,33 @@ namespace TickZoom.Examples
             CreateIndicators();
             base.OnInitialize();
             minimumTick = Data.SymbolInfo.MinimumTick;
-            bidSpread = offerSpread = startingSpread = 5 * minimumTick;
-            BuySize = SellSize = baseLots;
+            startingSpread = 10 * minimumTick;
+            bidSpread = offerSpread = startingSpread/2;
+            BuySize = SellSize = 0;
             askLine.Drawing.IsVisible = true;
             bidLine.Drawing.IsVisible = true;
 
-            //for( var x = 10; x < 100; x+=10)
-            //{
-            //    var y = Calc5LogisticsCurve(x);
-            //    Log.InfoFormat("x,y = {0},{1}", x, y);
-            //}
-
-            //for (var highx = 10; highx < 100; highx += 10)
-            //{
-            //    Log.InfoFormat("High X = {0}", highx);
-            //    var sum = 0D;
-            //    for (var x = 0; x < highx; x ++)
-            //    {
-            //        var y = CalcDecreaseFactor(x, highx);
-            //        Log.InfoFormat("x,y = {0},{1}", x, y);
-            //        sum += y;
-            //    }
-            //    Log.InfoFormat("Sum Y = {0}", sum);
-            //}
+            var newsLines = NewsTimes.Split('\n');
+            NewsTimeStamps = new List<TimeStamp>();
+            for( var i = 0; i< newsLines.Length; i++)
+            {
+                var newsLine = newsLines[i].Trim();
+                if (string.IsNullOrEmpty(newsLine)) continue;
+                try
+                {
+                    var timeStamp = new TimeStamp(newsLine);
+                    NewsTimeStamps.Add(timeStamp);
+                }
+                catch(Exception ex)
+                {
+                    var x = 0;
+                }
+            }
+            //NewsTimeStamps.Clear();
+            GetNextNewsTime();
         }
+
+        private List<TimeStamp> NewsTimeStamps;
 
         private void CreateIndicators()
         {
@@ -105,6 +110,31 @@ namespace TickZoom.Examples
 
             TryUpdatePegging();
 
+            if( state.AnySet( StrategyState.ProcessOrders) && tick.UtcTime > suspendTradingTime)
+            {
+                continueTradingTime = suspendTradingTime;
+                continueTradingTime.AddMinutes(5);
+                Orders.Exit.ActiveNow.GoFlat();
+                BuySize = SellSize = 0;
+                suspendTradingTime = TimeStamp.MaxValue;
+                state ^= StrategyState.Active;
+            }
+
+            if (!state.AnySet(StrategyState.ProcessOrders))
+            {
+                if (tick.UtcTime > continueTradingTime)
+                {
+                    GetNextNewsTime();
+                    continueTradingTime = TimeStamp.MinValue;
+                    state |= StrategyState.Active;
+                    SetFlatBidAsk();
+                }
+                else
+                {
+                    Orders.Exit.ActiveNow.GoFlat();
+                }
+            }
+
             if (state.AnySet(StrategyState.ProcessOrders))
             {
                 ProcessOrders(tick);
@@ -119,6 +149,20 @@ namespace TickZoom.Examples
             return true;
         }
 
+        private void GetNextNewsTime()
+        {
+            if (NewsTimeStamps.Count > 0)
+            {
+                suspendTradingTime = NewsTimeStamps[0];
+                suspendTradingTime.AddSeconds(-10);
+                NewsTimeStamps.RemoveAt(0);
+            }
+            else
+            {
+                suspendTradingTime = TimeStamp.MaxValue;
+            }
+        }
+
         protected  void TryUpdatePegging()
         {
             //bid = Math.Max(bid, Math.Min(midPoint,ask) - bidSpread);
@@ -127,7 +171,8 @@ namespace TickZoom.Examples
 
         protected override void SetFlatBidAsk()
         {
-            bidSpread = offerSpread = startingSpread;
+            if (!state.AnySet(StrategyState.ProcessOrders)) return;
+            bidSpread = offerSpread = startingSpread / 2;
             bid = Math.Min(midPoint - bidSpread, MarketBid);
             ask = Math.Max(midPoint + offerSpread, MarketAsk);
             BuySize = 1;
@@ -166,7 +211,7 @@ namespace TickZoom.Examples
         private int retracePercent;
         private void SetBidOffer()
         {
-            if( !Position.HasPosition)
+            if( !Position.HasPosition || !state.AnySet(StrategyState.ProcessOrders))
             {
                 return;
             }
@@ -246,10 +291,8 @@ namespace TickZoom.Examples
 
         private void UpdateIndicators()
         {
-            bidLine[0] = bid.Round();
-            askLine[0] = ask.Round();
-            offerSpreadLine[0] = Math.Round(offerSpread, Data.SymbolInfo.MinimumTickPrecision);
-            bidSpreadLine[0] = -Math.Round(bidSpread, Data.SymbolInfo.MinimumTickPrecision);
+            offerSpreadLine[0] = BuySize > 0 ? Math.Round(offerSpread, Data.SymbolInfo.MinimumTickPrecision) : double.NaN;
+            bidSpreadLine[0] = SellSize > 0 ? -Math.Round(bidSpread, Data.SymbolInfo.MinimumTickPrecision) : double.NaN;
             excursionLine[0] = Math.Round(inventory.Excursion, Data.SymbolInfo.MinimumTickPrecision);
             if (Position.IsLong && midPoint < target)
             {
@@ -290,9 +333,8 @@ namespace TickZoom.Examples
             previousPosition = 0;
             maxLots = 0;
             highLots = 0;
-            bidSpread = startingSpread;
-            offerSpread = startingSpread;
-            BuySize = SellSize = baseLots;
+            bidSpread = offerSpread = startingSpread/2;
+            BuySize = SellSize = 0;
         }
 
         public override void OnEnterTrade(TransactionPairBinary comboTrade, LogicalFill fill, LogicalOrder filledOrder)
@@ -328,5 +370,36 @@ namespace TickZoom.Examples
             UpdateIndicators(tick);
             UpdateIndicators();
         }
+
+        private string NewsTimes = @"
+08-13-2012 11:50pm
+08-14-2012 12:30pm
+08-14-2012 2:00pm
+08-15-2012 12:30pm
+08-15-2012 1:00pm
+08-15-2012 1:15pm
+08-15-2012 2:00pm
+08-15-2012 2:30pm
+08-16-2012 12:30pm
+08-16-2012 2:00pm
+08-16-2012 2:30pm
+08-17-2012 1:55pm
+08-17-2012 2:00pm
+08-21-2012 12:00pm
+08-21-2012 11:50pm
+08-22-2012 1:20pm
+08-22-2012 2:30pm
+08-22-2012 6:00pm
+08-23-2012 12:30pm
+08-23-2012 1:00pm
+08-23-2012 2:00pm
+08-23-2012 2:00pm
+08-23-2012 2:30pm
+08-23-2012 11:50pm
+08-24-2012 7:45am
+08-24-2012 12:30pm
+08-24-2012 12:30pm
+";
     }
+
  }

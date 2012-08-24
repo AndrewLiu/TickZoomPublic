@@ -92,9 +92,28 @@ namespace TickZoom.Examples
             {
                 averagePrice[0] = double.NaN;
             }
+
             if (bidLine.Count > 0)
             {
                 position[0] = Position.Current / lotSize;
+            }
+
+            if( BuySize > 0)
+            {
+                bidLine[0] = Math.Round(bid, Data.SymbolInfo.MinimumTickPrecision);
+            }
+            else
+            {
+                bidLine[0] = double.NaN;
+            }
+
+            if( SellSize > 0)
+            {
+                askLine[0] = Math.Round(ask, Data.SymbolInfo.MinimumTickPrecision);
+            }
+            else
+            {
+                askLine[0] = double.NaN;
             }
         }
 
@@ -116,8 +135,6 @@ namespace TickZoom.Examples
             marketBid = Math.Min(tick.Ask, tick.Bid);
             ask = Math.Max(myAsk, marketAsk);
             bid = Math.Min(myBid, marketBid);
-            bidLine[0] = Math.Round(bid,Data.SymbolInfo.MinimumTickPrecision);
-            askLine[0] = Math.Round(ask, Data.SymbolInfo.MinimumTickPrecision);
         }
 
         protected void SetupBidAsk(double price)
@@ -149,14 +166,12 @@ namespace TickZoom.Examples
         {
             var myAsk = midPoint;
             ask = Math.Max(myAsk, marketAsk);
-            askLine[0] = ask;
         }
 
         protected virtual void SetupBid(double price)
         {
             var myBid = midPoint;
             bid = Math.Min(myBid, marketBid);
-            bidLine[0] = bid;
         }
 
         //protected double CalcIndifferencePrice(TransactionPairBinary comboTrade)
@@ -341,10 +356,6 @@ namespace TickZoom.Examples
             get { return buySize; }
             set
             {
-                if( value > 100)
-                {
-                    int x = 0;
-                }
                 buySize = value;
             }
         }
