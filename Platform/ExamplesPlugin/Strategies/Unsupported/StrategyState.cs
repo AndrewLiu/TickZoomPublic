@@ -7,11 +7,9 @@ namespace TickZoom.Examples
     {
         None,
         Active = 0x01,
-        HighRisk = 0x02,
+        Suspended = 0x02,
         EndForWeek = 0x04,
-        OverSize = 0x08,
-        ProcessSizing = Active | HighRisk,
-        ProcessOrders = Active | OverSize | HighRisk,
+        ProcessOrders = Active,
     }
     public static class LocalExtensions
     {
