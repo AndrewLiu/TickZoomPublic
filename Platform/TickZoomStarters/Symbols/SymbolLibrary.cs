@@ -68,7 +68,14 @@ namespace TickZoom.Symbols
                 {
                     throw new ApplicationException("Symbol " + properties.ExpandedSymbol + " cannot have itself as the common symbol.");
                 }
-                symbolMap.Add(properties.ExpandedSymbol, properties);
+                try
+                {
+                    symbolMap.Add(properties.ExpandedSymbol, properties);
+                }
+                catch( Exception ex)
+                {
+                    var x = 0;
+                }
             }
             AddAbbreviation(properties);
             AdjustSession(properties);
@@ -184,8 +191,8 @@ namespace TickZoom.Symbols
                 return false;
             }
 	        var brokerSymbol = GetBaseSymbol(symbolArgument);
-	        var source = GetSymbolSource(symbolArgument);
-            var account = GetSymbolAccount(symbolArgument);
+	        var source = GetSymbolSource(symbolArgument).ToLower();
+            var account = GetSymbolAccount(symbolArgument).ToLower();
 
             var expandedSymbol = brokerSymbol + Symbol.SourceSeparator + source + Symbol.AccountSeparator + account;
             if (GetSymbolProperties(expandedSymbol, out properties))
