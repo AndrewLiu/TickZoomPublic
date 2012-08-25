@@ -347,7 +347,21 @@ namespace TickZoom.Api
         /// </summary>
 	    bool OffsetTooLateToChange { get; }
 
+        /// <summary>
+        /// Returns the base symbol and the source name separated by a dot. Ex. SPY.lime
+        /// </summary>
 	    string SymbolWithSource { get; }
-	    string Source { get; set; }
+
+        /// <summary>
+        /// Returns the data source name. Ex. iqfeed
+        /// </summary>
+        string Source { get; set; }
+
+        /// <summary>
+        /// Enables creating a fake spread around a bid/ask. This only applies to individual
+        /// ticks where ask is equal to bid which means zero spread.  This only applies to
+        /// historical data--never to real time data.
+        /// </summary>
+        bool SimulateSpread { get; set;  }
 	}
 }
