@@ -39,7 +39,7 @@ namespace TickZoom.Examples
 
         private void CreateRetraceStrategy(SymbolInfo symbol, List<Strategy> strategies, RetraceDirection direction)
         {
-            var strategy = new Retrace2Strategy();
+            var strategy = new Retrace3Strategy();
             strategy.Direction = direction;
             strategy.SymbolDefault = symbol.ExpandedSymbol;
             strategy.IsActive = true;
