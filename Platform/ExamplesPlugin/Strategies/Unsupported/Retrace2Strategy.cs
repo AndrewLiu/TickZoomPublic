@@ -37,7 +37,7 @@ namespace TickZoom.Examples
 
         public override void OnInitialize()
         {
-            lotSize = 10000;
+            lotSize = 1000;
             CreateIndicators();
             base.OnInitialize();
             minimumTick = Data.SymbolInfo.MinimumTick;
@@ -372,6 +372,7 @@ namespace TickZoom.Examples
             previousPosition = fill.Position;
             inventory.Change(fill.Price, positionChange);
             var tick = Ticks[0];
+            CalcMarketPrices(tick);
             UpdateBreakEven((tick.Ask + tick.Bid) / 2);
             var lots = (Math.Abs(comboTrade.CurrentPosition) / lotSize);
             if( lots > maxLots)

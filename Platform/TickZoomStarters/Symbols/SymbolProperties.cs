@@ -83,6 +83,7 @@ namespace TickZoom.Symbols
         private SymbolInfo _commonSymbol;
 	    private bool offsetTooLateToChange = true;
 	    private long iceBergOrderSize = 0;
+	    private bool simulateSpread;
 
 	    public SymbolProperties()
         {
@@ -388,6 +389,12 @@ namespace TickZoom.Symbols
 	    {
 	        get { return iceBergOrderSize; }
 	        set { iceBergOrderSize = value; }
+	    }
+
+	    public bool SimulateSpread
+	    {
+	        get { return simulateSpread; }
+	        set { simulateSpread = value; }
 	    }
 	}
 }

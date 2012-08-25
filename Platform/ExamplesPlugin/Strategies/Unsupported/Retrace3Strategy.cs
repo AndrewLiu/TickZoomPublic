@@ -281,11 +281,15 @@ namespace TickZoom.Examples
                     //bidSpread = minimumTick*Math.Max(1, (50 - lots)/10);
                     bidSpread += minimumTick*lots/4; // (inventory.AdverseExcursion - inventory.Excursion) / 10;
                     offerSpread = CalcDecreaseSpread(lots);
-                    bid = midPoint - bidSpread;
                     ask = midPoint + offerSpread;
-                    if( seconds > 300 && bid < lastExtreme)
+                    if( seconds > 600)
                     {
+                        bid = inventory.MinPrice;
                         BuySize = lots;
+                    }
+                    else
+                    {
+                        bid = midPoint - bidSpread;
                     }
                 }
                 Orders.Exit.ActiveNow.SellLimit(target);
@@ -306,10 +310,14 @@ namespace TickZoom.Examples
                     offerSpread += minimumTick*lots/4; // (inventory.AdverseExcursion - inventory.Excursion) / 10;
                     bidSpread = CalcDecreaseSpread(lots);
                     bid = midPoint - bidSpread;
-                    ask = midPoint + offerSpread;
-                    if (seconds > 300 && ask > lastExtreme)
+                    if (seconds > 600 )
                     {
+                        ask = inventory.MaxPrice;
                         SellSize = lots;
+                    }
+                    else
+                    {
+                        ask = midPoint + offerSpread;
                     }
                 }
                 Orders.Exit.ActiveNow.BuyLimit(target);
@@ -369,6 +377,7 @@ namespace TickZoom.Examples
         private void ProcessChange(TransactionPairBinary comboTrade, LogicalFill fill)
         {
             var tick = Ticks[0];
+            CalcMarketPrices(tick);
             var positionChange = fill.Position - previousPosition;
             previousPosition = fill.Position;
             inventory.Change(fill.Price, positionChange);
