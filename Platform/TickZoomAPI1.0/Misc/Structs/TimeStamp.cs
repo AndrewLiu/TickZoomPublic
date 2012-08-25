@@ -421,7 +421,7 @@ namespace TickZoom.Api
                     {
                         hour = (timeString[timePos++] - '0') * 10 + (timeString[timePos++] - '0');
                     }
-                    if (hour == 12 && countPM == 0) hour = 0; 
+                    if (hour == 12 && countPM == 1) hour = 0; 
                     if (hour < 12 && countPM == 1) hour += 12;
                     if (timeString[timePos] != ':') Error(timeString, timePos);
                     timePos++; // skip the :

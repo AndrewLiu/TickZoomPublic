@@ -193,6 +193,7 @@
     <Compile Include="Strategies\LimitReversalStrategy.cs" />
     <Compile Include="Portfolios\SimplePortfolio.cs" />
     <Compile Include="Strategies\Unsupported\Retrace2Strategy.cs" />
+    <Compile Include="Strategies\Unsupported\Retrace3Strategy.cs" />
     <Compile Include="Strategies\Unsupported\RetraceStrategy.cs" />
     <Compile Include="Strategies\Unsupported\SimplexOrigStrategy.cs" />
     <Compile Include="Strategies\Unsupported\SimplexStrategy.cs" />
