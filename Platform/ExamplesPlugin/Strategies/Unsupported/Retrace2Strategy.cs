@@ -33,6 +33,7 @@ namespace TickZoom.Examples
         public Retrace2Strategy()
         {
             Performance.Equity.EnableDailyStats = true;
+            RequestUpdate(Intervals.Day1);
         }
 
         public RetraceDirection Direction
@@ -43,7 +44,7 @@ namespace TickZoom.Examples
 
         public override void OnInitialize()
         {
-            lotSize = 1000;
+            lotSize = 10000;
             CreateIndicators();
             base.OnInitialize();
             minimumTick2 = Data.SymbolInfo.MinimumTick;
@@ -70,6 +71,15 @@ namespace TickZoom.Examples
         }
 
         private List<TimeStamp> NewsTimeStamps;
+
+        public override bool OnIntervalClose(Interval interval)
+        {
+            if( interval.Equals(Intervals.Day1))
+            {
+                var x = 0;
+            }
+            return true;
+        }
 
         private void CreateIndicators()
         {
@@ -102,7 +112,7 @@ namespace TickZoom.Examples
         }
 
         private Elapsed startSession = new Elapsed(9,00,0);
-        private Elapsed endOfSession = new Elapsed(16,00,0);
+        private Elapsed endOfSession = new Elapsed(14,00,0);
 
         public override bool OnProcessTick(Tick tick)
         {
@@ -120,42 +130,42 @@ namespace TickZoom.Examples
 
             TryUpdatePegging();
 
-            if (state.AnySet(StrategyState.ProcessOrders) && (timeOfDay < startSession || timeOfDay > endOfSession))
-            {
-                Orders.Exit.ActiveNow.GoFlat();
-                BuySize = SellSize = 0;
-                state ^= StrategyState.Active;
-            }
-            else if (!state.AnySet(StrategyState.ProcessOrders) && (timeOfDay >= startSession && timeOfDay <= endOfSession))
-            {
-                state |= StrategyState.Active;
-                SetFlatBidAsk();
-            }
-
-            //if( state.AnySet( StrategyState.ProcessOrders) && tick.UtcTime > suspendTradingTime)
+            //if (state.AnySet(StrategyState.ProcessOrders) && (timeOfDay < startSession || timeOfDay > endOfSession))
             //{
-            //    continueTradingTime = suspendTradingTime;
-            //    continueTradingTime.AddMinutes(5);
             //    Orders.Exit.ActiveNow.GoFlat();
             //    BuySize = SellSize = 0;
-            //    suspendTradingTime = TimeStamp.MaxValue;
             //    state ^= StrategyState.Active;
             //}
-
-            //if (!state.AnySet(StrategyState.ProcessOrders))
+            //else if (!state.AnySet(StrategyState.ProcessOrders) && (timeOfDay >= startSession && timeOfDay <= endOfSession))
             //{
-            //    if (tick.UtcTime > continueTradingTime)
-            //    {
-            //        GetNextNewsTime();
-            //        continueTradingTime = TimeStamp.MinValue;
-            //        state |= StrategyState.Active;
-            //        SetFlatBidAsk();
-            //    }
-            //    else
-            //    {
-            //        Orders.Exit.ActiveNow.GoFlat();
-            //    }
+            //    state |= StrategyState.Active;
+            //    SetFlatBidAsk();
             //}
+
+            if (state.AnySet(StrategyState.ProcessOrders) && tick.UtcTime > suspendTradingTime)
+            {
+                continueTradingTime = suspendTradingTime;
+                continueTradingTime.AddMinutes(5);
+                Orders.Exit.ActiveNow.GoFlat();
+                BuySize = SellSize = 0;
+                suspendTradingTime = TimeStamp.MaxValue;
+                state ^= StrategyState.Active;
+            }
+
+            if (!state.AnySet(StrategyState.ProcessOrders))
+            {
+                if (tick.UtcTime > continueTradingTime)
+                {
+                    GetNextNewsTime();
+                    continueTradingTime = TimeStamp.MinValue;
+                    state |= StrategyState.Active;
+                    SetFlatBidAsk();
+                }
+                else
+                {
+                    Orders.Exit.ActiveNow.GoFlat();
+                }
+            }
 
             if( enableWideSpreads && Math.Abs(bid - ask) >= wideSpread)
             {
@@ -215,7 +225,7 @@ namespace TickZoom.Examples
         private double CalcProfitRetrace(int totalMinutes)
         {
             var profitDefaultRetrace = 0.10;
-            var profitUpdateFrequency = 5;
+            var profitUpdateFrequency = 10;
             var profitUpdatePercent = 0.01;
             var profitMinimumPercent = -1.00;
             var n = totalMinutes / profitUpdateFrequency;
@@ -347,7 +357,7 @@ namespace TickZoom.Examples
 
         private double CalcProfitRetrace(Tick tick)
         {
-            var result = 0.20D;
+            var result = 0.40D;
             //var remaining = endOfSession - tick.Time.TimeOfDay;
             //var quarters = remaining.TotalMinutes/15;
             //if( remaining.TotalHours <= 4)
