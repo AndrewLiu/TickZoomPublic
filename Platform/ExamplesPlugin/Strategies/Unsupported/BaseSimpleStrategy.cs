@@ -24,7 +24,7 @@ namespace TickZoom.Examples
         protected bool throttleIncreasing = false;
         protected bool isVisible = false;
         protected int sequentialIncreaseCount;
-        protected double minimumTick;
+        private double minimumTick;
         protected int lotSize = 10000;
         protected volatile StrategyState beforeWeekendState = StrategyState.Active;
         protected StrategyState state = StrategyState.Active;
@@ -34,6 +34,7 @@ namespace TickZoom.Examples
         private int sellSize = 1;
         protected InventoryGroupDefault inventory;
         protected RetraceDirection direction = RetraceDirection.LongOnly;
+        protected Elapsed timeOfDay;
 
         public override void OnInitialize()
         {
@@ -119,6 +120,7 @@ namespace TickZoom.Examples
 
         protected void CalcMarketPrices(Tick tick)
         {
+            timeOfDay = tick.Time.TimeOfDay;
             // Calculate market prics.
             marketAsk = Math.Max(tick.Ask, tick.Bid);
             marketBid = Math.Min(tick.Ask, tick.Bid);

@@ -362,8 +362,10 @@ namespace TickZoom.Statistics
 		
 		[Browsable(false)]
 		public double CurrentEquity {
-			get { 
-				return ClosedEquity + OpenEquity;
+			get
+			{
+			    var result = ClosedEquity + OpenEquity;
+				return result;
 			}
 		}
 		
