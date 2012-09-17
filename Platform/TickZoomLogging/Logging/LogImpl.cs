@@ -860,6 +860,29 @@ namespace TickZoom.Logging
             }
         }
 
+        public void DebugFormat<T1, T2, T3, T4, T5, T6, T7, T8>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, params object[] args)
+        {
+            if (allowDebugging || !genericSerialized)
+            {
+                TraceInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, args);
+            }
+            else
+            {
+                SerializeArgument(arg1);
+                SerializeArgument(arg2);
+                SerializeArgument(arg3);
+                SerializeArgument(arg4);
+                SerializeArgument(arg5);
+                SerializeArgument(arg6);
+                SerializeArgument(arg7);
+                SerializeArgument(arg8);
+                for (var x = 0; x < args.Length; x++)
+                {
+                    SerializeArgument(args[x]);
+                }
+            }
+        }
+
         public void DebugFormat(string format)
         {
             if (allowDebugging || !genericSerialized)
@@ -994,6 +1017,30 @@ namespace TickZoom.Logging
                 SerializeArgument(arg8);
             }
         }
+
+        public void DebugFormat<T1, T2, T3, T4, T5, T6, T7, T8>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, params object[] args)
+        {
+            if (allowDebugging || !genericSerialized)
+            {
+                TraceInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, args);
+            }
+            else
+            {
+                SerializeArgument(arg1);
+                SerializeArgument(arg2);
+                SerializeArgument(arg3);
+                SerializeArgument(arg4);
+                SerializeArgument(arg5);
+                SerializeArgument(arg6);
+                SerializeArgument(arg7);
+                SerializeArgument(arg8);
+                for (var x = 0; x < args.Length; x++)
+                {
+                    SerializeArgument(args[x]);
+                }
+            }
+        }
+
 #endregion
 
 #region TraceFormat
@@ -1132,6 +1179,29 @@ namespace TickZoom.Logging
             }
         }
 
+        public void TraceFormat<T1, T2, T3, T4, T5, T6, T7, T8>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, params object[] args)
+        {
+            if (allowDebugging || !genericSerialized)
+            {
+                TraceInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, args);
+            }
+            else
+            {
+                SerializeArgument(arg1);
+                SerializeArgument(arg2);
+                SerializeArgument(arg3);
+                SerializeArgument(arg4);
+                SerializeArgument(arg5);
+                SerializeArgument(arg6);
+                SerializeArgument(arg7);
+                SerializeArgument(arg8);
+                for (var x = 0; x < args.Length; x++)
+                {
+                    SerializeArgument(args[x]);
+                }
+            }
+        }
+
         public void TraceFormat(string format)
         {
             if (allowDebugging || !genericSerialized)
@@ -1266,6 +1336,30 @@ namespace TickZoom.Logging
                 SerializeArgument(arg8);
             }
         }
+
+        public void TraceFormat<T1, T2, T3, T4, T5, T6, T7, T8>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, params object[] args)
+        {
+            if (allowDebugging || !genericSerialized)
+            {
+                TraceInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, args);
+            }
+            else
+            {
+                SerializeArgument(arg1);
+                SerializeArgument(arg2);
+                SerializeArgument(arg3);
+                SerializeArgument(arg4);
+                SerializeArgument(arg5);
+                SerializeArgument(arg6);
+                SerializeArgument(arg7);
+                SerializeArgument(arg8);
+                for (var x = 0; x < args.Length; x++)
+                {
+                    SerializeArgument(args[x]);
+                }
+            }
+        }
+
 #endregion
 
 #region VerboseFormat
@@ -1404,6 +1498,29 @@ namespace TickZoom.Logging
             }
         }
 
+        public void VerboseFormat<T1, T2, T3, T4, T5, T6, T7, T8>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, params object[] args)
+        {
+            if (allowDebugging || !genericSerialized)
+            {
+                TraceInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, args);
+            }
+            else
+            {
+                SerializeArgument(arg1);
+                SerializeArgument(arg2);
+                SerializeArgument(arg3);
+                SerializeArgument(arg4);
+                SerializeArgument(arg5);
+                SerializeArgument(arg6);
+                SerializeArgument(arg7);
+                SerializeArgument(arg8);
+                for (var x = 0; x < args.Length; x++)
+                {
+                    SerializeArgument(args[x]);
+                }
+            }
+        }
+
         public void VerboseFormat(string format)
         {
             if (allowDebugging || !genericSerialized)
@@ -1536,6 +1653,29 @@ namespace TickZoom.Logging
                 SerializeArgument(arg6);
                 SerializeArgument(arg7);
                 SerializeArgument(arg8);
+            }
+        }
+
+        public void VerboseFormat<T1, T2, T3, T4, T5, T6, T7, T8>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, params object[] args)
+        {
+            if (allowDebugging || !genericSerialized)
+            {
+                VerboseInternal(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+            }
+            else
+            {
+                SerializeArgument(arg1);
+                SerializeArgument(arg2);
+                SerializeArgument(arg3);
+                SerializeArgument(arg4);
+                SerializeArgument(arg5);
+                SerializeArgument(arg6);
+                SerializeArgument(arg7);
+                SerializeArgument(arg8);
+                for( var x=0; x<args.Length; x++)
+                {
+                    SerializeArgument(args[x]);
+                }
             }
         }
 #endregion
