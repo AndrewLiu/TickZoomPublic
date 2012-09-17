@@ -108,11 +108,16 @@ namespace TickZoom.Api
         void DebugFormat<T1, T2, T3, T4, T5, T6>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6);
         void DebugFormat<T1, T2, T3, T4, T5, T6, T7>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7);
         void DebugFormat<T1, T2, T3, T4, T5, T6, T7, T8>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8);
+        void DebugFormat<T1, T2, T3, T4, T5, T6, T7, T8>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, params object[] args);
         void DebugFormat<T>(string format, T arg);
         void DebugFormat<T1, T2>(string format, T1 arg1, T2 arg2);
         void DebugFormat<T1, T2, T3>(string format, T1 arg1, T2 arg2, T3 arg3);
         void DebugFormat<T1, T2, T3, T4>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4);
         void DebugFormat<T1, T2, T3, T4, T5>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5);
+        void DebugFormat<T1, T2, T3, T4, T5, T6>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6);
+        void DebugFormat<T1, T2, T3, T4, T5, T6, T7>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7);
+        void DebugFormat<T1, T2, T3, T4, T5, T6, T7, T8>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8);
+        void DebugFormat<T1, T2, T3, T4, T5, T6, T7, T8>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, params object[] args);
         void TraceFormat(LogMessage format);
         void TraceFormat<T>(LogMessage format, T arg);
         void TraceFormat<T1, T2>(LogMessage format, T1 arg1, T2 arg2);
@@ -122,12 +127,17 @@ namespace TickZoom.Api
         void TraceFormat<T1, T2, T3, T4, T5, T6>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6);
         void TraceFormat<T1, T2, T3, T4, T5, T6, T7>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7);
         void TraceFormat<T1, T2, T3, T4, T5, T6, T7, T8>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8);
+        void TraceFormat<T1, T2, T3, T4, T5, T6, T7, T8>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, params object[] args);
         void TraceFormat(string format);
         void TraceFormat<T>(string format, T arg);
         void TraceFormat<T1, T2>(string format, T1 arg1, T2 arg2);
         void TraceFormat<T1, T2, T3>(string format, T1 arg1, T2 arg2, T3 arg3);
         void TraceFormat<T1, T2, T3, T4>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4);
         void TraceFormat<T1, T2, T3, T4, T5>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5);
+        void TraceFormat<T1, T2, T3, T4, T5, T6>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6);
+        void TraceFormat<T1, T2, T3, T4, T5, T6, T7>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7);
+        void TraceFormat<T1, T2, T3, T4, T5, T6, T7, T8>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8);
+        void TraceFormat<T1, T2, T3, T4, T5, T6, T7, T8>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, params object[] args);
         void VerboseFormat(LogMessage format);
         void VerboseFormat<T>(LogMessage format, T arg);
         void VerboseFormat<T1, T2>(LogMessage format, T1 arg1, T2 arg2);
@@ -137,12 +147,17 @@ namespace TickZoom.Api
         void VerboseFormat<T1, T2, T3, T4, T5, T6>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6);
         void VerboseFormat<T1, T2, T3, T4, T5, T6, T7>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7);
         void VerboseFormat<T1, T2, T3, T4, T5, T6, T7, T8>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8);
+        void VerboseFormat<T1, T2, T3, T4, T5, T6, T7, T8>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, params object[] args);
         void VerboseFormat(string format);
         void VerboseFormat<T>(string format, T arg);
         void VerboseFormat<T1, T2>(string format, T1 arg1, T2 arg2);
         void VerboseFormat<T1, T2, T3>(string format, T1 arg1, T2 arg2, T3 arg3);
         void VerboseFormat<T1, T2, T3, T4>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4);
         void VerboseFormat<T1, T2, T3, T4, T5>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5);
+        void VerboseFormat<T1, T2, T3, T4, T5, T6>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6);
+        void VerboseFormat<T1, T2, T3, T4, T5, T6, T7>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7);
+        void VerboseFormat<T1, T2, T3, T4, T5, T6, T7, T8>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8);
+        void VerboseFormat<T1, T2, T3, T4, T5, T6, T7, T8>(string format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, params object[] args);
 
         void Register(LogAware logAware);
 

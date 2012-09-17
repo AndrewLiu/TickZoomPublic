@@ -138,6 +138,7 @@
     <Compile Include="TradingFramework\TradeStatsTest.cs" />
     <Compile Include="Utilities\ActiveListTest.cs" />
     <Compile Include="Utilities\ISINTest.cs" />
+    <Compile Include="Utilities\LoggingTest.cs" />
     <Compile Include="Utilities\MultiCoreSameClassTest.cs" />
     <Compile Include="Utilities\MultiCoreTest.cs" />
     <Compile Include="Utilities\SymbolLibraryTest.cs" />
