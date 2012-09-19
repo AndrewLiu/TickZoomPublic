@@ -400,5 +400,19 @@ namespace TickZoom.Api
         /// 1/10 pip pricing.
         /// </summary>
 	    double MinimumMove { get;  }
+
+        /// <summary>
+        /// Custom user-definable symbol properties. Symbol refer to a property in the
+        /// symbol dictionary that it doesn't recognize as a built-in property and
+        /// it gets added as a customer property with it's value as a string.
+        /// WARNING: Only settings to customer properties in the actual symbol dictionary
+        /// config files are propagated to all components. So if you modify one of these
+        /// properties in user code like Loader, Portfolio, Strategy, or Indicator, then
+        /// it will only affect historical running and not be used or overridden for the
+        /// providers for real time data or trading.
+        /// </summary>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        string this[string property] { get; set;  }
 	}
 }

@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
@@ -84,6 +85,7 @@ namespace TickZoom.Symbols
 	    private bool simulateSpread;
 	    private int lotSize;
 	    private double minimumMove;
+        private Dictionary<string,string> customProperties = new Dictionary<string,string>();
 
 	    public SymbolProperties()
         {
@@ -419,6 +421,17 @@ namespace TickZoom.Symbols
 	    {
 	        get { return minimumMove; }
 	        set { minimumMove = value; }
+	    }
+
+	    public string this[string property]
+	    {
+	        get { return customProperties[property]; }
+            set { customProperties[property] = value; }
+	    }
+
+	    public void SetCustom(string overrideProperty, string overrideValue)
+	    {
+	        customProperties[overrideProperty] = overrideValue;
 	    }
 	}
 }

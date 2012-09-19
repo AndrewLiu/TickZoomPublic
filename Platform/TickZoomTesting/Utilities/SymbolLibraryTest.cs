@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using TickZoom.Api;
 using TickZoom.Symbols;
 
 namespace TickZoom.Utilities
@@ -22,6 +23,20 @@ namespace TickZoom.Utilities
             Assert.AreEqual("mbt.10minute", source);
             source = SymbolLibrary.GetSymbolSource("USD/JPY");
             Assert.AreEqual("default", source);
+        }
+
+        [Test]
+        public void TestCustomProperty()
+        {
+            var symbol = Factory.Symbol.LookupSymbol("SPYTest");
+            Assert.AreEqual(symbol["CustomProperty"], "TestValue", "custom property");
+        }
+
+        [Test]
+        public void TestInheritedCustomProperty()
+        {
+            var symbol = Factory.Symbol.LookupSymbol("CSCO");
+            Assert.AreEqual(symbol["InheritedCustomProperty"], "Testing1", "custom property");
         }
     }
 }

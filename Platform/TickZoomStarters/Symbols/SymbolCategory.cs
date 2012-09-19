@@ -39,14 +39,19 @@ namespace TickZoom.Symbols
 	{
 		string name;
         private Dictionary<PropertyInfo, object> properties = new Dictionary<PropertyInfo, object>();
+        private Dictionary<string,string> customProperties = new Dictionary<string,string>();
         List<SymbolCategory> categories = new List<SymbolCategory>();
 		
-		public SymbolCategory(Dictionary<PropertyInfo,object> properties)
+		public SymbolCategory(Dictionary<PropertyInfo,object> properties, Dictionary<string,string> customProperties)
 		{
 			foreach( var kvp in properties)
 			{
 			    Set(kvp.Key,kvp.Value);
-			}
+            }
+            foreach( var kvp in customProperties)
+            {
+                Set(kvp.Key,kvp.Value);
+            }
 		}
 		
 		public SymbolCategory()
@@ -67,7 +72,17 @@ namespace TickZoom.Symbols
 	        get { return properties; }
 	    }
 
-	    public void Set(PropertyInfo property, object value)
+	    public Dictionary<string, string> CustomProperties
+	    {
+	        get { return customProperties; }
+	        set { customProperties = value; }
+	    }
+
+	    public void Set(string property, string value)
+        {
+            CustomProperties[property] = value;
+        }
+        public void Set(PropertyInfo property, object value)
 	    {
 	        Properties[property] = value;
 	    }

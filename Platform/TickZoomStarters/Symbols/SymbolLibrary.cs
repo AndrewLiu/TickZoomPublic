@@ -120,7 +120,7 @@ namespace TickZoom.Symbols
 			}
 		}
 		
-		public bool GetSymbolProperties(string symbolArgumentAccount, out SymbolProperties properties) {
+		public bool  GetSymbolProperties(string symbolArgumentAccount, out SymbolProperties properties) {
 			return symbolMap.TryGetValue(symbolArgumentAccount,out properties);
 		}
 

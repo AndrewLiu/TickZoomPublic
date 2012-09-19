@@ -164,7 +164,7 @@ namespace TickZoom.Symbols
 			    			HandleOverrideProperty(reader,category, reader.GetAttribute("name"), reader.GetAttribute("value"));
 			    			if( trace) log.TraceFormat(LogMessage.LOGMSG400, name, value);
 			    		} else if( "category".Equals(reader.Name)) {
-			    			SymbolCategory subCategory = new SymbolCategory(category.Properties);
+			    			SymbolCategory subCategory = new SymbolCategory(category.Properties,category.CustomProperties);
 			    			HandleCategory(subCategory,reader);
 			    			category.Categories.Add(subCategory);
 			    		} else if( "symbol".Equals(reader.Name)) {
@@ -206,7 +206,13 @@ namespace TickZoom.Symbols
                                 var overrideValue = kvp.Value;
                                 overrideProperty.SetValue(symbol, overrideValue, null);
                             }
-			    			HandleSymbol(symbol,reader);
+                            foreach (var kvp in category.CustomProperties)
+                            {
+                                var overrideProperty = kvp.Key;
+                                var overrideValue = kvp.Value;
+                                symbol.SetCustom(overrideProperty,overrideValue);
+                            }
+                            HandleSymbol(symbol, reader);
                             library.AddSymbol(symbol);
                             try
                             {
@@ -235,9 +241,9 @@ namespace TickZoom.Symbols
 		}
 		
 		
-		private void HandleSymbol(object obj, XmlReader reader) {
+		private void HandleSymbol(SymbolProperties symbol, XmlReader reader) {
 			string tagName = reader.Name;
-			if( trace) log.TraceFormat(LogMessage.LOGMSG401, obj.GetType().Name);
+			if( trace) log.TraceFormat(LogMessage.LOGMSG401, symbol.GetType().Name);
 			if( reader.IsEmptyElement) { return; }			
 			log.Indent();
 			while( reader.Read()) {
@@ -245,7 +251,7 @@ namespace TickZoom.Symbols
 			    switch( reader.NodeType) {
 			    	case XmlNodeType.Element:
 			    		if( "property".Equals(reader.Name) ) {
-			    			HandleProperty(reader,obj, reader.GetAttribute("name"), reader.GetAttribute("value"));
+			    			HandleProperty(reader, symbol, reader.GetAttribute("name"), reader.GetAttribute("value"));
 			    		} else {
 			    			Error(reader,"End of " + tagName + " was expected instead of end of " + reader.Name);
 			    		}
@@ -268,26 +274,32 @@ namespace TickZoom.Symbols
             var property = typeof(SymbolProperties).GetProperty(name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
             if (property == null)
             {
-                Warning(reader, typeof(SymbolProperties).GetType() + " does not have the property: " + name);
-                return;
+                Warning(reader, "Assuming " + name + " is a custom, user defined symbol property since it doesn't match any builtin property.");
+                category.Set(name,str);
             }
-            var propertyType = property.PropertyType;
-            var value = Converters.Convert(propertyType, str);
-            if (trace) log.TraceFormat(LogMessage.LOGMSG400, property.Name, value);
-            category.Set(property, value);
+            else
+            {
+                var propertyType = property.PropertyType;
+                var value = Converters.Convert(propertyType, str);
+                if (trace) log.TraceFormat(LogMessage.LOGMSG400, property.Name, value);
+                category.Set(property, value);
+            }
         }
 
-        private void HandleProperty(XmlReader reader, object obj, string name, string str)
+        private void HandleProperty(XmlReader reader, SymbolProperties symbol, string name, string str)
         {
-			var property = obj.GetType().GetProperty(name,BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+			var property = symbol.GetType().GetProperty(name,BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 			if( property == null) {
-				Warning(reader,obj.GetType() + " does not have the property: " + name);
-				return;
-			}
-			Type propertyType = property.PropertyType;
-			object value = TickZoom.Api.Converters.Convert(propertyType,str);
-			property.SetValue(obj,value,null);
-			if( trace) log.TraceFormat(LogMessage.LOGMSG400, property.Name, value);
+                Warning(reader, "Assuming " + name + " is a custom, user defined symbol property since it doesn't match any builtin property.");
+                symbol.SetCustom(name, str);
+            }
+            else
+			{
+                Type propertyType = property.PropertyType;
+                object value = Converters.Convert(propertyType, str);
+                property.SetValue(symbol, value, null);
+                if (trace) log.TraceFormat(LogMessage.LOGMSG400, property.Name, value);
+            }
 		}
 		
 		private void Error( XmlReader reader, string msg) {
@@ -341,6 +353,7 @@ namespace TickZoom.Symbols
     <symbol name=""SPYTest"">
       <property name=""StrategyTimeAndSales"" value=""ActualTrades"" />
       <property name=""StrategyQuoteType"" value=""None"" />
+      <property name=""CustomProperty"" value=""TestValue"" />
     </symbol>
     <symbol name=""SPYTradeOnly"">
       <property name=""StrategyTimeAndSales"" value=""ActualTrades"" />
@@ -351,6 +364,7 @@ namespace TickZoom.Symbols
       <property name=""StrategyQuoteType"" value=""Level1"" />
     </symbol>
     <category name=""Testing"">
+      <property name=""InheritedCustomProperty"" value=""Testing1"" />
       <symbol name=""CSCO"">
         <property name=""StrategyTimeAndSales"" value=""ActualTrades"" />
         <property name=""StrategyQuoteType"" value=""None"" />
