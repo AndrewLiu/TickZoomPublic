@@ -402,6 +402,12 @@ namespace TickZoom.Api
 	    double MinimumMove { get;  }
 
         /// <summary>
+        /// Used by execution providers when hiding the complete order size. This property
+        /// controls when to replenish the order back to the IceBergOrderSize.
+        /// </summary>
+        long IceBergOrderRefill { get; set; }
+
+	    /// <summary>
         /// Custom user-definable symbol properties. Symbol refer to a property in the
         /// symbol dictionary that it doesn't recognize as a built-in property and
         /// it gets added as a customer property with it's value as a string.

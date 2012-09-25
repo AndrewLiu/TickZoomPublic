@@ -82,7 +82,8 @@ namespace TickZoom.Symbols
         private SymbolInfo _commonSymbol;
 	    private bool offsetTooLateToChange = true;
 	    private long iceBergOrderSize = 0;
-	    private bool simulateSpread;
+        private long iceBergOrderRefill = 0;
+        private bool simulateSpread;
 	    private int lotSize;
 	    private double minimumMove;
         private Dictionary<string,string> customProperties = new Dictionary<string,string>();
@@ -421,6 +422,12 @@ namespace TickZoom.Symbols
 	    {
 	        get { return minimumMove; }
 	        set { minimumMove = value; }
+	    }
+
+	    public long IceBergOrderRefill
+	    {
+	        get { return iceBergOrderRefill; }
+	        set { iceBergOrderRefill = value; }
 	    }
 
 	    public string this[string property]

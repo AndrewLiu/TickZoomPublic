@@ -433,5 +433,25 @@ namespace TickZoom.Provider.FIX
         {
             Append(111, value);
         }
+
+        /// <summary>
+        /// 9144 Maximum number of shares within an order to be post on the exchange floor at any given time.
+        /// Used by the Lime SORT algorithm
+        /// </summary>
+        /// <param name="value"></param>
+        public void SetPostQuantity(long value)
+        {
+            Append(9144, value);
+        }
+
+        /// <summary>
+        /// 9116 Maximum number of shares within an order to be post on the exchange floor at any given time.
+        /// Used by the Lime SORT algorithm
+        /// </summary>
+        /// <param name="value"></param>
+        public void SetRefillQuantity(long value)
+        {
+            Append(9116, value);
+        }
     }
 }
