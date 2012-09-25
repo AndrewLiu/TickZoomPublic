@@ -67,6 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LimeFIX\LimeAlgorithm.cs" />
     <Compile Include="LimeFIX\LimeAssemblyFactory.cs" />
     <Compile Include="LimeFIX\LimeException.cs" />
     <Compile Include="LimeFIX\LimeFIXSimulator.cs" />

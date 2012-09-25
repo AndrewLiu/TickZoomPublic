@@ -42,6 +42,7 @@ namespace TickZoom.Provider.LimeFIX
         private Dictionary<int, int> physicalToLogicalOrderMap = new Dictionary<int, int>();
         private string fixDestination = "LIME";
         private string algorithmName;
+        private LimeAlgorithm algorithm;
 
         public override void RefreshLogLevel()
         {
@@ -637,9 +638,26 @@ namespace TickZoom.Provider.LimeFIX
                     fixMsg.SetOrderType(2);
                     fixMsg.SetPrice(order.Price);
                     fixMsg.SetTimeInForce(0); // Lime only supports Day orders.
-                    if( order.Symbol.IceBergOrderSize > 0)
+                    switch( algorithm)
                     {
-                        fixMsg.SetMaxFloor(order.Symbol.IceBergOrderSize);
+                        case LimeAlgorithm.None:
+			                if( order.Symbol.IceBergOrderSize > 0)
+                            {
+                                fixMsg.SetMaxFloor(order.Symbol.IceBergOrderSize);
+                            }
+                            break;
+                        case LimeAlgorithm.Sort:
+			                if( order.Symbol.IceBergOrderSize > 0)
+                            {
+                                fixMsg.SetPostQuantity(order.Symbol.IceBergOrderSize);
+                            }
+			                if( order.Symbol.IceBergOrderRefill > 0)
+                            {
+                                fixMsg.SetRefillQuantity(order.Symbol.IceBergOrderRefill);
+                            }
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
                     break;
                 case OrderType.Market:
@@ -672,6 +690,15 @@ namespace TickZoom.Provider.LimeFIX
         {
             base.ParseProperties(configFile);
             algorithmName = GetField("Algorithm", configFile, false);
+            try
+            {
+                algorithm = (LimeAlgorithm) Enum.Parse(typeof (LimeAlgorithm), algorithmName);
+            }
+            catch( Exception ex)
+            {
+                log.Error("Algorithm " + algorithm + " is invalid. Using default algorithm.");
+                algorithm = LimeAlgorithm.None;
+            }
         }
 
         protected override void ResendOrder(PhysicalOrder order)
