@@ -109,6 +109,7 @@ namespace TickZoom.Api
         void DebugFormat<T1, T2, T3, T4, T5, T6, T7>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7);
         void DebugFormat<T1, T2, T3, T4, T5, T6, T7, T8>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8);
         void DebugFormat<T1, T2, T3, T4, T5, T6, T7, T8>(LogMessage format, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, params object[] args);
+        void DebugFormat(string format);
         void DebugFormat<T>(string format, T arg);
         void DebugFormat<T1, T2>(string format, T1 arg1, T2 arg2);
         void DebugFormat<T1, T2, T3>(string format, T1 arg1, T2 arg2, T3 arg3);

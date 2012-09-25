@@ -183,6 +183,8 @@ namespace TickZoom.Symbols
                                 {
                                     symbol = new SymbolProperties();
                                     symbol.CommonSymbol = symbol;
+                                    symbol.BaseSymbol = baseSymbol;
+                                    symbol.Account = account;
                                     log.InfoFormat("Default: Assigned common {0} to {1}", symbol.CommonSymbol, symbol);
                                 }
                                 else
@@ -195,10 +197,10 @@ namespace TickZoom.Symbols
                                     }
                                     symbol = commonSymbol.Copy();
                                     symbol.CommonSymbol = commonSymbol;
+                                    symbol.BaseSymbol = baseSymbol;
+                                    symbol.Account = account;
                                     log.InfoFormat("Assigned common {0} to {1}", symbol.CommonSymbol, symbol);
                                 }
-                                symbol.BaseSymbol = baseSymbol;
-                                symbol.Account = account;
                             }
                             foreach (var kvp in category.Properties)
                             {
