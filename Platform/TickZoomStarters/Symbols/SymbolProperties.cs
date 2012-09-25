@@ -425,7 +425,13 @@ namespace TickZoom.Symbols
 
 	    public string this[string property]
 	    {
-	        get { return customProperties[property]; }
+	        get
+	        {
+	            if( customProperties.ContainsKey(property)) {
+                    return customProperties[property];
+                }
+                throw new KeyNotFoundException("Sorry, cannot find property " + property + " on symbol " + ExpandedSymbol);
+            }
             set { customProperties[property] = value; }
 	    }
 
