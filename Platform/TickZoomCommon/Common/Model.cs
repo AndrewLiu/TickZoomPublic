@@ -34,7 +34,7 @@ using TickZoom.Statistics;
 
 namespace TickZoom.Common
 {
-	public partial class Model : ModelEvents, ModelInterface
+	public partial class Model : ModelEvents, ModelInterface, LogAware
 	{
 		string name;
 		Chain chain;
@@ -46,14 +46,15 @@ namespace TickZoom.Common
 		bool isActive = true;
 		public event Action<ModelInterface> OnActiveChange;
 		List<Interval> updateIntervals = new List<Interval>();
-		Data data;
+        Data data;
 		Chart chart;
 		Context context;
 		Formula formula;
-		private static readonly Log instanceLog = Factory.SysLog.GetLogger(typeof(Model));
-		private readonly bool debug = instanceLog.IsDebugEnabled;
-		private readonly bool trace = instanceLog.IsTraceEnabled;
-		bool isOptimizeMode = false;
+		private Log instanceLog;
+		private bool debug;
+		private bool trace;
+        private bool verbose;
+        bool isOptimizeMode = false;
 		private Dictionary<int,ActiveList<ModelInterface>> eventListeners = new Dictionary<int,ActiveList<ModelInterface>>();
 		
 		List<StrategyInterceptorInterface> strategyInterceptors = new List<StrategyInterceptorInterface>();
@@ -61,13 +62,25 @@ namespace TickZoom.Common
 		List<EventType> events = new List<EventType>();
 		private bool quietMode = false;
 		private int id;
-		
+
+        public void RefreshLogLevel()
+        {
+            if (instanceLog != null)
+            {
+                debug = instanceLog.IsDebugEnabled;
+                trace = instanceLog.IsTraceEnabled;
+                verbose = instanceLog.IsVerboseEnabled;
+            }
+        }
+
 		public Model()
 		{
-			name = GetType().Name;
-			fullName = name;
-			drawing = new DrawingCommon(this);
-			formula = new Formula(this);
+            name = GetType().Name;
+            fullName = name;
+            drawing = new DrawingCommon(this);
+            formula = new Formula(this);
+
+            SetupLog();
 			
 			if( trace) instanceLog.TraceFormat(LogMessage.LOGMSG15, GetType().Name);
 			chain = new ChainImpl(this);
@@ -82,7 +95,38 @@ namespace TickZoom.Common
             RequestEvent( EventType.SynchronizePortfolio);
         }
 
-		[Diagram(AttributeExclude=true)]
+        public Log Log
+        {
+            get { return instanceLog; }
+        }
+
+        public bool IsDebug
+        {
+            get { return debug; }
+        }
+
+        public bool IsTrace
+        {
+            get { return trace; }
+        }
+
+        private void SetupLog()
+        {
+            var logName = GetType().Namespace;
+            if (!Name.Contains(GetType().Name))
+            {
+                logName += "." + GetType().Name;
+            }
+            logName += "." + Name;
+            if (Data != null && !logName.Contains(Data.SymbolInfo.BaseSymbol))
+            {
+                logName += "." + Data.SymbolInfo.ExpandedSymbol;
+            }
+            instanceLog = Factory.SysLog.GetLogger(logName);
+            instanceLog.Register(this);
+        }
+
+        [Diagram(AttributeExclude = true)]
 		public void AddInterceptor(StrategyInterceptorInterface interceptor) {
 			strategyInterceptors.Add(interceptor);
 		}
@@ -328,6 +372,7 @@ namespace TickZoom.Common
 		public virtual void OnEvent(EventContext context, EventType eventType, object eventDetail) {
 			switch( eventType) {
 				case EventType.Initialize:
+			        SetupLog();
 					OnInitialize();
 					break;
 				case EventType.Open:
@@ -375,7 +420,15 @@ namespace TickZoom.Common
 		[Browsable(false)]
 		public virtual string Name {
 			get { return name; }
-			set { name = value; }
+			set
+			{
+                if( name != value)
+                {
+                    name = value;
+                    SetupLog();
+                }
+                name = value;
+            }
 		}
 	
 		[Browsable(false)]
