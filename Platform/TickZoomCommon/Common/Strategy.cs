@@ -39,9 +39,6 @@ namespace TickZoom.Common
 	public class Strategy : Model, StrategyInterface
 	{
 		PositionInterface position;
-		private Log instanceLog;
-		private bool debug;
-		private bool trace;
 		private Result result;
         private OrderManager orderManager;
 		private Dictionary<int,LogicalOrder> ordersHash = new Dictionary<int,LogicalOrder>();
@@ -58,9 +55,8 @@ namespace TickZoom.Common
 		
 		public Strategy()
 		{
-		    SetupLog();
 			position = new PositionCommon(this);
-			if( trace) instanceLog.TraceFormat(LogMessage.LOGMSG646);
+			if( IsTrace) Log.TraceFormat(LogMessage.LOGMSG646);
 			Chain.Dependencies.Clear();
 			isStrategy = true;
 			result = new Result(this);
@@ -80,25 +76,6 @@ namespace TickZoom.Common
 			postFillManager.DoExitStrategyOrders = true;
 		}
 
-        private void SetupLog()
-        {
-            var logName = GetType().Namespace;
-            if (GetType().Name != Name)
-            {
-                if( Name.Contains(GetType().Name))
-                {
-                    logName += "." + Name;
-                }
-                else
-                {
-                    logName += "." + GetType().Name + "." + Name;
-                }
-            }
-            instanceLog = Factory.SysLog.GetLogger(logName);
-            debug = instanceLog.IsDebugEnabled;
-            trace = instanceLog.IsTraceEnabled;
-        }
-		
 		public override void OnConfigure()
 		{
 			base.OnConfigure();
@@ -203,19 +180,6 @@ namespace TickZoom.Common
 			get { return Chain.Previous.Model as Strategy; }
 		}
 		
-		[Browsable(false)]
-		public override string Name {
-			get { return base.Name; }
-			set
-			{
-			    if( base.Name != value)
-			    {
-                    base.Name = value;
-                    SetupLog();
-                }
-            }
-		}
-
         public OrderHandlers OrderGroup( int index)
         {
             while( orderGroups.Count <= index)
@@ -257,18 +221,6 @@ namespace TickZoom.Common
 			return stats.Daily.SortinoRatio;
 		}
 		
-		public Log Log {
-			get { return instanceLog; }
-		}
-		
-		public bool IsDebug {
-			get { return debug; }
-		}
-		
-		public bool IsTrace {
-			get { return trace; }
-		}
-
         public virtual void OnEnterTrade(TransactionPairBinary comboTrade, LogicalFill fill, LogicalOrder filledOrder)
         {
 			OnEnterTrade();
