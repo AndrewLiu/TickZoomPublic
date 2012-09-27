@@ -737,7 +737,8 @@ namespace TickZoom.Symbols
       <property name=""SessionStart"" value=""17:00:00"" />
       <property name=""SessionEnd"" value=""16:00:00"" />
       <symbol name=""JY"">
-          <property name=""IceBergOrderSize"" value=""100""/>
+          <property name=""IceBergOrderSize"" value=""10""/>
+          <property name=""IceBergOrderRefill"" value=""5""/>
       </symbol>
       <symbol name=""EC"" />
       <symbol name=""SF"" />

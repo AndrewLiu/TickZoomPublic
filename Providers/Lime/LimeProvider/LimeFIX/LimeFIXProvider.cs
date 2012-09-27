@@ -629,11 +629,12 @@ namespace TickZoom.Provider.LimeFIX
 				} else {
                     fixMsg.SetDestination(order.Symbol.Destination);
                 }
-                fixMsg.SetAlgorithm( algorithmName);
             }
             fixMsg.SetSymbol(order.Symbol.BaseSymbol+SymbolSuffix);
             fixMsg.SetSide(order.Side == OrderSide.Buy ? 1 : 5);
-			switch( order.Type) {
+            fixMsg.SetAlgorithm(algorithmName);
+            switch (order.Type)
+            {
                 case OrderType.Limit:
                     fixMsg.SetOrderType(2);
                     fixMsg.SetPrice(order.Price);

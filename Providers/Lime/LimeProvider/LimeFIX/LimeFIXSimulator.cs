@@ -399,7 +399,36 @@ namespace TickZoom.Provider.LimeFIX
                     break;
                 case "2":
                     type = OrderType.Limit;
-                    if( symbol.IceBergOrderSize > 0)
+                    var isSortAlgo = !string.IsNullOrEmpty(packet.Algorithm) && packet.Algorithm.ToLower() == "sort";
+                    if( isSortAlgo && symbol.IceBergOrderSize > 0)
+                    {
+                        if( packet.PostQuantity != symbol.IceBergOrderSize)
+                        {
+                            throw new ApplicationException(symbol + ": Expected packet.PostQuantity to match symbol.IceBergOrderSize but " + packet.PostQuantity + " != " + symbol.IceBergOrderSize);
+                        }
+                    }
+                    else
+                    {
+                        if( packet.PostQuantity > 0)
+                        {
+                            throw new ApplicationException(symbol + ": Expected packet.PostQuantity to be disabled because symobl.IceBergOrderSize = " + symbol.IceBergOrderSize);
+                        }
+                    }
+                    if( isSortAlgo && symbol.IceBergOrderRefill > 0)
+                    {
+                        if( packet.RefillQuantity != symbol.IceBergOrderRefill)
+                        {
+                            throw new ApplicationException(symbol + ": Expected packet.RefillQuantity to match symbol.IceBergOrderRefill but " + packet.RefillQuantity + " != " + symbol.IceBergOrderRefill);
+                        }
+                    }
+                    else
+                    {
+                        if( packet.RefillQuantity > 0)
+                        {
+                            throw new ApplicationException(symbol + ": Expected packet.RefillQuantity to be disabled because symobl.IceBergOrderRefill = " + symbol.IceBergOrderRefill);
+                        }
+                    }
+                    if( !isSortAlgo && symbol.IceBergOrderSize > 0)
                     {
                         if( packet.MaxFloor != symbol.IceBergOrderSize)
                         {

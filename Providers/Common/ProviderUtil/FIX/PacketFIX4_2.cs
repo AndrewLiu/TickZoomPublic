@@ -46,6 +46,9 @@ namespace TickZoom.Provider.FIX
         private int tradingSessionStatus;
         private string tradingSessionSubId;
 	    private int maxFloor;
+        private string algorithm;
+        private int postQuantity;
+        private int refillQuantity;
 
 	    public override void Clear()
         {
@@ -83,6 +86,9 @@ namespace TickZoom.Provider.FIX
             tradingSessionStatus = 0;
             tradingSessionSubId = null;
 	        maxFloor = 0;
+	        algorithm = null;
+	        postQuantity = 0;
+	        refillQuantity = 0;
         }
 
  
@@ -189,8 +195,17 @@ namespace TickZoom.Provider.FIX
                 case 705:
                     result = GetInt(out shortQuantity);
                     break;
+                case 9144:
+                    result = GetInt(out postQuantity);
+                    break;
+                case 9116:
+                    result = GetInt(out refillQuantity);
+                    break;
                 case 10017:
                     result = GetString(out internalOrderId);
+                    break;
+                case 9100:
+                    result = GetString(out algorithm);
                     break;
                 default:
                     result = base.HandleKey(key);
@@ -501,6 +516,21 @@ namespace TickZoom.Provider.FIX
 	    public int MaxFloor
 	    {
 	        get { return maxFloor; }
+	    }
+
+	    public string Algorithm
+	    {
+	        get { return algorithm; }
+	    }
+
+	    public int PostQuantity
+	    {
+	        get { return postQuantity; }
+	    }
+
+	    public int RefillQuantity
+	    {
+	        get { return refillQuantity; }
 	    }
 	}
 }
