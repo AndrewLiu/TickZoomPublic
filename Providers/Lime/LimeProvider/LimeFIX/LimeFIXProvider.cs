@@ -692,7 +692,8 @@ namespace TickZoom.Provider.LimeFIX
             algorithmName = GetField("Algorithm", configFile, false);
             try
             {
-                algorithm = (LimeAlgorithm) Enum.Parse(typeof (LimeAlgorithm), algorithmName);
+                var enumName = char.ToUpper(algorithmName[0]) + algorithmName.Substring(1).ToLower();
+                algorithm = (LimeAlgorithm) Enum.Parse(typeof (LimeAlgorithm), enumName);
             }
             catch( Exception ex)
             {
