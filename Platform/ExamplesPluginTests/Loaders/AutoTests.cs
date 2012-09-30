@@ -471,7 +471,7 @@ namespace Loaders
 			
             list.Add(next = new AutoTestSettings
             {
-			    Mode = AutoTestMode.Historical, 
+			    Mode = AutoTestMode.Historical,
 			    Name = "MultiSymbolOrders",
 			    Loader = new ExampleOrdersLoader(),
 				Symbols = @"AD.1month, BO.1month, BP.1month, CC.1month, CD.1month, CL.1month,
@@ -484,7 +484,7 @@ namespace Loaders
                     TY.1month, US.1month, WC.1month, XB.1month",
 				StoreKnownGood = storeKnownGood,
 				ShowCharts = showCharts,
-				EndTime = new TimeStamp( 2010,3,2), 
+				EndTime = new TimeStamp( 2010,3,2),
 				IntervalDefault = Intervals.Hour1,
 			});
 

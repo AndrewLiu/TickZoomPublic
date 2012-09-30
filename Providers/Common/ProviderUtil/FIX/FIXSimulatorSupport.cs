@@ -893,9 +893,9 @@ namespace TickZoom.Provider.FIX
                 if (trace) log.TraceFormat(LogMessage.LOGMSG144, message);
                 return true;
             }
-            log.Error("Failed to Write: " + message);
-            Thread.Sleep(1000);
-            Environment.Exit(1);
+            //log.Error("Failed to Write: " + message);
+            //Thread.Sleep(1000);
+            //Environment.Exit(1);
             return false;
         }
 
