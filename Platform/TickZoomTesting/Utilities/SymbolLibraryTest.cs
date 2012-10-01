@@ -38,5 +38,13 @@ namespace TickZoom.Utilities
             var symbol = Factory.Symbol.LookupSymbol("CSCO");
             Assert.AreEqual(symbol["InheritedCustomProperty"], "Testing1", "custom property");
         }
+
+        [Test]
+        public void TestInheritedUserCustomProperty()
+        {
+            var symbol = Factory.Symbol.LookupSymbol("ESU2");
+            Assert.AreEqual(symbol["InheritedUserCustomProperty"], "Testing2", "custom property");
+        }
+
     }
 }

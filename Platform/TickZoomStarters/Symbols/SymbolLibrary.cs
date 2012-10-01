@@ -91,10 +91,7 @@ namespace TickZoom.Symbols
         private void AddAbbreviation(SymbolProperties properties)
         {
             var abbreviation = properties.ExpandedSymbol.StripInvalidPathChars();
-            if (!symbolMap.ContainsKey(abbreviation))
-            {
-				symbolMap[abbreviation] = properties;
-			}
+			symbolMap[abbreviation] = properties;
 		}
 		
 		private void AdjustSession(SymbolProperties symbolProperties) {
