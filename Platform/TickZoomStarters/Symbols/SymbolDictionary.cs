@@ -1067,6 +1067,10 @@ namespace TickZoom.Symbols
 #region USER_DICTIONARY
 		public static string UserDictionary = @"<?xml version=""1.0"" encoding=""utf-16""?>
 <category name=""User Dictionary"">
+  <property name=""InheritedUserCustomProperty"" value=""Testing2"" />
+  <category name=""UserDefinedTest"">
+    <symbol name =""/ESU2"" />
+  </category>
   <category name=""Market Account"">
       <property name=""DisableRealtimeSimulation"" value=""true"" />
       <property name=""OffsetTooLateToChange"" value=""false"" />
