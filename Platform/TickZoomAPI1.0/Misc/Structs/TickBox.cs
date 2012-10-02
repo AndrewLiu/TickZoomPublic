@@ -178,30 +178,22 @@ namespace TickZoom.Api
             get { return tick.Size; }
         }
 		
-        public short AskLevel(int level) {
-            fixed (ushort* ptr = tick.DepthAskLevels)
-            {
-                return (short)ptr[level];
-            }
-        }
-		
-        public void SetAskLevel(int level, short size)
+        public ushort AskLevel(int level)
         {
-            fixed (ushort* ptr = tick.DepthAskLevels)
-            {
-                ptr[level] = (ushort) size;
-            }
+            return tick.AskLevel(level);
         }
 		
-        public void SetBidLevel(int level, short size)
+        public void SetAskLevel(int level, ushort size)
         {
-            fixed (ushort* ptr = tick.DepthBidLevels)
-            {
-                ptr[level] = (ushort) size;
-            }
+            tick.SetAskLevel(level,size);
         }
 		
-        public short BidLevel(int level) {
+        public void SetBidLevel(int level, ushort size)
+        {
+            tick.SetBidLevel(level,size);
+        }
+		
+        public ushort BidLevel(int level) {
             return BidLevel(level);
         }
 		
@@ -356,7 +348,7 @@ namespace TickZoom.Api
             throw new NotImplementedException();
         }
 		
-        public void SetDepth(short[] bidSize, short[] askSize)
+        public void SetDepth(ushort[] bidSize, ushort[] askSize)
         {
             throw new NotImplementedException();
         }

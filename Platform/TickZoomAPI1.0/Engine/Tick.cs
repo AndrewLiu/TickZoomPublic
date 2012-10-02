@@ -108,9 +108,9 @@ namespace TickZoom.Api
 			get;
 		}
 		
-		short AskLevel(int level);
+		ushort AskLevel(int level);
 		
-		short BidLevel(int level);
+		ushort BidLevel(int level);
 		
 		int DomLevels {
 			get;

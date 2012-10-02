@@ -50,8 +50,8 @@ namespace TickZoom.Api
         [FieldOffset(48)] public long Ask;
         [FieldOffset(56)] public long Price;
         [FieldOffset(64)] public int Size;
-        [FieldOffset(68)] public fixed ushort DepthAskLevels[DomLevels];
-        [FieldOffset(78)] public fixed ushort DepthBidLevels[DomLevels];
+        [FieldOffset(68)] private fixed ushort depthAskLevels[DomLevels];
+        [FieldOffset(78)] private fixed ushort depthBidLevels[DomLevels];
         [FieldOffset(88)] public byte Side;
         [FieldOffset(89)] public byte contentMask;
 
@@ -181,8 +181,8 @@ namespace TickZoom.Api
             HasDepthOfMarket = true;
             Bid = lBid;
             Ask = lAsk;
-            fixed (ushort* b = DepthBidLevels)
-            fixed (ushort* a = DepthAskLevels)
+            fixed (ushort* b = depthBidLevels)
+            fixed (ushort* a = depthAskLevels)
             {
                 *b = (ushort)bidSize;
                 *a = (ushort)askSize;
@@ -215,16 +215,16 @@ namespace TickZoom.Api
             this.OptionType = optionType;
         }
 
-        public void SetDepth(short[] bidSize, short[] askSize)
+        public void SetDepth(ushort[] bidSize, ushort[] askSize)
         {
             HasDepthOfMarket = true;
-            fixed (ushort* b = DepthBidLevels)
-            fixed (ushort* a = DepthAskLevels)
+            fixed (ushort* b = depthBidLevels)
+            fixed (ushort* a = depthAskLevels)
             {
                 for (int i = 0; i < TickBinary.DomLevels; i++)
                 {
-                    *(b + i) = (ushort)bidSize[i];
-                    *(a + i) = (ushort)askSize[i];
+                    *(b + i) = bidSize[i];
+                    *(a + i) = askSize[i];
                 }
             }
         }
@@ -234,12 +234,60 @@ namespace TickZoom.Api
             Symbol = lSymbol;
         }
 
+        public ushort AskLevel(int level)
+        {
+            fixed (ushort* p = depthAskLevels)
+            {
+                return *(p + level);
+            }
+        }
+
+        public ushort BidLevel(int level)
+        {
+            fixed (ushort* p = depthBidLevels)
+            {
+                return *(p + level);
+            }
+        }
+
+        public void IncrementAskLevel(int level, ushort size)
+        {
+            fixed (ushort* ptr = depthAskLevels)
+            {
+                ptr[level] += size;
+            }
+        }
+
+        public void IncrementBidLevel(int level, ushort size)
+        {
+            fixed (ushort* ptr = depthBidLevels)
+            {
+                ptr[level] += size;
+            }
+        }
+
+        public void SetAskLevel(int level, ushort size)
+        {
+            fixed( ushort *ptr = depthAskLevels)
+            {
+                ptr[level] = (ushort)size;
+            }
+        }
+
+        public void SetBidLevel(int level, ushort size)
+        {
+            fixed( ushort *ptr = depthBidLevels)
+            {
+                ptr[level] = (ushort)size;
+            }
+        }
+
         public int BidDepth
         {
             get
             {
                 int total = 0;
-                fixed (ushort* p = DepthBidLevels)
+                fixed (ushort* p = depthBidLevels)
                 {
                     for (int i = 0; i < TickBinary.DomLevels; i++)
                     {
@@ -255,7 +303,7 @@ namespace TickZoom.Api
             get
             {
                 int total = 0;
-                fixed (ushort* p = DepthAskLevels)
+                fixed (ushort* p = depthAskLevels)
                 {
                     for (int i = 0; i < TickBinary.DomLevels; i++)
                     {
@@ -266,6 +314,73 @@ namespace TickZoom.Api
             }
         }
 
+        public int CompareTo(ref TickBinary other)
+        {
+            fixed( ushort *a1 = depthAskLevels)
+            fixed( ushort *a2 = other.depthAskLevels)
+            fixed( ushort *b1 = depthBidLevels)
+            fixed( ushort *b2 = other.depthBidLevels)
+            return contentMask == other.contentMask &&
+                UtcTime == other.UtcTime &&
+                Bid == other.Bid &&
+                Ask == other.Ask &&
+                Side == other.Side &&
+                Price == other.Price &&
+                Size == other.Size &&
+                memcmp(a1, a2) &&
+                memcmp(b1, b2) ? 0 :
+                UtcTime > other.UtcTime ? 1 : -1;
+        }
+
+        public static bool memcmp(ushort* array1, ushort* array2)
+        {
+            for (int i = 0; i < TickBinary.DomLevels; i++)
+            {
+                if (*(array1 + i) != *(array2 + i)) return false;
+            }
+            return true;
+        }
+
+        public void CopyDepth(TickIO tick)
+        {
+            fixed( ushort* b = depthBidLevels)
+            fixed( ushort* a = depthAskLevels)
+            for (int i = 0; i < DomLevels; i++)
+            {
+                *(b + i) = (ushort)tick.BidLevel(i);
+                *(a + i) = (ushort)tick.AskLevel(i);
+            }
+        }
+
+        public unsafe void WriteBidSize(ref TickBinary lastBinary, byte field, int i, byte** ptr)
+        {
+            fixed (ushort* lp = lastBinary.depthBidLevels)
+            fixed (ushort* p = depthBidLevels)
+            {
+                var diff = *(p + i) - *(lp + i);
+                if (diff != 0)
+                {
+                    *(*ptr) = (byte)(field | i); (*ptr)++;
+                    *(short*)(*ptr) = (short)diff; (*ptr) += sizeof(short);
+                    *(lp + i) = *(p + i);
+                }
+            }
+        }
+
+        public unsafe void WriteAskSize(ref TickBinary lastBinary, byte field, int i, byte** ptr)
+        {
+            fixed (ushort* lp = lastBinary.depthAskLevels)
+            fixed (ushort* p = depthAskLevels)
+            {
+                var diff = *(p + i) - *(lp + i);
+                if (diff != 0)
+                {
+                    *(*ptr) = (byte)(field | i); (*ptr)++;
+                    *(short*)(*ptr) = (short)diff; (*ptr) += sizeof(short);
+                    *(lp + i) = *(p + i);
+                }
+            }
+        }
         public override string ToString()
         {
             var sb = new StringBuilder();
@@ -274,7 +389,7 @@ namespace TickZoom.Api
             sb.Append(", Price " + Price + ", Size " + Size);
             sb.Append(", Strike " + Strike + ", UtcOptionExpiration " + UtcOptionExpiration);
             sb.Append(", BidSizes ");
-            fixed (ushort* usptr = DepthBidLevels)
+            fixed (ushort* usptr = depthBidLevels)
                 for (int i = 0; i < TickBinary.DomLevels; i++)
                 {
                     var size = *(usptr + i);
@@ -282,7 +397,7 @@ namespace TickZoom.Api
                     sb.Append(size);
                 }
             sb.Append(", AskSizes ");
-            fixed (ushort* usptr = DepthAskLevels)
+            fixed (ushort* usptr = depthAskLevels)
                 for (int i = 0; i < TickBinary.DomLevels; i++)
                 {
                     var size = *(usptr + i);
