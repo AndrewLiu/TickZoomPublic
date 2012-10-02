@@ -83,7 +83,7 @@ namespace TickZoom.Api
 		/// </summary>
 		/// <param name="bidSize">An array of bid sizes for 5 levels of depth of market.</param>
 		/// <param name="askSize">An array of ask sizes for 5 levels of depth of market.</param>
-		void SetDepth(short[] bidSize, short[] askSize);
+		void SetDepth(ushort[] bidSize, ushort[] askSize);
 		
 		/// <summary>
 		/// Makes a copy of the 'other' tick onto this one but only the data specified in the

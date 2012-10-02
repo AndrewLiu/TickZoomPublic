@@ -123,32 +123,12 @@ namespace TickZoom.TickUtil
 
         private unsafe void WriteBidSize(ref TickBinary binary, byte field, int i, byte** ptr)
         {
-            fixed (ushort* lp = lastBinary.DepthBidLevels)
-            fixed (ushort* p = binary.DepthBidLevels)
-            {
-                var diff = *(p + i) - *(lp + i);
-                if (diff != 0)
-                {
-                    *(*ptr) = (byte)(field | i); (*ptr)++;
-                    *(short*)(*ptr) = (short)diff; (*ptr) += sizeof(short);
-                    *(lp + i) = *(p + i);
-                }
-            }
+            binary.WriteBidSize(ref lastBinary, field, i, ptr);
         }
 
         private unsafe void WriteAskSize(ref TickBinary binary, byte field, int i, byte** ptr)
         {
-            fixed (ushort* lp = lastBinary.DepthAskLevels)
-            fixed (ushort* p = binary.DepthAskLevels)
-            {
-                var diff = *(p + i) - *(lp + i);
-                if (diff != 0)
-                {
-                    *(*ptr) = (byte)(field | i); (*ptr)++;
-                    *(short*)(*ptr) = (short)diff; (*ptr) += sizeof(short);
-                    *(lp + i) = *(p + i);
-                }
-            }
+            binary.WriteAskSize(ref lastBinary, field, i, ptr);
         }
 
         public void ResetCompression()
@@ -230,17 +210,15 @@ namespace TickZoom.TickUtil
                 if (binary.HasDepthOfMarket)
                 {
                     var field = (byte)((byte)BinaryField.BidSize << 3);
-                    fixed (ushort* usptr = binary.DepthBidLevels)
-                        for (int i = 0; i < TickBinary.DomLevels; i++)
-                        {
-                            WriteBidSize(ref binary, field, i, &ptr);
-                        }
+                    for (int i = 0; i < TickBinary.DomLevels; i++)
+                    {
+                        WriteBidSize(ref binary, field, i, &ptr);
+                    }
                     field = (byte)((byte)BinaryField.AskSize << 3);
-                    fixed (ushort* usptr = binary.DepthAskLevels)
-                        for (int i = 0; i < TickBinary.DomLevels; i++)
-                        {
-                            WriteAskSize(ref binary, field, i, &ptr);
-                        }
+                    for (int i = 0; i < TickBinary.DomLevels; i++)
+                    {
+                        WriteAskSize(ref binary, field, i, &ptr);
+                    }
                 }
                 int length = (int) (ptr - fptr);
                 writer.Position += length;
@@ -421,18 +399,16 @@ namespace TickZoom.TickUtil
             }
             if (binary.HasDepthOfMarket)
             {
-                fixed (ushort* usptr = binary.DepthBidLevels)
-                    for (int i = 0; i < TickBinary.DomLevels; i++)
-                    {
-                        var size = *(usptr + i);
-                        runningChecksum ^= size;
-                    }
-                fixed (ushort* usptr = binary.DepthAskLevels)
-                    for (int i = 0; i < TickBinary.DomLevels; i++)
-                    {
-                        var size = *(usptr + i);
-                        runningChecksum ^= size;
-                    }
+                for (int i = 0; i < TickBinary.DomLevels; i++)
+                {
+                    var size = binary.BidLevel(i);
+                    runningChecksum ^= size;
+                }
+                for (int i = 0; i < TickBinary.DomLevels; i++)
+                {
+                    var size = binary.AskLevel(i);
+                    runningChecksum ^= size;
+                }
             }
             byte checksum = 0;
             for (var i = 0; i < 8; i++)
@@ -475,19 +451,13 @@ namespace TickZoom.TickUtil
                 }
                 if (binary.HasDepthOfMarket)
                 {
-                    fixed (ushort* p = binary.DepthBidLevels)
+                    for (int i = 0; i < TickBinary.DomLevels; i++)
                     {
-                        for (int i = 0; i < TickBinary.DomLevels; i++)
-                        {
-                            *(ushort*)(ptr) = *(p + i); ptr += sizeof(ushort);
-                        }
+                        *(ushort*)(ptr) = binary.BidLevel(i); ptr += sizeof(ushort);
                     }
-                    fixed (ushort* p = binary.DepthAskLevels)
+                    for (int i = 0; i < TickBinary.DomLevels; i++)
                     {
-                        for (int i = 0; i < TickBinary.DomLevels; i++)
-                        {
-                            *(ushort*)(ptr) = *(p + i); ptr += sizeof(ushort);
-                        }
+                        *(ushort*)(ptr) = binary.AskLevel(i); ptr += sizeof(ushort);
                     }
                 }
                 writer.Position += ptr - fptr;
@@ -546,24 +516,18 @@ namespace TickZoom.TickUtil
 
         private unsafe void ReadBidSize(ref TickBinary binary, byte** ptr)
         {
-            fixed (ushort* p = binary.DepthBidLevels)
-            {
-                var index = **ptr & 0x07;
-                (*ptr)++;
-                *(p + index) = (ushort)(*(p + index) + *(short*)(*ptr));
-                (*ptr) += sizeof(short);
-            }
+            var index = **ptr & 0x07;
+            (*ptr)++;
+            binary.IncrementBidLevel(index, *(ushort*) (*ptr));
+            (*ptr) += sizeof(short);
         }
 
         private unsafe void ReadAskSize(ref TickBinary binary, byte** ptr)
         {
-            fixed (ushort* p = binary.DepthAskLevels)
-            {
-                var index = **ptr & 0x07;
-                (*ptr)++;
-                *(p + index) = (ushort)(*(p + index) + *(short*)(*ptr));
-                (*ptr) += sizeof(short);
-            }
+            var index = **ptr & 0x07;
+            (*ptr)++;
+            binary.IncrementAskLevel(index, *(ushort*)(*ptr));
+            (*ptr) += sizeof(short);
         }
 
         private TickIO fromFileVerboseTickIO = Factory.TickUtil.TickIO();
@@ -838,19 +802,13 @@ namespace TickZoom.TickUtil
             }
             if (binary.HasDepthOfMarket)
             {
-                fixed (ushort* p = binary.DepthBidLevels)
+                for (int i = 0; i < TickBinary.DomLevels; i++)
                 {
-                    for (int i = 0; i < TickBinary.DomLevels; i++)
-                    {
-                        *(p + i) = *(ushort*)ptr; ptr += 2;
-                    }
+                    binary.SetBidLevel(i, *(ushort*)ptr); ptr += 2;
                 }
-                fixed (ushort* p = binary.DepthAskLevels)
+                for (int i = 0; i < TickBinary.DomLevels; i++)
                 {
-                    for (int i = 0; i < TickBinary.DomLevels; i++)
-                    {
-                        *(p + i) = *(ushort*)ptr; ptr += 2;
-                    }
+                    binary.SetAskLevel(i,*(ushort*)ptr); ptr += 2;
                 }
             }
             int len = (int)(ptr - fptr);
@@ -891,19 +849,13 @@ namespace TickZoom.TickUtil
             }
             if (binary.HasDepthOfMarket)
             {
-                fixed (ushort* p = binary.DepthBidLevels)
+                for (int i = 0; i < TickBinary.DomLevels; i++)
                 {
-                    for (int i = 0; i < TickBinary.DomLevels; i++)
-                    {
-                        *(p + i) = reader.ReadUInt16(); position += 2;
-                    }
+                    binary.SetBidLevel(i,reader.ReadUInt16()); position += 2;
                 }
-                fixed (ushort* p = binary.DepthAskLevels)
+                for (int i = 0; i < TickBinary.DomLevels; i++)
                 {
-                    for (int i = 0; i < TickBinary.DomLevels; i++)
-                    {
-                        *(p + i) = reader.ReadUInt16(); position += 2;
-                    }
+                    binary.SetAskLevel(i,reader.ReadUInt16()); position += 2;
                 }
             }
             return position;
@@ -926,19 +878,13 @@ namespace TickZoom.TickUtil
                 binary.Price = reader.ReadInt64(); position += 8;
                 if (binary.Price == 0) { binary.Price = (binary.Bid + binary.Ask) / 2; }
                 binary.Size = reader.ReadInt32(); position += 4;
-                fixed (ushort* p = binary.DepthBidLevels)
+                for (int i = 0; i < TickBinary.DomLevels; i++)
                 {
-                    for (int i = 0; i < TickBinary.DomLevels; i++)
-                    {
-                        *(p + i) = reader.ReadUInt16(); position += 2;
-                    }
+                    binary.SetBidLevel(i, reader.ReadUInt16()); position += 2;
                 }
-                fixed (ushort* p = binary.DepthAskLevels)
+                for (int i = 0; i < TickBinary.DomLevels; i++)
                 {
-                    for (int i = 0; i < TickBinary.DomLevels; i++)
-                    {
-                        *(p + i) = reader.ReadUInt16(); position += 2;
-                    }
+                    binary.SetAskLevel(i, reader.ReadUInt16()); position += 2;
                 }
             }
             return position;
@@ -964,19 +910,13 @@ namespace TickZoom.TickUtil
                 binary.Price *= OlderFormatConvertToLong;
                 if (binary.Price == 0) { binary.Price = (binary.Bid + binary.Ask) / 2; }
                 binary.Size = reader.ReadUInt16(); position += 2;
-                fixed (ushort* p = binary.DepthBidLevels)
+                for (int i = 0; i < TickBinary.DomLevels; i++)
                 {
-                    for (int i = 0; i < TickBinary.DomLevels; i++)
-                    {
-                        *(p + i) = reader.ReadUInt16(); position += 2;
-                    }
+                    binary.SetBidLevel(i, reader.ReadUInt16()); position += 2;
                 }
-                fixed (ushort* p = binary.DepthAskLevels)
+                for (int i = 0; i < TickBinary.DomLevels; i++)
                 {
-                    for (int i = 0; i < TickBinary.DomLevels; i++)
-                    {
-                        *(p + i) = reader.ReadUInt16(); position += 2;
-                    }
+                    binary.SetAskLevel(i, reader.ReadUInt16()); position += 2;
                 }
             }
             return position;
@@ -1009,19 +949,13 @@ namespace TickZoom.TickUtil
                 binary.Price *= OlderFormatConvertToLong;
                 if (binary.Price == 0) { binary.Price = (binary.Bid + binary.Ask) / 2; }
                 binary.Size = reader.ReadUInt16(); position += 2;
-                fixed (ushort* p = binary.DepthBidLevels)
+                for (int i = 0; i < TickBinary.DomLevels; i++)
                 {
-                    for (int i = 0; i < TickBinary.DomLevels; i++)
-                    {
-                        *(p + i) = reader.ReadUInt16(); position += 2;
-                    }
+                    binary.SetBidLevel(i, reader.ReadUInt16()); position += 2;
                 }
-                fixed (ushort* p = binary.DepthAskLevels)
+                for (int i = 0; i < TickBinary.DomLevels; i++)
                 {
-                    for (int i = 0; i < TickBinary.DomLevels; i++)
-                    {
-                        *(p + i) = reader.ReadUInt16(); position += 2;
-                    }
+                    binary.SetAskLevel(i, reader.ReadUInt16()); position += 2;
                 }
             }
             return position;
@@ -1042,19 +976,13 @@ namespace TickZoom.TickUtil
             binary.Price *= OlderFormatConvertToLong;
             if (binary.Price == 0) { binary.Price = (binary.Bid + binary.Ask) / 2; }
             binary.Size = reader.ReadUInt16(); position += 2;
-            fixed (ushort* p = binary.DepthBidLevels)
+            for (int i = 0; i < TickBinary.DomLevels; i++)
             {
-                for (int i = 0; i < TickBinary.DomLevels; i++)
-                {
-                    *(p + i) = reader.ReadUInt16(); position += 2;
-                }
+                binary.SetBidLevel(i, reader.ReadUInt16()); position += 2;
             }
-            fixed (ushort* p = binary.DepthAskLevels)
+            for (int i = 0; i < TickBinary.DomLevels; i++)
             {
-                for (int i = 0; i < TickBinary.DomLevels; i++)
-                {
-                    *(p + i) = reader.ReadUInt16(); position += 2;
-                }
+                binary.SetAskLevel(i, reader.ReadUInt16()); position += 2;
             }
             binary.contentMask = 0;
             binary.IsQuote = true;
@@ -1073,14 +1001,8 @@ namespace TickZoom.TickUtil
             binary.Ask = binary.Bid + spread;
             binary.Bid *= OlderFormatConvertToLong;
             binary.Ask *= OlderFormatConvertToLong;
-            fixed (ushort* p = binary.DepthBidLevels)
-            {
-                *p = (ushort)reader.ReadInt32(); position += 4;
-            }
-            fixed (ushort* p = binary.DepthAskLevels)
-            {
-                *p = (ushort)reader.ReadInt32(); position += 4;
-            }
+            binary.SetBidLevel(0,(ushort)reader.ReadInt32()); position += 4;
+            binary.SetAskLevel(0,(ushort)reader.ReadInt32()); position += 4;
             binary.contentMask = 0;
             binary.IsQuote = true;
             binary.HasDepthOfMarket = true;
