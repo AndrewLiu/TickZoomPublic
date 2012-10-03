@@ -1,0 +1,17 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PublishUrlHistory>
+    </PublishUrlHistory>
+    <InstallUrlHistory>
+    </InstallUrlHistory>
+    <SupportUrlHistory>
+    </SupportUrlHistory>
+    <UpdateUrlHistory>
+    </UpdateUrlHistory>
+    <BootstrapperUrlHistory>
+    </BootstrapperUrlHistory>
+    <FallbackCulture>en-US</FallbackCulture>
+    <VerifyUploadedFiles>false</VerifyUploadedFiles>
+    <ReferencePath>C:\Local\TickZoom\Project\Public\;C:\Local\TickZoom\Project\Public\Platform\;C:\Local\TickZoom\Project\Public\Platform\TickZoomAPI1.0\</ReferencePath>
+  </PropertyGroup>
+</Project>

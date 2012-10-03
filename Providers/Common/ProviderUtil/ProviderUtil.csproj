@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{00E10E7D-4270-448C-921C-72A795FBF13F}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Library</OutputType>
+    <RootNamespace>TickZoom</RootNamespace>
+    <AssemblyName>ProviderUtil</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SourceAnalysisOverrideSettingsFile>C:\Documents and Settings\Wayne Walter\Application Data\ICSharpCode/SharpDevelop3.0\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>PdbOnly</DebugType>
+    <Optimize>True</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <OutputPath>..\..\..\bin\Debug\</OutputPath>
+    <DebugType>full</DebugType>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>..\..\..\bin\Release\</OutputPath>
+    <DebugType>none</DebugType>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <FileAlignment>4096</FileAlignment>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <FileAlignment>4096</FileAlignment>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <WarningLevel>4</WarningLevel>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\bin\Release\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="FIX\FilterException.cs" />
+    <Compile Include="FIX\FIXContext.cs" />
+    <Compile Include="FIX\FIXContextDefault.cs" />
+    <Compile Include="FIX\FIXFilter.cs" />
+    <Compile Include="FIX\FIXMessage4_4.cs" />
+    <Compile Include="FIX\FIXPretradeFilter.cs" />
+    <Compile Include="FIX\FIXProviderSupport.cs" />
+    <Compile Include="FIX\FIXSimulatorSupport.cs" />
+    <Compile Include="FIX\SimulateSymbol.cs" />
+    <Compile Include="FIX\SimulateSymbolPlayback.cs" />
+    <Compile Include="FIX\SimulateSymbolSyncTicks.cs" />
+    <Compile Include="FIX\FIXTBuffer.cs" />
+    <Compile Include="FIX\FIXTFactory.cs" />
+    <Compile Include="FIX\FIXTFactory1_1.cs" />
+    <Compile Include="FIX\FIXTMessage.cs" />
+    <Compile Include="FIX\FIXTMessage1_1.cs" />
+    <Compile Include="FIX\IncludeExcludeMatcher.cs" />
+    <Compile Include="FIX\MessageFactoryFix44.cs" />
+    <Compile Include="FIX\PacketFIX4_4.cs" />
+    <Compile Include="FIX\PacketFIXT1_1.cs">
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Platform\TickZoomAPI1.0\API1.0.csproj">
+      <Project>{27D6C88D-52B6-432C-820B-CD38A299830C}</Project>
+      <Name>API1.0</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Platform\TickZoomTickUtil\TickUtil.csproj">
+      <Project>{44135BE2-CBA4-4041-8F31-91C480302C2D}</Project>
+      <Name>TickUtil</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

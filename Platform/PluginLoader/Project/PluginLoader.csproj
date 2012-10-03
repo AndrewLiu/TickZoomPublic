@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{35CEF10F-2D4C-45F2-9DD1-161E0FEC583C}</ProjectGuid>
+    <RootNamespace>TickZoom</RootNamespace>
+    <AssemblyName>PluginLoader</AssemblyName>
+    <OutputTarget>Library</OutputTarget>
+    <NoStdLib>False</NoStdLib>
+    <NoConfig>False</NoConfig>
+    <OutputType>Library</OutputType>
+    <AssemblyOriginatorKeyFile>..\..\ICSharpCode.SharpDevelop.snk</AssemblyOriginatorKeyFile>
+    <BaseAddress>83886080</BaseAddress>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
+    <DelaySign>False</DelaySign>
+    <AssemblyOriginatorKeyMode>File</AssemblyOriginatorKeyMode>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <SourceAnalysisOverrideSettingsFile>C:\Documents and Settings\Wayne Walter\Application Data\ICSharpCode/SharpDevelop3.0\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DebugType>full</DebugType>
+    <DocumentationFile>..\..\bin\TickZoomLoader.xml</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+    <DefineConstants>DEBUG</DefineConstants>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <OutputPath>..\..\..\bin\Debug</OutputPath>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\..\bin\Release</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.85.5.452, Culture=neutral, PublicKeyToken=1b03e6acf1164f73">
+      <HintPath>..\..\..\..\Tools\1.0\Zip\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Configuration\AssemblyInfo.cs" />
+    <Compile Include="Src\PluginTree\Plugin\Plugin.cs" />
+    <Compile Include="Src\PluginTree\Plugin\Extension.cs" />
+    <Compile Include="Src\PluginTree\Plugin\ComplexCondition.cs" />
+    <Compile Include="Src\PluginTree\Plugin\Condition.cs" />
+    <Compile Include="Src\PluginTree\Plugin\ExtensionPath.cs" />
+    <Compile Include="Src\PluginTree\Plugin\IConditionEvaluator.cs" />
+    <Compile Include="Src\PluginTree\Plugin\ICondition.cs" />
+    <Compile Include="Src\PluginTree\Plugin\IDoozer.cs" />
+    <Compile Include="Src\PluginTree\Plugin\PluginLoadException.cs" />
+    <Compile Include="Src\PluginTree\Plugin\PluginReference.cs" />
+    <Compile Include="Src\PluginTree\Plugin\Runtime.cs" />
+    <Compile Include="Src\PluginTree\Plugin\DefaultConditionEvaluators\CompareConditionEvaluator.cs" />
+    <Compile Include="Src\PluginTree\Plugin\DefaultConditionEvaluators\LazyConditionEvaluator.cs" />
+    <Compile Include="Src\PluginTree\Plugin\DefaultConditionEvaluators\OwnerStateConditionEvaluator.cs" />
+    <Compile Include="Src\PluginTree\Plugin\DefaultDoozers\ClassDoozer.cs" />
+    <Compile Include="Src\PluginTree\Plugin\DefaultDoozers\LazyDoozer.cs" />
+    <Compile Include="Src\PluginTree\PluginTree.cs" />
+    <Compile Include="Src\PluginTree\PluginTreeNode.cs" />
+    <Compile Include="Src\PluginTree\PluginAction.cs" />
+    <Compile Include="Src\PluginTree\TreePathNotFoundException.cs" />
+    <Compile Include="Src\CoreException.cs" />
+    <Compile Include="Src\Services\ApplicationStateInfoService.cs" />
+    <Compile Include="Src\Services\AutoUpdate\AutoUpdate.cs" />
+    <Compile Include="Src\Services\AutoUpdate\PostSubmitter.cs" />
+    <Compile Include="Src\Services\FactoryService\FactoryLoaderDefault.cs" />
+    <Compile Include="Src\Services\FileUtility\FileNameEventHandler.cs" />
+    <Compile Include="Src\Services\FileUtility\FileUtility.cs" />
+    <Compile Include="Src\Services\FileUtility\FileUtility.Minimal.cs" />
+    <Compile Include="Src\Services\LoggingService\TextWriterLoggingService.cs" />
+    <Compile Include="Src\Services\LoggingService\ILoggingService.cs" />
+    <Compile Include="Src\Services\PropertyService\Properties.cs" />
+    <Compile Include="Src\Services\PropertyService\PropertyChangedEvent.cs" />
+    <Compile Include="Src\Services\PropertyService\PropertyService.cs" />
+    <Compile Include="Src\Services\ResourceService\ResourceNotFoundException.cs" />
+    <Compile Include="Src\Services\ResourceService\ResourceService.cs" />
+    <Compile Include="Src\Services\ServiceManager.cs" />
+    <Compile Include="Src\Services\StringParser\IStringTagProvider.cs" />
+    <Compile Include="Src\Services\StringParser\StringParser.cs" />
+    <Compile Include="Src\Util\AbstractCommand.cs" />
+    <Compile Include="Src\Util\CallbackOnDispose.cs" />
+    <Compile Include="Src\Util\DebugTextWriter.cs" />
+    <Compile Include="Src\Util\ICommand.cs" />
+    <Compile Include="Src\PluginTree\Plugin\IBuildItemsModifier.cs" />
+    <Compile Include="Src\PluginTree\Plugin\DefaultDoozers\IncludeDoozer.cs" />
+    <Compile Include="Src\Services\LoggingService\LoggingService.cs" />
+    <Compile Include="Src\PluginTree\Plugin\Manifest.cs" />
+    <Compile Include="Src\PluginTree\CoreStartup.cs" />
+    <Compile Include="Src\PluginTree\PluginManager.cs" />
+    <Compile Include="Src\PluginTree\Plugin\DefaultDoozers\StringDoozer.cs" />
+    <Compile Include="Src\Util\AppDomainLaunchHelper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\TickZoomAPI1.0\API1.0.csproj">
+      <Project>{27D6C88D-52B6-432C-820B-CD38A299830C}</Project>
+      <Name>API1.0</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <Import Project="..\..\..\TickZoom.CSharp.Targets" />
+</Project>

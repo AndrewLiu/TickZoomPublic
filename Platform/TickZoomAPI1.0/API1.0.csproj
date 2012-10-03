@@ -1,0 +1,261 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{27D6C88D-52B6-432C-820B-CD38A299830C}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <TickZoomTools Condition=" '$(TickZoomTools)' == '' ">..\Tools\1.0</TickZoomTools>
+    <OutputType>Library</OutputType>
+    <RootNamespace>TickZoomAPI</RootNamespace>
+    <AssemblyName>TickZoomAPI1.0</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SourceAnalysisOverrideSettingsFile>C:\Documents and Settings\Wayne Walter\Application Data\ICSharpCode/SharpDevelop3.0\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <AssemblyOriginatorKeyFile>..\..\..\TickZoom.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>False</DelaySign>
+    <AssemblyOriginatorKeyMode>File</AssemblyOriginatorKeyMode>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <Optimize>False</Optimize>
+    <OutputPath>..\..\bin\Debug\</OutputPath>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DebugType>Full</DebugType>
+    <DefineConstants>DEBUG</DefineConstants>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>..\..\bin\Release\</OutputPath>
+    <DebugType>Full</DebugType>
+    <Optimize>True</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Obfuscate' ">
+    <OutputPath>..\bin\Obfuscate\</OutputPath>
+    <DebugType>Full</DebugType>
+    <Optimize>True</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>DEBUG,SkipPostSharp</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Obfuscate|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <Import Project="..\..\TickZoom.CSharp.Targets" />
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Aspects\AsyncHandler.cs" />
+    <Compile Include="Aspects\DiagramAttribute.cs" />
+    <Compile Include="Aspects\DiagramHelper.cs" />
+    <Compile Include="Aspects\DiagramInstance.cs" />
+    <Compile Include="Aspects\DiagramObject.cs" />
+    <Compile Include="Classes\BootStrapLoader.cs" />
+    <Compile Include="Classes\Diagnose.cs" />
+    <Compile Include="Classes\LatencyManager.cs" />
+    <Compile Include="Classes\LatencyMetric.cs" />
+    <Compile Include="Engine\LogAware.cs" />
+    <Compile Include="Engine\PhysicalOrderCache.cs" />
+    <Compile Include="Engine\StrategyPosition.cs" />
+    <Compile Include="Engine\LogEvent.cs" />
+    <Compile Include="Engine\LogicalOrderCache.cs" />
+    <Compile Include="Engine\ProviderSimulator.cs" />
+    <Compile Include="Engine\StrategyPositionDefault.cs" />
+    <Compile Include="Locks\NativeMappedFile.cs" />
+    <Compile Include="Locks\SharedMemory.cs" />
+    <Compile Include="Locks\SimpleLock.cs" />
+    <Compile Include="Locks\SyncTicks.cs" />
+    <Compile Include="Locks\TaskLock.cs">
+    </Compile>
+    <Compile Include="Locks\TickSync.cs" />
+    <Compile Include="Locks\TickSyncDirectory.cs" />
+    <Compile Include="Misc\Attributes\SkipCopy.cs" />
+    <Compile Include="Classes\CheckedMemoryStream.cs" />
+    <Compile Include="Classes\Factory.cs" />
+    <Compile Include="Classes\ConfigFile.cs" />
+    <Compile Include="Classes\Settings.cs" />
+    <Compile Include="Misc\Attributes\SkipDynamicLoadAttribute.cs" />
+    <Compile Include="Misc\Collections\ActiveList.cs" />
+    <Compile Include="Misc\Collections\ActiveListNode.cs" />
+    <Compile Include="Misc\Enums\ArrowDirection.cs" />
+    <Compile Include="Misc\Enums\BarUnit.cs" />
+    <Compile Include="Misc\Enums\EventType.cs" />
+    <Compile Include="Misc\Enums\FIXSimulationType.cs" />
+    <Compile Include="Misc\Enums\OptionChain.cs" />
+    <Compile Include="Misc\Enums\QuoteType.cs" />
+    <Compile Include="Misc\Enums\TimeAndSales.cs" />
+    <Compile Include="Misc\Enums\TimeInForce.cs" />
+    <Compile Include="Misc\Events\ErrorDetail.cs" />
+    <Compile Include="Misc\Events\NewEventDetail.cs" />
+    <Compile Include="Misc\Events\PositionChangeDetail.cs" />
+    <Compile Include="Misc\Events\StartSymbolDetail.cs" />
+    <Compile Include="Misc\Exceptions\BeyondCircularException.cs" />
+    <Compile Include="Misc\Exceptions\MustUseLoaderException.cs" />
+    <Compile Include="Misc\ExtensionMethods\ExtensionMethods.cs" />
+    <Compile Include="Misc\Factories\FactoryLoader.cs" />
+    <Compile Include="Misc\Structs\DaylightSavings.cs" />
+    <Compile Include="Misc\Structs\Progress.cs" />
+    <Compile Include="Misc\Structs\QueueItem.cs" />
+    <Compile Include="Misc\Structs\TickBinaryBox.cs" />
+    <Compile Include="Platform\BarData.cs" />
+    <Compile Include="Platform\BarLogicInterface.cs" />
+    <Compile Include="Platform\ChartProperties.cs" />
+    <Compile Include="Platform\DrawingInterface.cs" />
+    <Compile Include="Platform\EngineProperties.cs" />
+    <Compile Include="Platform\IndicatorInterface.cs" />
+    <Compile Include="Platform\EventContext.cs" />
+    <Compile Include="Platform\EventInterceptor.cs" />
+    <Compile Include="Platform\ISymbolProperties.cs" />
+    <Compile Include="Platform\ModelInterface.cs" />
+    <Compile Include="Platform\ModelLoaderInterface.cs" />
+    <Compile Include="Platform\ModelProperties.cs" />
+    <Compile Include="Platform\OptimizeVariable.cs" />
+    <Compile Include="Platform\PhysicalFill.cs" />
+    <Compile Include="Platform\Pool.cs" />
+    <Compile Include="Platform\PortfolioInterface.cs" />
+    <Compile Include="Platform\PositionInterface.cs" />
+    <Compile Include="Platform\ProfitLoss.cs" />
+    <Compile Include="Platform\ProjectProperties.cs" />
+    <Compile Include="Platform\ReportWriter.cs" />
+    <Compile Include="Platform\ResultInterface.cs" />
+    <Compile Include="Platform\ServiceConnection.cs" />
+    <Compile Include="Platform\Starter.cs" />
+    <Compile Include="Platform\StarterProperties.cs" />
+    <Compile Include="Platform\StrategyInterceptor.cs" />
+    <Compile Include="Platform\StrategyInterface.cs" />
+    <Compile Include="Misc\Converters\Converters.cs" />
+    <Compile Include="Misc\Converters\ElapsedTypeConverter.cs" />
+    <Compile Include="Misc\Converters\IntervalTypeConverter.cs" />
+    <Compile Include="Misc\Converters\TimestampTypeConverter.cs" />
+    <Compile Include="Engine\Bars.cs" />
+    <Compile Include="Engine\DataArray.cs" />
+    <Compile Include="Engine\FastQueue.cs" />
+    <Compile Include="Engine\Countable.cs" />
+    <Compile Include="Engine\PageStore.cs" />
+    <Compile Include="Engine\ReadWritable.cs" />
+    <Compile Include="Engine\Task.cs" />
+    <Compile Include="Engine\Chain.cs" />
+    <Compile Include="Engine\Chart.cs" />
+    <Compile Include="Engine\Context.cs" />
+    <Compile Include="Engine\Data.cs" />
+    <Compile Include="Engine\FitnessAware.cs" />
+    <Compile Include="Engine\Integers.cs" />
+    <Compile Include="Engine\Interval.cs" />
+    <Compile Include="Engine\Log.cs" />
+    <Compile Include="Engine\LogicalOrder.cs" />
+    <Compile Include="Engine\ModelProperty.cs" />
+    <Compile Include="Engine\Prices.cs" />
+    <Compile Include="Engine\DataSeries.cs" />
+    <Compile Include="Engine\TestBars.cs" />
+    <Compile Include="Engine\Tick.cs" />
+    <Compile Include="Engine\TickEngine.cs" />
+    <Compile Include="Engine\TickIO.cs" />
+    <Compile Include="Engine\TickQueue.cs" />
+    <Compile Include="Engine\Ticks.cs" />
+    <Compile Include="Engine\Times.cs" />
+    <Compile Include="Engine\TimeSyncGenerator.cs" />
+    <Compile Include="Misc\Enums\Audio.cs" />
+    <Compile Include="Misc\Enums\ChartType.cs" />
+    <Compile Include="Misc\Enums\GraphType.cs" />
+    <Compile Include="Misc\Enums\LineStyle.cs" />
+    <Compile Include="Misc\Enums\ModelType.cs" />
+    <Compile Include="Misc\Enums\OrderType.cs" />
+    <Compile Include="Misc\Enums\PaneType.cs" />
+    <Compile Include="Misc\Enums\PortfolioType.cs" />
+    <Compile Include="Misc\Enums\RunMode.cs" />
+    <Compile Include="Misc\Enums\Side.cs" />
+    <Compile Include="Misc\Enums\Positioning.cs" />
+    <Compile Include="Misc\Enums\WeekDay.cs" />
+    <Compile Include="Misc\Exceptions\CollectionTerminatedException.cs" />
+    <Compile Include="Misc\Exceptions\CollectionTimeoutException.cs" />
+    <Compile Include="Misc\Exceptions\SocketErrorException.cs" />
+    <Compile Include="Misc\Exceptions\QueueException.cs" />
+    <Compile Include="Misc\Exceptions\TickZoomException.cs" />
+    <Compile Include="Misc\Factories\EngineFactory.cs" />
+    <Compile Include="Misc\Factories\LogManager.cs" />
+    <Compile Include="Misc\Factories\Parrallel.cs">
+    </Compile>
+    <Compile Include="Misc\Factories\Plugins.cs" />
+    <Compile Include="Misc\Factories\ProviderFactory.cs" />
+    <Compile Include="Misc\Factories\StarterFactory.cs" />
+    <Compile Include="Misc\Factories\SymbolFactory.cs" />
+    <Compile Include="Misc\Factories\TickUtilFactory.cs" />
+    <Compile Include="Misc\Factories\UtilityFactory.cs" />
+    <Compile Include="Misc\HTTP\HTTPResponse.cs" />
+    <Compile Include="Misc\HTTP\HTTPMessage.cs" />
+    <Compile Include="Misc\HTTP\HTTPRequest.cs" />
+    <Compile Include="Misc\HTTP\HTTPServer.cs" />
+    <Compile Include="Misc\HTTP\HTTPStatus.cs" />
+    <Compile Include="Misc\HTTP\HTTPSession.cs" />
+    <Compile Include="Misc\HTTP\HTTPRequestHandler.cs" />
+    <Compile Include="Platform\Subprocess.cs" />
+    <Compile Include="Platform\SymbolInfo.cs" />
+    <Compile Include="Platform\TickReader.cs" />
+    <Compile Include="Platform\TickWriter.cs" />
+    <Compile Include="Platform\TransactionPairBinary.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Provider\AsyncProviderAware.cs" />
+    <Compile Include="Provider\BreakPointInterface.cs" />
+    <Compile Include="Provider\EventItem.cs" />
+    <Compile Include="Provider\FillHandler.cs" />
+    <Compile Include="Provider\FIXSimulator.cs" />
+    <Compile Include="Provider\LimitOrderQuoteSimulation.cs" />
+    <Compile Include="Provider\LimitOrderTradeSimulation.cs" />
+    <Compile Include="Provider\LogicalFill.cs" />
+    <Compile Include="Provider\LogicalFillBinary.cs" />
+    <Compile Include="Provider\LogicalFillBinaryBox.cs" />
+    <Compile Include="Provider\OrderAlgorithm.cs" />
+    <Compile Include="Provider\Message.cs" />
+    <Compile Include="Provider\MessageFactory.cs" />
+    <Compile Include="Provider\FillSimulator.cs" />
+    <Compile Include="Provider\CreateOrChangeOrder.cs" />
+    <Compile Include="Provider\PhysicalOrderHandler.cs" />
+    <Compile Include="Provider\Provider.cs" />
+    <Compile Include="Provider\ProviderService.cs" />
+    <Compile Include="Provider\Receiver.cs" />
+    <Compile Include="Provider\Selector.cs" />
+    <Compile Include="Provider\Socket.cs" />
+    <Compile Include="Provider\SymbolHandler.cs" />
+    <Compile Include="Provider\VerifyFeed.cs" />
+    <Compile Include="Misc\Structs\Elapsed.cs" />
+    <Compile Include="Misc\Structs\SymbolTimeZone.cs" />
+    <Compile Include="Misc\Structs\TickBinary.cs" />
+    <Compile Include="Misc\Structs\TimeStamp.cs" />
+  </ItemGroup>
+</Project>

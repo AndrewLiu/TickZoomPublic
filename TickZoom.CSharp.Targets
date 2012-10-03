@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+        <SkipPostSharp>true</SkipPostSharp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(AssemblyName)' == 'TickZoomLogging'">
+        <SkipPostSharp>true</SkipPostSharp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(AssemblyName)' == 'TickZoomTickUtil'">
+        <SkipPostSharp>true</SkipPostSharp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(AssemblyName)' == 'TickZoomWarehouse'">
+        <SkipPostSharp>true</SkipPostSharp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(AssemblyName)' == 'TickZoomTesting'">
+        <SkipPostSharp>true</SkipPostSharp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(AssemblyName)' == 'TickZoomGui2Prototype'">
+        <SkipPostSharp>true</SkipPostSharp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(AssemblyName)' == 'TickZoomLoader'">
+        <SkipPostSharp>true</SkipPostSharp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(AssemblyName)' == 'ZedGraph'">
+        <SkipPostSharp>true</SkipPostSharp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(SkipPostSharp)' == 'true' ">
+       <DefineConstants>$(DefineConstants);SkipPostSharp</DefineConstants>
+  </PropertyGroup>
+  <Import Condition=" '$(SkipPostSharp)' != 'true' " Project="$(PostSharpDirectory)PostSharp.targets" />
+  <!--ItemGroup Condition=" '$(SkipPostSharp)' != 'true' ">
+       <Reference Include="PostSharp">
+           <HintPath>$(PostSharpDirectory)Reference Assemblies\.NET Framework 2.0\PostSharp.dll</HintPath>
+       </Reference>
+   </ItemGroup-->
+</Project>

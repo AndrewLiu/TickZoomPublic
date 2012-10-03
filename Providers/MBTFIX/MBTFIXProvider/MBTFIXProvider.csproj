@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <ProjectGuid>{6D1A9B7C-00EB-4F5F-AB65-A50E161AD84A}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>TickZoom</RootNamespace>
+    <AssemblyName>MBTFIXProvider</AssemblyName>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <SourceAnalysisOverrideSettingsFile>C:\Documents and Settings\Wayne Walter\Application Data\ICSharpCode/SharpDevelop3.0\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartArguments>6491</StartArguments>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>..\..\..\bin\Debug\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;SkipPostSharp</DefineConstants>
+    <StartAction>Project</StartAction>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>..\..\..\bin\Release\</OutputPath>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>PdbOnly</DebugType>
+    <Optimize>True</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="MBTFIX\MBTFIXFilter.cs" />
+    <Compile Include="MBTFIX\MBTFIXProvider.cs" />
+    <Compile Include="MBTFIX\ServerState.cs" />
+    <Compile Include="MBTFIX\MBTFIXSimulator.cs" />
+    <Compile Include="MBTFIX\MBTProvider.cs" />
+    <Compile Include="MBTFIX\MBTQuotesProvider.cs" />
+    <Compile Include="MBTFIX\MessageFactoryMbtQuotes.cs" />
+    <Compile Include="MBTFIX\PacketMBTQuotes.cs" />
+    <Compile Include="MBTFIX\MBTQuoteProviderSupport.cs" />
+    <Compile Include="Program.cs" />
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Platform\TickZoomAPI1.0\API1.0.csproj">
+      <Project>{27D6C88D-52B6-432C-820B-CD38A299830C}</Project>
+      <Name>API1.0</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Common\ProviderUtil\ProviderUtil.csproj">
+      <Project>{00E10E7D-4270-448C-921C-72A795FBF13F}</Project>
+      <Name>ProviderUtil</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>
